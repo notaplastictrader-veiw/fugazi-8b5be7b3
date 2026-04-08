@@ -54,8 +54,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-              South Asia's most trusted broker review platform. Real reviews, real complaints,
-              real withdrawal proof.
+              The world's most transparent broker review platform. Real reviews, real complaints,
+              verified withdrawal proof.
             </p>
             <div className="flex gap-2">
               {socialLinks.map((s) => {
