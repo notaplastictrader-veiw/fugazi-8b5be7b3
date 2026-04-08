@@ -8,7 +8,7 @@ const CommunityReviews = () => {
     <section className="py-20 px-4 overflow-hidden">
       <div className="max-w-7xl mx-auto mb-8">
         <span className="section-tag">// COMMUNITY REVIEWS</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3">
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3">
           What Traders <span className="text-primary">Say</span>
         </h2>
       </div>
