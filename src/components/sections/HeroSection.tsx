@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
 const eyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "plastic ones", color: "bg-primary/20 text-primary" },
-  { text: "South Asia's most ", highlight: "trusted", color: "bg-accent/20 text-accent" },
-  { text: "Where scams get ", highlight: "exposed", color: "bg-destructive/20 text-destructive" },
-  { text: "Real proof. Real complaints. Real ", highlight: "data", color: "bg-teal/20 text-teal" },
-  { text: "The platform brokers fear and traders ", highlight: "love", color: "bg-purple/20 text-purple" },
+  { text: "World's ", highlight: "Most Trusted", suffix: " review platform", color: "bg-accent/20 text-accent" },
+  { text: "Built for real traders, not ", highlight: "plastic ones", suffix: "", color: "bg-primary/20 text-primary" },
+  { text: "Not your typical '", highlight: "Lambo trader", suffix: "' platform", color: "bg-destructive/20 text-destructive" },
 ];
 
 const searchHints = ["Search brokers...", "Search prop firms...", "Search sports tips...", "Search signal groups...", "Search betting sites..."];
@@ -54,9 +52,10 @@ const HeroSection = () => {
         <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10">
           <span className="text-xs text-muted-foreground">
             {eyebrow.text}
-            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ml-1 ${eyebrow.color}`}>
+            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${eyebrow.color}`}>
               {eyebrow.highlight}
             </span>
+            {eyebrow.suffix}
           </span>
         </div>
 

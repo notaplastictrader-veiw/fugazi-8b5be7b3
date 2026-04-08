@@ -27,7 +27,7 @@ const navLinks = [
       { label: "Contact Us", href: "/contact" },
       { label: "Partnership", href: "/partnership" },
       { label: "Advertise", href: "/advertise" },
-      { label: "Ideas", href: "/ideas" },
+      { label: "Share Ideas", href: "/ideas" },
       { label: "Forecasts — Forex", href: "/forecasts?tab=forex" },
       { label: "Forecasts — Sports", href: "/forecasts?tab=sports" },
     ],
@@ -49,7 +49,7 @@ const Navbar = () => {
   const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Dasara";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "66px" }}>
+    <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "34px" }}>
       <div className="max-w-7xl mx-auto px-4 h-[58px] flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex flex-col leading-none">

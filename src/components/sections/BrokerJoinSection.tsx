@@ -14,7 +14,7 @@ const tiers = [
     priceLabel: null,
     features: ["Company profile", "User reviews", "Basic analytics"],
     cta: "Get Listed →",
-    primary: false,
+    ctaStyle: "ghost" as const,
   },
   {
     name: "Verified Partner",
@@ -22,7 +22,7 @@ const tiers = [
     priceLabel: "Pricing on request",
     features: ["Verified badge", "Reply to reviews", "Priority support", "Enhanced profile"],
     cta: "Contact Us →",
-    primary: true,
+    ctaStyle: "ghost" as const,
     note: "Most popular with mid-size brokers",
   },
   {
@@ -31,7 +31,7 @@ const tiers = [
     priceLabel: "Pricing on request",
     features: ["Everything in Verified", "Featured in search results", "Homepage placement", "Dedicated account manager"],
     cta: "Contact Us →",
-    primary: false,
+    ctaStyle: "highlight" as const,
     note: "Recommended for high-volume brokers",
   },
 ];
@@ -74,7 +74,7 @@ const BrokerJoinSection = () => {
               <div
                 key={tier.name}
                 className={`glass-card rounded-xl p-5 flex flex-col ${
-                  tier.primary ? "border-accent/30" : ""
+                  tier.ctaStyle === "highlight" ? "border-accent/30 ring-1 ring-accent/20" : ""
                 }`}
               >
                 <div className="text-xs font-mono text-muted-foreground mb-2">{tier.name}</div>
@@ -92,9 +92,9 @@ const BrokerJoinSection = () => {
                   ))}
                 </ul>
                 <button
-                  className={`w-full py-2 text-xs font-semibold rounded-lg transition-colors ${
-                    tier.primary
-                      ? "bg-accent text-accent-foreground hover:bg-accent/90"
+                  className={`w-full py-2.5 text-xs font-semibold rounded-lg transition-all ${
+                    tier.ctaStyle === "highlight"
+                      ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg shadow-accent/20"
                       : "border border-border text-foreground hover:border-primary/40"
                   }`}
                 >

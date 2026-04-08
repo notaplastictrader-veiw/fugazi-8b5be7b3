@@ -32,8 +32,8 @@ const SignalChannel = () => {
             </ul>
           </div>
 
-          {/* Right — Plan cards */}
-          <div className="space-y-4">
+          {/* Right — Plan cards side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Free */}
             <div className="glass-card rounded-xl p-6">
               <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest">FREE TIER</div>

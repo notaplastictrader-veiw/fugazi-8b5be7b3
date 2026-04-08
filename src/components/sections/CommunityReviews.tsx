@@ -13,7 +13,7 @@ const CommunityReviews = () => {
         </h2>
       </div>
 
-      {/* Scrolling Ticker */}
+      {/* Right-to-left scrolling ticker */}
       <div className="overflow-hidden">
         <div className="ticker-track-slow">
           {items.map((review, i) => (
@@ -22,16 +22,26 @@ const CommunityReviews = () => {
               className="flex-shrink-0 w-[340px] glass-card rounded-xl p-5"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                  review.isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
-                }`}>
-                  {review.initials}
-                </div>
+                {review.photo ? (
+                  <img
+                    src={review.photo}
+                    alt={review.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                    review.isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                  }`}>
+                    {review.initials}
+                  </div>
+                )}
                 <div>
                   <div className="text-sm font-semibold text-foreground">{review.name}</div>
                   <div className="text-[10px] text-muted-foreground">{review.location}</div>
                 </div>
-                <span className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                  review.isComplaint ? "bg-destructive/10 text-destructive" : "bg-secondary text-muted-foreground"
+                }`}>
                   {review.broker}
                 </span>
               </div>
