@@ -178,35 +178,27 @@ body::before {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* Concrete grunge text — PNG grain overlay */
+/* Concrete grunge text — grain/dust baked into the font via mask */
 .grunge-text {
   position: relative;
   color: hsl(var(--foreground));
-}
-.grunge-text::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/src/assets/grain-texture.png') repeat;
-  background-size: 256px 256px;
-  mix-blend-mode: multiply;
-  opacity: 0.18;
-  pointer-events: none;
+  -webkit-mask-image: url('/src/assets/grain-texture.png');
+  mask-image: url('/src/assets/grain-texture.png');
+  -webkit-mask-size: 256px 256px;
+  mask-size: 256px 256px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
 }
 
 .grunge-text-accent {
   position: relative;
   color: hsl(var(--primary));
-}
-.grunge-text-accent::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/src/assets/grain-texture.png') repeat;
-  background-size: 256px 256px;
-  mix-blend-mode: multiply;
-  opacity: 0.18;
-  pointer-events: none;
+  -webkit-mask-image: url('/src/assets/grain-texture.png');
+  mask-image: url('/src/assets/grain-texture.png');
+  -webkit-mask-size: 256px 256px;
+  mask-size: 256px 256px;
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
 }
 
 .hero-grain {
