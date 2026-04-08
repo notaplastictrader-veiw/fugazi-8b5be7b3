@@ -9,7 +9,7 @@ import UserDropdown from "@/components/UserDropdown";
 
 const navLinks = [
   {
-    label: "Broker Reviews & Partnerships",
+    label: "Broker Reviews",
     href: "#",
     children: [
       { label: "CFD / Forex Brokers", href: "/brokers" },
@@ -24,7 +24,7 @@ const navLinks = [
   { label: "Signals", href: "/signals" },
   { label: "Promotions", href: "/promotions" },
   {
-    label: "Partnership",
+    label: "More",
     href: "#",
     children: [
       { label: "Become an Affiliate", href: "/partnership?tab=affiliate" },
@@ -85,7 +85,7 @@ const Navbar = () => {
               Not A Plastic <span className="text-primary">Trader</span>
             </span>
             <span className="text-[9px] font-mono tracking-[0.2em] text-muted-foreground uppercase">
-              Global Trading Hub
+              We Test Brokers. You Trade Smarter.
             </span>
           </Link>
 
