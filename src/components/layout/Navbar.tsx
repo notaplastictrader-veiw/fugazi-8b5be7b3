@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ChevronDown, Menu, X, Sun, Moon, Flame, Globe, User, Building2, ShieldCheck, Signal } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, Globe, User, Building2, ShieldCheck, Signal, LogOut } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   {
@@ -40,6 +41,8 @@ const Navbar = () => {
   const [loginOpen, setLoginOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const { theme, cycleTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
@@ -116,54 +119,72 @@ const Navbar = () => {
             <Globe className="w-4 h-4" />
           </button>
 
-          {/* Login Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setLoginOpen(!loginOpen); setJoinOpen(false); }}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg"
-            >
-              <User className="w-4 h-4" />
-              Log In
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            {loginOpen && (
-              <div className="absolute top-full right-0 mt-1 w-44 bg-card border border-border rounded-lg shadow-xl">
-                <Link to="/login/user" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
-                  <User className="w-4 h-4" /> User Login
-                </Link>
-                <Link to="/login/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                  <Building2 className="w-4 h-4" /> Broker Login
-                </Link>
-                <Link to="/login/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-b-lg">
-                  <ShieldCheck className="w-4 h-4" /> Admin Login
-                </Link>
+          {user ? (
+            /* Logged-in state */
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground truncate max-w-[140px]">
+                {user.email}
+              </span>
+              <button
+                onClick={async () => { await signOut(); navigate("/"); }}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg"
+              >
+                <LogOut className="w-4 h-4" />
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Login Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setLoginOpen(!loginOpen); setJoinOpen(false); }}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg"
+                >
+                  <User className="w-4 h-4" />
+                  Log In
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                {loginOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-44 bg-card border border-border rounded-lg shadow-xl">
+                    <Link to="/login/user" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
+                      <User className="w-4 h-4" /> User Login
+                    </Link>
+                    <Link to="/login/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50">
+                      <Building2 className="w-4 h-4" /> Broker Login
+                    </Link>
+                    <Link to="/login/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-b-lg">
+                      <ShieldCheck className="w-4 h-4" /> Admin Login
+                    </Link>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Join Free Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setJoinOpen(!joinOpen); setLoginOpen(false); }}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-            >
-              Join Free
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            {joinOpen && (
-              <div className="absolute top-full right-0 mt-1 w-48 bg-card border border-border rounded-lg shadow-xl">
-                <Link to="/join/trader" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
-                  <User className="w-4 h-4" /> Join as Trader
-                </Link>
-                <Link to="/join/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50">
-                  <Building2 className="w-4 h-4" /> List Your Broker
-                </Link>
-                <Link to="/join/signal" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-b-lg">
-                  <Signal className="w-4 h-4" /> Signal Provider
-                </Link>
+              {/* Join Free Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setJoinOpen(!joinOpen); setLoginOpen(false); }}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  Join Free
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+                {joinOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-card border border-border rounded-lg shadow-xl">
+                    <Link to="/join/trader" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
+                      <User className="w-4 h-4" /> Join as Trader
+                    </Link>
+                    <Link to="/join/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50">
+                      <Building2 className="w-4 h-4" /> List Your Broker
+                    </Link>
+                    <Link to="/join/signal" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-b-lg">
+                      <Signal className="w-4 h-4" /> Signal Provider
+                    </Link>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger */}
