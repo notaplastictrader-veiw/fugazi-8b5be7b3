@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Twitter, Linkedin, Youtube, Send, Facebook, Instagram, Music } from "lucide-react";
 
 const footerLinks = {
   Brokers: [
@@ -23,7 +24,7 @@ const footerLinks = {
   ],
   Company: [
     { label: "About Us", href: "/about" },
-    { label: "Contact", href: "/contact" },
+    { label: "Contact Us", href: "/contact", highlight: true },
     { label: "Partnership", href: "/partnership" },
     { label: "Advertise", href: "/advertise" },
     { label: "Privacy Policy", href: "/privacy" },
@@ -31,13 +32,13 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { label: "𝕏", href: "#", title: "Twitter/X" },
-  { label: "in", href: "#", title: "LinkedIn" },
-  { label: "▶", href: "#", title: "YouTube" },
-  { label: "tg", href: "#", title: "Telegram" },
-  { label: "fb", href: "#", title: "Facebook" },
-  { label: "ig", href: "#", title: "Instagram" },
-  { label: "tk", href: "#", title: "TikTok" },
+  { icon: Twitter, href: "#", title: "Twitter/X", color: "hover:text-foreground" },
+  { icon: Linkedin, href: "#", title: "LinkedIn", color: "hover:text-[#0A66C2]" },
+  { icon: Youtube, href: "#", title: "YouTube", color: "hover:text-[#FF0000]" },
+  { icon: Send, href: "#", title: "Telegram", color: "hover:text-[#26A5E4]" },
+  { icon: Facebook, href: "#", title: "Facebook", color: "hover:text-[#1877F2]" },
+  { icon: Instagram, href: "#", title: "Instagram", color: "hover:text-[#E4405F]" },
+  { icon: Music, href: "#", title: "TikTok", color: "hover:text-foreground" },
 ];
 
 const Footer = () => {
@@ -57,16 +58,19 @@ const Footer = () => {
               real withdrawal proof.
             </p>
             <div className="flex gap-2">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.title}
-                  href={s.href}
-                  title={s.title}
-                  className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-xs font-mono text-muted-foreground hover:text-primary hover:bg-secondary/80 transition-colors"
-                >
-                  {s.label}
-                </a>
-              ))}
+              {socialLinks.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <a
+                    key={s.title}
+                    href={s.href}
+                    title={s.title}
+                    className={`w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground ${s.color} transition-colors`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -79,7 +83,11 @@ const Footer = () => {
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      className={`text-sm transition-colors ${
+                        "highlight" in link && link.highlight
+                          ? "text-primary font-semibold hover:text-primary/80"
+                          : "text-muted-foreground hover:text-primary"
+                      }`}
                     >
                       {link.label}
                     </Link>

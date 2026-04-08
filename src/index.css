@@ -202,3 +202,11 @@ body::before {
   border-radius: 3px;
   transition: width 0.6s ease;
 }
+
+/* Slow ticker for community reviews — right to left */
+.ticker-track-slow {
+  display: flex;
+  gap: 24px;
+  white-space: nowrap;
+  animation: scrollTicker 60s linear infinite;
+}
