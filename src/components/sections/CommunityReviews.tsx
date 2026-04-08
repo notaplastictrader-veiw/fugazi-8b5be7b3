@@ -1,8 +1,32 @@
-import { communityReviews } from "@/data/reviews";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
 
+interface Review {
+  id: string;
+  author: string;
+  avatar: string;
+  rating: number;
+  content: string;
+  role: string;
+}
+
 const CommunityReviews = () => {
-  const items = [...communityReviews, ...communityReviews];
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (data) setReviews(data as Review[]);
+    };
+    fetch();
+  }, []);
+
+  const items = [...reviews, ...reviews];
 
   return (
     <section className="py-20 px-4 overflow-hidden">
@@ -13,49 +37,40 @@ const CommunityReviews = () => {
         </h2>
       </div>
 
-      {/* Right-to-left scrolling ticker */}
       <div className="overflow-hidden">
         <div className="ticker-track-slow">
-          {items.map((review, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 w-[340px] glass-card rounded-xl p-5"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                {review.photo ? (
-                  <img
-                    src={review.photo}
-                    alt={review.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                    review.isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
-                  }`}>
-                    {review.initials}
+          {items.map((review, i) => {
+            const isComplaint = review.rating <= 2;
+            const initials = review.author?.split(" ").map(w => w[0]).join("").slice(0, 2) || "??";
+            return (
+              <div key={i} className="flex-shrink-0 w-[340px] glass-card rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  {review.avatar ? (
+                    <img src={review.avatar} alt={review.author} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                      isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                    }`}>
+                      {initials}
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">{review.author}</div>
+                    <div className="text-[10px] text-muted-foreground">{review.role}</div>
                   </div>
-                )}
-                <div>
-                  <div className="text-sm font-semibold text-foreground">{review.name}</div>
-                  <div className="text-[10px] text-muted-foreground">{review.location}</div>
                 </div>
-                <span className={`ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                  review.isComplaint ? "bg-destructive/10 text-destructive" : "bg-secondary text-muted-foreground"
-                }`}>
-                  {review.broker}
-                </span>
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{review.content}</p>
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star
+                      key={j}
+                      className={`w-3.5 h-3.5 ${j < review.rating ? "text-accent fill-accent" : "text-border"}`}
+                    />
+                  ))}
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{review.text}</p>
-              <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star
-                    key={j}
-                    className={`w-3.5 h-3.5 ${j < review.stars ? "text-accent fill-accent" : "text-border"}`}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

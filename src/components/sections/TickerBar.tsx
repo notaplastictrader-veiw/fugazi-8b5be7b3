@@ -1,7 +1,30 @@
-import { tickerPairs } from "@/data/brokers";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { tickerPairs as fallbackPairs } from "@/data/brokers";
+
+interface TickerPair {
+  pair: string;
+  price: string;
+  change: string;
+  up: boolean;
+}
 
 const TickerBar = () => {
-  const items = [...tickerPairs, ...tickerPairs];
+  const [pairs, setPairs] = useState<TickerPair[]>(fallbackPairs);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "ticker_pairs")
+        .maybeSingle();
+      if (data?.value) setPairs(data.value as unknown as TickerPair[]);
+    };
+    fetch();
+  }, []);
+
+  const items = [...pairs, ...pairs];
   return (
     <div className="relative z-[200] bg-card/90 backdrop-blur-sm border-b border-border overflow-hidden h-[32px] flex items-center">
       <div className="ticker-track">
