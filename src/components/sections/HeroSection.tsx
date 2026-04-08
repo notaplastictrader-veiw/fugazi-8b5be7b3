@@ -95,9 +95,9 @@ const HeroSection = () => {
             className="font-display font-black tracking-[-4px] leading-[0.95] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]"
             style={{ fontSize: "clamp(64px, 9vw, 120px)" }}
           >
-            <span className="grunge-text">Not A Plastic</span>
+            <span className="grunge-text grunge-high">Not A Plastic</span>
             <br />
-            <span className="grunge-text-accent">Trader.</span>
+            <span className="grunge-text-accent grunge-high">Trader.</span>
           </h1>
         </div>
 
