@@ -14,16 +14,388 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      approval_queue: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          status: string
+          submitted_by: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          submitted_by?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          submitted_by?: string | null
+        }
+        Relationships: []
+      }
+      brokers: {
+        Row: {
+          avg_spread: string | null
+          badge: string | null
+          complaints: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          leverage: string | null
+          logo_url: string | null
+          min_deposit: string | null
+          name: string
+          regulation: string[] | null
+          review_count: number | null
+          score: number | null
+          slug: string
+          stars: number | null
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          avg_spread?: string | null
+          badge?: string | null
+          complaints?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          leverage?: string | null
+          logo_url?: string | null
+          min_deposit?: string | null
+          name: string
+          regulation?: string[] | null
+          review_count?: number | null
+          score?: number | null
+          slug: string
+          stars?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_spread?: string | null
+          badge?: string | null
+          complaints?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          leverage?: string | null
+          logo_url?: string | null
+          min_deposit?: string | null
+          name?: string
+          regulation?: string[] | null
+          review_count?: number | null
+          score?: number | null
+          slug?: string
+          stars?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      complaints: {
+        Row: {
+          broker_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          proof_urls: string[] | null
+          status: Database["public"]["Enums"]["content_status"]
+          user_id: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          proof_urls?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          proof_urls?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forecasts: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          pair: string
+          potential: string
+          reasoning: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+          updated_label: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          pair: string
+          potential?: string
+          reasoning?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_label?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          pair?: string
+          potential?: string
+          reasoning?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_label?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author: string | null
+          avatar: string | null
+          broker_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          rating: number | null
+          role: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          user_id: string | null
+        }
+        Insert: {
+          author?: string | null
+          avatar?: string | null
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Update: {
+          author?: string | null
+          avatar?: string | null
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scam_alerts: {
+        Row: {
+          broker_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          severity: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          severity?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          severity?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scam_alerts_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signal_groups: {
+        Row: {
+          avg_rr: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          members: string | null
+          monthly_signals: string | null
+          name: string
+          status: Database["public"]["Enums"]["content_status"]
+          track_record: string | null
+          updated_at: string
+          verified: boolean | null
+          win_rate: number | null
+        }
+        Insert: {
+          avg_rr?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          members?: string | null
+          monthly_signals?: string | null
+          name: string
+          status?: Database["public"]["Enums"]["content_status"]
+          track_record?: string | null
+          updated_at?: string
+          verified?: boolean | null
+          win_rate?: number | null
+        }
+        Update: {
+          avg_rr?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          members?: string | null
+          monthly_signals?: string | null
+          name?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          track_record?: string | null
+          updated_at?: string
+          verified?: boolean | null
+          win_rate?: number | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "content_ops"
+        | "moderator"
+        | "user"
+        | "broker"
+        | "signal_provider"
+      content_status: "draft" | "pending" | "published" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +522,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "super_admin",
+        "content_ops",
+        "moderator",
+        "user",
+        "broker",
+        "signal_provider",
+      ],
+      content_status: ["draft", "pending", "published", "rejected"],
+    },
   },
 } as const
