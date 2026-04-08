@@ -25,6 +25,7 @@ import ApprovalQueueAdmin from "./pages/admin/ApprovalQueueAdmin";
 import SiteSettingsAdmin from "./pages/admin/SiteSettingsAdmin";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import RevenueAdmin from "./pages/admin/RevenueAdmin";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <CookieConsent />
+          <LiveChatButton />
           <Routes>
+            <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login/user" element={<Login />} />
