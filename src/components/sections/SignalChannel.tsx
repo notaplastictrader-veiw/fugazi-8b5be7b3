@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Check, Zap, X } from "lucide-react";
+import { Check, Zap } from "lucide-react";
+import PremiumApplicationModal from "@/components/modals/PremiumApplicationModal";
 
 const SignalChannel = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   return (
     <section className="py-20 px-4">
@@ -74,7 +74,7 @@ const SignalChannel = () => {
               </ul>
               <div className="text-sm font-display font-semibold text-foreground mb-3">Premium Access — Serious Traders Only</div>
               <button
-                onClick={() => { setModalOpen(true); setSubmitted(false); }}
+                onClick={() => setModalOpen(true)}
                 className="w-full py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
               >
                 Apply for Access →
@@ -84,41 +84,7 @@ const SignalChannel = () => {
         </div>
       </div>
 
-      {/* Application Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setModalOpen(false)}>
-          <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-              <X className="w-5 h-5" />
-            </button>
-            {submitted ? (
-              <div className="text-center py-8">
-                <div className="text-3xl mb-3">✓</div>
-                <h3 className="text-lg font-display font-bold text-foreground mb-2">Application received.</h3>
-                <p className="text-sm text-muted-foreground">We review within 24 hours.</p>
-              </div>
-            ) : (
-              <>
-                <h3 className="text-lg font-display font-bold text-foreground mb-4">Apply for Premium Access</h3>
-                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-4">
-                  <input type="text" placeholder="Your name" required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
-                  <input type="text" placeholder="Country" required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
-                  <select required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary/40">
-                    <option value="">Trading experience</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
-                  <textarea placeholder="Why do you want access?" required rows={3} className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 resize-none" />
-                  <button type="submit" className="w-full py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
-                    Submit Application
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <PremiumApplicationModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </section>
   );
 };

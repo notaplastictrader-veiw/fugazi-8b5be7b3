@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { brokers } from "@/data/brokers";
 import { Star, Shield, AlertTriangle, Award, ExternalLink } from "lucide-react";
 
@@ -23,13 +23,26 @@ const badgeConfig = {
 
 const BrokerTrustHub = () => {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const filtered = activeFilter === "All"
     ? brokers
     : brokers.filter((b) => b.tags.includes(filterMap[activeFilter]));
 
   return (
-    <section className="py-20 px-4">
+    <section ref={sectionRef} className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// TRUST HUB</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
@@ -107,7 +120,7 @@ const BrokerTrustHub = () => {
                     <span className="text-sm font-mono font-bold text-foreground">{broker.score}/10</span>
                   </div>
                   <div className="score-bar">
-                    <div className={`score-bar-fill ${scoreColor}`} style={{ width: `${broker.score * 10}%` }} />
+                    <div className={`score-bar-fill ${scoreColor} transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
                   </div>
                 </div>
 
