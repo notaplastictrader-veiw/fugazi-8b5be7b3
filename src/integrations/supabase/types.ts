@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          application_data: Json
+          contact_email: string | null
+          contact_phone: string | null
+          contact_telegram: string | null
+          created_at: string
+          id: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_data?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_telegram?: string | null
+          created_at?: string
+          id?: string
+          role: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_data?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_telegram?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       approval_queue: {
         Row: {
           content_id: string
@@ -193,6 +232,42 @@ export type Database = {
           status?: Database["public"]["Enums"]["content_status"]
           updated_at?: string
           updated_label?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

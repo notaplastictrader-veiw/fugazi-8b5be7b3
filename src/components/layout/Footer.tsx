@@ -20,14 +20,17 @@ const footerLinks = {
     { label: "Our Signal Channel", href: "/signals/ours" },
     { label: "Forex Forecasts", href: "/forecasts?tab=forex" },
     { label: "Crypto Forecasts", href: "/forecasts?tab=crypto" },
-    { label: "Sports Forecasts", href: "/forecasts?tab=sports" },
+    { label: "Affiliate Program", href: "/partnership?tab=affiliate" },
+    { label: "Become an IB", href: "/partnership?tab=ib" },
   ],
   Company: [
     { label: "About Us", href: "/about" },
     { label: "Contact Us", href: "/contact", highlight: true },
     { label: "Partnership", href: "/partnership" },
     { label: "Advertise", href: "/advertise" },
+    { label: "Terms & Conditions", href: "/terms" },
     { label: "Privacy Policy", href: "/privacy" },
+    { label: "Cookie Policy", href: "/cookies" },
   ],
 };
 
@@ -54,8 +57,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-              South Asia's most trusted broker review platform. Real reviews, real complaints,
-              real withdrawal proof.
+              The world's most transparent broker review platform. Real reviews, real complaints,
+              verified withdrawal proof.
             </p>
             <div className="flex gap-2">
               {socialLinks.map((s) => {
