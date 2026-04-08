@@ -179,6 +179,41 @@ body::before {
 }
 
 /* Glassmorphic card */
+/* Cinematic grunge text */
+.grunge-text {
+  text-shadow:
+    2px 1px 0px hsl(var(--foreground) / 0.15),
+    -1px -1px 0px hsl(var(--foreground) / 0.08),
+    0px 0px 8px hsl(var(--foreground) / 0.05);
+  filter: contrast(1.15) brightness(1.02);
+  -webkit-text-stroke: 0.3px hsl(var(--foreground) / 0.1);
+}
+
+.grunge-text-accent {
+  text-shadow:
+    2px 1px 0px hsl(var(--primary) / 0.25),
+    -1px -1px 0px hsl(var(--primary) / 0.1),
+    0px 0px 12px hsl(var(--primary) / 0.15);
+  filter: contrast(1.15) brightness(1.05);
+  -webkit-text-stroke: 0.3px hsl(var(--primary) / 0.15);
+}
+
+.hero-grain {
+  position: relative;
+}
+.hero-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 150px 150px;
+  z-index: 1;
+}
+
+/* Glassmorphic card */
 .glass-card {
   background: hsl(var(--card) / 0.6);
   border: 1px solid hsl(var(--border));

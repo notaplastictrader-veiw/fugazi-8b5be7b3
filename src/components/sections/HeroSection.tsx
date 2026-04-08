@@ -80,6 +80,7 @@ const HeroSection = () => {
               style={{
                 background: `${eyebrow.color}20`,
                 color: eyebrow.color,
+                textShadow: `0 0 8px ${eyebrow.color}40`,
               }}
             >
               {eyebrow.highlight}
@@ -89,14 +90,16 @@ const HeroSection = () => {
         </div>
 
         {/* Title — staggered fade-up */}
-        <h1
-          className="font-display font-black tracking-[-4px] leading-[0.95] text-foreground mb-6 animate-[fade-up_0.6s_ease_0.1s_both]"
-          style={{ fontSize: "clamp(64px, 9vw, 120px)" }}
-        >
-          Not A Plastic
-          <br />
-          <span className="text-primary">Trader.</span>
-        </h1>
+        <div className="hero-grain">
+          <h1
+            className="grunge-text font-display font-black tracking-[-4px] leading-[0.95] text-foreground mb-6 animate-[fade-up_0.6s_ease_0.1s_both]"
+            style={{ fontSize: "clamp(64px, 9vw, 120px)" }}
+          >
+            Not A Plastic
+            <br />
+            <span className="grunge-text-accent text-primary">Trader.</span>
+          </h1>
+        </div>
 
         {/* Subtitle */}
         <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
