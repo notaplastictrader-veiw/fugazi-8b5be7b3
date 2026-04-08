@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ChevronDown, Menu, X, Sun, Moon, Flame, Globe, User, Building2, ShieldCheck, Signal } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, Globe, User, Building2, ShieldCheck, Signal, LogOut } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navLinks = [
   {
