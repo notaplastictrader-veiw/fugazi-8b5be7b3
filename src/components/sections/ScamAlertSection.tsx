@@ -1,7 +1,38 @@
-import { scamAlerts, scamScoreFactors } from "@/data/reviews";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle } from "lucide-react";
 
+interface ScamAlert {
+  id: string;
+  title: string;
+  description: string;
+  severity: string;
+  created_at: string;
+}
+
+const scamScoreFactors = [
+  { factor: "Complaint Ratio", level: "High", value: 85, color: "danger" as const },
+  { factor: "Withdrawal Speed", level: "Med", value: 55, color: "accent" as const },
+  { factor: "Regulation Strength", level: "High", value: 80, color: "danger" as const },
+  { factor: "Proof-verified Reviews", level: "Med", value: 60, color: "accent" as const },
+  { factor: "Platform Transparency", level: "Low", value: 30, color: "primary" as const },
+];
+
 const ScamAlertSection = () => {
+  const [alerts, setAlerts] = useState<ScamAlert[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("scam_alerts")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (data) setAlerts(data as ScamAlert[]);
+    };
+    fetch();
+  }, []);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
@@ -11,34 +42,36 @@ const ScamAlertSection = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Live Alerts */}
           <div className="space-y-4">
             <h3 className="text-sm font-mono text-muted-foreground mb-4">LIVE ALERTS</h3>
-            {scamAlerts.map((alert, i) => (
-              <div key={i} className="glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <span className="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-destructive" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-sm font-bold text-foreground">{alert.broker}</h4>
-                      <span className="text-[10px] font-mono text-muted-foreground">{alert.daysAgo}d ago</span>
+            {alerts.map((alert) => {
+              const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
+              return (
+                <div key={alert.id} className="glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <span className="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-destructive" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">{alert.issue}</p>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-destructive font-semibold">{alert.amount} lost</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-destructive/10 text-destructive border border-destructive/20">
-                        {alert.status}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className="text-sm font-bold text-foreground">{alert.title}</h4>
+                        <span className="text-[10px] font-mono text-muted-foreground">{daysAgo}d ago</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                        alert.severity === "high"
+                          ? "bg-destructive/10 text-destructive border-destructive/20"
+                          : "bg-accent/10 text-accent border-accent/20"
+                      }`}>
+                        {alert.severity} severity
                       </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Scam Score Engine */}
           <div className="glass-card rounded-xl p-6">
             <div className="flex items-center gap-2 mb-6">
               <AlertTriangle className="w-5 h-5 text-destructive" />

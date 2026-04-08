@@ -1,11 +1,34 @@
-import { useState } from "react";
-import { forecasts } from "@/data/forecasts";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
+
+interface Forecast {
+  id: string;
+  pair: string;
+  direction: string;
+  potential: string;
+  reasoning: string;
+  updated_label: string;
+  category: string;
+}
 
 const tabs = ["forex", "gold", "crypto", "sports"] as const;
 
 const ForecastSection = () => {
   const [activeTab, setActiveTab] = useState<string>("forex");
+  const [forecasts, setForecasts] = useState<Forecast[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("forecasts")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (data) setForecasts(data as Forecast[]);
+    };
+    fetch();
+  }, []);
 
   const filtered = forecasts.filter((f) => f.category === activeTab);
 
@@ -18,7 +41,6 @@ const ForecastSection = () => {
         </h2>
         <p className="text-sm text-muted-foreground mb-8">Daily analysis. No paid promotions. No broker bias.</p>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-8">
           {tabs.map((tab) => (
             <button
@@ -35,17 +57,16 @@ const ForecastSection = () => {
           ))}
         </div>
 
-        {/* Cards */}
         {activeTab === "sports" ? (
           <div className="glass-card rounded-xl p-12 text-center">
             <p className="text-muted-foreground font-mono">🏏 Sports forecasts coming soon...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {filtered.map((f, i) => {
+            {filtered.map((f) => {
               const isBull = f.direction === "bullish";
               return (
-                <div key={i} className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all">
+                <div key={f.id} className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-bold text-foreground font-mono">{f.pair}</h3>
                     <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full border ${
@@ -66,7 +87,7 @@ const ForecastSection = () => {
                     </span>
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      {f.updated}
+                      {f.updated_label}
                     </span>
                   </div>
                 </div>

@@ -1,6 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { brokers } from "@/data/brokers";
+import { supabase } from "@/integrations/supabase/client";
 import { Star, Shield, AlertTriangle, Award, ExternalLink } from "lucide-react";
+
+interface Broker {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  tags: string[];
+  regulation: string[];
+  score: number;
+  avg_spread: string;
+  leverage: string;
+  min_deposit: string;
+  stars: number;
+  review_count: number;
+  complaints: number;
+  badge: string;
+}
 
 const filters = ["All", "Forex", "Crypto", "ECN", "Low Spread", "BD Friendly", "Scam Watch"];
 
@@ -14,7 +31,7 @@ const filterMap: Record<string, string> = {
   "Scam Watch": "scam-watch",
 };
 
-const badgeConfig = {
+const badgeConfig: Record<string, { icon: typeof Shield; text: string; className: string }> = {
   verified: { icon: Shield, text: "Verified", className: "text-primary bg-primary/10 border-primary/20" },
   featured: { icon: Award, text: "Featured", className: "text-accent bg-accent/10 border-accent/20" },
   warning: { icon: AlertTriangle, text: "Warning", className: "text-destructive bg-destructive/10 border-destructive/20" },
@@ -24,7 +41,20 @@ const badgeConfig = {
 const BrokerTrustHub = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [visible, setVisible] = useState(false);
+  const [brokers, setBrokers] = useState<Broker[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchBrokers = async () => {
+      const { data } = await supabase
+        .from("brokers")
+        .select("*")
+        .eq("status", "published")
+        .order("score", { ascending: false });
+      if (data) setBrokers(data as Broker[]);
+    };
+    fetchBrokers();
+  }, []);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -39,7 +69,7 @@ const BrokerTrustHub = () => {
 
   const filtered = activeFilter === "All"
     ? brokers
-    : brokers.filter((b) => b.tags.includes(filterMap[activeFilter]));
+    : brokers.filter((b) => b.tags?.includes(filterMap[activeFilter]));
 
   return (
     <section ref={sectionRef} className="py-20 px-4">
@@ -50,7 +80,6 @@ const BrokerTrustHub = () => {
         </h2>
         <p className="text-sm text-muted-foreground mb-8">Every broker scored by real user data — complaints, withdrawal speed, regulation strength.</p>
 
-        {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-10">
           {filters.map((f) => (
             <button
@@ -67,29 +96,27 @@ const BrokerTrustHub = () => {
           ))}
         </div>
 
-        {/* Broker Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((broker) => {
-            const badge = badgeConfig[broker.badge];
+            const badge = badgeConfig[broker.badge || "none"] || badgeConfig.none;
             const BadgeIcon = badge.icon;
             const scoreColor =
               broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
 
             return (
               <div key={broker.slug} className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
-                {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
                     <div className="flex items-center gap-1.5 mt-1">
-                      {broker.regulation.map((r) => (
+                      {broker.regulation?.map((r) => (
                         <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
                           {r}
                         </span>
                       ))}
                     </div>
                   </div>
-                  {broker.badge !== "none" && (
+                  {broker.badge !== "none" && badge.text && (
                     <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badge.className}`}>
                       <BadgeIcon className="w-3 h-3" />
                       {badge.text}
@@ -97,11 +124,10 @@ const BrokerTrustHub = () => {
                   )}
                 </div>
 
-                {/* Stats */}
                 <div className="grid grid-cols-3 gap-3 mb-4 text-center">
                   <div>
                     <div className="text-xs text-muted-foreground">Avg Spread</div>
-                    <div className="text-sm font-mono font-semibold text-foreground">{broker.avgSpread}</div>
+                    <div className="text-sm font-mono font-semibold text-foreground">{broker.avg_spread}</div>
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground">Leverage</div>
@@ -109,11 +135,10 @@ const BrokerTrustHub = () => {
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground">Min Deposit</div>
-                    <div className="text-sm font-mono font-semibold text-foreground">{broker.minDeposit}</div>
+                    <div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div>
                   </div>
                 </div>
 
-                {/* Score bar */}
                 <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">Trust Score</span>
@@ -124,7 +149,6 @@ const BrokerTrustHub = () => {
                   </div>
                 </div>
 
-                {/* Stars & Reviews */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -133,14 +157,14 @@ const BrokerTrustHub = () => {
                         className={`w-3.5 h-3.5 ${i < Math.floor(broker.stars) ? "text-accent fill-accent" : "text-border"}`}
                       />
                     ))}
-                    <span className="text-xs text-muted-foreground ml-1">({broker.reviewCount})</span>
+                    <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
                   </div>
                   <a href="#" className="flex items-center gap-1 text-xs text-primary hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
                     Full review <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
 
-                {broker.complaints > 20 && (
+                {(broker.complaints || 0) > 20 && (
                   <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {broker.complaints} complaints filed
