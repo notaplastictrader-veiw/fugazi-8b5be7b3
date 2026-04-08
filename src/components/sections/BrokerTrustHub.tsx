@@ -120,7 +120,7 @@ const BrokerTrustHub = () => {
                     <span className="text-sm font-mono font-bold text-foreground">{broker.score}/10</span>
                   </div>
                   <div className="score-bar">
-                    <div className={`score-bar-fill ${scoreColor}`} style={{ width: `${broker.score * 10}%` }} />
+                    <div className={`score-bar-fill ${scoreColor} transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
                   </div>
                 </div>
 
