@@ -11,26 +11,28 @@ const tiers = [
   {
     name: "Basic Listing",
     price: "Free",
-    period: "",
+    priceLabel: null,
     features: ["Company profile", "User reviews", "Basic analytics"],
-    cta: "List Your Broker",
+    cta: "Get Listed →",
     primary: false,
   },
   {
     name: "Verified Partner",
-    price: "$199",
-    period: "/mo",
+    price: null,
+    priceLabel: "Pricing on request",
     features: ["Verified badge", "Reply to reviews", "Priority support", "Enhanced profile"],
-    cta: "Get Verified",
+    cta: "Contact Us →",
     primary: true,
+    note: "Most popular with mid-size brokers",
   },
   {
     name: "Featured + Verified",
-    price: "$499",
-    period: "/mo",
+    price: null,
+    priceLabel: "Pricing on request",
     features: ["Everything in Verified", "Featured in search results", "Homepage placement", "Dedicated account manager"],
-    cta: "Go Featured",
+    cta: "Contact Us →",
     primary: false,
+    note: "Recommended for high-volume brokers",
   },
 ];
 
@@ -39,9 +41,10 @@ const BrokerJoinSection = () => {
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FOR BROKERS</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-10">
-          List Your Broker. <span className="text-accent">Get Verified.</span>
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
+          For Brokers & Signal Providers — <span className="text-accent">List With Us.</span>
         </h2>
+        <p className="text-sm text-muted-foreground mb-10 max-w-2xl">Reach 120,000+ real traders across Bangladesh, India, Pakistan, UAE and beyond.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Left CTA */}
@@ -75,10 +78,11 @@ const BrokerJoinSection = () => {
                 }`}
               >
                 <div className="text-xs font-mono text-muted-foreground mb-2">{tier.name}</div>
-                <div className="text-2xl font-bold text-foreground mb-1">
-                  {tier.price}
-                  <span className="text-sm font-normal text-muted-foreground">{tier.period}</span>
-                </div>
+                {tier.price ? (
+                  <div className="text-2xl font-display font-black text-foreground mb-1">{tier.price}</div>
+                ) : (
+                  <div className="text-sm font-mono text-muted-foreground mb-1">{tier.priceLabel}</div>
+                )}
                 <ul className="space-y-2 mt-4 mb-6 flex-1">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -96,10 +100,14 @@ const BrokerJoinSection = () => {
                 >
                   {tier.cta}
                 </button>
+                {"note" in tier && tier.note && (
+                  <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>
+                )}
               </div>
             ))}
           </div>
         </div>
+        <p className="text-xs text-muted-foreground mt-6">All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.</p>
       </div>
     </section>
   );

@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["DM Sans", "system-ui", "sans-serif"],
+        display: ["Barlow Condensed", "sans-serif"],
         mono: ["Space Mono", "monospace"],
       },
       colors: {
@@ -51,19 +52,9 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        mint: {
-          DEFAULT: "hsl(160, 88%, 62%)",
-          dim: "hsl(160, 60%, 40%)",
-          glow: "hsl(160, 88%, 72%)",
-        },
-        gold: {
-          DEFAULT: "hsl(43, 86%, 60%)",
-          dim: "hsl(43, 60%, 40%)",
-        },
-        danger: {
-          DEFAULT: "hsl(355, 100%, 64%)",
-          dim: "hsl(355, 60%, 40%)",
-        },
+        teal: "hsl(var(--teal))",
+        coral: "hsl(var(--coral))",
+        purple: "hsl(var(--purple))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

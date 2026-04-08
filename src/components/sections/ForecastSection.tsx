@@ -13,9 +13,10 @@ const ForecastSection = () => {
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FORECAST ENGINE</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-8">
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           Market <span className="text-accent">Forecasts</span>
         </h2>
+        <p className="text-sm text-muted-foreground mb-8">Daily analysis. No paid promotions. No broker bias.</p>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8">

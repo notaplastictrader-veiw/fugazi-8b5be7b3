@@ -12,7 +12,7 @@ const HowItWorks = () => {
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// HOW IT WORKS</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-10">
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-10">
           Built Different. Built For <span className="text-primary">Traders.</span>
         </h2>
 

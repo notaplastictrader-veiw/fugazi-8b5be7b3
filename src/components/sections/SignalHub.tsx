@@ -6,9 +6,10 @@ const SignalHub = () => {
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// SIGNAL HUB</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-10">
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           Verified Signal <span className="text-primary">Groups</span>
         </h2>
+        <p className="text-sm text-muted-foreground mb-10">Every Telegram group listed, reviewed and rated by real traders.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {signalGroups.map((group) => (

@@ -1,70 +1,124 @@
-import { Check, Zap } from "lucide-react";
+import { useState } from "react";
+import { Check, Zap, X } from "lucide-react";
 
 const SignalChannel = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// OUR SIGNAL CHANNEL</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-3">
-          Gold & Forex Signals You Can Actually <span className="text-primary">Trust</span>
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-3">
+          Gold & Forex Signals You Can Actually <span className="text-primary">Trust.</span>
         </h2>
-        <p className="text-muted-foreground mb-10 max-w-lg">
-          Join our in-house signal channel. Transparent track record, no fake screenshots.
-        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl">
-          {/* Free Tier */}
-          <div className="glass-card rounded-xl p-6 hover:border-primary/20 transition-all">
-            <div className="text-xs font-mono text-primary mb-3">FREE</div>
-            <h3 className="text-2xl font-bold text-foreground mb-1">Free Forever</h3>
-            <p className="text-sm text-muted-foreground mb-6">Basic market access</p>
-            <ul className="space-y-3 mb-8">
-              {["Market updates & analysis", "2-3 signals per week", "Gold & EURUSD coverage"].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10">
+          {/* Left — Wolf copy */}
+          <div>
+            <p className="text-[15px] text-muted-foreground leading-[1.8] mb-6">
+              We don't talk about signals. We post them.{" "}
+              <span className="font-display font-bold text-primary">Entry. Stop. Target. Done.</span>{" "}
+              No charity. No hand-holding. No fake screenshots of wins.
+              We publish our track record publicly — every trade, every loss, every win.
+              If you can't handle a loss, this channel isn't for you.
+              If you're built different — you already know what to do.
+            </p>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li>→ 72–78% win rate — tracked and published publicly every month</li>
+              <li>→ Full transparency — losses posted same as wins</li>
+              <li>→ No credit card needed for free tier</li>
+              <li>→ bKash · Nagad · Stripe accepted for premium</li>
             </ul>
-            <button className="w-full py-2.5 text-sm font-semibold border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
-              Join Free Channel
-            </button>
           </div>
 
-          {/* Premium Tier */}
-          <div className="glass-card rounded-xl p-6 border-primary/30 relative overflow-hidden hover:border-primary/40 transition-all">
-            <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-bl-lg">
-              POPULAR
+          {/* Right — Plan cards */}
+          <div className="space-y-4">
+            {/* Free */}
+            <div className="glass-card rounded-xl p-6">
+              <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest">FREE TIER</div>
+              <h3 className="text-xl font-display font-bold text-foreground mb-1">Basic Signal Access</h3>
+              <p className="text-sm text-muted-foreground mb-5">Daily market updates and a few signals per week. No strings attached.</p>
+              <ul className="space-y-2.5 mb-6">
+                {["Market updates daily", "2–3 signals per week", "Gold & EURUSD only"].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-lg font-display font-extrabold text-foreground mb-3">Free — forever</div>
+              <button className="w-full py-2.5 text-sm font-semibold border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+                Join Free Telegram →
+              </button>
+              <p className="text-[11px] text-muted-foreground mt-2">No credit card. No BS. Just signals.</p>
             </div>
-            <div className="text-xs font-mono text-accent mb-3">PREMIUM</div>
-            <h3 className="text-2xl font-bold text-foreground mb-1">
-              ৳499<span className="text-sm font-normal text-muted-foreground">/month</span>
-            </h3>
-            <p className="text-sm text-muted-foreground mb-6">Full signal access</p>
-            <ul className="space-y-3 mb-8">
-              {[
-                "80%+ verified win rate",
-                "15-20 signals per week",
-                "All pairs + Gold + Crypto",
-                "bKash / Nagad / Stripe",
-                "Cancel anytime",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Zap className="w-4 h-4 text-accent flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <button className="w-full py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-              Get Premium Access
-            </button>
+
+            {/* Premium */}
+            <div className="glass-card rounded-xl p-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, hsl(210 40% 10%), hsl(215 45% 15%))" }}>
+              <span className="absolute top-3 right-3 text-[9px] font-mono text-accent border border-accent/30 px-2 py-0.5 rounded-full tracking-widest">
+                PREMIUM
+              </span>
+              <div className="text-[10px] font-mono text-accent mb-2 tracking-widest">PREMIUM TIER</div>
+              <h3 className="text-xl font-display font-bold text-foreground mb-1">Full Signal Suite</h3>
+              <div className="text-5xl font-display font-black text-accent my-4">72–78%</div>
+              <p className="text-xs font-mono text-accent/70 mb-4">win rate · tracked publicly every month</p>
+              <p className="text-sm text-muted-foreground mb-5">Full access. Gold, FX majors, exact entry, SL and TP. Strategy breakdown every trade.</p>
+              <ul className="space-y-2.5 mb-6">
+                {["10–15 signals/week", "Gold · FX · Crypto · Indices", "Exact entry SL TP", "Strategy breakdown per trade", "VIP Telegram access"].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Zap className="w-4 h-4 text-accent flex-shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-sm font-display font-semibold text-foreground mb-3">Premium Access — Serious Traders Only</div>
+              <button
+                onClick={() => { setModalOpen(true); setSubmitted(false); }}
+                className="w-full py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Apply for Access →
+              </button>
+            </div>
           </div>
         </div>
-
-        <p className="text-xs text-muted-foreground mt-6">
-          No long-term commitment. Cancel anytime.
-        </p>
       </div>
+
+      {/* Application Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setModalOpen(false)}>
+          <div className="bg-card border border-border rounded-xl p-8 max-w-md w-full mx-4 relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+            {submitted ? (
+              <div className="text-center py-8">
+                <div className="text-3xl mb-3">✓</div>
+                <h3 className="text-lg font-display font-bold text-foreground mb-2">Application received.</h3>
+                <p className="text-sm text-muted-foreground">We review within 24 hours.</p>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-lg font-display font-bold text-foreground mb-4">Apply for Premium Access</h3>
+                <form onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }} className="space-y-4">
+                  <input type="text" placeholder="Your name" required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
+                  <input type="text" placeholder="Country" required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40" />
+                  <select required className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary/40">
+                    <option value="">Trading experience</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                  <textarea placeholder="Why do you want access?" required rows={3} className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 resize-none" />
+                  <button type="submit" className="w-full py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
+                    Submit Application
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 };
