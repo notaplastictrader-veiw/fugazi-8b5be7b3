@@ -178,27 +178,32 @@ body::before {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* Concrete grunge text — grain/dust baked into the font via mask */
-.grunge-text {
-  position: relative;
-  color: hsl(var(--foreground));
-  -webkit-mask-image: url('/src/assets/grain-texture.png');
-  mask-image: url('/src/assets/grain-texture.png');
-  -webkit-mask-size: 256px 256px;
-  mask-size: 256px 256px;
-  -webkit-mask-repeat: repeat;
-  mask-repeat: repeat;
-}
-
+/* Cinematic grunge text — 3 intensity levels: low / medium / high */
+.grunge-text,
 .grunge-text-accent {
   position: relative;
-  color: hsl(var(--primary));
-  -webkit-mask-image: url('/src/assets/grain-texture.png');
-  mask-image: url('/src/assets/grain-texture.png');
-  -webkit-mask-size: 256px 256px;
-  mask-size: 256px 256px;
   -webkit-mask-repeat: repeat;
   mask-repeat: repeat;
+  -webkit-mask-size: 512px 512px;
+  mask-size: 512px 512px;
+}
+.grunge-text { color: hsl(var(--foreground)); }
+.grunge-text-accent { color: hsl(var(--primary)); }
+
+/* Default: medium intensity */
+.grunge-text,
+.grunge-text-accent,
+.grunge-medium {
+  -webkit-mask-image: url('/src/assets/grain-medium.png');
+  mask-image: url('/src/assets/grain-medium.png');
+}
+.grunge-low {
+  -webkit-mask-image: url('/src/assets/grain-low.png');
+  mask-image: url('/src/assets/grain-low.png');
+}
+.grunge-high {
+  -webkit-mask-image: url('/src/assets/grain-high.png');
+  mask-image: url('/src/assets/grain-high.png');
 }
 
 .hero-grain {
