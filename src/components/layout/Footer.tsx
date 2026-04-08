@@ -1,5 +1,17 @@
 import { Link } from "react-router-dom";
-import { Twitter, Linkedin, Youtube, Send, Facebook, Instagram, Music } from "lucide-react";
+import { Linkedin, Youtube, Send, Facebook, Instagram } from "lucide-react";
+
+const XIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.88-2.88 2.89 2.89 0 0 1 2.88-2.88c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.7a8.16 8.16 0 0 0 4.76 1.52v-3.4a4.85 4.85 0 0 1-1-.13z" />
+  </svg>
+);
 
 const footerLinks = {
   Brokers: [
@@ -24,8 +36,6 @@ const footerLinks = {
     { label: "Become an IB", href: "/partnership?tab=ib" },
   ],
   Company: [
-    { label: "About Us", href: "/about" },
-    { label: "Contact Us", href: "/contact", highlight: true },
     { label: "Partnership", href: "/partnership" },
     { label: "Advertise", href: "/advertise" },
     { label: "Terms & Conditions", href: "/terms" },
@@ -35,13 +45,13 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { icon: Twitter, href: "#", title: "Twitter/X", color: "hover:text-foreground" },
+  { icon: XIcon, href: "#", title: "X", color: "hover:text-foreground" },
   { icon: Linkedin, href: "#", title: "LinkedIn", color: "hover:text-[#0A66C2]" },
   { icon: Youtube, href: "#", title: "YouTube", color: "hover:text-[#FF0000]" },
   { icon: Send, href: "#", title: "Telegram", color: "hover:text-[#26A5E4]" },
   { icon: Facebook, href: "#", title: "Facebook", color: "hover:text-[#1877F2]" },
   { icon: Instagram, href: "#", title: "Instagram", color: "hover:text-[#E4405F]" },
-  { icon: Music, href: "#", title: "TikTok", color: "hover:text-foreground" },
+  { icon: TikTokIcon, href: "#", title: "TikTok", color: "hover:text-foreground" },
 ];
 
 const Footer = () => {
@@ -60,7 +70,7 @@ const Footer = () => {
               The world's most transparent broker review platform. Real reviews, real complaints,
               verified withdrawal proof.
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               {socialLinks.map((s) => {
                 const Icon = s.icon;
                 return (
@@ -70,10 +80,15 @@ const Footer = () => {
                     title={s.title}
                     className={`w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground ${s.color} transition-colors`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon />
                   </a>
                 );
               })}
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link>
+              <span className="text-border">|</span>
+              <Link to="/contact" className="text-primary font-semibold hover:text-primary/80 transition-colors">Contact Us</Link>
             </div>
           </div>
 
@@ -86,11 +101,7 @@ const Footer = () => {
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className={`text-sm transition-colors ${
-                        "highlight" in link && link.highlight
-                          ? "text-primary font-semibold hover:text-primary/80"
-                          : "text-muted-foreground hover:text-primary"
-                      }`}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
                     >
                       {link.label}
                     </Link>

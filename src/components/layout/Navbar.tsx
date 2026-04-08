@@ -89,10 +89,10 @@ const Navbar = () => {
             <span className="text-lg font-bold tracking-tight text-foreground">
               Not A Plastic <span className="text-primary">Trader</span>
             </span>
-            <span className="text-[9px] font-mono tracking-[0.2em] text-muted-foreground uppercase">
-              Brokers Review
+            <span className="text-[10px] font-mono tracking-[0.2em] text-primary font-semibold uppercase">
+              Broker Reviews
             </span>
-            <span className="text-[8px] tracking-wide text-muted-foreground/70">
+            <span className="text-[9px] tracking-wide text-muted-foreground">
               We Test Brokers. You Trade Smarter.
             </span>
           </Link>
@@ -105,7 +105,7 @@ const Navbar = () => {
                   <button
                     className={`flex items-center gap-1 px-2.5 py-2 text-[13px] transition-colors ${
                       (link as any).highlight
-                        ? "text-primary font-semibold border border-primary/30 rounded-full px-3 hover:bg-primary/10"
+                        ? "text-primary font-semibold"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                     onClick={() => toggleDropdown(link.label)}
@@ -119,13 +119,31 @@ const Navbar = () => {
                   </Link>
                 )}
                 {link.children && (
-                  <div className="absolute top-full left-0 mt-1 w-52 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    {link.children.map((child) => (
-                      <Link key={child.label} to={child.href}
-                        className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 first:rounded-t-lg last:rounded-b-lg transition-colors">
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
+                    {link.label === "More" ? (
+                      <>
+                        <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Main Menu</div>
+                        {link.children.filter(c => ["Promotions", "Share Ideas", "News", "Calendar"].includes(c.label)).map((child) => (
+                          <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
+                        ))}
+                        <div className="border-t border-border my-1" />
+                        <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Partnership</div>
+                        {link.children.filter(c => ["Become an Affiliate", "IB Partnership", "Collaboration"].includes(c.label)).map((child) => (
+                          <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
+                        ))}
+                        <div className="border-t border-border my-1" />
+                        {link.children.filter(c => ["About Us", "Contact Us"].includes(c.label)).map((child) => (
+                          <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
+                        ))}
+                      </>
+                    ) : (
+                      link.children.map((child) => (
+                        <Link key={child.label} to={child.href}
+                          className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 first:rounded-t-lg last:rounded-b-lg transition-colors">
+                          {child.label}
+                        </Link>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
