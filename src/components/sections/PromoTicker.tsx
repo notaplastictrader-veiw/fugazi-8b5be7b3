@@ -29,8 +29,8 @@ const PromoTicker = () => {
   return (
     <div className="relative z-[200] bg-secondary/80 backdrop-blur-sm border-b border-border overflow-hidden h-[34px] flex items-center">
       <div className="flex-shrink-0 px-3">
-        <span className="text-[9px] font-mono uppercase tracking-[0.15em] text-primary border border-primary/30 px-2 py-0.5 rounded">
-          Promotions
+        <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-primary font-bold border border-primary/40 px-2.5 py-0.5 rounded bg-primary/10 shadow-[0_0_8px_hsl(var(--primary)/0.3)] animate-pulse">
+          🔥 Promotions
         </span>
       </div>
       <div className="overflow-hidden flex-1">
