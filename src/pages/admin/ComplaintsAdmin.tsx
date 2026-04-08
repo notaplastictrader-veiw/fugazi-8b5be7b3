@@ -18,7 +18,7 @@ const ComplaintsAdmin = () => {
   };
   useEffect(() => { fetchData(); }, []);
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, status: "draft" | "pending" | "published" | "rejected") => {
     await supabase.from("complaints").update({ status }).eq("id", id);
     toast.success(`Complaint ${status}`);
     fetchData();

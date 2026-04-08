@@ -67,12 +67,13 @@ const BrokersAdmin = () => {
       regulation: typeof form.regulation === "string" ? (form.regulation as string).split(",").map(s => s.trim()) : form.regulation,
     };
 
+    const typedPayload = { ...payload, status: payload.status as "draft" | "pending" | "published" | "rejected" };
     if (editing) {
-      const { error } = await supabase.from("brokers").update(payload).eq("id", editing.id);
+      const { error } = await supabase.from("brokers").update(typedPayload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
       toast.success("Broker updated");
     } else {
-      const { error } = await supabase.from("brokers").insert(payload);
+      const { error } = await supabase.from("brokers").insert(typedPayload);
       if (error) { toast.error(error.message); return; }
       toast.success("Broker created");
     }

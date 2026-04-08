@@ -29,7 +29,7 @@ const UsersAdmin = () => {
 
   const handleAdd = async () => {
     if (!userId.trim()) { toast.error("Enter a user ID"); return; }
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId.trim(), role });
+    const { error } = await supabase.from("user_roles").insert({ user_id: userId.trim(), role: role as "super_admin" | "content_ops" | "moderator" | "user" | "broker" | "signal_provider" });
     if (error) { toast.error(error.message); return; }
     toast.success("Role assigned");
     setModalOpen(false);

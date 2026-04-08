@@ -34,7 +34,7 @@ const SignalsAdmin = () => {
   const openEdit = (s: Signal) => { setEditing(s); setForm(s); setModalOpen(true); };
 
   const handleSave = async () => {
-    const payload = { ...form, win_rate: Number(form.win_rate) };
+    const payload = { ...form, win_rate: Number(form.win_rate), status: form.status as "draft" | "pending" | "published" | "rejected" };
     if (editing) {
       const { error } = await supabase.from("signal_groups").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }

@@ -33,11 +33,12 @@ const ScamAlertsAdmin = () => {
   const openEdit = (s: ScamAlert) => { setEditing(s); setForm(s); setModalOpen(true); };
 
   const handleSave = async () => {
+    const payload = { ...form, status: form.status as "draft" | "pending" | "published" | "rejected" };
     if (editing) {
-      const { error } = await supabase.from("scam_alerts").update(form).eq("id", editing.id);
+      const { error } = await supabase.from("scam_alerts").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
     } else {
-      const { error } = await supabase.from("scam_alerts").insert(form);
+      const { error } = await supabase.from("scam_alerts").insert(payload);
       if (error) { toast.error(error.message); return; }
     }
     toast.success(editing ? "Updated" : "Created");

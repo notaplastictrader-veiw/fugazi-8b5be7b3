@@ -18,7 +18,7 @@ const ReviewsAdmin = () => {
   };
   useEffect(() => { fetchData(); }, []);
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, status: "draft" | "pending" | "published" | "rejected") => {
     await supabase.from("reviews").update({ status }).eq("id", id);
     toast.success(`Review ${status}`);
     fetchData();

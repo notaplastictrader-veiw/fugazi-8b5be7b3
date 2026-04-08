@@ -34,11 +34,12 @@ const ForecastsAdmin = () => {
   const openEdit = (f: Forecast) => { setEditing(f); setForm(f); setModalOpen(true); };
 
   const handleSave = async () => {
+    const payload = { ...form, status: form.status as "draft" | "pending" | "published" | "rejected" };
     if (editing) {
-      const { error } = await supabase.from("forecasts").update(form).eq("id", editing.id);
+      const { error } = await supabase.from("forecasts").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
     } else {
-      const { error } = await supabase.from("forecasts").insert(form);
+      const { error } = await supabase.from("forecasts").insert(payload);
       if (error) { toast.error(error.message); return; }
     }
     toast.success(editing ? "Updated" : "Created");
