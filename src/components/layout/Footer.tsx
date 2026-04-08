@@ -27,7 +27,9 @@ const footerLinks = {
     { label: "Contact Us", href: "/contact", highlight: true },
     { label: "Partnership", href: "/partnership" },
     { label: "Advertise", href: "/advertise" },
+    { label: "Terms & Conditions", href: "/terms" },
     { label: "Privacy Policy", href: "/privacy" },
+    { label: "Cookie Policy", href: "/cookies" },
   ],
 };
 
