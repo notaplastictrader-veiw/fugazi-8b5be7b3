@@ -20,20 +20,25 @@ const navLinks = [
     ],
   },
   { label: "Prop Firms", href: "/prop-firms" },
-  { label: "Betting", href: "/betting" },
+  { label: "Sports", href: "/sports" },
   { label: "Signals", href: "/signals" },
-  { label: "Promotions", href: "/promotions" },
+  { label: "Education", href: "/education" },
   {
     label: "More",
     href: "#",
+    highlight: true,
     children: [
+      { label: "Promotions", href: "/promotions" },
+      { label: "Share Ideas", href: "/ideas" },
+      { label: "Calendar", href: "/calendar" },
+      { label: "News", href: "/news" },
+      { label: "About Us", href: "/about" },
+      { label: "Contact Us", href: "/contact" },
       { label: "Become an Affiliate", href: "/partnership?tab=affiliate" },
       { label: "IB Partnership", href: "/partnership?tab=ib" },
       { label: "Collaboration", href: "/partnership?tab=collab" },
     ],
   },
-  { label: "Education", href: "/education" },
-  { label: "Share Ideas", href: "/ideas" },
 ];
 
 const Navbar = () => {
@@ -80,11 +85,14 @@ const Navbar = () => {
       <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "34px" }}>
         <div className="max-w-7xl mx-auto px-4 h-[58px] flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex flex-col leading-none shrink-0">
+          <Link to="/" className="flex flex-col items-center leading-none shrink-0 text-center">
             <span className="text-lg font-bold tracking-tight text-foreground">
               Not A Plastic <span className="text-primary">Trader</span>
             </span>
             <span className="text-[9px] font-mono tracking-[0.2em] text-muted-foreground uppercase">
+              Brokers Review
+            </span>
+            <span className="text-[8px] tracking-wide text-muted-foreground/70">
               We Test Brokers. You Trade Smarter.
             </span>
           </Link>
@@ -95,7 +103,11 @@ const Navbar = () => {
               <div key={link.label} className="relative group">
                 {link.children ? (
                   <button
-                    className="flex items-center gap-1 px-2.5 py-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+                    className={`flex items-center gap-1 px-2.5 py-2 text-[13px] transition-colors ${
+                      (link as any).highlight
+                        ? "text-primary font-semibold border border-primary/30 rounded-full px-3 hover:bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
                     onClick={() => toggleDropdown(link.label)}
                   >
                     {link.label}
