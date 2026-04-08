@@ -23,11 +23,7 @@ const ScamAlertSection = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
-        .from("scam_alerts")
-        .select("*")
-        .eq("status", "published")
-        .order("created_at", { ascending: false });
+      const { data } = await supabase.from("scam_alerts").select("*").eq("status", "published").order("created_at", { ascending: false });
       if (data) setAlerts(data as ScamAlert[]);
     };
     fetch();
@@ -49,9 +45,7 @@ const ScamAlertSection = () => {
               return (
                 <div key={alert.id} className="glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
                   <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <span className="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-destructive" />
-                    </div>
+                    <div className="mt-1"><span className="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-destructive" /></div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="text-sm font-bold text-foreground">{alert.title}</h4>
@@ -59,17 +53,16 @@ const ScamAlertSection = () => {
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                        alert.severity === "high"
-                          ? "bg-destructive/10 text-destructive border-destructive/20"
-                          : "bg-accent/10 text-accent border-accent/20"
-                      }`}>
-                        {alert.severity} severity
-                      </span>
+                        alert.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-accent/10 text-accent border-accent/20"
+                      }`}>{alert.severity} severity</span>
                     </div>
                   </div>
                 </div>
               );
             })}
+            <div className="mt-4">
+              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">View all 61+ scam alerts →</a>
+            </div>
           </div>
 
           <div className="glass-card rounded-xl p-6">
@@ -77,25 +70,18 @@ const ScamAlertSection = () => {
               <AlertTriangle className="w-5 h-5 text-destructive" />
               <h3 className="text-sm font-mono text-foreground">SCAM SCORE ENGINE</h3>
             </div>
-            <p className="text-xs text-muted-foreground mb-6">
-              Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.
-            </p>
+            <p className="text-xs text-muted-foreground mb-6">Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.</p>
             <div className="space-y-5">
               {scamScoreFactors.map((f, i) => {
-                const barColor =
-                  f.color === "danger" ? "bg-destructive" : f.color === "accent" ? "bg-accent" : "bg-primary";
-                const textColor =
-                  f.color === "danger" ? "text-destructive" : f.color === "accent" ? "text-accent" : "text-primary";
-
+                const barColor = f.color === "danger" ? "bg-destructive" : f.color === "accent" ? "bg-accent" : "bg-primary";
+                const textColor = f.color === "danger" ? "text-destructive" : f.color === "accent" ? "text-accent" : "text-primary";
                 return (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-sm text-foreground">{f.factor}</span>
                       <span className={`text-xs font-mono font-semibold ${textColor}`}>{f.level}</span>
                     </div>
-                    <div className="score-bar">
-                      <div className={`score-bar-fill ${barColor}`} style={{ width: `${f.value}%` }} />
-                    </div>
+                    <div className="score-bar"><div className={`score-bar-fill ${barColor}`} style={{ width: `${f.value}%` }} /></div>
                   </div>
                 );
               })}

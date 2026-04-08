@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import CookieConsent from "@/components/CookieConsent";
+import LiveChatButton from "@/components/LiveChatButton";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
@@ -24,6 +25,7 @@ import ApprovalQueueAdmin from "./pages/admin/ApprovalQueueAdmin";
 import SiteSettingsAdmin from "./pages/admin/SiteSettingsAdmin";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import RevenueAdmin from "./pages/admin/RevenueAdmin";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +37,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <CookieConsent />
+          <LiveChatButton />
           <Routes>
+            <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login/user" element={<Login />} />
