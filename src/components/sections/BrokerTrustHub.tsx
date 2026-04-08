@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { brokers } from "@/data/brokers";
 import { Star, Shield, AlertTriangle, Award, ExternalLink } from "lucide-react";
 
