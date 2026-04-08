@@ -92,12 +92,12 @@ const HeroSection = () => {
         {/* Title — staggered fade-up */}
         <div className="hero-grain">
           <h1
-            className="grunge-text font-display font-black tracking-[-4px] leading-[0.95] text-foreground mb-6 animate-[fade-up_0.6s_ease_0.1s_both]"
+            className="font-display font-black tracking-[-4px] leading-[0.95] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]"
             style={{ fontSize: "clamp(64px, 9vw, 120px)" }}
           >
-            Not A Plastic
+            <span className="grunge-text" data-text="Not A Plastic">Not A Plastic</span>
             <br />
-            <span className="grunge-text-accent text-primary">Trader.</span>
+            <span className="grunge-text-accent" data-text="Trader.">Trader.</span>
           </h1>
         </div>
 
