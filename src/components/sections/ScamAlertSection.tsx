@@ -6,8 +6,8 @@ const ScamAlertSection = () => {
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// SCAM WATCH</span>
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-3 mb-10">
-          Scam <span className="text-destructive">Alert</span> Center
+        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-10">
+          Active Scam <span className="text-destructive">Alerts</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
