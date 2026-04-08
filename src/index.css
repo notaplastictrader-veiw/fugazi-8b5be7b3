@@ -178,50 +178,23 @@ body::before {
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
-/* Cinematic grunge text — Dasara movie-poster style */
-/* Layer 1 (base): solid sharp text */
-/* Layer 2 (::after): noise texture overlay with mix-blend-mode to dirty the surface */
+/* Concrete grunge text — speckled/dusty stone effect */
 .grunge-text {
   position: relative;
   color: hsl(var(--foreground));
-  /* No blur shadows — only hard offsets for stamped feel */
-  text-shadow:
-    1px 1px 0px hsl(var(--foreground) / 0.15),
-    -1px 0px 0px hsl(var(--foreground) / 0.08);
-}
-.grunge-text::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='6' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='discrete' tableValues='0 0 0.3 0.5 0.7 1 1'/%3E%3CfeFuncG type='discrete' tableValues='0 0 0.3 0.5 0.7 1 1'/%3E%3CfeFuncB type='discrete' tableValues='0 0 0.3 0.5 0.7 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.7'/%3E%3C/svg%3E");
-  background-size: 150px 150px;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  z-index: 1;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.5' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.5' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' fill='black'/%3E%3C/svg%3E");
+  -webkit-mask-size: 300px 300px;
+  mask-size: 300px 300px;
 }
 
 .grunge-text-accent {
   position: relative;
   color: hsl(var(--primary));
-  text-shadow:
-    1px 1px 0px hsl(var(--primary) / 0.2),
-    -1px 0px 0px hsl(var(--primary) / 0.1);
-}
-.grunge-text-accent::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.0' numOctaves='6' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='discrete' tableValues='0 0.1 0.3 0.5 0.7 1 1'/%3E%3CfeFuncG type='discrete' tableValues='0 0.1 0.3 0.5 0.7 1 1'/%3E%3CfeFuncB type='discrete' tableValues='0 0.1 0.3 0.5 0.7 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g2)' opacity='0.6'/%3E%3C/svg%3E");
-  background-size: 150px 150px;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  z-index: 1;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.5' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect width='100%25' height='100%25' filter='url(%23m2)' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.5' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect width='100%25' height='100%25' filter='url(%23m2)' fill='black'/%3E%3C/svg%3E");
+  -webkit-mask-size: 300px 300px;
+  mask-size: 300px 300px;
 }
 
 .hero-grain {
