@@ -12,6 +12,10 @@ import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Brokers from "./pages/Brokers.tsx";
+import PropFirms from "./pages/PropFirms.tsx";
+import ScamAlerts from "./pages/ScamAlerts.tsx";
+import Signals from "./pages/Signals.tsx";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
@@ -25,6 +29,10 @@ import ApprovalQueueAdmin from "./pages/admin/ApprovalQueueAdmin";
 import SiteSettingsAdmin from "./pages/admin/SiteSettingsAdmin";
 import UsersAdmin from "./pages/admin/UsersAdmin";
 import RevenueAdmin from "./pages/admin/RevenueAdmin";
+import BrokerDashboard from "./pages/admin/BrokerDashboard";
+import SignalDashboard from "./pages/admin/SignalDashboard";
+import SportsDashboard from "./pages/admin/SportsDashboard";
+import UserDashboardAdmin from "./pages/admin/UserDashboardAdmin";
 import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
@@ -52,6 +60,12 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
+            {/* Public listing pages */}
+            <Route path="/brokers" element={<Brokers />} />
+            <Route path="/prop-firms" element={<PropFirms />} />
+            <Route path="/scam-alerts" element={<ScamAlerts />} />
+            <Route path="/signals" element={<Signals />} />
+            
             {/* Admin Panel */}
             <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
               <Route index element={<Dashboard />} />
@@ -65,6 +79,10 @@ const App = () => (
               <Route path="settings" element={<SiteSettingsAdmin />} />
               <Route path="users" element={<UsersAdmin />} />
               <Route path="revenue" element={<RevenueAdmin />} />
+              <Route path="broker-dashboard" element={<BrokerDashboard />} />
+              <Route path="signal-dashboard" element={<SignalDashboard />} />
+              <Route path="sports-dashboard" element={<SportsDashboard />} />
+              <Route path="user-dashboard" element={<UserDashboardAdmin />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

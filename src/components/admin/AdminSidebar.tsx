@@ -24,6 +24,13 @@ const items = [
   { title: "Revenue", url: "/admin/revenue", icon: DollarSign },
 ];
 
+const dashboardItems = [
+  { title: "Broker Dashboard", url: "/admin/broker-dashboard", icon: Building2 },
+  { title: "Signal Dashboard", url: "/admin/signal-dashboard", icon: Radio },
+  { title: "Sports Dashboard", url: "/admin/sports-dashboard", icon: TrendingUp },
+  { title: "User Dashboard", url: "/admin/user-dashboard", icon: Users },
+];
+
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -73,6 +80,30 @@ export function AdminSidebar() {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            {!collapsed && <span className="text-muted-foreground text-xs">Dashboards</span>}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {dashboardItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={`hover:bg-muted/50 ${isActive(item.url) ? "bg-muted text-primary font-medium" : ""}`}
+                      activeClassName="bg-muted text-primary font-medium"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
