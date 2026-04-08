@@ -23,6 +23,19 @@ const badgeConfig = {
 
 const BrokerTrustHub = () => {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const filtered = activeFilter === "All"
     ? brokers
