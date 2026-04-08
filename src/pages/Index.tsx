@@ -1,6 +1,5 @@
 import MainLayout from "@/components/layout/MainLayout";
 import HeroSection from "@/components/sections/HeroSection";
-import TickerBar from "@/components/sections/TickerBar";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
 import SignalChannel from "@/components/sections/SignalChannel";
@@ -14,7 +13,6 @@ const Index = () => {
   return (
     <MainLayout>
       <HeroSection />
-      <TickerBar />
       <BrokerTrustHub />
       <ScamAlertSection />
       <SignalChannel />

@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ChevronDown,
-  Menu,
-  X,
-  Sun,
-  Moon,
-  Globe,
-  User,
-  Building2,
-  ShieldCheck,
-  Signal,
-  BarChart3,
-} from "lucide-react";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, Globe, User, Building2, ShieldCheck, Signal } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 const navLinks = [
   {
@@ -32,6 +21,7 @@ const navLinks = [
   {
     label: "More",
     href: "#",
+    highlight: true,
     children: [
       { label: "About Us", href: "/about" },
       { label: "Contact Us", href: "/contact" },
@@ -49,14 +39,18 @@ const Navbar = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const { theme, cycleTheme } = useTheme();
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
   };
 
+  const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Flame;
+  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Dasara";
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "66px" }}>
+      <div className="max-w-7xl mx-auto px-4 h-[58px] flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex flex-col leading-none">
           <span className="text-lg font-bold tracking-tight text-foreground">
@@ -73,7 +67,11 @@ const Navbar = () => {
             <div key={link.label} className="relative group">
               {link.children ? (
                 <button
-                  className="flex items-center gap-1 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className={`flex items-center gap-1 px-3 py-2 text-sm transition-colors ${
+                    link.highlight
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                   onClick={() => toggleDropdown(link.label)}
                 >
                   {link.label}
@@ -106,10 +104,15 @@ const Navbar = () => {
 
         {/* Right Side */}
         <div className="hidden lg:flex items-center gap-2">
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-            <Sun className="w-4 h-4" />
+          {/* Theme toggle */}
+          <button
+            onClick={cycleTheme}
+            title={themeLabel}
+            className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          >
+            <ThemeIcon className="w-4 h-4" />
           </button>
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+          <button className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             <Globe className="w-4 h-4" />
           </button>
 
@@ -117,7 +120,7 @@ const Navbar = () => {
           <div className="relative">
             <button
               onClick={() => { setLoginOpen(!loginOpen); setJoinOpen(false); }}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg"
             >
               <User className="w-4 h-4" />
               Log In
@@ -142,18 +145,21 @@ const Navbar = () => {
           <div className="relative">
             <button
               onClick={() => { setJoinOpen(!joinOpen); setLoginOpen(false); }}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
             >
               Join Free
               <ChevronDown className="w-3 h-3" />
             </button>
             {joinOpen && (
               <div className="absolute top-full right-0 mt-1 w-48 bg-card border border-border rounded-lg shadow-xl">
-                <Link to="/join/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
-                  <Building2 className="w-4 h-4" /> Broker Listing
+                <Link to="/join/trader" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-lg">
+                  <User className="w-4 h-4" /> Join as Trader
+                </Link>
+                <Link to="/join/broker" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50">
+                  <Building2 className="w-4 h-4" /> List Your Broker
                 </Link>
                 <Link to="/join/signal" className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-b-lg">
-                  <Signal className="w-4 h-4" /> Signal Group
+                  <Signal className="w-4 h-4" /> Signal Provider
                 </Link>
               </div>
             )}
@@ -210,14 +216,20 @@ const Navbar = () => {
                 )}
               </div>
             ))}
-            <div className="border-t border-border pt-3 mt-3 space-y-2">
+            <div className="border-t border-border pt-3 mt-3 flex items-center gap-2">
+              <button onClick={cycleTheme} className="p-2 text-muted-foreground hover:text-foreground">
+                <ThemeIcon className="w-5 h-5" />
+              </button>
+              <span className="text-xs text-muted-foreground">{themeLabel}</span>
+            </div>
+            <div className="space-y-2 pt-2">
               <Link to="/login/user" className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
                 Log In — User
               </Link>
               <Link to="/login/broker" className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
                 Log In — Broker
               </Link>
-              <button className="w-full px-4 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-lg">
+              <button className="w-full px-4 py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg">
                 Join Free
               </button>
             </div>
