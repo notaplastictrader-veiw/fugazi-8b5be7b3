@@ -20,7 +20,8 @@ const footerLinks = {
     { label: "Our Signal Channel", href: "/signals/ours" },
     { label: "Forex Forecasts", href: "/forecasts?tab=forex" },
     { label: "Crypto Forecasts", href: "/forecasts?tab=crypto" },
-    { label: "Sports Forecasts", href: "/forecasts?tab=sports" },
+    { label: "Affiliate Program", href: "/partnership?tab=affiliate" },
+    { label: "Become an IB", href: "/partnership?tab=ib" },
   ],
   Company: [
     { label: "About Us", href: "/about" },
