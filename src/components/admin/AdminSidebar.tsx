@@ -104,7 +104,6 @@ export function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );
