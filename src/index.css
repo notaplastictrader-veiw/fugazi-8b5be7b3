@@ -182,13 +182,13 @@ body::before {
 /* Cinematic grunge text — heavy, dirty, movie-poster style */
 .grunge-text {
   position: relative;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   background-size: 200px 200px;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
-  filter: contrast(1.6) brightness(0.8);
+  filter: contrast(1.8) brightness(0.7);
   text-shadow: none;
 }
 .grunge-text::before {
@@ -198,19 +198,18 @@ body::before {
   color: hsl(var(--foreground));
   z-index: -1;
   text-shadow:
-    3px 2px 0px hsl(var(--foreground) / 0.3),
-    -2px -1px 0px hsl(var(--foreground) / 0.15),
-    0px 0px 20px hsl(var(--foreground) / 0.06);
+    2px 2px 0px hsl(var(--foreground) / 0.2),
+    -1px -1px 0px hsl(var(--foreground) / 0.1);
 }
 
 .grunge-text-accent {
   position: relative;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='5' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
   background-size: 200px 200px;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: contrast(1.5) brightness(0.85);
+  filter: contrast(1.8) brightness(0.7);
   text-shadow: none;
 }
 .grunge-text-accent::before {
@@ -220,9 +219,8 @@ body::before {
   color: hsl(var(--primary));
   z-index: -1;
   text-shadow:
-    3px 2px 0px hsl(var(--primary) / 0.4),
-    -2px -1px 0px hsl(var(--primary) / 0.2),
-    0px 0px 30px hsl(var(--primary) / 0.15);
+    2px 2px 0px hsl(var(--primary) / 0.25),
+    -1px -1px 0px hsl(var(--primary) / 0.1);
 }
 
 .hero-grain {
