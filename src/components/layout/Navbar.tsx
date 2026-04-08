@@ -9,7 +9,7 @@ import UserDropdown from "@/components/UserDropdown";
 
 const navLinks = [
   {
-    label: "Brokers",
+    label: "Broker Reviews & Partnerships",
     href: "#",
     children: [
       { label: "CFD / Forex Brokers", href: "/brokers" },
