@@ -1,30 +1,39 @@
 
 
-## Fix Grunge Text: Clean Dasara-Style Texture (No Blur)
+## Concrete Grunge Text Effect (Matching Reference)
 
-### Problem
-The current implementation creates a blurry, washed-out effect. The Dasara reference has **sharp, crisp text with dry dust/dirt texture baked into the letterforms** -- no blur, no glow, no soft shadows. The texture looks like cracked earth or dried mud on the surface of the letters.
+### What the reference shows
+The uploaded image shows text that looks like **stamped concrete/stone** — the base text color is a muted gray-white, and the texture is **dark speckles/dust scattered across the surface** of the letters. It's subtle, readable, and looks like weathered stone or printed on rough paper. No blur, no glow — just a speckled, slightly worn surface.
 
-### Key Differences (Current vs Dasara Reference)
-- Current: blurry text-shadows, soft glow, low contrast noise -- looks foggy
-- Dasara: sharp edges, high-contrast grainy dirt texture clipped inside letters, no blur at all
+### Problem with current approach
+The current `mix-blend-mode: multiply` with the SVG noise on a dark background effectively does nothing visible (multiplying dark with dark = dark). On dark themes, `multiply` darkens — but the text is already light on dark, so the overlay disappears or looks muddy.
 
-### Approach
-Remove all blur-based text-shadows. Use a **high-contrast, coarse noise texture** clipped to the text with `background-clip: text`. The `::before` pseudo-element provides the solid base color behind the textured layer -- but with **zero blur** in its text-shadow (only hard-offset shadows for a stamped/printed feel).
+### New approach — Use `screen` blend + dark noise speckles
 
-### Files to Change
+Instead of `multiply`, use the noise as a **subtractive mask** that removes bits of the text color, creating the "worn concrete" look:
 
-**1. `src/index.css`** -- Rewrite `.grunge-text` and `.grunge-text-accent`
+1. Base text: solid foreground color, no text-shadow (clean)
+2. `::after` overlay: high-frequency noise with `mix-blend-mode: screen` on dark theme (or use a different technique — apply the noise as a **mask** using `mask-image` so dark spots in the noise literally erase parts of the text)
 
-- Remove all `blur` values from text-shadow (use `0px` blur radius only)
-- Increase noise `baseFrequency` to `0.8` and `opacity` to `0.55` for coarser, more visible grain
-- Bump `contrast()` to `1.8` and drop `brightness` to `0.7` for that dark, gritty dirt look
-- `::before` gets hard-offset shadows only (e.g. `2px 2px 0px`) -- no soft glow
-- Remove the `0px 0px 20px` and `0px 0px 30px` blur shadows entirely
-- Same treatment for `.grunge-text-accent` with primary color
+Actually, the cleanest approach matching the reference: **use `mask-image` with SVG noise** so that random dark spots in the noise punch tiny holes in the text, creating that speckled/dusty concrete look.
 
-**2. `src/components/sections/HeroSection.tsx`** -- No structural changes needed, just ensure `data-text` attributes are present (they already are)
+### Files to change
+
+**`src/index.css`** — Rewrite `.grunge-text` and `.grunge-text-accent`:
+
+- Remove `::after` pseudo-element approach entirely
+- Keep text as solid color (not transparent)
+- Apply `-webkit-mask-image` / `mask-image` with an inline SVG noise pattern directly on the text element
+- The noise mask will have spots of varying opacity, creating the speckled erosion
+- Use `baseFrequency='0.7'` with high contrast for visible but subtle speckles
+- Remove all `text-shadow` — the reference has no shadows
+- Remove `hero-grain` pseudo-elements if any remain
+- Keep `.grunge-text-accent` with same mask technique but primary color
+
+**`src/components/sections/HeroSection.tsx`** — Minor cleanup:
+- Can remove `data-text` attributes since we no longer need `::after` with `content: attr(data-text)`
+- Keep `hero-grain` wrapper div (now just `position: relative`, no pseudo-elements)
 
 ### Result
-Sharp, clean letterforms with visible dry-dust grain texture inside -- matching the Dasara movie poster aesthetic. No blur, no glow, no fog.
+Clean, readable text with subtle dark speckles/dust across the surface — exactly like stamped concrete or weathered stone typography from the reference image.
 
