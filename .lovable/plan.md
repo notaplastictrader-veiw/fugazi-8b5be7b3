@@ -1,116 +1,141 @@
 
 
-# Admin Panel & Dynamic CMS — Full Plan
+# V3 Master Prompt — Full Implementation Plan
 
-## Current State
-- All content (brokers, signals, forecasts, reviews) is **hardcoded** in `src/data/*.ts` files
-- Database is **completely empty** — no tables exist
-- Auth exists (Supabase email/password + Google OAuth) but no roles/profiles
-- The uploaded governance document defines a 4-tier hierarchy: Owner > Team > Approval Queue > Public
+This is a large-scale upgrade touching navigation, auth, hero, all homepage sections, new pages, dashboards, i18n scaffolding, and cookie consent. We will break it into **5 batches** for manageability.
 
-## What We Will Build
+---
 
-### Phase 1: Database Foundation
-Create all core tables so the website reads from the database instead of hardcoded files.
+## Batch 1: Navigation + Auth System + Cookie Consent
 
-**Tables to create:**
-1. `user_roles` — role enum (`super_admin`, `content_ops`, `moderator`, `user`, `broker`, `signal_provider`) with `has_role()` security definer function
-2. `brokers` — name, slug, type, tags, regulation, score, spread, leverage, min_deposit, stars, review_count, complaints, badge, logo_url, status (`draft`/`pending`/`published`/`rejected`), created_by
-3. `signal_groups` — name, win_rate, monthly_signals, avg_rr, track_record, members, verified, status, created_by
-4. `forecasts` — title, type (forex/sports), prediction, confidence, result, status, created_by
-5. `reviews` — broker_id, user_id, rating, content, status, created_by
-6. `complaints` — broker_id, user_id, content, proof_urls, status, created_by
-7. `site_settings` — key/value store for homepage layout, promo ticker items, stats, featured brokers
-8. `approval_queue` — polymorphic queue linking to any content type with status tracking, reviewer notes
-9. `scam_alerts` — broker_id, severity, description, status
+### 1.1 — Navbar Overhaul
+**Current**: 6 nav items with "More" dropdown, region selector (5 flags), shows email after login.
+**Target**: 8 nav items (Brokers mega-menu, Prop Firms, Betting, Signals, Promotions, Partnership dropdown, Education, Share Ideas). Replace region selector with language selector (15 languages with globe icon). Show user's first name + avatar initial after login (not email). Logged-in dropdown: My Profile, My Reviews, My Complaints, Signal Subscriptions, Logout.
 
-**RLS policies:** Super admin gets full access. Content ops/moderators can insert (as `pending`). Public users see only `published` content.
+- Update `navLinks` array to match V3 spec
+- Replace region selector with language selector (localStorage `napt-language`)
+- Show `user.user_metadata.full_name` split to first name + avatar circle
+- Add logged-in user dropdown menu
 
-### Phase 2: Admin Panel UI
+### 1.2 — Auth Modal Rebuild
+**Current**: Simple login/signup with name, email, password, country dropdown (25 countries).
+**Target**: 4-tab signup (User, Signal Provider, Broker, Betting Site) with phone number + country code, T&C checkbox, role-specific fields.
 
-**Route:** `/admin` (protected, super_admin only)
+- Full country list (~195 countries) with flag emojis
+- Phone number field with auto country code selection
+- T&C + Privacy Policy mandatory checkbox with scrollable modal overlays
+- Signal Provider tab: adds Telegram link, description, track record fields
+- Broker tab: company name, website, regulation, license, contact fields
+- Betting Site tab: platform name, website, license, supported countries
+- Non-user roles show "under review" message on submit
+- Store role-specific applications in `approval_queue` table
 
-**Sidebar navigation:**
-- Dashboard (overview stats, pending items count)
-- Brokers (CRUD table with inline edit, publish/reject)
-- Signal Groups (CRUD)
-- Forecasts (CRUD)
-- Reviews (moderate, approve/reject)
-- Complaints (view, resolve)
-- Scam Alerts (manage)
-- Approval Queue (unified pending items view — one-click approve/reject)
-- Site Settings (edit homepage content, ticker, stats, promos)
-- Users & Roles (assign roles, ban users)
-- Revenue (placeholder dashboard for affiliate/ad tracking)
+### 1.3 — "Join Free" Button Logic
+- Not logged in → prompt to create account first
+- Logged in → dropdown: "Join Free Telegram" (direct link) or "Apply for Premium Access"
 
-**UI pattern:** Shadcn sidebar + data tables with filters, search, and bulk actions.
+### 1.4 — Cookie Consent Banner
+- Bottom bar on first visit with Accept All / Manage Preferences / Reject Non-Essential
+- Preferences modal with toggle switches (Essential locked, Analytics, Personalization, Marketing)
+- Store in `localStorage('napt-cookie-consent')`
 
-### Phase 3: Make Frontend Dynamic
-Replace all hardcoded `src/data/*.ts` imports with Supabase queries that fetch only `status = 'published'` content. This means the homepage, broker listings, signals, forecasts — everything reads from DB.
+### 1.5 — Database Migration
+- Add `phone`, `country_code` columns to a new `profiles` table (auto-created on signup via trigger)
+- Add `applications` table for broker/signal/betting signups with role-specific JSONB data
 
-### Phase 4: Role-Based Access
-- Super admin: full CRUD + approve/reject + site settings
-- Content ops: can submit content (goes to pending queue)
-- Moderator: can review user submissions, flag content
-- Broker accounts: can claim/edit their own listing (pending approval)
-- Signal providers: can manage their own group listing
-- Regular users: can submit reviews/complaints
+---
+
+## Batch 2: Hero Section + Trust Hub + Scam Watch Updates
+
+### 2.1 — Hero Section Updates
+- Static search placeholder: "Search brokers, prop firms, signal providers..." (remove animated cycling)
+- Replace single chip row with 3 rotating rows: Top 5 Brokers, Top 5 Prop Firms, Top 5 Crypto — cycling every 3s with fade transition
+- Keep stats bar unchanged
+
+### 2.2 — Trust Hub Split
+**Current**: Single "Top Verified Brokers" section.
+**Target**: Two subsections — Brokers + Prop Firms.
+
+- Subsection A: Brokers with filters (All, Forex, Crypto, Binary, Prop Firms, ECN, Scam Watch) — remove "BD Friendly" filter
+- Subsection B: New "Top Verified Prop Firms" with filters (All, Instant Funding, Challenge-based, Crypto Funded, No Time Limit)
+- Cards show both Verified + Featured badges side by side
+- Add "View all 280+ brokers →" and "View all prop firms →" links
+
+### 2.3 — Scam Watch Update
+- Add "View all 61 alerts →" link at bottom
+
+---
+
+## Batch 3: Signal Channel + Signal Hub + Forecasts + Reviews + Broker Section
+
+### 3.1 — Signal Channel Updates
+- Change win rate display to "78%+" (from "72-78%")
+- Free tier: "Join Free Telegram →" opens Telegram link directly
+- Premium tier: two options (application form OR direct Telegram contact)
+- Remove bKash/Nagad/Stripe payment references, replace with crypto payment messaging
+
+### 3.2 — Forecast Engine Tab Update
+- Change tabs from (forex, gold, crypto, sports) to (Forex, Gold, Silver & Commodities, Crypto)
+- Ensure 3 cards per tab with correct pairs per V3 spec
+
+### 3.3 — Community Reviews Enhancement
+- Half-star support in star ratings
+- Mixed reviewer types: photo, initials avatar, anonymous
+- Add review submission form (broker dropdown, star rating, title, body, MT4/MT5 ID, proof upload)
+- All submissions go to admin approval queue
+
+### 3.4 — Broker Join Section Updates
+- Update subtitle to remove regional bias ("Asia and beyond" → global)
+- Add analytics dashboard preview mockup below plan cards
+- Update plan card features per V3 spec
+
+---
+
+## Batch 4: i18n Scaffolding + Footer + New Pages
+
+### 4.1 — i18n System
+- Create `src/i18n/` with JSON files per language (start with English as source of truth)
+- Create `useTranslation` hook and `LanguageProvider` context
+- RTL support: Arabic + Urdu trigger `dir="rtl"` on html tag
+- Wire up language selector in navbar
+
+### 4.2 — Footer Updates
+- Remove "South Asia's most trusted" → global positioning
+- Add footer links: Terms & Conditions, Privacy Policy, Cookie Policy, Affiliate Program, Become an IB, Advertise With Us
+
+### 4.3 — Static Pages
+- `/terms` — Terms & Conditions
+- `/privacy` — Privacy Policy
+- `/cookies` — Cookie Policy
+- `/contact` — Contact page
+- `/partnership` — Affiliate / IB / Collaboration page
+
+---
+
+## Batch 5: Broker & Signal Provider Dashboards
+
+### 5.1 — `/dashboard` Route (role-based)
+- Broker dashboard: Overview, Profile Edit, Reviews, Complaints, Promotions, Analytics, Billing, Support
+- Signal Provider dashboard: Overview, Profile, Performance, Reviews, Analytics, Billing, Support
+- All edits go through admin approval queue
+- Analytics panel with charts (profile views, clicks, sentiment)
+
+### 5.2 — Database Changes
+- `promotions` table (title, type, value, expiry, terms, banner, status)
+- `analytics_events` table (event type, entity_id, metadata, timestamp)
 
 ---
 
 ## Technical Details
 
-### Database Migration (single migration)
-- Create `app_role` enum
-- Create `user_roles` table with RLS
-- Create `has_role()` security definer function
-- Create all content tables with `status` column defaulting to `draft`
-- Create `site_settings` key-value table
-- Seed initial data from current hardcoded files
-- RLS: public SELECT where `status = 'published'`, admin full access via `has_role()`
+### Files Modified (estimated)
+- ~5 existing components heavily modified (Navbar, AuthModal, HeroSection, BrokerTrustHub, BrokerJoinSection, Footer, SignalChannel, ForecastSection, CommunityReviews)
+- ~15 new components (cookie banner, language selector, user dropdown, review form, dashboard layouts, static pages)
+- ~3 database migrations (profiles table, applications table, promotions table)
+- ~15 i18n JSON files (one per language, English only filled initially)
 
-### Admin Route Protection
-- `ProtectedRoute` component checks `has_role(uid, 'super_admin')` via an RPC call
-- Redirects non-admins to homepage
+### Priority Order
+Batch 1 first (navigation + auth + cookie consent), then Batch 2 (hero + trust hub), then Batch 3 (content sections), then Batch 4 (i18n + pages), then Batch 5 (dashboards).
 
-### Admin Panel Components
-- `/admin` layout with `SidebarProvider` + collapsible sidebar
-- Each section uses Shadcn `DataTable` with columns, sorting, filtering
-- Inline status badges (draft/pending/published/rejected)
-- Edit modals with form validation
-- Approval queue: unified list with content type filter, one-click approve/reject buttons
-
-### Site Settings (No Code Updates Needed)
-The `site_settings` table stores:
-- `hero_stats` — the 4 stat numbers on homepage
-- `promo_ticker` — promo text items
-- `ticker_pairs` — forex/crypto ticker data
-- `featured_brokers` — which brokers appear on homepage
-- `scam_alert_banner` — current scam alert text
-
-Frontend reads these from DB, so you edit in admin panel and homepage updates instantly.
-
-### File Count Estimate
-- ~1 migration SQL file
-- ~15-20 new components (admin layout, sidebar, pages, tables, modals)
-- ~5 custom hooks (useAdminBrokers, useAdminSignals, etc.)
-- ~3 modified existing components (to read from DB instead of hardcoded data)
-
----
-
-## Implementation Order
-1. Database migration (roles + all content tables + site_settings + seed data)
-2. `has_role()` function + role assignment for your account
-3. Admin layout + route protection
-4. Admin Dashboard page
-5. Brokers CRUD page
-6. Signal Groups CRUD page
-7. Forecasts CRUD page
-8. Reviews & Complaints moderation
-9. Approval Queue (unified view)
-10. Site Settings editor
-11. Users & Roles management
-12. Replace frontend hardcoded data with DB queries
-
-This is a large build. I recommend we tackle it in 3-4 batches to keep each change manageable and testable.
+I recommend we start with **Batch 1** — the navigation, auth modal rebuild, and cookie consent system. This is the foundation everything else depends on.
 
