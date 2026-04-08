@@ -1,66 +1,30 @@
 
 
-## Cinematic Grunge Text for Hero Section
+## Fix Grunge Text: Clean Dasara-Style Texture (No Blur)
 
-### What changes
-Apply a cinematic, grainy, slightly dirty movie-poster texture effect to the **hero title** ("Not A Plastic" and "Trader.") and the **eyebrow highlight pills** only. Everything else stays clean.
+### Problem
+The current implementation creates a blurry, washed-out effect. The Dasara reference has **sharp, crisp text with dry dust/dirt texture baked into the letterforms** -- no blur, no glow, no soft shadows. The texture looks like cracked earth or dried mud on the surface of the letters.
 
-### Approach — CSS-only noise texture + text effects
+### Key Differences (Current vs Dasara Reference)
+- Current: blurry text-shadows, soft glow, low contrast noise -- looks foggy
+- Dasara: sharp edges, high-contrast grainy dirt texture clipped inside letters, no blur at all
 
-No images needed. We'll use CSS `filter`, subtle `text-shadow` layering, and an inline SVG noise filter to create a film-grain look.
+### Approach
+Remove all blur-based text-shadows. Use a **high-contrast, coarse noise texture** clipped to the text with `background-clip: text`. The `::before` pseudo-element provides the solid base color behind the textured layer -- but with **zero blur** in its text-shadow (only hard-offset shadows for a stamped/printed feel).
 
-### Files to change
+### Files to Change
 
-**1. `src/index.css`** — Add a grunge text utility class
+**1. `src/index.css`** -- Rewrite `.grunge-text` and `.grunge-text-accent`
 
-```css
-.grunge-text {
-  /* Layered text-shadow for rough, inky edges */
-  text-shadow:
-    2px 1px 0px hsl(var(--foreground) / 0.15),
-    -1px -1px 0px hsl(var(--foreground) / 0.08),
-    0px 0px 8px hsl(var(--foreground) / 0.05);
-  /* Slight contrast boost for that printed-on-paper feel */
-  filter: contrast(1.15) brightness(1.02);
-  /* Subtle letter roughness via paint-order */
-  -webkit-text-stroke: 0.3px hsl(var(--foreground) / 0.1);
-}
+- Remove all `blur` values from text-shadow (use `0px` blur radius only)
+- Increase noise `baseFrequency` to `0.8` and `opacity` to `0.55` for coarser, more visible grain
+- Bump `contrast()` to `1.8` and drop `brightness` to `0.7` for that dark, gritty dirt look
+- `::before` gets hard-offset shadows only (e.g. `2px 2px 0px`) -- no soft glow
+- Remove the `0px 0px 20px` and `0px 0px 30px` blur shadows entirely
+- Same treatment for `.grunge-text-accent` with primary color
 
-.grunge-text-accent {
-  text-shadow:
-    2px 1px 0px hsl(var(--primary) / 0.25),
-    -1px -1px 0px hsl(var(--primary) / 0.1),
-    0px 0px 12px hsl(var(--primary) / 0.15);
-  filter: contrast(1.15) brightness(1.05);
-  -webkit-text-stroke: 0.3px hsl(var(--primary) / 0.15);
-}
-```
+**2. `src/components/sections/HeroSection.tsx`** -- No structural changes needed, just ensure `data-text` attributes are present (they already are)
 
-Add an SVG noise filter (inline in CSS via `background-image` on a pseudo-element overlay) on the hero title wrapper for subtle grain:
-
-```css
-.hero-grain::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.06;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,...turbulence fractalNoise...");
-  z-index: 1;
-}
-```
-
-**2. `src/components/sections/HeroSection.tsx`**
-
-- Add `grunge-text` class to the `<h1>` tag (the big title)
-- Add `grunge-text-accent` class to the `<span className="text-primary">Trader.</span>`
-- Wrap the title in a `relative` div with `hero-grain` class for the noise overlay
-- Eyebrow highlight pills: add a subtle `text-shadow` via inline style for the colored highlight text
-
-### What it looks like
-- Big bold "Not A Plastic" gets rough inky edges, slight glow, and a grain overlay — like stamped/printed type on a movie poster
-- "Trader." in accent color gets a colored glow version of the same effect
-- Eyebrow highlights get a subtle colored glow
-- Rest of the page stays perfectly clean
+### Result
+Sharp, clean letterforms with visible dry-dust grain texture inside -- matching the Dasara movie poster aesthetic. No blur, no glow, no fog.
 
