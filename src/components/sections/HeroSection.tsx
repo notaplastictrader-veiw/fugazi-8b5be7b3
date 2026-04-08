@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { promoItems } from "@/data/brokers";
 
-const eyebrowTexts = [
+const slogans = [
   "South Asia's Most Trusted Broker Review Platform",
   "Not your typical Lambo trader — we expose the fakes",
   "Built for real traders, by real traders",
@@ -19,13 +20,21 @@ const stats = [
 ];
 
 const HeroSection = () => {
-  const [eyebrowIndex, setEyebrowIndex] = useState(0);
+  const [promoIndex, setPromoIndex] = useState(0);
+  const [sloganIndex, setSloganIndex] = useState(0);
   const [hintIndex, setHintIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setEyebrowIndex((i) => (i + 1) % eyebrowTexts.length);
-    }, 3500);
+      setPromoIndex((i) => (i + 1) % promoItems.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSloganIndex((i) => (i + 1) % slogans.length);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -45,26 +54,31 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-        {/* Eyebrow badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 mb-8">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs font-mono text-primary tracking-wide">
-            {eyebrowTexts[eyebrowIndex]}
+        {/* Promo eyebrow badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/30 bg-accent/5 mb-8">
+          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <span className="text-xs font-mono text-accent tracking-wide">
+            {promoItems[promoIndex]}
           </span>
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight text-foreground mb-6">
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-foreground mb-6">
           Not A Plastic
           <br />
           <span className="text-primary">Trader.</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
           Real reviews. Real complaints. Real withdrawal proof.
           <br className="hidden sm:block" />
           The platform brokers can't buy.
+        </p>
+
+        {/* Rotating slogan */}
+        <p className="text-xs font-mono text-muted-foreground/60 tracking-wide mb-10">
+          {slogans[sloganIndex]}
         </p>
 
         {/* Search bar */}
