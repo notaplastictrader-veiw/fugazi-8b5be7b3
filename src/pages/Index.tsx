@@ -1,16 +1,36 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import MainLayout from "@/components/layout/MainLayout";
+import PromoTicker from "@/components/sections/PromoTicker";
+import HeroSection from "@/components/sections/HeroSection";
+import TickerBar from "@/components/sections/TickerBar";
+import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
+import ScamAlertSection from "@/components/sections/ScamAlertSection";
+import SignalChannel from "@/components/sections/SignalChannel";
+import SignalHub from "@/components/sections/SignalHub";
+import ForecastSection from "@/components/sections/ForecastSection";
+import HowItWorks from "@/components/sections/HowItWorks";
+import CommunityReviews from "@/components/sections/CommunityReviews";
+import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
+import BottomTicker from "@/components/sections/BottomTicker";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <>
+      <PromoTicker />
+      <MainLayout>
+        <HeroSection />
+        <TickerBar />
+        <BrokerTrustHub />
+        <ScamAlertSection />
+        <SignalChannel />
+        <SignalHub />
+        <ForecastSection />
+        <HowItWorks />
+        <CommunityReviews />
+        <BrokerJoinSection />
+      </MainLayout>
+      <BottomTicker />
+    </>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
