@@ -100,10 +100,14 @@ const BrokerJoinSection = () => {
                 >
                   {tier.cta}
                 </button>
+                {"note" in tier && tier.note && (
+                  <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>
+                )}
               </div>
             ))}
           </div>
         </div>
+        <p className="text-xs text-muted-foreground mt-6">All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.</p>
       </div>
     </section>
   );
