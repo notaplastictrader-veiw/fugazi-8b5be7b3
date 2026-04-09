@@ -112,7 +112,7 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
 
 const BrokerTrustHub = () => {
   const [brokerFilter, setBrokerFilter] = useState("All");
-  const [propFilter, setPropFilter] = useState("All");
+  
   const [visible, setVisible] = useState(false);
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -137,9 +137,7 @@ const BrokerTrustHub = () => {
     ? brokers.filter(b => b.type !== "prop-firm")
     : brokers.filter(b => b.tags?.includes(filterMap[brokerFilter]));
 
-  const filteredPropFirms = propFilter === "All"
-    ? brokers.filter(b => b.type === "prop-firm")
-    : brokers.filter(b => b.type === "prop-firm" && b.tags?.includes(filterMap[propFilter]));
+  const filteredPropFirms = brokers.filter(b => b.type === "prop-firm").slice(0, 6);
 
   return (
     <section ref={sectionRef} className="py-20 px-4">
@@ -181,14 +179,6 @@ const BrokerTrustHub = () => {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-10">
-            {propFirmFilters.map((f) => (
-              <button key={f} onClick={() => setPropFilter(f)}
-                className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${
-                  propFilter === f ? "bg-accent text-accent-foreground border-accent" : "text-muted-foreground border-border hover:border-accent/40 hover:text-foreground"
-                }`}>{f}</button>
-            ))}
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredPropFirms.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
