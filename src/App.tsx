@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Brokers from "./pages/Brokers.tsx";
+import BrokerDetail from "./pages/BrokerDetail.tsx";
 import PropFirms from "./pages/PropFirms.tsx";
 import ScamAlerts from "./pages/ScamAlerts.tsx";
 import Signals from "./pages/Signals.tsx";
@@ -62,6 +63,7 @@ const App = () => (
             
             {/* Public listing pages */}
             <Route path="/brokers" element={<Brokers />} />
+            <Route path="/brokers/:slug" element={<BrokerDetail />} />
             <Route path="/prop-firms" element={<PropFirms />} />
             <Route path="/scam-alerts" element={<ScamAlerts />} />
             <Route path="/signals" element={<Signals />} />

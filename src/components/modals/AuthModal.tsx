@@ -281,9 +281,9 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
 
                 {/* Country */}
                 <div className="relative">
-                  <select value={selectedCountry.code} onChange={(e) => { const c = countries.find(cc => cc.code === e.target.value); if (c) setSelectedCountry(c); }} className={inputClass}>
+                  <select value={selectedCountry.code} onChange={(e) => { const c = countries.find(cc => cc.code === e.target.value); if (c) setSelectedCountry(c); }} className={`${inputClass} bg-card text-foreground`}>
                     {countries.map((c) => (
-                      <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                      <option key={c.code} value={c.code} className="bg-card text-foreground">{c.flag} {c.name}</option>
                     ))}
                   </select>
                 </div>
