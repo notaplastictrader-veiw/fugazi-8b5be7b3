@@ -17,7 +17,6 @@ export const useAdminRole = () => {
 
     const checkRole = async () => {
       const { data, error } = await supabase.rpc("has_role", {
-        _user_id: user.id,
         _role: "super_admin",
       });
       setIsAdmin(!!data && !error);
