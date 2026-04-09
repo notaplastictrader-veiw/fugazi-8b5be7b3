@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, Shield, AlertTriangle, Award, ExternalLink } from "lucide-react";
+import { Star, Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
 
 interface Broker {
   id: string;
@@ -110,6 +110,81 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
   );
 };
 
+const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => {
+  const scoreColor = firm.score >= 8 ? "bg-primary" : firm.score >= 6 ? "bg-accent" : "bg-destructive";
+  const hasInstantFunding = firm.tags?.includes("instant-funding");
+
+  return (
+    <div className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all group">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-foreground">{firm.name}</h3>
+          <div className="flex items-center gap-1.5 mt-1">
+            {firm.regulation?.map((r) => (
+              <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+            ))}
+          </div>
+        </div>
+        {(firm.badge === "verified" || firm.badge === "featured") && (
+          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
+            <Shield className="w-3 h-3" /> Verified
+          </span>
+        )}
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-4 text-center">
+        <div>
+          <div className="text-xs text-muted-foreground">Account Size</div>
+          <div className="text-sm font-mono font-semibold text-foreground">{firm.avg_spread || "$5K–$400K"}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Leverage</div>
+          <div className="text-sm font-mono font-semibold text-foreground">{firm.leverage}</div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Start From</div>
+          <div className="text-sm font-mono font-semibold text-foreground">{firm.min_deposit || "$10"}</div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-4 px-1">
+        <span className="text-xs text-muted-foreground">Instant Funding</span>
+        {hasInstantFunding ? (
+          <span className="flex items-center gap-1 text-xs font-semibold text-primary">
+            <CheckCircle className="w-3.5 h-3.5" /> Yes
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+            <XCircle className="w-3.5 h-3.5" /> No
+          </span>
+        )}
+      </div>
+
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-muted-foreground">Trust Score</span>
+          <span className="text-sm font-mono font-bold text-foreground">{firm.score}/10</span>
+        </div>
+        <div className="score-bar">
+          <div className={`score-bar-fill ${scoreColor} transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(firm.stars) ? "text-accent fill-accent" : "text-border"}`} />
+          ))}
+          <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
+        </div>
+        <a href={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
+          Full review <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+    </div>
+  );
+};
+
 const BrokerTrustHub = () => {
   const [brokerFilter, setBrokerFilter] = useState("All");
   
@@ -181,7 +256,7 @@ const BrokerTrustHub = () => {
 
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPropFirms.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
+            {filteredPropFirms.map((firm) => <PropFirmCard key={firm.slug} firm={firm} visible={visible} />)}
           </div>
 
           <div className="mt-6">
