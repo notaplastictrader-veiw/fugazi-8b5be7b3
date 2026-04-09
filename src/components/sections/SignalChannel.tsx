@@ -24,10 +24,10 @@ const SignalChannel = () => {
               If you're built different — you already know what to do.
             </p>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li>→ 78%+ win rate — tracked and published publicly every month</li>
+              <li>→ Around 78% win rate — tracked and published publicly every month</li>
               <li>→ Full transparency — losses posted same as wins</li>
               <li>→ No credit card needed for free tier</li>
-              <li>→ Preferred crypto payments. Contact us for better payment methods.</li>
+              <li>→ Multiple payment options available. DM us for details.</li>
             </ul>
           </div>
 
@@ -57,7 +57,7 @@ const SignalChannel = () => {
               <span className="absolute top-3 right-3 text-[9px] font-mono text-accent border border-accent/30 px-2 py-0.5 rounded-full tracking-widest">PREMIUM</span>
               <div className="text-[10px] font-mono text-accent mb-2 tracking-widest">PREMIUM TIER</div>
               <h3 className="text-xl font-display font-bold text-foreground mb-1">Full Signal Suite</h3>
-              <div className="text-5xl font-display font-black text-accent my-4">78%+</div>
+              <div className="text-5xl font-display font-black text-accent my-4">~78%</div>
               <p className="text-xs font-mono text-accent/70 mb-4">win rate · tracked publicly every month</p>
               <p className="text-sm text-muted-foreground mb-5">Full access. Gold, FX majors, exact entry, SL and TP. Strategy breakdown every trade.</p>
               <ul className="space-y-2.5 mb-6">

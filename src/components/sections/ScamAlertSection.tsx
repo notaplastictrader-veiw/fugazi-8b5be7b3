@@ -61,7 +61,7 @@ const ScamAlertSection = () => {
               );
             })}
             <div className="mt-4">
-              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">View all 61+ scam alerts →</a>
+              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">View All Scam Alerts →</a>
             </div>
           </div>
 

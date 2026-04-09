@@ -14,7 +14,7 @@ interface Forecast {
 
 const tabs = [
   { key: "forex", label: "Forex" },
-  { key: "gold", label: "Gold, Silver & Commodities" },
+  { key: "gold", label: "Metal (GOLD)" },
   { key: "crypto", label: "Crypto" },
 ];
 

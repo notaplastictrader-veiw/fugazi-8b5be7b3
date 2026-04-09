@@ -165,7 +165,7 @@ const BrokerTrustHub = () => {
         </div>
 
         <div className="mt-6">
-          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">View all 280+ brokers →</a>
+          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">View All Brokers →</a>
         </div>
 
         {/* Prop Firms Section */}
@@ -174,7 +174,12 @@ const BrokerTrustHub = () => {
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
             Top Verified <span className="text-accent">Prop Firms</span>
           </h2>
-          <p className="text-sm text-muted-foreground mb-8">Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.</p>
+          <p className="text-sm text-muted-foreground mb-4">Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.</p>
+          <div className="flex flex-wrap gap-2 mb-8">
+            {["Bullwaves Prime", "FTMO", "MyForexFunds", "The Funded Trader", "True Forex Funds", "Maven Trading"].map((name) => (
+              <span key={name} className="px-3 py-1 text-xs font-mono rounded-full border border-accent/30 text-accent bg-accent/5">{name}</span>
+            ))}
+          </div>
 
           <div className="flex flex-wrap gap-2 mb-10">
             {propFirmFilters.map((f) => (
