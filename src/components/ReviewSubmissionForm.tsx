@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star } from "lucide-react";
+import { Star, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
   onSuccess: () => void;
+}
+
+interface BrokerOption {
+  id: string;
+  name: string;
 }
 
 const ReviewSubmissionForm = ({ onSuccess }: Props) => {
@@ -15,6 +20,27 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [brokerId, setBrokerId] = useState("");
+  const [brokers, setBrokers] = useState<BrokerOption[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchBrokers = async () => {
+      const { data } = await supabase.from("brokers").select("id, name").eq("status", "published").order("name");
+      if (data) setBrokers(data);
+    };
+    fetchBrokers();
+  }, []);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).slice(0, 4 - photos.length).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => { if (reader.result) setPhotos((p) => [...p, reader.result as string]); };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +59,7 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
       content: content.trim(),
       rating,
       role: mt4Id.trim() ? `MT4/MT5: ${mt4Id.trim()}` : "Trader",
+      broker_id: brokerId || null,
       status: "pending" as const,
     });
 
@@ -50,6 +77,16 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
       <h3 className="text-lg font-display font-bold text-foreground mb-4">Submit a Review</h3>
 
       <div className="space-y-4">
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Choose Broker</label>
+          <select value={brokerId} onChange={(e) => setBrokerId(e.target.value)}
+            className="w-full bg-card text-foreground border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary/40">
+            <option value="" className="bg-card text-foreground">— Select a broker (optional) —</option>
+            {brokers.map((b) => (
+              <option key={b.id} value={b.id} className="bg-card text-foreground">{b.name}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">Name *</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={100}
@@ -79,6 +116,30 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
           <label className="text-xs text-muted-foreground mb-1 block">Your Review *</label>
           <textarea value={content} onChange={(e) => setContent(e.target.value)} maxLength={2000} rows={4}
             className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary/40 resize-none" />
+        </div>
+
+        {/* Photo Upload */}
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+            Photos <span className="text-[10px] text-muted-foreground/60 italic">— Optional</span>
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {photos.map((src, i) => (
+              <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border">
+                <img src={src} alt="" className="w-full h-full object-cover" />
+                <button type="button" onClick={() => setPhotos((p) => p.filter((_, idx) => idx !== i))}
+                  className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5">
+                  <X className="w-3 h-3 text-foreground" />
+                </button>
+              </div>
+            ))}
+            {photos.length < 4 && (
+              <label className="w-16 h-16 rounded-lg border border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/40 transition-colors">
+                <ImagePlus className="w-5 h-5 text-muted-foreground" />
+                <input type="file" accept="image/*" multiple onChange={handlePhotoChange} className="hidden" />
+              </label>
+            )}
+          </div>
         </div>
 
         <button type="submit" disabled={submitting}
