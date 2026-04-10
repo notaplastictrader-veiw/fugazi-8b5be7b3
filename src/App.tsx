@@ -35,6 +35,10 @@ import SignalDashboard from "./pages/admin/SignalDashboard";
 import SportsDashboard from "./pages/admin/SportsDashboard";
 import UserDashboardAdmin from "./pages/admin/UserDashboardAdmin";
 import UserDashboard from "./pages/UserDashboard";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Compare from "./pages/Compare";
+import Education from "./pages/Education";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +71,10 @@ const App = () => (
             <Route path="/prop-firms" element={<PropFirms />} />
             <Route path="/scam-alerts" element={<ScamAlerts />} />
             <Route path="/signals" element={<Signals />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/education" element={<Education />} />
             
             {/* Admin Panel */}
             <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
