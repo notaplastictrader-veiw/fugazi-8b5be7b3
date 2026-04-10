@@ -71,6 +71,10 @@ const App = () => (
             <Route path="/prop-firms" element={<PropFirms />} />
             <Route path="/scam-alerts" element={<ScamAlerts />} />
             <Route path="/signals" element={<Signals />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/education" element={<Education />} />
             
             {/* Admin Panel */}
             <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
