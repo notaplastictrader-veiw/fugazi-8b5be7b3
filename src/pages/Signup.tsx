@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +75,8 @@ const Signup = () => {
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-display font-extrabold text-foreground">Join Free</h1>
-            <p className="text-sm text-muted-foreground mt-1">Create your trader account</p>
+            <h1 className="text-2xl font-display font-extrabold text-foreground">{t("signup.title")}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t("signup.subtitle")}</p>
           </div>
 
           <button

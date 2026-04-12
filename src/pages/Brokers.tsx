@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Star, Shield, Award, AlertTriangle, ExternalLink, Search } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -17,6 +18,7 @@ const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const { t } = useI18n();
 
   useEffect(() => {
     const fetch = async () => {

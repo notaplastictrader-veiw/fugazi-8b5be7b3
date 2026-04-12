@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { CheckCircle, Users, BarChart3, TrendingUp, Search } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
@@ -12,6 +13,7 @@ interface SignalGroup {
 const Signals = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
   const [search, setSearch] = useState("");
+  const { t } = useI18n();
 
   useEffect(() => {
     const fetch = async () => {
