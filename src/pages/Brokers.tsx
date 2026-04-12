@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { Star, Shield, Award, AlertTriangle, ExternalLink, Search } from "lucide-react";
 
 interface Broker {
@@ -33,6 +34,11 @@ const Brokers = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Broker Reviews"
+        description="Compare 280+ forex and CFD brokers with verified scores, spreads, regulation status, and real trader reviews. Find the best broker for you."
+        path="/brokers"
+      />
       <section className="py-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// ALL BROKERS</span>

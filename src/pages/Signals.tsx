@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { CheckCircle, Users, BarChart3, TrendingUp, Search } from "lucide-react";
 
 interface SignalGroup {
@@ -24,6 +25,11 @@ const Signals = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Verified Signal Groups"
+        description="Every Telegram signal group listed, reviewed, and rated by real traders. Win rates, track records, and verified performance."
+        path="/signals"
+      />
       <section className="py-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SIGNAL HUB</span>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +40,11 @@ const Contact = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Contact Us"
+        description="Get in touch with Not A Plastic Trader. Report scams, submit complaints, request broker reviews, or partner with us."
+        path="/contact"
+      />
       <section className="max-w-6xl mx-auto px-4 py-24">
         <div className="text-center mb-12">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

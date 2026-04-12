@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,11 @@ const Compare = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Compare Brokers"
+        description="Compare forex brokers side-by-side. Regulation, spreads, leverage, deposits, scores — see how they stack up."
+        path="/compare"
+      />
       <section className="max-w-6xl mx-auto px-4 py-24">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { BookOpen, TrendingUp, Zap, ChevronRight, CheckCircle, Lock } from "lucide-react";
 
 interface Lesson {
@@ -64,6 +65,11 @@ const Education = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Trading Education"
+        description="Free trading courses from beginner to advanced. Learn forex, crypto, prop firm strategies, and trader psychology."
+        path="/education"
+      />
       <section className="max-w-5xl mx-auto px-4 py-24">
         {/* Hero */}
         <div className="text-center mb-12">

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Trophy, Target, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +66,11 @@ const Sports = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Sports Predictions"
+        description="Data-driven sports predictions across football, cricket, basketball, and tennis. Track records, confidence scores, and verified results."
+        path="/sports"
+      />
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

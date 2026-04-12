@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Newspaper, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +68,11 @@ const News = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Market News"
+        description="Latest forex, crypto, and market news. Analysis, regulation updates, and editorial insights from the NAPT team."
+        path="/news"
+      />
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-14">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

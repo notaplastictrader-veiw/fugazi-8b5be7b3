@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { Shield, Eye, Users, Globe, Mail } from "lucide-react";
 
 const values = [
@@ -10,6 +11,11 @@ const values = [
 
 const About = () => (
   <MainLayout>
+    <SEO
+      title="About Us"
+      description="Learn about Not A Plastic Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
+      path="/about"
+    />
     <section className="max-w-4xl mx-auto px-4 py-24">
       {/* Hero */}
       <div className="text-center mb-16">
