@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { useTheme } from "@/hooks/useTheme";
 
 const eyebrowItems = [
   { text: "Built for real traders, not ", highlight: "fugazi ones", suffix: "", color: "hsl(var(--primary))" },
@@ -28,6 +29,13 @@ const HeroSection = () => {
   const [chipGroupIndex, setChipGroupIndex] = useState(0);
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
+  const { theme } = useTheme();
+
+  const logoSrc = theme === "light"
+    ? "/images/naft-candlestick-light-green.svg"
+    : theme === "sentinel"
+      ? "/images/naft-candlestick-dark-red.svg"
+      : "/images/naft-candlestick-dark-lime.svg";
   const [searchValue, setSearchValue] = useState("");
   const { t } = useI18n();
 
@@ -64,6 +72,13 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
+        {/* Brand Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <img src={logoSrc} alt="NAFT" className="w-12 h-12 drop-shadow-[0_0_12px_hsl(var(--primary)/0.4)]" />
+          </div>
+        </div>
+
         <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
           <span
             className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
