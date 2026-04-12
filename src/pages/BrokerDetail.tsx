@@ -59,6 +59,11 @@ const BrokerDetail = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title={`${broker.name} Review`}
+        description={`Read the full ${broker.name} review — regulation, spreads, deposits, and real trader feedback. Score: ${broker.score}/10.`}
+        path={`/broker/${broker.slug}`}
+      />
       <div className="min-h-screen py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <Link to="/brokers" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
