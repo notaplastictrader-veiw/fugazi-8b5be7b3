@@ -57,7 +57,7 @@ const HeroSection = () => {
   const currentChips = chipGroups[chipGroupIndex];
 
   return (
-    <section className="relative pt-20 md:pt-28 pb-10 md:pb-14 overflow-hidden">
+    <section className="relative pt-14 md:pt-20 pb-10 md:pb-14 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
         
@@ -89,7 +89,7 @@ const HeroSection = () => {
         </div>
 
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(44px, 7vw, 88px)" }}>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-2 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 5.5vw, 68px)" }}>
             <span className="grunge-text grunge-high">Broker Reviews</span>
             <br />
             <span className="grunge-text grunge-high">That Actually</span>
