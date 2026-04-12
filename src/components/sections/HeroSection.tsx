@@ -71,7 +71,7 @@ const HeroSection = () => {
         </div>
 
         {/* Rotating eyebrow */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-3">
           <div className="inline-flex items-center px-4 py-2 rounded-full border border-border/40 bg-card/30 overflow-hidden h-[36px]">
             <span
               className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
