@@ -34,6 +34,13 @@ const Promotions = lazy(() => import("./pages/Promotions"));
 const News = lazy(() => import("./pages/News"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Sports = lazy(() => import("./pages/Sports"));
+const Ideas = lazy(() => import("./pages/Ideas"));
+const Partnership = lazy(() => import("./pages/Partnership"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const CookiesPage = lazy(() => import("./pages/Cookies"));
+const Advertise = lazy(() => import("./pages/Advertise"));
+const Forecasts = lazy(() => import("./pages/Forecasts"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -148,6 +155,13 @@ const AppContent = () => {
           <Route path="/news" element={<News />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/sports" element={<Sports />} />
+          <Route path="/ideas" element={<Ideas />} />
+          <Route path="/partnership" element={<Partnership />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/cookies" element={<CookiesPage />} />
+          <Route path="/advertise" element={<Advertise />} />
+          <Route path="/forecasts" element={<Forecasts />} />
 
           {/* Admin Panel */}
           <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
