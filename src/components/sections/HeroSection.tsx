@@ -67,7 +67,7 @@ const HeroSection = () => {
 
         {/* Static badge */}
         <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-4 animate-[fade-up_0.6s_ease_both]">
-          <span className="text-xs font-semibold text-muted-foreground tracking-wide">Not a Fugazi Trader 😉</span>
+          <span className="text-xs font-semibold text-muted-foreground tracking-wide">Not a Fugazi Trader</span>
         </div>
 
         {/* Rotating eyebrow */}
@@ -121,7 +121,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="mb-12 animate-[fade-up_0.6s_ease_0.4s_both]">
+        <div className="mb-8 animate-[fade-up_0.6s_ease_0.4s_both]">
           <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
             <div className="flex flex-wrap justify-center gap-2">
@@ -138,11 +138,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl px-2 py-4 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
+        <div className="glass-card rounded-xl px-2 py-3 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
           {stats.map((stat) => (
-            <div key={stat.label} className="px-5 md:px-8 text-center">
-              <div className="text-xl md:text-2xl font-display font-extrabold text-foreground">{stat.value}</div>
-              <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{stat.label}</div>
+            <div key={stat.label} className="px-4 md:px-6 text-center">
+              <div className="text-lg md:text-xl font-display font-extrabold text-foreground">{stat.value}</div>
+              <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{stat.label}</div>
             </div>
           ))}
         </div>
