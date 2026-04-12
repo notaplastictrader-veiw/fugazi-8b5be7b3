@@ -1,31 +1,21 @@
 
 
-# PromoTicker Fire Emoji + Light Theme Background Fix
+# Nav Top-Level Links Bold Update
 
-## Current State
-1. **Fire emoji**: Already present in PromoTicker (`🔥 PROMOTIONS` on line 33). No change needed.
-2. **Light theme background**: Currently `220 15% 96%` — this is near-white. The APOX reference image shows a medium steel-grey around `220 10% 78%`. They don't match.
+## Change
 
-## Changes
+In `src/components/layout/Navbar.tsx`, add `font-medium` to the top-level nav links for better visibility:
 
-### 1. `src/index.css` — Darken light theme background to match APOX steel-grey
+1. **Line 114** — Non-highlighted dropdown buttons: add `font-medium`
+   - Current: `text-muted-foreground hover:text-foreground`
+   - New: `text-muted-foreground hover:text-foreground font-medium`
 
-Adjust these tokens in `[data-theme="light"]`:
+2. **Line 122** — Regular links (Prop Firms, Sports, Signals, Education): add `font-medium`
+   - Current: `text-[13px] text-muted-foreground hover:text-foreground`
+   - New: `text-[13px] text-muted-foreground hover:text-foreground font-medium`
 
-| Token | Current | New | Why |
-|-------|---------|-----|-----|
-| `--background` | `220 15% 96%` | `220 10% 82%` | Closer to APOX steel-grey |
-| `--card` | `220 10% 99%` | `220 10% 88%` | Cards slightly lighter than bg |
-| `--popover` | `220 10% 99%` | `220 10% 88%` | Match card |
-| `--secondary` | `220 10% 92%` | `220 10% 76%` | Darker secondary for contrast |
-| `--muted` | `220 8% 90%` | `220 8% 74%` | Match darker palette |
-| `--border` | `220 10% 88%` | `220 10% 72%` | Visible borders on darker bg |
-| `--input` | `220 10% 88%` | `220 10% 72%` | Match border |
-| `--sidebar-background` | `220 12% 98%` | `220 10% 78%` | Match main bg |
-| `--sidebar-accent` | `220 10% 92%` | `220 10% 76%` | Match secondary |
+Dropdown items and the "More" highlighted link (already `font-semibold`) stay unchanged.
 
-Text colors (`--foreground`, `--card-foreground`) stay dark (`220 20% 12%`) for good contrast on the steel-grey surface.
-
-### Files
-- `src/index.css` (light theme block only, ~10 lines changed)
+### File
+- `src/components/layout/Navbar.tsx` (2 lines)
 
