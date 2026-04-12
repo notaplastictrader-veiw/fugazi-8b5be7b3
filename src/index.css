@@ -182,6 +182,11 @@ body::before {
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @keyframes slideUp {
   0% { transform: translateY(100%); opacity: 0; }
   15% { transform: translateY(0); opacity: 1; }
