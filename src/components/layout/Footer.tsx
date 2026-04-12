@@ -31,7 +31,7 @@ const footerLinks = {
   ],
   "Signals & More": [
     { label: "Signal Groups", href: "/signals" },
-    { label: "Our Signal Channel", href: "/signals/ours" },
+    { label: "Our Signal Channel", href: "/signals" },
     { label: "Forex Forecasts", href: "/forecasts?tab=forex" },
     { label: "Crypto Forecasts", href: "/forecasts?tab=crypto" },
     { label: "Affiliate Program", href: "/partnership?tab=affiliate" },
