@@ -102,15 +102,15 @@ const HeroSection = () => {
           {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
         </p>
 
-        <div className="max-w-[640px] mx-auto mb-3 animate-[fade-up_0.6s_ease_0.3s_both]">
-          <div className="relative flex items-center glass-card rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
-            <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+        <div className="max-w-[640px] mx-auto mb-2.5 animate-[fade-up_0.6s_ease_0.3s_both]">
+          <div className="relative flex items-center border border-border/60 bg-card/50 rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
+            <Search className="absolute left-4 w-5 h-5 text-muted-foreground/80" />
             <input
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder={t("hero.search", "Search Brokers, Prop Firms, Signal Providers...")}
-              className="w-full bg-transparent pl-12 pr-36 py-3 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
+              className="w-full bg-transparent pl-12 pr-36 py-3.5 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
             />
             <button
               onClick={() => (window as any).__openGlobalSearch?.(searchValue)}
