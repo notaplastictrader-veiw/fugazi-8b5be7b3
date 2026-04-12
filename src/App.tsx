@@ -145,6 +145,7 @@ const AppContent = () => {
           <Route path="signal-dashboard" element={<SignalDashboard />} />
           <Route path="sports-dashboard" element={<SportsDashboard />} />
           <Route path="user-dashboard" element={<UserDashboardAdmin />} />
+          <Route path="audit-log" element={<AuditLog />} />
         </Route>
 
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
