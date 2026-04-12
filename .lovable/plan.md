@@ -1,34 +1,27 @@
 
 
-## Plan: Sentinel Theme Overhaul + Background Textures
+## Plan: Add Subtle Trading-Themed Background Pattern
 
-### What the user wants
-1. **Sentinel (red) theme** should match the reference image: deep dark blue-teal background (like `hsl(200, 30%, 12%)`) with vibrant red accents — not the current dark green-black
-2. **Background texture** on all themes — the current `body::before` grid overlay is too subtle/invisible. Make it more visible with a forex-chart-inspired pattern (candlestick grid lines, slightly higher opacity)
+### What
+Add the already-created candlestick SVG pattern (`public/images/candlestick-pattern.svg`) as a tiling background layer on all 3 themes. Keep it extremely subtle so content stays readable and the site looks clean.
 
-### Changes
+### Changes — `src/index.css`
 
-#### 1. Sentinel Theme Colors (`src/index.css`)
-Shift from green-tinted dark (`160 40% 2%`) to a deep blue-teal base matching the reference:
-- `--background`: `200 35% 10%` (deep dark teal-blue like the image)
-- `--card`: `200 30% 13%`
-- `--foreground`: `200 15% 90%`
-- `--primary`: `2 80% 50%` (brighter red, matching reference)
-- `--secondary`: `200 25% 15%`
-- `--muted`: `200 20% 14%`
-- `--border`: `200 20% 18%`
-- All sidebar vars updated to match the blue-teal base
-- Keep accent warm orange
+#### Update `body::before` (all themes)
+Add the candlestick SVG as an additional background layer on top of the existing grid:
+- `url('/images/candlestick-pattern.svg')` tiled with `repeat`, sized at ~400px
+- Very low opacity via the SVG itself (already 2-3% opacity white strokes)
+- Keep existing grid lines but reduce their opacity slightly so the combined effect isn't too heavy
 
-#### 2. Background Pattern — More Visible (`src/index.css`)
-Update `body::before` to be actually noticeable:
-- Increase grid opacity from `0.025/0.015` to `0.04/0.03`
-- Add a subtle candlestick-like pattern: small vertical tick marks using additional gradient layers
-- Add a faint radial glow in the center for depth
+#### Sentinel theme override
+Same approach — add the candlestick pattern layer to the sentinel-specific `body::before` as well.
 
-#### 3. Theme-specific background tweaks
-Add `[data-theme="sentinel"] body::before` override so the sentinel theme uses red-tinted grid lines instead of primary (green) ones, matching its color scheme.
+#### Result
+- All 3 themes get a faint candlestick chart pattern tiling behind content
+- Grid lines + candlesticks together create a "trading terminal" feel
+- Opacity kept at ~2-3% so text/cards remain fully readable
+- No distraction, just subtle texture
 
 ### Files Modified
-- `src/index.css` — sentinel theme vars + background pattern updates
+- `src/index.css` — add SVG background layer to `body::before` for all themes
 
