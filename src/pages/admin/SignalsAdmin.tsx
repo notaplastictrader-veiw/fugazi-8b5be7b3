@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface Signal {
   id: string; name: string; win_rate: number; monthly_signals: string;
@@ -19,6 +21,7 @@ interface Signal {
 const empty = { name: "", win_rate: 0, monthly_signals: "0", avg_rr: "1:1", track_record: "", members: "0", verified: false, status: "draft" };
 
 const SignalsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<Signal[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Signal | null>(null);
@@ -38,10 +41,15 @@ const SignalsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("signal_groups").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "signal_groups", editing.id, editing, payload);
       toast.success("Updated");
     } else {
-      const { error } = await supabase.from("signal_groups").insert(payload);
+      const { data: created, error } = await supabase.from("signal_groups").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("signal_group", created.id, user.id);
+        await logAuditAction(user.id, "create", "signal_groups", created.id, null, payload);
+      }
       toast.success("Created");
     }
     setModalOpen(false); fetch();

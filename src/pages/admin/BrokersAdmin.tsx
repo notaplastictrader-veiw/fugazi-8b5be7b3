@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface Broker {
   id: string;
@@ -36,6 +38,7 @@ const emptyBroker = {
 };
 
 const BrokersAdmin = () => {
+  const { user } = useAuth();
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -71,10 +74,15 @@ const BrokersAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("brokers").update(typedPayload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "brokers", editing.id, editing, typedPayload);
       toast.success("Broker updated");
     } else {
-      const { error } = await supabase.from("brokers").insert(typedPayload);
+      const { data: created, error } = await supabase.from("brokers").insert(typedPayload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("broker", created.id, user.id);
+        await logAuditAction(user.id, "create", "brokers", created.id, null, typedPayload);
+      }
       toast.success("Broker created");
     }
     setModalOpen(false);
