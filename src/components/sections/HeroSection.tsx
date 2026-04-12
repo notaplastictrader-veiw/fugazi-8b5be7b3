@@ -66,7 +66,7 @@ const HeroSection = () => {
 
         <div className="flex justify-center mt-[-8px] mb-3">
           <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-xs text-muted-foreground font-mono">
-            Not a Fugazi Broker 😉
+            Not a Fugazi Trader
           </div>
         </div>
 
