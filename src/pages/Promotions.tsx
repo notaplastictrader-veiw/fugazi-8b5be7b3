@@ -60,6 +60,11 @@ const Promotions = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Broker Promotions & Bonuses"
+        description="Latest forex broker promotions, deposit bonuses, cashback offers, and trading contests. Curated and verified deals."
+        path="/promotions"
+      />
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-14">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

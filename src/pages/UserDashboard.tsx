@@ -19,6 +19,11 @@ const UserDashboard = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Dashboard"
+        description="Your personal trading dashboard. Track reviews, watchlists, and activity."
+        path="/dashboard"
+      />
       <div className="max-w-7xl mx-auto px-4 py-24">
         <h1 className="text-3xl font-display font-extrabold text-foreground mb-2">Dashboard</h1>
         <p className="text-sm text-muted-foreground mb-8">Welcome back, {fullName.split(" ")[0]}.</p>

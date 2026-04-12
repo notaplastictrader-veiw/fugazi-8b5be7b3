@@ -13,6 +13,11 @@ import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
 const Index = () => {
   return (
     <MainLayout>
+      <SEO
+        title="Not A Plastic Trader — Broker Reviews & Signals"
+        description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 280+ brokers, get verified signals, and avoid scams."
+        path="/"
+      />
       <HeroSection />
       <BrokerTrustHub />
       <ScamAlertSection />

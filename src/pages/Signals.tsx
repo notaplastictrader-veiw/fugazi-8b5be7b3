@@ -25,6 +25,11 @@ const Signals = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Verified Signal Groups"
+        description="Every Telegram signal group listed, reviewed, and rated by real traders. Win rates, track records, and verified performance."
+        path="/signals"
+      />
       <section className="py-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SIGNAL HUB</span>
