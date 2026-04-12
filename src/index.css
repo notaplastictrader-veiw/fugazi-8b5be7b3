@@ -77,40 +77,40 @@
     --sidebar-ring: 83 100% 30%;
   }
 
-  /* Sentinel theme — blood red + deep charcoal */
+  /* Sentinel theme — vibrant red + deep teal-blue */
   [data-theme="sentinel"] {
-    --background: 160 40% 2%;
-    --foreground: 160 20% 92%;
-    --card: 160 30% 6%;
-    --card-foreground: 160 20% 92%;
-    --popover: 160 30% 6%;
-    --popover-foreground: 160 20% 92%;
-    --primary: 2 80% 45%;
+    --background: 200 35% 10%;
+    --foreground: 200 15% 90%;
+    --card: 200 30% 13%;
+    --card-foreground: 200 15% 90%;
+    --popover: 200 30% 13%;
+    --popover-foreground: 200 15% 90%;
+    --primary: 2 80% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 160 20% 8%;
-    --secondary-foreground: 160 15% 75%;
-    --muted: 160 15% 7%;
-    --muted-foreground: 160 10% 38%;
-    --accent: 25 60% 48%;
+    --secondary: 200 25% 15%;
+    --secondary-foreground: 200 15% 75%;
+    --muted: 200 20% 14%;
+    --muted-foreground: 200 12% 42%;
+    --accent: 25 65% 50%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 2 80% 45%;
+    --destructive: 2 80% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 2 20% 10%;
-    --input: 2 20% 10%;
-    --ring: 2 80% 45%;
+    --border: 200 20% 18%;
+    --input: 200 20% 18%;
+    --ring: 2 80% 50%;
 
     --teal: 168 65% 46%;
     --coral: 14 100% 60%;
     --purple: 260 80% 65%;
 
-    --sidebar-background: 160 30% 4%;
-    --sidebar-foreground: 160 15% 75%;
-    --sidebar-primary: 2 80% 45%;
+    --sidebar-background: 200 30% 8%;
+    --sidebar-foreground: 200 15% 75%;
+    --sidebar-primary: 2 80% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 160 20% 8%;
-    --sidebar-accent-foreground: 160 15% 75%;
-    --sidebar-border: 2 20% 10%;
-    --sidebar-ring: 2 80% 45%;
+    --sidebar-accent: 200 25% 15%;
+    --sidebar-accent-foreground: 200 15% 75%;
+    --sidebar-border: 200 20% 18%;
+    --sidebar-ring: 2 80% 50%;
   }
 }
 
@@ -124,18 +124,30 @@
   }
 }
 
-/* Body grid overlay */
+/* Body grid overlay — forex chart inspired */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(hsl(var(--primary) / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.04) 2px, transparent 2px);
-  background-size: 40px 40px, 40px 40px, 200px 200px;
+    linear-gradient(hsl(var(--primary) / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.06) 2px, transparent 2px),
+    linear-gradient(hsl(var(--primary) / 0.06) 2px, transparent 2px),
+    radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.03) 0%, transparent 70%);
+  background-size: 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Sentinel theme — red-tinted grid */
+[data-theme="sentinel"] body::before {
+  background-image:
+    linear-gradient(hsl(2 80% 50% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(2 80% 50% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(2 80% 50% / 0.06) 2px, transparent 2px),
+    linear-gradient(hsl(2 80% 50% / 0.06) 2px, transparent 2px),
+    radial-gradient(ellipse at 50% 50%, hsl(2 80% 50% / 0.04) 0%, transparent 70%);
 }
 
 /* Ticker animations */
