@@ -142,6 +142,18 @@ body::before {
   z-index: 0;
 }
 
+/* Light theme — dark-stroke candlestick + green-tinted grid */
+[data-theme="light"] body::before {
+  background-image:
+    url('/images/candlestick-pattern-dark.svg'),
+    linear-gradient(hsl(83 100% 30% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(83 100% 30% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(83 100% 30% / 0.05) 2px, transparent 2px),
+    linear-gradient(hsl(83 100% 30% / 0.05) 2px, transparent 2px),
+    radial-gradient(ellipse at 50% 50%, hsl(83 100% 30% / 0.03) 0%, transparent 70%);
+  background-size: 400px 300px, 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
+}
+
 /* Sentinel theme — red-tinted grid + candlestick */
 [data-theme="sentinel"] body::before {
   background-image:
