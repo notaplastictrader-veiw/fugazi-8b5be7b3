@@ -104,7 +104,10 @@ const HeroSection = () => {
               placeholder="Search Brokers, Prop Firms, Signal Providers..."
               className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
             />
-            <button className="absolute right-2 px-5 py-2 bg-primary text-primary-foreground text-sm font-display font-bold tracking-wider rounded-[9px] hover:opacity-90 transition-opacity uppercase">
+            <button
+              onClick={() => (window as any).__openGlobalSearch?.(searchValue)}
+              className="absolute right-2 px-5 py-2 bg-primary text-primary-foreground text-sm font-display font-bold tracking-wider rounded-[9px] hover:opacity-90 transition-opacity uppercase"
+            >
               Search
             </button>
           </div>
