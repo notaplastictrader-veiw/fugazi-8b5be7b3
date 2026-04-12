@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { organizationSchema, websiteSchema } from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
@@ -18,6 +19,8 @@ const Index = () => {
         description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 280+ brokers, get verified signals, and avoid scams."
         path="/"
       />
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={websiteSchema} />
       <HeroSection />
       <BrokerTrustHub />
       <ScamAlertSection />

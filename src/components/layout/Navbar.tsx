@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut } from "lucide-react";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import AuthModal from "@/components/modals/AuthModal";
@@ -158,6 +158,14 @@ const Navbar = () => {
             </button>
 
             <LanguageSelector />
+
+            <button
+              onClick={() => (window as any).__openGlobalSearch?.()}
+              title="Search (⌘K)"
+              className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            >
+              <Search className="w-4 h-4" />
+            </button>
 
             {user ? (
               <div className="relative">

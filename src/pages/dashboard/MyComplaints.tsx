@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
-import StatusBadge from "@/components/admin/StatusBadge";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { AlertTriangle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
