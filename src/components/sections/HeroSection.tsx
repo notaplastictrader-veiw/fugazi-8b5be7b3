@@ -57,7 +57,7 @@ const HeroSection = () => {
   const currentChips = chipGroups[chipGroupIndex];
 
   return (
-    <section className="relative pt-10 md:pt-14 pb-8 md:pb-10 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
         
@@ -65,52 +65,44 @@ const HeroSection = () => {
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        {/* Static badge */}
-        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-1.5 animate-[fade-up_0.6s_ease_both]">
-          <span className="text-xs font-semibold text-muted-foreground tracking-wide">Not a Fugazi Trader</span>
-        </div>
-
-        {/* Rotating eyebrow */}
-        <div className="flex justify-center mb-3">
-          <div className="inline-flex items-center px-4 py-2 rounded-full border border-border/40 bg-card/30 overflow-hidden h-[36px]">
-            <span
-              className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
-                eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
-              }`}
-            >
-              <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
-              {eyebrow.text}
-              <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
-                {eyebrow.highlight}
-              </span>
-              {eyebrow.suffix}
+        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
+          <span
+            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
+              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
+            }`}
+          >
+            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
+            {eyebrow.text}
+            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
+              {eyebrow.highlight}
             </span>
-          </div>
+            {eyebrow.suffix}
+          </span>
         </div>
 
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-2 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 5.5vw, 68px)" }}>
-            <span className="grunge-text grunge-high">Broker Reviews</span>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
+            <span className="grunge-text grunge-high">Not A Fugazi</span>
             <br />
-            <span className="grunge-text grunge-high">That Actually</span>
-            <br />
-            <span className="grunge-text-accent grunge-high">Matter.</span>
+            <span className="grunge-text-accent grunge-high">Trader.</span>
           </h1>
         </div>
 
-        <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
+        <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
+          {t("hero.subtitle", "Real reviews. Real complaints. Real withdrawal proof.")}
+          <br className="hidden sm:block" />
+          {t("hero.subtitle2", "We verify everything so you never lose money to a fake broker again.")}
         </p>
 
-        <div className="max-w-[640px] mx-auto mb-2.5 animate-[fade-up_0.6s_ease_0.3s_both]">
-          <div className="relative flex items-center border border-border/60 bg-card/50 rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
-            <Search className="absolute left-4 w-5 h-5 text-muted-foreground/80" />
+        <div className="max-w-[640px] mx-auto mb-5 animate-[fade-up_0.6s_ease_0.3s_both]">
+          <div className="relative flex items-center glass-card rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
+            <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder={t("hero.search", "Search Brokers, Prop Firms, Signal Providers...")}
-              className="w-full bg-transparent pl-12 pr-36 py-3.5 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
+              className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
             />
             <button
               onClick={() => (window as any).__openGlobalSearch?.(searchValue)}
@@ -121,7 +113,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="mb-3 animate-[fade-up_0.6s_ease_0.4s_both]">
+        <div className="mb-12 animate-[fade-up_0.6s_ease_0.4s_both]">
           <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
             <div className="flex flex-wrap justify-center gap-2">
@@ -138,11 +130,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="glass-card rounded-xl px-2 py-3 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
+        <div className="glass-card rounded-xl px-2 py-4 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
           {stats.map((stat) => (
-            <div key={stat.label} className="px-4 md:px-6 text-center">
-              <div className="text-lg md:text-xl font-display font-extrabold text-foreground">{stat.value}</div>
-              <div className="text-[10px] font-mono text-muted-foreground mt-0.5">{stat.label}</div>
+            <div key={stat.label} className="px-5 md:px-8 text-center">
+              <div className="text-xl md:text-2xl font-display font-extrabold text-foreground">{stat.value}</div>
+              <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{stat.label}</div>
             </div>
           ))}
         </div>
