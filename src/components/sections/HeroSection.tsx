@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
-import { useTheme } from "@/hooks/useTheme";
 
 const eyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "fugazi ones", suffix: "", color: "hsl(var(--primary))" },
-  { text: "The world's ", highlight: "most transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
-  { text: "Where ", highlight: "scams get exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
-  { text: "", highlight: "Real proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
-  { text: "The platform ", highlight: "brokers fear", suffix: " and traders love", color: "hsl(var(--purple))" },
+  { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
+  { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
+  { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
+  { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
+  { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
 ];
 
 const chipGroups = [
@@ -29,13 +28,6 @@ const HeroSection = () => {
   const [chipGroupIndex, setChipGroupIndex] = useState(0);
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
-  const { theme } = useTheme();
-
-  const logoSrc = theme === "light"
-    ? "/images/naft-candlestick-light-green.svg"
-    : theme === "sentinel"
-      ? "/images/naft-candlestick-dark-red.svg"
-      : "/images/naft-candlestick-dark-lime.svg";
   const [searchValue, setSearchValue] = useState("");
   const { t } = useI18n();
 
@@ -72,12 +64,6 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
-        {/* Brand Logo */}
-        <div className="flex justify-center mb-6">
-          <div className="relative">
-            <img src={logoSrc} alt="NAFT" className="w-12 h-12 drop-shadow-[0_0_12px_hsl(var(--primary)/0.4)]" />
-          </div>
-        </div>
 
         <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
           <span
