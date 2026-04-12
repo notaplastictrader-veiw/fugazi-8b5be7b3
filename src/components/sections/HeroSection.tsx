@@ -65,33 +65,41 @@ const HeroSection = () => {
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
-          <span
-            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
-              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
-            }`}
-          >
-            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
-            {eyebrow.text}
-            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
-              {eyebrow.highlight}
+        {/* Static badge */}
+        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-4 animate-[fade-up_0.6s_ease_both]">
+          <span className="text-xs font-semibold text-muted-foreground tracking-wide">Not a Fugazi Trader 😉</span>
+        </div>
+
+        {/* Rotating eyebrow */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center px-4 py-2 rounded-full border border-border/40 bg-card/30 overflow-hidden h-[36px]">
+            <span
+              className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
+                eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
+              }`}
+            >
+              <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
+              {eyebrow.text}
+              <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
+                {eyebrow.highlight}
+              </span>
+              {eyebrow.suffix}
             </span>
-            {eyebrow.suffix}
-          </span>
+          </div>
         </div>
 
         <div className="hero-grain">
           <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
-            <span className="grunge-text grunge-high">Not A Fugazi</span>
+            <span className="grunge-text grunge-high">Broker Reviews</span>
             <br />
-            <span className="grunge-text-accent grunge-high">Trader.</span>
+            <span className="grunge-text grunge-high">That Actually</span>
+            <br />
+            <span className="grunge-text-accent grunge-high">Matter.</span>
           </h1>
         </div>
 
         <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "Real reviews. Real complaints. Real withdrawal proof.")}
-          <br className="hidden sm:block" />
-          {t("hero.subtitle2", "We verify everything so you never lose money to a fake broker again.")}
+          {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
         </p>
 
         <div className="max-w-[640px] mx-auto mb-5 animate-[fade-up_0.6s_ease_0.3s_both]">
