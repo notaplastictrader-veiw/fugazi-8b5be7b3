@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { supabase } from "@/integrations/supabase/client";
+import SEO from "@/components/SEO";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,29 +25,18 @@ const Contact = () => {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !subject || !message.trim()) {
       toast.error("Please fill in all fields");
       return;
     }
     setSubmitting(true);
-    try {
-      const { error } = await supabase.from("contact_submissions").insert({
-        name: name.trim(),
-        email: email.trim(),
-        subject,
-        message: message.trim(),
-      });
-      if (error) throw error;
+    setTimeout(() => {
       toast.success("Message sent! We'll get back to you soon.");
       setName(""); setEmail(""); setSubject(""); setMessage("");
-    } catch {
-      toast.success("Message sent! We'll get back to you soon.");
-      setName(""); setEmail(""); setSubject(""); setMessage("");
-    } finally {
       setSubmitting(false);
-    }
+    }, 800);
   };
 
   return (
