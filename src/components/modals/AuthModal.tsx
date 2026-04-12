@@ -136,6 +136,24 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       }
     }
 
+    // Track referral conversion
+    if (data.user) {
+      const refCode = sessionStorage.getItem("ref-tracked-code");
+      if (refCode) {
+        const { data: ownerId } = await supabase.rpc("convert_referral" as any, { code_text: refCode });
+        if (ownerId) {
+          await supabase.from("notifications").insert({
+            user_id: ownerId,
+            type: "referral",
+            title: "New Referral Conversion!",
+            message: "Someone you referred just signed up. Keep sharing!",
+            link: "/dashboard/referrals",
+          });
+        }
+        sessionStorage.removeItem("ref-tracked-code");
+      }
+    }
+
     setLoading(false);
     toast.success("Check your email to verify your account!");
     onClose();

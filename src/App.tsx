@@ -67,6 +67,7 @@ const NewsAdmin = lazy(() => import("./pages/admin/NewsAdmin"));
 const CalendarAdmin = lazy(() => import("./pages/admin/CalendarAdmin"));
 const SportsAdmin = lazy(() => import("./pages/admin/SportsAdmin"));
 const AuditLog = lazy(() => import("./pages/admin/AuditLog"));
+const ReferralAnalyticsAdmin = lazy(() => import("./pages/admin/ReferralAnalyticsAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -169,6 +170,7 @@ const AppContent = () => {
             <Route path="signal-dashboard" element={<SignalDashboard />} />
             <Route path="sports-dashboard" element={<SportsDashboard />} />
             <Route path="user-dashboard" element={<UserDashboardAdmin />} />
+            <Route path="referrals" element={<ReferralAnalyticsAdmin />} />
             <Route path="audit-log" element={<AuditLog />} />
           </Route>
 

@@ -37,6 +37,8 @@ export const useReferralTracking = () => {
       // Increment click count on the code
       await supabase.rpc("increment_referral_clicks" as any, { code_id: codeData.id });
 
+      // Store the code for conversion tracking on signup
+      sessionStorage.setItem("ref-tracked-code", refCode);
       sessionStorage.setItem(`ref-tracked-${refCode}`, "1");
     };
 

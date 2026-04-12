@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
-  Gift, Newspaper, CalendarDays, Trophy, ScrollText
+  Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -38,6 +38,7 @@ const items: MenuItem[] = [
   { title: "Users & Roles", url: "/admin/users", icon: Users, roles: ["super_admin"] },
   { title: "Revenue", url: "/admin/revenue", icon: DollarSign, roles: ["super_admin"] },
   { title: "Site Settings", url: "/admin/settings", icon: Settings, roles: ["super_admin"] },
+  { title: "Referral Analytics", url: "/admin/referrals", icon: Share2, roles: ["super_admin"] },
   { title: "Audit Log", url: "/admin/audit-log", icon: ScrollText, roles: ["super_admin"] },
 ];
 
