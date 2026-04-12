@@ -210,7 +210,7 @@ const Navbar = () => {
                   {link.children ? (
                     <>
                       <button onClick={() => toggleDropdown(link.label)}
-                        className="flex items-center justify-between w-full px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground">
+                        className="flex items-center justify-between w-full px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground font-medium">
                         {link.label}
                         <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === link.label ? "rotate-180" : ""}`} />
                       </button>
@@ -227,7 +227,7 @@ const Navbar = () => {
                       )}
                     </>
                   ) : (
-                    <Link to={link.href} className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground"
+                    <Link to={link.href} className="block px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground font-medium"
                       onClick={() => setMobileOpen(false)}>
                       {link.label}
                     </Link>
