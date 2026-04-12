@@ -1,99 +1,112 @@
 
 
-# Phase 3: User Dashboard + Global Search + SEO Optimization
+# Phase 4: 4-Tier Admin System with Role-Based Access & Approval Workflows
 
-Phase 3 এর তিনটা major feature একসাথে build করবো। Step-by-step implement করবো যাতে কোনো কিছু miss না হয়।
-
----
-
-## Part A: Functional User Dashboard (`/dashboard`)
-
-### Database Changes
-1. **New table: `watchlist`** — users can save/bookmark brokers
-   - `id`, `user_id`, `broker_id`, `created_at`
-   - RLS: users can only CRUD their own watchlist items
-
-2. **New table: `user_activity`** — track user actions (review submitted, complaint filed, etc.)
-   - `id`, `user_id`, `action_type`, `content_id`, `created_at`
-   - RLS: users view own activity, admins view all
-
-### UI Components
-3. **Dashboard Sidebar** — role-based navigation using existing Sidebar component
-   - **All users**: Overview, My Reviews, My Complaints, Watchlist, Profile Settings
-   - **Broker/Signal Provider**: + Analytics, Leads (existing admin dashboard data exposed)
-
-4. **Dashboard Pages**:
-   - **Overview** — real stats from DB (review count, watchlist count, complaint count, activity feed)
-   - **My Reviews** — list of user's reviews with status badges (pending/published/rejected)
-   - **My Complaints** — list of complaints filed by user
-   - **Watchlist** — saved brokers grid with remove button
-   - **Profile Settings** — edit name, phone, country, avatar (submits to profiles table)
-   - **Activity Feed** — recent actions timeline
-
-5. **Protected route** — redirect to login if not authenticated
+## Overview
+বর্তমানে শুধু `super_admin` role check করে admin panel access দেওয়া হচ্ছে। Phase 4 এ 4-tier role system implement করবো যেখানে প্রতিটি role এর আলাদা permissions এবং approval workflow থাকবে।
 
 ---
 
-## Part B: Global Search
-
-### Implementation
-6. **Search Command Palette** (Cmd+K / Ctrl+K) — modal overlay accessible from anywhere
-   - Searches across: brokers, signals, news, scam alerts, forecasts, promotions
-   - Uses Supabase `.ilike()` queries on name/title fields
-   - Shows categorized results with icons
-   - Keyboard navigation (arrow keys + enter)
-
-7. **Navbar Integration** — search icon in navbar opens the palette
-   - Also works from the Hero section search bar (connect existing search input)
-
-8. **Debounced search** — 300ms debounce, minimum 2 characters
+## Existing Roles (already in DB enum)
+`super_admin` | `content_ops` | `moderator` | `user` | `broker` | `signal_provider`
 
 ---
 
-## Part C: SEO Optimization
+## Part A: Role-Based Admin Access
 
-### Structured Data
-9. **JSON-LD schemas** added to key pages:
-   - Homepage: `Organization` + `WebSite` with `SearchAction`
-   - Broker listing: `ItemList`
-   - Broker detail: `Review` + `AggregateRating`
-   - News articles: `NewsArticle`
+### 1. Create `useUserRole` hook
+Replace the binary `useAdminRole` with a more flexible hook that returns the user's role(s) and permission checks:
+- `hasRole(role)` — check specific role
+- `hasAnyRole([...roles])` — check multiple roles
+- `canAccess(section)` — check if user can access a specific admin section
 
-10. **Enhanced SEO component** — add JSON-LD injection support to existing `SEO.tsx`
+### 2. Permission Matrix
+| Section | super_admin | content_ops | moderator | broker/signal_provider |
+|---------|-------------|-------------|-----------|----------------------|
+| Dashboard | ✅ | ✅ | ✅ | ✅ (own only) |
+| Brokers CRUD | ✅ | ✅ | ❌ | ❌ |
+| Signals CRUD | ✅ | ✅ | ❌ | ❌ |
+| Reviews | ✅ | ✅ | ✅ (moderate) | ❌ |
+| Complaints | ✅ | ✅ | ✅ | ❌ |
+| Scam Alerts | ✅ | ✅ | ❌ | ❌ |
+| Approval Queue | ✅ | ✅ | ✅ | ❌ |
+| Users & Roles | ✅ | ❌ | ❌ | ❌ |
+| Revenue | ✅ | ❌ | ❌ | ❌ |
+| Site Settings | ✅ | ❌ | ❌ | ❌ |
+| News/Promos/Calendar | ✅ | ✅ | ✅ | ❌ |
+| Broker Dashboard | ✅ | ❌ | ❌ | ✅ (own) |
+| Signal Dashboard | ✅ | ❌ | ❌ | ✅ (own) |
 
-### Technical SEO
-11. **Sitemap generation** — static `sitemap.xml` in `/public` covering all public routes
-12. **robots.txt update** — add sitemap reference
-13. **Meta tags audit** — ensure all 14+ pages have unique title/description
+### 3. Update `ProtectedAdminRoute`
+- Accept `requiredRoles` prop instead of just checking `super_admin`
+- Show "Access Denied" page instead of redirecting for authenticated but unauthorized users
+
+### 4. Update `AdminSidebar`
+- Filter menu items based on user's role
+- Each sidebar item gets a `roles` array defining who can see it
+
+---
+
+## Part B: Enhanced Approval Workflow
+
+### 5. Database: Add `audit_log` table
+Track all admin actions for accountability:
+- `id`, `user_id`, `action` (create/update/delete/approve/reject), `table_name`, `record_id`, `old_data`, `new_data`, `created_at`
+- RLS: super_admin can read all, others can read own
+
+### 6. Content submission flow
+- `content_ops` creates content → status = `draft`
+- `content_ops` submits for review → auto-inserts into `approval_queue` with status `pending`
+- `moderator` or `super_admin` approves/rejects from queue
+- On approval → content status becomes `published`
+- On rejection → content status becomes `rejected` with reviewer notes
+
+### 7. Approval Queue enhancements
+- Show who submitted the content (join with profiles)
+- Add reviewer notes field before approve/reject
+- Filter by content type tabs
+- Show content preview in expandable row
+
+---
+
+## Part C: Broker & Signal Provider Portals
+
+### 8. Broker Portal (for users with `broker` role)
+- See their own broker listing stats (views, reviews, complaints)
+- Edit their broker profile (submits to approval queue, not direct publish)
+- View and respond to complaints filed against them
+- Access lead/inquiry data
+
+### 9. Signal Provider Portal (for users with `signal_provider` role)
+- See their signal group stats
+- Edit signal group info (submits to approval queue)
+- View subscriber/member analytics
 
 ---
 
 ## Technical Details
 
 ### New Files
-- `src/pages/dashboard/*` — Overview, Reviews, Complaints, Watchlist, Settings (sub-pages)
-- `src/components/dashboard/DashboardSidebar.tsx`
-- `src/components/dashboard/DashboardLayout.tsx`
-- `src/components/search/SearchPalette.tsx`
-- `src/hooks/useGlobalSearch.ts`
-- `src/components/seo/JsonLd.tsx`
-- `public/sitemap.xml`
-- 2 Supabase migrations (watchlist + user_activity tables)
+- `src/hooks/useUserRole.ts` — flexible role checking hook
+- `src/pages/admin/AccessDenied.tsx` — unauthorized access page
+- `src/pages/admin/AuditLog.tsx` — admin action history
+- `src/components/admin/ProtectedSection.tsx` — wrapper for role-gated sections
+- 1 migration: `audit_log` table
 
 ### Modified Files
-- `src/App.tsx` — add dashboard sub-routes, search palette provider
-- `src/components/layout/Navbar.tsx` — add search trigger icon
-- `src/components/sections/HeroSection.tsx` — connect search bar to global search
-- `src/components/SEO.tsx` — add JSON-LD support
-- `src/pages/UserDashboard.tsx` — refactor into layout with sidebar
-- `public/robots.txt` — add sitemap URL
+- `src/hooks/useAdminRole.ts` → refactored into `useUserRole.ts`
+- `src/components/admin/ProtectedAdminRoute.tsx` — accept `requiredRoles` array
+- `src/components/admin/AdminSidebar.tsx` — role-based menu filtering
+- `src/pages/admin/ApprovalQueueAdmin.tsx` — enhanced with notes, previews, tabs
+- `src/App.tsx` — role-gated admin sub-routes
 
 ### Implementation Order
-1. Database migrations (watchlist + user_activity)
-2. Dashboard layout + sidebar
-3. Dashboard sub-pages (Overview, Reviews, Complaints, Watchlist, Settings)
-4. Global search palette + hook
-5. Navbar + Hero search integration
-6. JSON-LD structured data
-7. Sitemap + robots.txt + meta audit
+1. `useUserRole` hook + permission matrix
+2. Update `ProtectedAdminRoute` with role support
+3. Role-filtered `AdminSidebar`
+4. `audit_log` migration
+5. Enhanced Approval Queue UI
+6. Broker portal pages
+7. Signal provider portal pages
+8. Audit log viewer page
 
