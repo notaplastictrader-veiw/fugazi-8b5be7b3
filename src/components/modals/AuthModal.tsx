@@ -3,6 +3,7 @@ import { X, Check, ChevronDown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { countries } from "@/data/countries";
+import { useTheme } from "@/hooks/useTheme";
 
 interface AuthModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ const roleLabels: Record<SignupRole, string> = {
 };
 
 const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
+  const { theme } = useTheme();
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
@@ -208,6 +210,15 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }} onClick={onClose}>
       <div className="bg-card border border-border rounded-2xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto p-8 relative" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
+
+        {/* Brand Logo */}
+        <div className="flex justify-center mb-5">
+          <img
+            src={theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg"}
+            alt="NAFT"
+            className="w-10 h-10"
+          />
+        </div>
 
         {showForgot ? (
           <div>
