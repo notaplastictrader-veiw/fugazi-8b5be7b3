@@ -78,6 +78,11 @@ const Calendar = () => {
 
   return (
     <MainLayout>
+      <SEO
+        title="Economic Calendar"
+        description="Forex economic calendar with high-impact events, GDP, CPI, NFP, and central bank decisions. Filter by impact and currency."
+        path="/calendar"
+      />
       <section className="max-w-5xl mx-auto px-4 py-20">
         <div className="text-center mb-14">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
