@@ -64,7 +64,7 @@ const HeroSection = () => {
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-3 text-xs text-muted-foreground font-mono <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-3 text-xs text-muted-foreground font-mono">">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-3 text-xs text-muted-foreground font-mono">
           Not a Fugazi Broker 😉
         </div>
 
