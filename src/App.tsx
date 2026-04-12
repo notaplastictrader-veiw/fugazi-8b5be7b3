@@ -79,6 +79,10 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/education" element={<Education />} />
+            <Route path="/promotions" element={<Promotions />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/sports" element={<Sports />} />
             
             {/* Admin Panel */}
             <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
