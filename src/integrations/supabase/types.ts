@@ -155,6 +155,60 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          actual_value: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          event_date: string
+          event_time: string | null
+          forecast_value: string | null
+          id: string
+          impact: string
+          previous_value: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_value?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          forecast_value?: string | null
+          id?: string
+          impact?: string
+          previous_value?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_value?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          forecast_value?: string | null
+          id?: string
+          impact?: string
+          previous_value?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       complaints: {
         Row: {
           broker_id: string | null
@@ -235,6 +289,54 @@ export type Database = {
         }
         Relationships: []
       }
+      news_articles: {
+        Row: {
+          author: string | null
+          category: string
+          content: string | null
+          created_at: string
+          created_by: string | null
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          slug: string
+          source_url: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          slug: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          category?: string
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          slug?: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -270,6 +372,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      promotions: {
+        Row: {
+          bonus_amount: string | null
+          broker_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expiry_date: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          link_url: string | null
+          promo_type: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bonus_amount?: string | null
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          link_url?: string | null
+          promo_type?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bonus_amount?: string | null
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          link_url?: string | null
+          promo_type?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotions_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -425,6 +586,60 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      sports_predictions: {
+        Row: {
+          analyst_note: string | null
+          confidence: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_correct: boolean | null
+          match_date: string
+          prediction: string
+          result: string | null
+          sport: string
+          status: Database["public"]["Enums"]["content_status"]
+          team_a: string
+          team_b: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          analyst_note?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_correct?: boolean | null
+          match_date?: string
+          prediction?: string
+          result?: string | null
+          sport?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          team_a?: string
+          team_b?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          analyst_note?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_correct?: boolean | null
+          match_date?: string
+          prediction?: string
+          result?: string | null
+          sport?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          team_a?: string
+          team_b?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
