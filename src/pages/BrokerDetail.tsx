@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink } from "lucide-react";
 
