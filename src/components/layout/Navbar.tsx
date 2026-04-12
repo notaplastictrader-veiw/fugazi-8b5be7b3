@@ -111,7 +111,7 @@ const Navbar = () => {
                     className={`flex items-center gap-1 px-2.5 py-2 text-[13px] transition-colors ${
                       (link as any).highlight
                         ? "text-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground font-medium"
                     }`}
                     onClick={() => toggleDropdown(link.label)}
                   >
@@ -119,7 +119,7 @@ const Navbar = () => {
                     <ChevronDown className="w-3 h-3" />
                   </button>
                 ) : (
-                  <Link to={link.href} className="px-2.5 py-2 text-[13px] text-muted-foreground hover:text-foreground transition-colors">
+                  <Link to={link.href} className="px-2.5 py-2 text-[13px] text-muted-foreground hover:text-foreground font-medium transition-colors">
                     {link.label}
                   </Link>
                 )}
