@@ -57,15 +57,18 @@ const HeroSection = () => {
   const currentChips = chipGroups[chipGroupIndex];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
-        
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-3 text-xs text-muted-foreground font-mono animate-[fade-up_0.6s_ease_both]">
+          Not a Fugazi Broker 😉
+        </div>
+
+        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-4 overflow-hidden h-[36px]">
           <span
             className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
               eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
@@ -81,20 +84,18 @@ const HeroSection = () => {
         </div>
 
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
-            <span className="grunge-text grunge-high">Not A Fugazi</span>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
+            <span className="grunge-text grunge-high">Broker Reviews</span>
             <br />
-            <span className="grunge-text-accent grunge-high">Trader.</span>
+            <span className="grunge-text-accent grunge-high">That Actually Matter.</span>
           </h1>
         </div>
 
-        <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "Real reviews. Real complaints. Real withdrawal proof.")}
-          <br className="hidden sm:block" />
-          {t("hero.subtitle2", "We verify everything so you never lose money to a fake broker again.")}
+        <p className="text-lg font-medium text-muted-foreground max-w-2xl mx-auto mb-5 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
+          {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
         </p>
 
-        <div className="max-w-[640px] mx-auto mb-5 animate-[fade-up_0.6s_ease_0.3s_both]">
+        <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
           <div className="relative flex items-center glass-card rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             <input
@@ -113,7 +114,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="mb-12 animate-[fade-up_0.6s_ease_0.4s_both]">
+        <div className="mb-6 animate-[fade-up_0.6s_ease_0.4s_both]">
           <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
             <div className="flex flex-wrap justify-center gap-2">
