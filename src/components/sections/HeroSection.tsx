@@ -79,7 +79,7 @@ const HeroSection = () => {
 
         {/* Title */}
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[2px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
             <span className="grunge-text grunge-high">Not A Fugazi</span>
             <br />
             <span className="grunge-text-accent grunge-high">Trader.</span>
