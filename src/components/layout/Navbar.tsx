@@ -87,16 +87,20 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "34px" }}>
         <div className="max-w-7xl mx-auto px-4 h-[58px] flex items-center justify-between">
-          <Link to="/" className="flex flex-col items-center leading-none shrink-0 text-center">
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              Not A Fugazi <span className="text-foreground">Trader</span>
-            </span>
-            <span className="text-[10px] font-mono tracking-[0.2em] text-primary font-semibold uppercase">
-              {t("nav.brokerReviews")}
-            </span>
-            <span className="text-[9px] tracking-wide text-muted-foreground">
-              {t("hero.title", "We Test Brokers. You Trade Smarter.")}
-            </span>
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <img
+              src={theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg"}
+              alt="NAFT Logo"
+              className="w-8 h-8"
+            />
+            <div className="flex flex-col leading-none">
+              <span className="text-lg font-bold tracking-tight text-foreground">
+                Not A Fugazi <span className="text-primary">Trader</span>
+              </span>
+              <span className="text-[9px] font-mono tracking-[0.15em] text-muted-foreground uppercase">
+                {t("nav.brokerReviews")}
+              </span>
+            </div>
           </Link>
 
           <div className="hidden xl:flex items-center gap-0.5">

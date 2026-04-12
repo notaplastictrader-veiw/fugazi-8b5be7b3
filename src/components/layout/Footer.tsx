@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Linkedin, Youtube, Send, Facebook, Instagram } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { useTheme } from "@/hooks/useTheme";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -57,13 +58,16 @@ const socialLinks = [
 
 const Footer = () => {
   const { t } = useI18n();
+  const { theme } = useTheme();
+  const logoSrc = theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg";
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="inline-block mb-4">
+            <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
+              <img src={logoSrc} alt="NAFT Logo" className="w-9 h-9" />
               <span className="text-xl font-bold text-foreground">
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>

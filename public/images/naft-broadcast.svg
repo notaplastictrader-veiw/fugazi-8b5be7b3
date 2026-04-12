@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <rect width="500" height="500" fill="#0d0d0d"/>
+  <path d="M75,215 Q250,45 425,215" fill="none" stroke="#E8372A" stroke-width="5" stroke-linecap="round" opacity="0.3"/>
+  <path d="M115,240 Q250,98 385,240" fill="none" stroke="#E8372A" stroke-width="6" stroke-linecap="round" opacity="0.58"/>
+  <path d="M158,265 Q250,155 342,265" fill="none" stroke="#E8372A" stroke-width="8" stroke-linecap="round" opacity="0.88"/>
+  <circle cx="250" cy="285" r="16" fill="#E8372A"/>
+  <text x="250" y="380" text-anchor="middle" fill="white" font-size="90" font-weight="900" font-family="Arial Black,sans-serif" letter-spacing="-3">NAFT</text>
+  <text x="250" y="415" text-anchor="middle" fill="#E8372A" font-size="14.5" font-family="Arial,sans-serif" letter-spacing="2.5">BROKER · PROP · CRYPTO · SIGNALS</text>
+  <line x1="165" y1="430" x2="335" y2="430" stroke="#E8372A" stroke-width="0.8" opacity="0.4"/>
+  <text x="250" y="449" text-anchor="middle" fill="#3a3a3a" font-size="12" font-family="Arial,sans-serif" letter-spacing="3">NOT A FUGAZI TRADER</text>
+</svg>

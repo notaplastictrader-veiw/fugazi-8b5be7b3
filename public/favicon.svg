@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <rect width="500" height="500" fill="#0d0d0d"/>
+  <line x1="135" y1="45" x2="135" y2="98" stroke="#CCFF00" stroke-width="7" stroke-linecap="round"/>
+  <rect x="100" y="98" width="70" height="230" rx="6" fill="#CCFF00"/>
+  <line x1="135" y1="328" x2="135" y2="378" stroke="#CCFF00" stroke-width="7" stroke-linecap="round"/>
+  <line x1="365" y1="45" x2="365" y2="98" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <rect x="330" y="98" width="70" height="230" rx="6" fill="white"/>
+  <line x1="365" y1="328" x2="365" y2="378" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <line x1="170" y1="104" x2="330" y2="322" stroke="#CCFF00" stroke-width="27" stroke-linecap="round"/>
+  <text x="250" y="434" text-anchor="middle" fill="white" font-size="40" font-weight="900" font-family="Arial Black,sans-serif" letter-spacing="12">NAFT</text>
+  <text x="250" y="462" text-anchor="middle" fill="#CCFF00" font-size="13" font-family="Arial,sans-serif" letter-spacing="3.5">NOT A FUGAZI TRADER</text>
+</svg>
