@@ -60,6 +60,7 @@ const HeroSection = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
+        <img src="/images/naft-broadcast.svg" alt="" className="absolute top-[15%] right-[8%] w-[220px] h-[220px] opacity-[0.04]" />
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
