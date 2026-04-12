@@ -1,29 +1,21 @@
 
 
-# Style "Not a Fugazi Broker 😉" Badge Like the Eyebrow
+# Tighten Badge & Eyebrow Boxes + Move Both Higher
 
-## What changes
+## Changes in `src/components/sections/HeroSection.tsx`
 
-### In `src/components/sections/HeroSection.tsx` (line 67-69)
+### 1. Badge (line 67-71)
+- Reduce padding from `px-4 py-2` to `px-3 py-1`
+- Reduce bottom margin from `mb-6` to `mb-3`
+- Add negative top margin `mt-[-8px]` to pull it closer to navbar
 
-Replace the current plain badge styling with the same colored highlight style used in the eyebrow — `border-primary/20`, `bg-primary/5`, matching the eyebrow's rounded-full pill look with the subtle primary color tint. Remove the current `border-border/40 bg-card/50 backdrop-blur-sm` styling.
+### 2. Eyebrow (line 73)
+- Reduce padding from `px-4 py-2` to `px-3 py-1.5`
+- Reduce height from `h-[36px]` to `h-[30px]`
+- Keep `mb-4`
 
-**Before:**
-```tsx
-<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-3 text-xs text-muted-foreground font-mono">
-  Not a Fugazi Broker 😉
-</div>
-```
+Both boxes become tighter/more compact and sit slightly higher in the section.
 
-**After:**
-```tsx
-<div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-3 text-xs text-muted-foreground font-mono">
-  Not a Fugazi Broker 😉
-</div>
-```
-
-This keeps the badge centered above the eyebrow, below the navbar, and gives it the same soft colored pill appearance as the rotating eyebrow below it.
-
-### File to modify
+### File
 - `src/components/sections/HeroSection.tsx`
 
