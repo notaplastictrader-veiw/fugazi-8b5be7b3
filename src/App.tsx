@@ -39,6 +39,10 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Compare from "./pages/Compare";
 import Education from "./pages/Education";
+import Promotions from "./pages/Promotions";
+import News from "./pages/News";
+import Calendar from "./pages/Calendar";
+import Sports from "./pages/Sports";
 
 const queryClient = new QueryClient();
 
