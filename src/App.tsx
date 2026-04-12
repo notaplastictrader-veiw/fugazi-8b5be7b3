@@ -39,6 +39,10 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Compare from "./pages/Compare";
 import Education from "./pages/Education";
+import Promotions from "./pages/Promotions";
+import News from "./pages/News";
+import Calendar from "./pages/Calendar";
+import Sports from "./pages/Sports";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +79,10 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/education" element={<Education />} />
+            <Route path="/promotions" element={<Promotions />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/sports" element={<Sports />} />
             
             {/* Admin Panel */}
             <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
