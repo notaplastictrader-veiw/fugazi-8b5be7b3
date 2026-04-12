@@ -1,43 +1,27 @@
 
 
-# Save NAFT Project Documentation to Memory
+# Search Bar Theme-Tinted Border
 
-Split the comprehensive documentation into organized memory files and update the index.
+## Change
 
-## Files to Create
+In `src/components/sections/HeroSection.tsx` line 105, update the search bar container to add a subtle primary-colored border and background tint:
 
-### 1. `mem://project/full-spec`
-Complete project overview: name, stack, URL, and high-level architecture summary.
+**Current:**
+```
+glass-card rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors
+```
 
-### 2. `mem://style/themes-and-fonts`
-All three theme definitions (Dark, Light, Sentinel) with exact HSL values, font families, background grid overlay details, grunge text effect, glass-card, and section-tag CSS specs.
+**New:**
+```
+rounded-[14px] overflow-hidden bg-card/40 border border-primary/20 backdrop-blur-xl focus-within:border-primary/50 focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.1)] transition-all
+```
 
-### 3. `mem://layout/main-structure`
-MainLayout structure with exact pixel heights (PromoTicker 34px, Navbar 58px, TickerBar 32px), padding calculations, and detailed Navbar/Footer/TickerBar specs.
+This gives the search bar:
+- A subtle primary-colored border (`border-primary/20`) that matches the active theme
+- Slightly stronger border on focus (`border-primary/50`)
+- A soft glow on focus matching the theme color
+- Removes the generic `glass-card` class in favor of explicit styling for more control
 
-### 4. `mem://features/homepage-sections`
-All 9 homepage sections in order with exact styling details: HeroSection (badge, eyebrow, headline, search, chips, stats), BrokerTrustHub, ScamAlertSection, SignalChannel, SignalHub, ForecastSection, HowItWorks, CommunityReviews, BrokerJoinSection.
-
-### 5. `mem://project/routes-and-pages`
-Complete routing table for all public pages, dashboard routes, and admin panel sub-pages.
-
-### 6. `mem://project/features-summary`
-Key features list: Auth, Admin Panel, User Dashboard, Search Palette, i18n, Themes, Cookie Consent, Live Chat, Referral Tracking, Notifications, SEO.
-
-### 7. `mem://style/animations`
-All CSS animations: scrollTicker, pulse-dot, fade-up, shimmer, slideUp with durations and purposes.
-
-### 8. `mem://project/supabase-tables`
-Tables used: brokers, scam_alerts, signal_groups, forecasts, reviews, site_settings, plus migration count.
-
-### 9. `mem://project/assets`
-All SVG logos (theme-aware), candlestick patterns, broadcast image, grain textures with paths.
-
-### 10. Update `mem://index.md`
-Add references to all new memory files while preserving existing entries.
-
-## Approach
-- Each file gets proper frontmatter (name, description, type)
-- No duplication with existing memory files — merge or replace where overlap exists
-- Index updated with all entries
+### File
+- `src/components/sections/HeroSection.tsx` (line 105 only)
 
