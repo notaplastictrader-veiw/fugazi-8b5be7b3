@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { I18nProvider } from "@/contexts/I18nContext";
 import CookieConsent from "@/components/CookieConsent";
 import LiveChatButton from "@/components/LiveChatButton";
 import SearchPalette from "@/components/search/SearchPalette";
@@ -47,6 +48,8 @@ import MyReviews from "./pages/dashboard/MyReviews";
 import MyComplaints from "./pages/dashboard/MyComplaints";
 import Watchlist from "./pages/dashboard/Watchlist";
 import ProfileSettings from "./pages/dashboard/ProfileSettings";
+import Referrals from "./pages/dashboard/Referrals";
+import { useReferralTracking } from "@/hooks/useReferralTracking";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Compare from "./pages/Compare";
@@ -61,6 +64,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  useReferralTracking();
 
   const openSearch = useCallback((q = "") => {
     setSearchQuery(q);
@@ -96,6 +100,7 @@ const AppContent = () => {
         <Route path="/dashboard/complaints" element={<DashboardLayout><MyComplaints /></DashboardLayout>} />
         <Route path="/dashboard/watchlist" element={<DashboardLayout><Watchlist /></DashboardLayout>} />
         <Route path="/dashboard/settings" element={<DashboardLayout><ProfileSettings /></DashboardLayout>} />
+        <Route path="/dashboard/referrals" element={<DashboardLayout><Referrals /></DashboardLayout>} />
 
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
@@ -162,7 +167,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <AppContent />
+          <I18nProvider>
+            <AppContent />
+          </I18nProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

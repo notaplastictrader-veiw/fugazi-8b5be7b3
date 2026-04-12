@@ -844,6 +844,10 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
+      increment_referral_clicks: {
+        Args: { code_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:

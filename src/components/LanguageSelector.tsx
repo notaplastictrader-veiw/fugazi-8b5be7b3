@@ -1,16 +1,12 @@
 import { useState, useEffect } from "react";
 import { Globe } from "lucide-react";
 import { languages } from "@/data/countries";
+import { useI18n } from "@/contexts/I18nContext";
 
 const LanguageSelector = () => {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("naft-language");
-      return languages.find((l) => l.code === saved) || languages[0];
-    }
-    return languages[0];
-  });
+  const { locale, setLocale } = useI18n();
+  const selected = languages.find((l) => l.code === locale) || languages[0];
 
   useEffect(() => {
     if (!open) return;
@@ -20,12 +16,8 @@ const LanguageSelector = () => {
   }, [open]);
 
   const handleSelect = (lang: typeof languages[0]) => {
-    setSelected(lang);
-    localStorage.setItem("naft-language", lang.code);
+    setLocale(lang.code);
     setOpen(false);
-    // RTL support
-    const rtlLangs = ["ar", "ur"];
-    document.documentElement.dir = rtlLangs.includes(lang.code) ? "rtl" : "ltr";
   };
 
   return (

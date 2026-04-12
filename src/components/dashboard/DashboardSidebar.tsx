@@ -1,4 +1,4 @@
-import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings } from "lucide-react";
+import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -19,6 +19,7 @@ const items = [
   { title: "My Complaints", url: "/dashboard/complaints", icon: AlertTriangle },
   { title: "Watchlist", url: "/dashboard/watchlist", icon: Bookmark },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Referrals", url: "/dashboard/referrals", icon: Link2 },
 ];
 
 const DashboardSidebar = () => {
