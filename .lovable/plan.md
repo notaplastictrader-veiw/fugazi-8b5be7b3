@@ -1,36 +1,31 @@
 
 
-# Light Theme Premium Upgrade — APOX-Inspired
+# PromoTicker Fire Emoji + Light Theme Background Fix
 
-The uploaded image shows a sleek, cool-grey premium aesthetic with subtle metallic tones. The current light theme uses warm cream/green tones which feel casual. We'll shift it toward a cooler, more refined palette inspired by the image.
+## Current State
+1. **Fire emoji**: Already present in PromoTicker (`🔥 PROMOTIONS` on line 33). No change needed.
+2. **Light theme background**: Currently `220 15% 96%` — this is near-white. The APOX reference image shows a medium steel-grey around `220 10% 78%`. They don't match.
 
 ## Changes
 
-### 1. `src/index.css` — Light theme CSS variables (lines 46-75)
+### 1. `src/index.css` — Darken light theme background to match APOX steel-grey
 
-Update the `[data-theme="light"]` color palette:
+Adjust these tokens in `[data-theme="light"]`:
 
-| Token | Current | New | Reason |
-|-------|---------|-----|--------|
-| `--background` | `70 20% 94%` (warm cream) | `220 15% 96%` (cool silver-grey) | Premium cool base |
-| `--card` | `0 0% 100%` (pure white) | `220 10% 99%` (soft cool white) | Subtle coolness |
-| `--secondary` | `70 10% 90%` | `220 10% 92%` | Match cool tone |
-| `--muted` | `70 10% 88%` | `220 8% 90%` | Cooler muted |
-| `--muted-foreground` | `75 10% 40%` | `220 8% 45%` | Refined grey text |
-| `--border` | `70 10% 85%` | `220 10% 88%` | Cool border |
-| `--input` | `70 10% 85%` | `220 10% 88%` | Match border |
-| `--foreground` | `75 30% 8%` | `220 20% 12%` | Deeper, cooler black |
-| `--card-foreground` | `75 30% 8%` | `220 20% 12%` | Match foreground |
-| `--popover` | `0 0% 100%` | `220 10% 99%` | Match card |
-| `--popover-foreground` | `75 30% 8%` | `220 20% 12%` | Match foreground |
-| `--secondary-foreground` | `75 20% 25%` | `220 15% 25%` | Cooler |
+| Token | Current | New | Why |
+|-------|---------|-----|-----|
+| `--background` | `220 15% 96%` | `220 10% 82%` | Closer to APOX steel-grey |
+| `--card` | `220 10% 99%` | `220 10% 88%` | Cards slightly lighter than bg |
+| `--popover` | `220 10% 99%` | `220 10% 88%` | Match card |
+| `--secondary` | `220 10% 92%` | `220 10% 76%` | Darker secondary for contrast |
+| `--muted` | `220 8% 90%` | `220 8% 74%` | Match darker palette |
+| `--border` | `220 10% 88%` | `220 10% 72%` | Visible borders on darker bg |
+| `--input` | `220 10% 88%` | `220 10% 72%` | Match border |
+| `--sidebar-background` | `220 12% 98%` | `220 10% 78%` | Match main bg |
+| `--sidebar-accent` | `220 10% 92%` | `220 10% 76%` | Match secondary |
 
-Also update the light theme `body::before` grid overlay to use the same cool hue (220) instead of green (83) for a more premium metallic grid feel.
-
-### 2. `src/index.css` — Light theme grid overlay (lines ~131-140)
-
-Update the grid line colors from `hsl(83 100% 30% / ...)` to `hsl(220 15% 50% / ...)` for a subtle silver-grey grid instead of green-tinted.
+Text colors (`--foreground`, `--card-foreground`) stay dark (`220 20% 12%`) for good contrast on the steel-grey surface.
 
 ### Files
-- `src/index.css` only
+- `src/index.css` (light theme block only, ~10 lines changed)
 
