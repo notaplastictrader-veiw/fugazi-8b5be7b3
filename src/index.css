@@ -146,11 +146,11 @@ body::before {
 [data-theme="light"] body::before {
   background-image:
     url('/images/candlestick-pattern-dark.svg'),
-    linear-gradient(hsl(83 100% 30% / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(83 100% 30% / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(83 100% 30% / 0.05) 2px, transparent 2px),
-    linear-gradient(hsl(83 100% 30% / 0.05) 2px, transparent 2px),
-    radial-gradient(ellipse at 50% 50%, hsl(83 100% 30% / 0.03) 0%, transparent 70%);
+    linear-gradient(hsl(220 15% 50% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(220 15% 50% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(220 15% 50% / 0.05) 2px, transparent 2px),
+    linear-gradient(hsl(220 15% 50% / 0.05) 2px, transparent 2px),
+    radial-gradient(ellipse at 50% 50%, hsl(220 15% 50% / 0.03) 0%, transparent 70%);
   background-size: 400px 300px, 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
 }
 
