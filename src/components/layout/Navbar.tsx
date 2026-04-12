@@ -78,7 +78,7 @@ const Navbar = () => {
   }, [userDropdownOpen]);
 
   const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Flame;
-  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Dasara";
+  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "Sentinel";
 
   return (
     <>
@@ -87,7 +87,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex flex-col items-center leading-none shrink-0 text-center">
             <span className="text-lg font-bold tracking-tight text-foreground">
-              Not A Plastic <span className="text-foreground">Trader</span>
+              Not A Fugazi <span className="text-foreground">Trader</span>
             </span>
             <span className="text-[10px] font-mono tracking-[0.2em] text-primary font-semibold uppercase">
               Broker Reviews

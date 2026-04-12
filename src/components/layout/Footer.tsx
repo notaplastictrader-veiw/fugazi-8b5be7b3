@@ -63,7 +63,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="inline-block mb-4">
               <span className="text-xl font-bold text-foreground">
-                Not A Plastic <span className="text-primary">Trader</span>
+                Not A Fugazi <span className="text-primary">Trader</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
@@ -122,7 +122,7 @@ const Footer = () => {
             The possibility exists that you could sustain a loss of some or all of your initial investment.
           </p>
           <p className="text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} Not A Plastic Trader. All rights reserved.
+            © {new Date().getFullYear()} Not A Fugazi Trader. All rights reserved.
           </p>
         </div>
       </div>

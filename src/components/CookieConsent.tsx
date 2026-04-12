@@ -21,7 +21,7 @@ const CookieConsent = () => {
   const [prefs, setPrefs] = useState<CookiePreferences>(defaultPreferences);
 
   useEffect(() => {
-    const saved = localStorage.getItem("napt-cookie-consent");
+    const saved = localStorage.getItem("naft-cookie-consent");
     if (!saved) {
       const timer = setTimeout(() => setVisible(true), 1500);
       return () => clearTimeout(timer);
@@ -29,7 +29,7 @@ const CookieConsent = () => {
   }, []);
 
   const save = (preferences: CookiePreferences) => {
-    localStorage.setItem("napt-cookie-consent", JSON.stringify(preferences));
+    localStorage.setItem("naft-cookie-consent", JSON.stringify(preferences));
     setVisible(false);
     setShowPrefs(false);
   };

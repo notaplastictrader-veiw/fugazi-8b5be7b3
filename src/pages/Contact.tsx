@@ -9,10 +9,10 @@ import { Mail, Phone, MessageCircle, Send, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 const contactMethods = [
-  { icon: Mail, label: "Email", value: "notaplastictrader@gmail.com", href: "mailto:notaplastictrader@gmail.com" },
+  { icon: Mail, label: "Email", value: "notafugazitrader@gmail.com", href: "mailto:notafugazitrader@gmail.com" },
   { icon: Phone, label: "Phone", value: "+44 XXX XXXX XXXX", href: "tel:+44" },
   { icon: MessageCircle, label: "WhatsApp", value: "Chat with us", href: "https://wa.me/44" },
-  { icon: Send, label: "Telegram", value: "@notaplastictrader", href: "https://t.me/notaplastictrader" },
+  { icon: Send, label: "Telegram", value: "@notafugazitrader", href: "https://t.me/notafugazitrader" },
 ];
 
 const subjects = ["General Enquiry", "Broker Listing", "Partnership", "Report a Scam", "Other"];
@@ -42,7 +42,7 @@ const Contact = () => {
     <MainLayout>
       <SEO
         title="Contact Us"
-        description="Get in touch with Not A Plastic Trader. Report scams, submit complaints, request broker reviews, or partner with us."
+        description="Get in touch with Not A Fugazi Trader. Report scams, submit complaints, request broker reviews, or partner with us."
         path="/contact"
       />
       <section className="max-w-6xl mx-auto px-4 py-24">

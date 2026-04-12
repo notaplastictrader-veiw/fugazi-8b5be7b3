@@ -6,7 +6,7 @@ const LanguageSelector = () => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("napt-language");
+      const saved = localStorage.getItem("naft-language");
       return languages.find((l) => l.code === saved) || languages[0];
     }
     return languages[0];
@@ -21,7 +21,7 @@ const LanguageSelector = () => {
 
   const handleSelect = (lang: typeof languages[0]) => {
     setSelected(lang);
-    localStorage.setItem("napt-language", lang.code);
+    localStorage.setItem("naft-language", lang.code);
     setOpen(false);
     // RTL support
     const rtlLangs = ["ar", "ur"];

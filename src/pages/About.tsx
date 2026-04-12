@@ -13,7 +13,7 @@ const About = () => (
   <MainLayout>
     <SEO
       title="About Us"
-      description="Learn about Not A Plastic Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
+      description="Learn about Not A Fugazi Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
       path="/about"
     />
     <section className="max-w-4xl mx-auto px-4 py-24">
@@ -38,7 +38,7 @@ const About = () => (
           Traders lose — not because they traded badly, but because they trusted the wrong people.
         </p>
         <p>
-          <strong className="text-foreground">Not A Plastic Trader</strong> was built to fix that.
+          <strong className="text-foreground">Not A Fugazi Trader</strong> was built to fix that.
         </p>
         <p>
           We started as traders ourselves. We experienced withdrawal delays, manipulated spreads, fake "regulated" brokers,
@@ -50,7 +50,7 @@ const About = () => (
           provider can pay to hide bad reviews.
         </p>
         <p className="text-foreground font-semibold text-lg">
-          We are independent. We are transparent. And we are not plastic.
+          We are independent. We are transparent. And we are not fugazi.
         </p>
         <p>
           Our mission is simple: make the trading industry safer for every trader in South Asia and beyond.
@@ -97,8 +97,8 @@ const About = () => (
       {/* CTA */}
       <div className="text-center">
         <p className="text-muted-foreground mb-2 text-sm">Founded 2024 · Based in the UK · Global Mission</p>
-        <a href="mailto:notaplastictrader@gmail.com" className="inline-flex items-center gap-2 text-primary hover:underline text-sm">
-          <Mail className="w-4 h-4" /> notaplastictrader@gmail.com
+        <a href="mailto:notafugazitrader@gmail.com" className="inline-flex items-center gap-2 text-primary hover:underline text-sm">
+          <Mail className="w-4 h-4" /> notafugazitrader@gmail.com
         </a>
       </div>
     </section>

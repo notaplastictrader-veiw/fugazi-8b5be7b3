@@ -19,12 +19,12 @@ interface Article {
 }
 
 const fallbackArticles: Article[] = [
-  { id: "1", title: "Fed Signals Potential Rate Cut in Q3 2026", slug: "fed-rate-cut-q3", excerpt: "Federal Reserve officials hint at possible interest rate reductions, boosting risk assets and weakening the dollar.", category: "macro", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-12T10:00:00Z" },
-  { id: "2", title: "Gold Breaks $2,500 for First Time in History", slug: "gold-breaks-2500", excerpt: "Gold spot price surges past the $2,500 mark as central banks continue aggressive buying.", category: "commodities", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-11T14:00:00Z" },
-  { id: "3", title: "Binance Launches New Copy Trading Feature", slug: "binance-copy-trading", excerpt: "The world's largest crypto exchange introduces social trading to compete with eToro.", category: "crypto", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-10T09:00:00Z" },
-  { id: "4", title: "FTMO Increases Maximum Account Size to $400K", slug: "ftmo-400k", excerpt: "Leading prop firm FTMO raises the ceiling for funded accounts, attracting experienced traders.", category: "prop-firms", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-09T11:00:00Z" },
-  { id: "5", title: "Bangladesh SEC Approves 3 New Forex Brokers", slug: "bd-sec-approves-brokers", excerpt: "Securities and Exchange Commission of Bangladesh grants licenses to three international brokers for local operations.", category: "regulation", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-08T08:00:00Z" },
-  { id: "6", title: "EUR/USD Drops Below 1.0700 on ECB Dovish Stance", slug: "eurusd-1070", excerpt: "European Central Bank maintains dovish outlook, pushing the euro lower against the dollar.", category: "forex", source_url: "#", image_url: "", author: "NAPT Editorial", created_at: "2026-04-07T16:00:00Z" },
+  { id: "1", title: "Fed Signals Potential Rate Cut in Q3 2026", slug: "fed-rate-cut-q3", excerpt: "Federal Reserve officials hint at possible interest rate reductions, boosting risk assets and weakening the dollar.", category: "macro", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-12T10:00:00Z" },
+  { id: "2", title: "Gold Breaks $2,500 for First Time in History", slug: "gold-breaks-2500", excerpt: "Gold spot price surges past the $2,500 mark as central banks continue aggressive buying.", category: "commodities", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-11T14:00:00Z" },
+  { id: "3", title: "Binance Launches New Copy Trading Feature", slug: "binance-copy-trading", excerpt: "The world's largest crypto exchange introduces social trading to compete with eToro.", category: "crypto", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-10T09:00:00Z" },
+  { id: "4", title: "FTMO Increases Maximum Account Size to $400K", slug: "ftmo-400k", excerpt: "Leading prop firm FTMO raises the ceiling for funded accounts, attracting experienced traders.", category: "prop-firms", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-09T11:00:00Z" },
+  { id: "5", title: "Bangladesh SEC Approves 3 New Forex Brokers", slug: "bd-sec-approves-brokers", excerpt: "Securities and Exchange Commission of Bangladesh grants licenses to three international brokers for local operations.", category: "regulation", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-08T08:00:00Z" },
+  { id: "6", title: "EUR/USD Drops Below 1.0700 on ECB Dovish Stance", slug: "eurusd-1070", excerpt: "European Central Bank maintains dovish outlook, pushing the euro lower against the dollar.", category: "forex", source_url: "#", image_url: "", author: "NAFT Editorial", created_at: "2026-04-07T16:00:00Z" },
 ];
 
 const catColors: Record<string, string> = {
@@ -70,7 +70,7 @@ const News = () => {
     <MainLayout>
       <SEO
         title="Market News"
-        description="Latest forex, crypto, and market news. Analysis, regulation updates, and editorial insights from the NAPT team."
+        description="Latest forex, crypto, and market news. Analysis, regulation updates, and editorial insights from the NAFT team."
         path="/news"
       />
       <section className="max-w-6xl mx-auto px-4 py-20">

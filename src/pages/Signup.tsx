@@ -55,7 +55,7 @@ const Signup = () => {
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-4">
               <span className="text-xl font-bold text-foreground">
-                Not A Plastic <span className="text-primary">Trader</span>
+                Not A Fugazi <span className="text-primary">Trader</span>
               </span>
             </Link>
             <h1 className="text-2xl font-display font-extrabold text-foreground">Join Free</h1>
