@@ -1,6 +1,7 @@
 import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useI18n } from "@/contexts/I18nContext";
 import {
   Sidebar,
   SidebarContent,
@@ -13,16 +14,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const items = [
-  { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-  { title: "My Reviews", url: "/dashboard/reviews", icon: Star },
-  { title: "My Complaints", url: "/dashboard/complaints", icon: AlertTriangle },
-  { title: "Watchlist", url: "/dashboard/watchlist", icon: Bookmark },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
-  { title: "Referrals", url: "/dashboard/referrals", icon: Link2 },
-];
-
 const DashboardSidebar = () => {
+  const { t } = useI18n();
+  const items = [
+    { title: t("dashboard.overview"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("dashboard.reviews"), url: "/dashboard/reviews", icon: Star },
+    { title: t("dashboard.complaints"), url: "/dashboard/complaints", icon: AlertTriangle },
+    { title: t("dashboard.watchlist"), url: "/dashboard/watchlist", icon: Bookmark },
+    { title: t("dashboard.settings"), url: "/dashboard/settings", icon: Settings },
+    { title: t("dashboard.referrals"), url: "/dashboard/referrals", icon: Link2 },
+  ];
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();

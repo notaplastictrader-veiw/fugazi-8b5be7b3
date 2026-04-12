@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 const eyebrowItems = [
   { text: "Built for real traders, not ", highlight: "fugazi ones", suffix: "", color: "hsl(var(--primary))" },
@@ -28,6 +29,7 @@ const HeroSection = () => {
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
+  const { t } = useI18n();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,7 +63,6 @@ const HeroSection = () => {
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
-        {/* Rotating Eyebrow */}
         <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-10 overflow-hidden h-[36px]">
           <span
             className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
@@ -77,7 +78,6 @@ const HeroSection = () => {
           </span>
         </div>
 
-        {/* Title */}
         <div className="hero-grain">
           <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
             <span className="grunge-text grunge-high">Not A Fugazi</span>
@@ -86,14 +86,12 @@ const HeroSection = () => {
           </h1>
         </div>
 
-        {/* Subtitle */}
         <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          Real reviews. Real complaints. Real withdrawal proof.
+          {t("hero.subtitle", "Real reviews. Real complaints. Real withdrawal proof.")}
           <br className="hidden sm:block" />
-          We verify everything so you never lose money to a fake broker again.
+          {t("hero.subtitle2", "We verify everything so you never lose money to a fake broker again.")}
         </p>
 
-        {/* Search bar — static placeholder */}
         <div className="max-w-[640px] mx-auto mb-5 animate-[fade-up_0.6s_ease_0.3s_both]">
           <div className="relative flex items-center glass-card rounded-[14px] overflow-hidden focus-within:border-primary/40 transition-colors">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
@@ -101,7 +99,7 @@ const HeroSection = () => {
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search Brokers, Prop Firms, Signal Providers..."
+              placeholder={t("hero.search", "Search Brokers, Prop Firms, Signal Providers...")}
               className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
             />
             <button
@@ -113,7 +111,6 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Rotating chip rows */}
         <div className="mb-12 animate-[fade-up_0.6s_ease_0.4s_both]">
           <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
@@ -131,7 +128,6 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Stats bar */}
         <div className="glass-card rounded-xl px-2 py-4 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
           {stats.map((stat) => (
             <div key={stat.label} className="px-5 md:px-8 text-center">

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Linkedin, Youtube, Send, Facebook, Instagram } from "lucide-react";
+import { useI18n } from "@/contexts/I18nContext";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -55,6 +56,7 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const { t } = useI18n();
   return (
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 py-16">
@@ -122,7 +124,7 @@ const Footer = () => {
             The possibility exists that you could sustain a loss of some or all of your initial investment.
           </p>
           <p className="text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} Not A Fugazi Trader. All rights reserved.
+            © {new Date().getFullYear()} Not A Fugazi Trader. {t("footer.rights", "All rights reserved.")}
           </p>
         </div>
       </div>
