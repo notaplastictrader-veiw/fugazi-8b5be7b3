@@ -1,27 +1,34 @@
 
 
-## Plan: Add Subtle Trading-Themed Background Pattern
+## Plan: Fix Light Theme Background Pattern
 
-### What
-Add the already-created candlestick SVG pattern (`public/images/candlestick-pattern.svg`) as a tiling background layer on all 3 themes. Keep it extremely subtle so content stays readable and the site looks clean.
+### Problem
+The candlestick SVG (`public/images/candlestick-pattern.svg`) uses `white` / `stroke="white"` for all lines and shapes. On dark backgrounds this works fine, but on the light theme's pale background (`hsl(70 20% 94%)`), white strokes are invisible.
 
-### Changes — `src/index.css`
+### Solution
 
-#### Update `body::before` (all themes)
-Add the candlestick SVG as an additional background layer on top of the existing grid:
-- `url('/images/candlestick-pattern.svg')` tiled with `repeat`, sized at ~400px
-- Very low opacity via the SVG itself (already 2-3% opacity white strokes)
-- Keep existing grid lines but reduce their opacity slightly so the combined effect isn't too heavy
+#### 1. Create a dark version of the candlestick SVG for light theme
+- New file: `public/images/candlestick-pattern-dark.svg`
+- Same exact layout but strokes/fills use `black` instead of `white` at same low opacity (2-3%)
 
-#### Sentinel theme override
-Same approach — add the candlestick pattern layer to the sentinel-specific `body::before` as well.
+#### 2. Add light theme `body::before` override in `src/index.css`
+Add a `[data-theme="light"] body::before` rule that uses `candlestick-pattern-dark.svg` and dark-tinted grid lines instead of white ones:
+```css
+[data-theme="light"] body::before {
+  background-image:
+    url('/images/candlestick-pattern-dark.svg'),
+    linear-gradient(hsl(83 100% 30% / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(83 100% 30% / 0.03) 1px, transparent 1px),
+    ...
+}
+```
 
-#### Result
-- All 3 themes get a faint candlestick chart pattern tiling behind content
-- Grid lines + candlesticks together create a "trading terminal" feel
-- Opacity kept at ~2-3% so text/cards remain fully readable
-- No distraction, just subtle texture
+### Result
+- Light theme gets visible candlestick grid pattern with dark strokes on light bg
+- Same subtle intensity as dark/sentinel themes
+- Clean, professional look with texture
 
 ### Files Modified
-- `src/index.css` — add SVG background layer to `body::before` for all themes
+- `public/images/candlestick-pattern-dark.svg` — new file (dark stroke version)
+- `src/index.css` — add `[data-theme="light"]` body::before override
 
