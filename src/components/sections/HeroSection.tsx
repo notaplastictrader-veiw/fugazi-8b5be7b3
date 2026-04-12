@@ -121,7 +121,7 @@ const HeroSection = () => {
           </div>
         </div>
 
-        <div className="mb-4 animate-[fade-up_0.6s_ease_0.4s_both]">
+        <div className="mb-3 animate-[fade-up_0.6s_ease_0.4s_both]">
           <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
             <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
             <div className="flex flex-wrap justify-center gap-2">
