@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface SportsPrediction {
   id: string; title: string; sport: string; team_a: string; team_b: string;
@@ -23,6 +25,7 @@ const empty = {
 };
 
 const SportsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<SportsPrediction[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -52,9 +55,14 @@ const SportsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("sports_predictions").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "sports_predictions", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("sports_predictions").insert(payload);
+      const { data: created, error } = await supabase.from("sports_predictions").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("sports_prediction", created.id, user.id);
+        await logAuditAction(user.id, "create", "sports_predictions", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();

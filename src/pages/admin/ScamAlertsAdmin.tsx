@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; status: string;
@@ -18,6 +20,7 @@ interface ScamAlert {
 const empty = { title: "", description: "", severity: "medium", status: "draft" };
 
 const ScamAlertsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<ScamAlert[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ScamAlert | null>(null);
@@ -37,9 +40,14 @@ const ScamAlertsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("scam_alerts").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "scam_alerts", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("scam_alerts").insert(payload);
+      const { data: created, error } = await supabase.from("scam_alerts").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("scam_alert", created.id, user.id);
+        await logAuditAction(user.id, "create", "scam_alerts", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();

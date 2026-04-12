@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface NewsArticle {
   id: string; title: string; slug: string; excerpt: string; content: string;
@@ -22,6 +24,7 @@ const empty = {
 };
 
 const NewsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<NewsArticle[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,9 +49,14 @@ const NewsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("news_articles").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "news_articles", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("news_articles").insert(payload);
+      const { data: created, error } = await supabase.from("news_articles").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("news_article", created.id, user.id);
+        await logAuditAction(user.id, "create", "news_articles", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();

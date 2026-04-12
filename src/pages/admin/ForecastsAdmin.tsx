@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface Forecast {
   id: string; pair: string; direction: string; potential: string;
@@ -19,6 +21,7 @@ interface Forecast {
 const empty = { pair: "", direction: "bullish", potential: "MED", reasoning: "", updated_label: "", category: "forex", status: "draft" };
 
 const ForecastsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<Forecast[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Forecast | null>(null);
@@ -38,9 +41,14 @@ const ForecastsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("forecasts").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "forecasts", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("forecasts").insert(payload);
+      const { data: created, error } = await supabase.from("forecasts").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("forecast", created.id, user.id);
+        await logAuditAction(user.id, "create", "forecasts", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();

@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface CalendarEvent {
   id: string; title: string; description: string; event_date: string; event_time: string | null;
@@ -23,6 +25,7 @@ const empty = {
 };
 
 const CalendarAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<CalendarEvent[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -51,9 +54,14 @@ const CalendarAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("calendar_events").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "calendar_events", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("calendar_events").insert(payload);
+      const { data: created, error } = await supabase.from("calendar_events").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("calendar_event", created.id, user.id);
+        await logAuditAction(user.id, "create", "calendar_events", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();

@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface Promotion {
   id: string; title: string; description: string; promo_type: string;
@@ -24,6 +26,7 @@ const empty = {
 };
 
 const PromotionsAdmin = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState<Promotion[]>([]);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -52,9 +55,14 @@ const PromotionsAdmin = () => {
     if (editing) {
       const { error } = await supabase.from("promotions").update(payload).eq("id", editing.id);
       if (error) { toast.error(error.message); return; }
+      if (user) await logAuditAction(user.id, "update", "promotions", editing.id, editing, payload);
     } else {
-      const { error } = await supabase.from("promotions").insert(payload);
+      const { data: created, error } = await supabase.from("promotions").insert(payload).select("id").single();
       if (error) { toast.error(error.message); return; }
+      if (user && created) {
+        await submitToApprovalQueue("promotion", created.id, user.id);
+        await logAuditAction(user.id, "create", "promotions", created.id, null, payload);
+      }
     }
     toast.success(editing ? "Updated" : "Created");
     setModalOpen(false); fetchData();
