@@ -465,6 +465,88 @@ export type Database = {
           },
         ]
       }
+      referral_clicks: {
+        Row: {
+          converted: boolean
+          created_at: string
+          id: string
+          ip_hash: string | null
+          referral_code_id: string
+          referrer_url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          converted?: boolean
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          referral_code_id: string
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          converted?: boolean
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          referral_code_id?: string
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_clicks_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_codes: {
+        Row: {
+          broker_id: string | null
+          clicks: number
+          code: string
+          conversions: number
+          created_at: string
+          earnings: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          broker_id?: string | null
+          clicks?: number
+          code: string
+          conversions?: number
+          created_at?: string
+          earnings?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string | null
+          clicks?: number
+          code?: string
+          conversions?: number
+          created_at?: string
+          earnings?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           author: string | null
