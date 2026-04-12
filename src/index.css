@@ -124,30 +124,34 @@
   }
 }
 
-/* Body grid overlay — forex chart inspired */
+/* Body grid overlay — forex chart + candlestick pattern */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(hsl(var(--primary) / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.06) 2px, transparent 2px),
-    linear-gradient(hsl(var(--primary) / 0.06) 2px, transparent 2px),
+    url('/images/candlestick-pattern.svg'),
+    linear-gradient(hsl(var(--primary) / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.04) 2px, transparent 2px),
+    linear-gradient(hsl(var(--primary) / 0.04) 2px, transparent 2px),
     radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.03) 0%, transparent 70%);
-  background-size: 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
+  background-size: 400px 300px, 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
+  background-repeat: repeat;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Sentinel theme — red-tinted grid */
+/* Sentinel theme — red-tinted grid + candlestick */
 [data-theme="sentinel"] body::before {
   background-image:
-    linear-gradient(hsl(2 80% 50% / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(2 80% 50% / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(2 80% 50% / 0.06) 2px, transparent 2px),
-    linear-gradient(hsl(2 80% 50% / 0.06) 2px, transparent 2px),
+    url('/images/candlestick-pattern.svg'),
+    linear-gradient(hsl(2 80% 50% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(2 80% 50% / 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(2 80% 50% / 0.04) 2px, transparent 2px),
+    linear-gradient(hsl(2 80% 50% / 0.04) 2px, transparent 2px),
     radial-gradient(ellipse at 50% 50%, hsl(2 80% 50% / 0.04) 0%, transparent 70%);
+  background-size: 400px 300px, 40px 40px, 40px 40px, 200px 200px, 200px 200px, 100% 100%;
 }
 
 /* Ticker animations */
