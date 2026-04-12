@@ -65,8 +65,12 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         <div className="flex justify-center mt-[-8px] mb-3">
-          <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/5 text-xs text-muted-foreground font-mono">
-            Not a Fugazi Trader
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/30 bg-primary/8 text-xs text-primary font-mono font-semibold tracking-wider uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
+            <span className="relative flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
+              Not a Fugazi Trader
+            </span>
           </div>
         </div>
 
