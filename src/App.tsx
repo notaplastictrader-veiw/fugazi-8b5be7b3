@@ -40,6 +40,7 @@ import PromotionsAdmin from "./pages/admin/PromotionsAdmin";
 import NewsAdmin from "./pages/admin/NewsAdmin";
 import CalendarAdmin from "./pages/admin/CalendarAdmin";
 import SportsAdmin from "./pages/admin/SportsAdmin";
+import AuditLog from "./pages/admin/AuditLog";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
 import MyReviews from "./pages/dashboard/MyReviews";

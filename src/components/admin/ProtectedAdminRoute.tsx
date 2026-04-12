@@ -1,8 +1,17 @@
 import { Navigate } from "react-router-dom";
-import { useAdminRole } from "@/hooks/useAdminRole";
+import { useUserRole } from "@/hooks/useUserRole";
+import type { Database } from "@/integrations/supabase/types";
+import AccessDenied from "@/pages/admin/AccessDenied";
 
-const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAdmin, loading } = useAdminRole();
+type AppRole = Database["public"]["Enums"]["app_role"];
+
+interface Props {
+  children: React.ReactNode;
+  requiredRoles?: AppRole[];
+}
+
+const ProtectedAdminRoute = ({ children, requiredRoles }: Props) => {
+  const { canAccessAdmin, hasAnyRole, hasRole, loading } = useUserRole();
 
   if (loading) {
     return (
@@ -12,8 +21,12 @@ const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!isAdmin) {
+  if (!canAccessAdmin) {
     return <Navigate to="/" replace />;
+  }
+
+  if (requiredRoles && requiredRoles.length > 0 && !hasRole("super_admin") && !hasAnyRole(requiredRoles)) {
+    return <AccessDenied />;
   }
 
   return <>{children}</>;
