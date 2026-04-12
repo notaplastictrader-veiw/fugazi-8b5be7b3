@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
-type Theme = "dark" | "light" | "dasara";
+type Theme = "dark" | "light" | "sentinel";
 
-const THEME_KEY = "napt-theme";
+const THEME_KEY = "naft-theme";
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -20,7 +20,7 @@ export function useTheme() {
   const cycleTheme = () => {
     setTheme((t) => {
       if (t === "dark") return "light";
-      if (t === "light") return "dasara";
+      if (t === "light") return "sentinel";
       return "dark";
     });
   };

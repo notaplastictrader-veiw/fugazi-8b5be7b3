@@ -3,7 +3,7 @@ import { MessageCircle } from "lucide-react";
 const LiveChatButton = () => {
   return (
     <a
-      href="https://t.me/notaplastictrader"
+      href="https://t.me/notafugazitrader"
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-20 right-5 z-[180] w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-110 transition-transform"

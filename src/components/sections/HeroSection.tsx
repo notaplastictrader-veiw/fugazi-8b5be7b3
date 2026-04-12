@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
 const eyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "plastic ones", suffix: "", color: "hsl(var(--primary))" },
+  { text: "Built for real traders, not ", highlight: "fugazi ones", suffix: "", color: "hsl(var(--primary))" },
   { text: "The world's ", highlight: "most transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
   { text: "Where ", highlight: "scams get exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
   { text: "", highlight: "Real proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
@@ -80,7 +80,7 @@ const HeroSection = () => {
         {/* Title */}
         <div className="hero-grain">
           <h1 className="font-display font-black tracking-[-4px] leading-[0.95] mb-6 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(64px, 9vw, 120px)" }}>
-            <span className="grunge-text grunge-high">Not A Plastic</span>
+            <span className="grunge-text grunge-high">Not A Fugazi</span>
             <br />
             <span className="grunge-text-accent grunge-high">Trader.</span>
           </h1>

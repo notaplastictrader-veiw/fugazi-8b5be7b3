@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 @layer base {
-  /* Dark theme (default) — organic black-green */
+  /* Dark theme (default) — charcoal grey */
   :root,
   [data-theme="dark"] {
-    --background: 67 18% 3%;
-    --foreground: 70 30% 93%;
-    --card: 67 25% 8%;
-    --card-foreground: 70 30% 93%;
-    --popover: 67 25% 8%;
-    --popover-foreground: 70 30% 93%;
+    --background: 220 10% 6%;
+    --foreground: 220 10% 93%;
+    --card: 220 8% 10%;
+    --card-foreground: 220 10% 93%;
+    --popover: 220 8% 10%;
+    --popover-foreground: 220 10% 93%;
     --primary: 73 75% 53%;
-    --primary-foreground: 67 18% 3%;
-    --secondary: 67 20% 10%;
-    --secondary-foreground: 70 20% 80%;
-    --muted: 67 15% 9%;
-    --muted-foreground: 75 15% 40%;
+    --primary-foreground: 220 10% 6%;
+    --secondary: 220 8% 13%;
+    --secondary-foreground: 220 8% 80%;
+    --muted: 220 6% 11%;
+    --muted-foreground: 220 6% 42%;
     --accent: 43 86% 60%;
-    --accent-foreground: 67 18% 3%;
+    --accent-foreground: 220 10% 6%;
     --destructive: 0 100% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 73 30% 7%;
-    --input: 73 30% 7%;
+    --border: 220 8% 14%;
+    --input: 220 8% 14%;
     --ring: 73 75% 53%;
     --radius: 0.75rem;
 
@@ -31,13 +31,13 @@
     --coral: 14 100% 64%;
     --purple: 260 100% 72%;
 
-    --sidebar-background: 67 25% 5%;
-    --sidebar-foreground: 70 20% 80%;
+    --sidebar-background: 220 10% 5%;
+    --sidebar-foreground: 220 8% 80%;
     --sidebar-primary: 73 75% 53%;
-    --sidebar-primary-foreground: 67 18% 3%;
-    --sidebar-accent: 67 20% 10%;
-    --sidebar-accent-foreground: 70 20% 80%;
-    --sidebar-border: 73 30% 7%;
+    --sidebar-primary-foreground: 220 10% 6%;
+    --sidebar-accent: 220 8% 13%;
+    --sidebar-accent-foreground: 220 8% 80%;
+    --sidebar-border: 220 8% 14%;
     --sidebar-ring: 73 75% 53%;
   }
 
@@ -77,8 +77,8 @@
     --sidebar-ring: 83 100% 30%;
   }
 
-  /* Dasara Dark theme — blood red + deep black-green */
-  [data-theme="dasara"] {
+  /* Sentinel theme — blood red + deep charcoal */
+  [data-theme="sentinel"] {
     --background: 160 40% 2%;
     --foreground: 160 20% 92%;
     --card: 160 30% 6%;
@@ -130,9 +130,10 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(hsl(var(--primary) / 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.02) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(hsl(var(--primary) / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.04) 2px, transparent 2px);
+  background-size: 40px 40px, 40px 40px, 200px 200px;
   pointer-events: none;
   z-index: 0;
 }

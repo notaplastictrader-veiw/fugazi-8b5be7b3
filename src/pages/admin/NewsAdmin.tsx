@@ -18,7 +18,7 @@ interface NewsArticle {
 
 const empty = {
   title: "", slug: "", excerpt: "", content: "", category: "market",
-  author: "NAPT Editorial", source_url: "", image_url: "", status: "draft",
+  author: "NAFT Editorial", source_url: "", image_url: "", status: "draft",
 };
 
 const NewsAdmin = () => {
@@ -37,7 +37,7 @@ const NewsAdmin = () => {
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
   const openEdit = (a: NewsArticle) => {
     setEditing(a);
-    setForm({ ...a, excerpt: a.excerpt || "", content: a.content || "", source_url: a.source_url || "", image_url: a.image_url || "", author: a.author || "NAPT Editorial" });
+    setForm({ ...a, excerpt: a.excerpt || "", content: a.content || "", source_url: a.source_url || "", image_url: a.image_url || "", author: a.author || "NAFT Editorial" });
     setModalOpen(true);
   };
 
