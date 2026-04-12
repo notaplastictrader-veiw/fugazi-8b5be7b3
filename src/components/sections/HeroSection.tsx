@@ -98,7 +98,7 @@ const HeroSection = () => {
           </h1>
         </div>
 
-        <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
+        <p className="text-[17px] font-light text-muted-foreground max-w-2xl mx-auto mb-3 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
           {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
         </p>
 
