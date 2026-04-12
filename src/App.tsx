@@ -34,6 +34,10 @@ import BrokerDashboard from "./pages/admin/BrokerDashboard";
 import SignalDashboard from "./pages/admin/SignalDashboard";
 import SportsDashboard from "./pages/admin/SportsDashboard";
 import UserDashboardAdmin from "./pages/admin/UserDashboardAdmin";
+import PromotionsAdmin from "./pages/admin/PromotionsAdmin";
+import NewsAdmin from "./pages/admin/NewsAdmin";
+import CalendarAdmin from "./pages/admin/CalendarAdmin";
+import SportsAdmin from "./pages/admin/SportsAdmin";
 import UserDashboard from "./pages/UserDashboard";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -97,6 +101,10 @@ const App = () => (
               <Route path="settings" element={<SiteSettingsAdmin />} />
               <Route path="users" element={<UsersAdmin />} />
               <Route path="revenue" element={<RevenueAdmin />} />
+              <Route path="promotions" element={<PromotionsAdmin />} />
+              <Route path="news" element={<NewsAdmin />} />
+              <Route path="calendar" element={<CalendarAdmin />} />
+              <Route path="sports" element={<SportsAdmin />} />
               <Route path="broker-dashboard" element={<BrokerDashboard />} />
               <Route path="signal-dashboard" element={<SignalDashboard />} />
               <Route path="sports-dashboard" element={<SportsDashboard />} />
