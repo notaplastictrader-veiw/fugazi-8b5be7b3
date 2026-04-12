@@ -66,7 +66,7 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         {/* Static badge */}
-        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-2 animate-[fade-up_0.6s_ease_both]">
+        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-1.5 animate-[fade-up_0.6s_ease_both]">
           <span className="text-xs font-semibold text-muted-foreground tracking-wide">Not a Fugazi Trader</span>
         </div>
 
