@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
-  AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut
+  AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
+  Gift, Newspaper, CalendarDays, Trophy
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -22,6 +23,10 @@ const items = [
   { title: "Site Settings", url: "/admin/settings", icon: Settings },
   { title: "Users & Roles", url: "/admin/users", icon: Users },
   { title: "Revenue", url: "/admin/revenue", icon: DollarSign },
+  { title: "Promotions", url: "/admin/promotions", icon: Gift },
+  { title: "News", url: "/admin/news", icon: Newspaper },
+  { title: "Calendar", url: "/admin/calendar", icon: CalendarDays },
+  { title: "Sports", url: "/admin/sports", icon: Trophy },
 ];
 
 const dashboardItems = [
