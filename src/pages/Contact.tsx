@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

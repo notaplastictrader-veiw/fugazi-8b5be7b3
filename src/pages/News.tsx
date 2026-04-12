@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Newspaper, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

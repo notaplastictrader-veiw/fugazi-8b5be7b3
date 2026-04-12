@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { Shield, Eye, Users, Globe, Mail } from "lucide-react";
 
 const values = [

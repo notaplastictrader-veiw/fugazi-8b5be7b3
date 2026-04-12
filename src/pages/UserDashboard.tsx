@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { BarChart3, Star, AlertTriangle, TrendingUp, Users, Eye } from "lucide-react";
 
 const StatCard = ({ icon: Icon, label, value }: { icon: typeof BarChart3; label: string; value: string }) => (

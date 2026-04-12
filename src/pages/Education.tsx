@@ -1,5 +1,6 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import { BookOpen, TrendingUp, Zap, ChevronRight, CheckCircle, Lock } from "lucide-react";
 
 interface Lesson {

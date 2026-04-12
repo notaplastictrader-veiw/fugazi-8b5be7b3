@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
 import HeroSection from "@/components/sections/HeroSection";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
