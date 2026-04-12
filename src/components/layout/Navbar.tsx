@@ -3,43 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import AuthModal from "@/components/modals/AuthModal";
 import LanguageSelector from "@/components/LanguageSelector";
 import UserDropdown from "@/components/UserDropdown";
-
-const navLinks = [
-  {
-    label: "Broker Reviews",
-    href: "#",
-    children: [
-      { label: "CFD / Forex Brokers", href: "/brokers" },
-      { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
-      { label: "Binary Options", href: "/brokers?type=binary" },
-      { label: "ECN Brokers", href: "/brokers?type=ecn" },
-      { label: "Broker Comparison", href: "/compare" },
-    ],
-  },
-  { label: "Prop Firms", href: "/prop-firms" },
-  { label: "Sports", href: "/sports" },
-  { label: "Signals", href: "/signals" },
-  { label: "Education", href: "/education" },
-  {
-    label: "More",
-    href: "#",
-    highlight: true,
-    children: [
-      { label: "Promotions", href: "/promotions" },
-      { label: "Share Ideas", href: "/ideas" },
-      { label: "Calendar", href: "/calendar" },
-      { label: "News", href: "/news" },
-      { label: "About Us", href: "/about" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Become an Affiliate", href: "/partnership?tab=affiliate" },
-      { label: "IB Partnership", href: "/partnership?tab=ib" },
-      { label: "Collaboration", href: "/partnership?tab=collab" },
-    ],
-  },
-];
+import NotificationBell from "@/components/NotificationBell";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -49,7 +17,42 @@ const Navbar = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const { theme, cycleTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
+
+  const navLinks = [
+    {
+      label: t("nav.brokerReviews"),
+      href: "#",
+      children: [
+        { label: "CFD / Forex Brokers", href: "/brokers" },
+        { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
+        { label: "Binary Options", href: "/brokers?type=binary" },
+        { label: "ECN Brokers", href: "/brokers?type=ecn" },
+        { label: "Broker Comparison", href: "/compare" },
+      ],
+    },
+    { label: t("nav.propFirms"), href: "/prop-firms" },
+    { label: t("nav.sports", "Sports"), href: "/sports" },
+    { label: t("nav.signals"), href: "/signals" },
+    { label: t("nav.education"), href: "/education" },
+    {
+      label: t("nav.more"),
+      href: "#",
+      highlight: true,
+      children: [
+        { label: t("nav.promotions", "Promotions"), href: "/promotions" },
+        { label: "Share Ideas", href: "/ideas" },
+        { label: t("nav.calendar", "Calendar"), href: "/calendar" },
+        { label: t("nav.news", "News"), href: "/news" },
+        { label: t("nav.about", "About Us"), href: "/about" },
+        { label: t("nav.contact", "Contact Us"), href: "/contact" },
+        { label: t("nav.affiliate", "Become an Affiliate"), href: "/partnership?tab=affiliate" },
+        { label: "IB Partnership", href: "/partnership?tab=ib" },
+        { label: "Collaboration", href: "/partnership?tab=collab" },
+      ],
+    },
+  ];
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
@@ -84,20 +87,18 @@ const Navbar = () => {
     <>
       <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border" style={{ top: "34px" }}>
         <div className="max-w-7xl mx-auto px-4 h-[58px] flex items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="flex flex-col items-center leading-none shrink-0 text-center">
             <span className="text-lg font-bold tracking-tight text-foreground">
               Not A Fugazi <span className="text-foreground">Trader</span>
             </span>
             <span className="text-[10px] font-mono tracking-[0.2em] text-primary font-semibold uppercase">
-              Broker Reviews
+              {t("nav.brokerReviews")}
             </span>
             <span className="text-[9px] tracking-wide text-muted-foreground">
-              We Test Brokers. You Trade Smarter.
+              {t("hero.title", "We Test Brokers. You Trade Smarter.")}
             </span>
           </Link>
 
-          {/* Desktop Menu */}
           <div className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <div key={link.label} className="relative group">
@@ -120,19 +121,19 @@ const Navbar = () => {
                 )}
                 {link.children && (
                   <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
-                    {link.label === "More" ? (
+                    {link.label === t("nav.more") ? (
                       <>
                         <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Main Menu</div>
-                        {link.children.filter(c => ["Promotions", "Share Ideas", "News", "Calendar"].includes(c.label)).map((child) => (
+                        {link.children.slice(0, 4).map((child) => (
                           <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
                         ))}
                         <div className="border-t border-border my-1" />
                         <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Partnership</div>
-                        {link.children.filter(c => ["Become an Affiliate", "IB Partnership", "Collaboration"].includes(c.label)).map((child) => (
+                        {link.children.slice(6).map((child) => (
                           <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
                         ))}
                         <div className="border-t border-border my-1" />
-                        {link.children.filter(c => ["About Us", "Contact Us"].includes(c.label)).map((child) => (
+                        {link.children.slice(4, 6).map((child) => (
                           <Link key={child.label} to={child.href} className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors">{child.label}</Link>
                         ))}
                       </>
@@ -150,7 +151,6 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Side */}
           <div className="hidden xl:flex items-center gap-2">
             <button onClick={cycleTheme} title={themeLabel}
               className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
@@ -167,6 +167,8 @@ const Navbar = () => {
               <Search className="w-4 h-4" />
             </button>
 
+            {user && <NotificationBell />}
+
             {user ? (
               <div className="relative">
                 <button onClick={(e) => { e.stopPropagation(); setUserDropdownOpen(!userDropdownOpen); }}
@@ -182,22 +184,20 @@ const Navbar = () => {
             ) : (
               <>
                 <button onClick={openLogin} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border rounded-lg">
-                  Log In
+                  {t("nav.login")}
                 </button>
                 <button onClick={openSignup} className="px-4 py-2 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
-                  Join Free
+                  {t("nav.joinFree")}
                 </button>
               </>
             )}
           </div>
 
-          {/* Mobile Hamburger */}
           <button className="xl:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {mobileOpen && (
           <div className="xl:hidden bg-card border-t border-border max-h-[80vh] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
@@ -245,18 +245,18 @@ const Navbar = () => {
                     </div>
                     <button onClick={async () => { await signOut(); setMobileOpen(false); }}
                       className="w-full px-4 py-2.5 text-sm font-semibold border border-border text-foreground rounded-lg flex items-center justify-center gap-2">
-                      <LogOut className="w-4 h-4" /> Log Out
+                      <LogOut className="w-4 h-4" /> {t("nav.login", "Log Out")}
                     </button>
                   </>
                 ) : (
                   <>
                     <button onClick={() => { setMobileOpen(false); openLogin(); }}
                       className="block w-full text-left px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
-                      Log In
+                      {t("nav.login")}
                     </button>
                     <button onClick={() => { setMobileOpen(false); openSignup(); }}
                       className="w-full px-4 py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg">
-                      Join Free
+                      {t("nav.joinFree")}
                     </button>
                   </>
                 )}
