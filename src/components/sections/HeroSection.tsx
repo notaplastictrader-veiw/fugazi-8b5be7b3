@@ -64,13 +64,13 @@ const HeroSection = () => {
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-center mb-4">
           <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-xs text-muted-foreground font-mono">
             Not a Fugazi Broker 😉
           </div>
         </div>
 
-        <div className="inline-flex items-center px-4 py-2 rounded-full border border-primary/20 bg-primary/5 mb-4 overflow-hidden h-[36px]">
+        <div className="inline-flex items-center px-4 py-2 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 overflow-hidden h-[36px]">
           <span
             className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
               eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
