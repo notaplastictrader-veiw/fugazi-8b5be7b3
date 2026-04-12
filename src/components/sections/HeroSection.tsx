@@ -57,7 +57,7 @@ const HeroSection = () => {
   const currentChips = chipGroups[chipGroupIndex];
 
   return (
-    <section className="relative pt-14 md:pt-20 pb-10 md:pb-14 overflow-hidden">
+    <section className="relative pt-10 md:pt-14 pb-8 md:pb-10 overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
         
