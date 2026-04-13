@@ -3,11 +3,9 @@ import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 
 const typewriterTexts = [
-  "Search Brokers...",
-  "Search Prop Firms...",
-  "Search Signal Providers...",
-  "Search Crypto Exchanges...",
-  "Search Scam Alerts...",
+  "Search Brokers, Signals, News...",
+  "Search Prop Firms, Sports, Alerts...",
+  "Search Crypto, Forecasts, Reviews...",
 ];
 
 const eyebrowItems = [
