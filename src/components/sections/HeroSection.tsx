@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 
@@ -35,8 +35,8 @@ const HeroSection = () => {
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
-  const [textIndex, setTextIndex] = useState(0);
-  const [textFade, setTextFade] = useState(true);
+  const [displayText, setDisplayText] = useState("");
+  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
   useEffect(() => {
@@ -61,16 +61,32 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Full sentence rotation
+  // Typewriter effect — type full sentence, then reverse-delete
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTextFade(false);
-      setTimeout(() => {
-        setTextIndex((i) => (i + 1) % typewriterTexts.length);
-        setTextFade(true);
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
+    const ref = typewriterRef.current;
+    const tick = () => {
+      const fullText = typewriterTexts[ref.textIndex];
+      if (ref.isDeleting) {
+        ref.charIndex--;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === 0) {
+          ref.isDeleting = false;
+          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
+          return setTimeout(tick, 400);
+        }
+        return setTimeout(tick, 35);
+      } else {
+        ref.charIndex++;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === fullText.length) {
+          ref.isDeleting = true;
+          return setTimeout(tick, 1800);
+        }
+        return setTimeout(tick, 70);
+      }
+    };
+    const timer = setTimeout(tick, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const eyebrow = eyebrowItems[eyebrowIndex];
