@@ -52,7 +52,8 @@ const Compare = () => {
     const slugs = ids.map(id => allBrokers.find(b => b.id === id)?.slug).filter(Boolean);
     const params = new URLSearchParams();
     slugs.forEach(s => params.append("b", s!));
-    setSearchParams(params, { replace: true });
+    const newUrl = slugs.length ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+    window.history.replaceState(null, "", newUrl);
   };
 
   const addBroker = (id: string) => {
