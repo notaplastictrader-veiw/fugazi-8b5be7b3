@@ -32,6 +32,7 @@ const Compare = lazy(() => import("./pages/Compare"));
 const Education = lazy(() => import("./pages/Education"));
 const EducationArticle = lazy(() => import("./pages/EducationArticle"));
 const Promotions = lazy(() => import("./pages/Promotions"));
+const PromotionDetail = lazy(() => import("./pages/PromotionDetail"));
 const News = lazy(() => import("./pages/News"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Sports = lazy(() => import("./pages/Sports"));
@@ -158,6 +159,7 @@ const AppContent = () => {
           <Route path="/education" element={<Education />} />
           <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />
+          <Route path="/promotions/:slug" element={<PromotionDetail />} />
           <Route path="/news" element={<News />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/sports" element={<Sports />} />

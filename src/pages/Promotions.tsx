@@ -1,32 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { supabase } from "@/integrations/supabase/client";
-import { Gift, ExternalLink, Clock, Star } from "lucide-react";
+import { Gift, ExternalLink, Clock, Star, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-
-interface Promotion {
-  id: string;
-  title: string;
-  description: string;
-  promo_type: string;
-  bonus_amount: string;
-  expiry_date: string | null;
-  link_url: string;
-  image_url: string;
-  is_featured: boolean;
-  created_at: string;
-}
-
-const fallbackPromos: Promotion[] = [
-  { id: "1", title: "Exness 100% Deposit Bonus", description: "Get 100% bonus on your first deposit. Trade with double the capital from day one.", promo_type: "bonus", bonus_amount: "100%", expiry_date: "2026-05-31", link_url: "#", image_url: "", is_featured: true, created_at: "" },
-  { id: "2", title: "FTMO 20% Off Challenge Fee", description: "Save 20% on FTMO challenge fees. Limited time offer for all account sizes.", promo_type: "discount", bonus_amount: "20%", expiry_date: "2026-04-30", link_url: "#", image_url: "", is_featured: true, created_at: "" },
-  { id: "3", title: "XM $30 No-Deposit Bonus", description: "Start trading with $30 free — no deposit required. Available for new accounts.", promo_type: "no-deposit", bonus_amount: "$30", expiry_date: null, link_url: "#", image_url: "", is_featured: false, created_at: "" },
-  { id: "4", title: "IC Markets Raw Spread from 0.0", description: "Open a Raw Spread account and enjoy spreads from 0.0 pips on major pairs.", promo_type: "spread", bonus_amount: "0.0 pips", expiry_date: null, link_url: "#", image_url: "", is_featured: false, created_at: "" },
-  { id: "5", title: "Maven Trading 90% Profit Split", description: "Keep 90% of your profits. One of the highest splits in the prop firm industry.", promo_type: "profit-split", bonus_amount: "90%", expiry_date: "2026-06-15", link_url: "#", image_url: "", is_featured: true, created_at: "" },
-  { id: "6", title: "Bullwaves — Start with Just $10", description: "Micro-lot trading with a minimum $10 deposit. Perfect for beginners.", promo_type: "low-deposit", bonus_amount: "$10 min", expiry_date: null, link_url: "#", image_url: "", is_featured: false, created_at: "" },
-];
+import { fallbackPromos, promoTypes, PromotionDetail } from "@/data/promotionsData";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
@@ -38,25 +16,12 @@ const typeColors: Record<string, string> = {
 };
 
 const Promotions = () => {
-  const [promos, setPromos] = useState<Promotion[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const promos = fallbackPromos;
 
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("promotions")
-        .select("*")
-        .eq("status", "published")
-        .order("is_featured", { ascending: false })
-        .order("created_at", { ascending: false });
-      setPromos(data && data.length > 0 ? data : fallbackPromos);
-      setLoading(false);
-    };
-    load();
-  }, []);
-
-  const featured = promos.filter((p) => p.is_featured);
-  const regular = promos.filter((p) => !p.is_featured);
+  const filtered = activeFilter === "all" ? promos : promos.filter((p) => p.promo_type === activeFilter);
+  const featured = filtered.filter((p) => p.is_featured);
+  const regular = filtered.filter((p) => !p.is_featured);
 
   return (
     <MainLayout>
@@ -66,7 +31,7 @@ const Promotions = () => {
         path="/promotions"
       />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             🎁 PROMOTIONS
           </span>
@@ -78,12 +43,25 @@ const Promotions = () => {
           </p>
         </div>
 
-        {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-2xl" />
-            ))}
-          </div>
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap gap-2 justify-center mb-10">
+          {promoTypes.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => setActiveFilter(t.value)}
+              className={`px-4 py-1.5 rounded-full text-xs font-mono font-semibold transition-all border ${
+                activeFilter === t.value
+                  ? "bg-primary text-primary-foreground border-primary shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
+                  : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground">No promotions found for this category.</div>
         ) : (
           <>
             {featured.length > 0 && (
@@ -116,7 +94,7 @@ const Promotions = () => {
   );
 };
 
-const PromoCard = ({ promo, featured }: { promo: Promotion; featured?: boolean }) => {
+const PromoCard = ({ promo, featured }: { promo: PromotionDetail; featured?: boolean }) => {
   const isExpired = promo.expiry_date && new Date(promo.expiry_date) < new Date();
 
   return (
@@ -129,8 +107,9 @@ const PromoCard = ({ promo, featured }: { promo: Promotion; featured?: boolean }
       </div>
 
       <div className="flex-1">
-        <h3 className="text-lg font-bold text-foreground mb-2">{promo.title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">{promo.description}</p>
+        <h3 className="text-lg font-bold text-foreground mb-1">{promo.title}</h3>
+        <p className="text-xs text-muted-foreground/60 mb-2">by {promo.broker_name}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{promo.description}</p>
       </div>
 
       <div className="flex items-center justify-between pt-2 border-t border-border">
@@ -143,8 +122,18 @@ const PromoCard = ({ promo, featured }: { promo: Promotion; featured?: boolean }
             </span>
           )}
         </div>
-        <a href={promo.link_url || "#"} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-          Claim <ExternalLink className="w-3 h-3" />
+      </div>
+
+      <div className="flex gap-2">
+        <Link to={`/promotions/${promo.slug}`} className="flex-1">
+          <button className="w-full text-xs font-semibold py-2 rounded-lg border border-border text-foreground hover:border-primary/40 hover:text-primary transition-all flex items-center justify-center gap-1">
+            Read More <ArrowRight className="w-3 h-3" />
+          </button>
+        </Link>
+        <a href={promo.link_url || "#"} target="_blank" rel="noopener noreferrer" className="flex-1">
+          <button className="w-full text-xs font-semibold py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center justify-center gap-1" disabled={!!isExpired}>
+            Claim Offer <ExternalLink className="w-3 h-3" />
+          </button>
         </a>
       </div>
     </div>
