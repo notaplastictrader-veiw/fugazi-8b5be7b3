@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Plus, X, Star, Shield, AlertTriangle } from "lucide-react";
 
 interface BrokerRow {
@@ -25,59 +25,47 @@ const fields: { key: keyof BrokerRow; label: string }[] = [
 ];
 
 const Compare = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [allBrokers, setAllBrokers] = useState<BrokerRow[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
-  const selectKeyRef = useRef(0);
-  const initializedRef = useRef(false);
+  const [selectKey, setSelectKey] = useState(0);
 
+  // Fetch brokers once
   useEffect(() => {
-    let isActive = true;
-
     supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
-      if (!isActive || !data) return;
-
-      const brokers = data as BrokerRow[];
-      const slugs = new URLSearchParams(window.location.search).getAll("b");
-      const initialSelected = slugs.length
-        ? brokers.filter((broker) => slugs.includes(broker.slug)).map((broker) => broker.id)
-        : [];
-
-      initializedRef.current = true;
-      setAllBrokers(brokers);
-      setSelected(initialSelected);
+      if (data) setAllBrokers(data as BrokerRow[]);
     });
-
-    return () => {
-      isActive = false;
-    };
   }, []);
 
-  const updateUrl = (ids: string[]) => {
-    const slugs = ids.map(id => allBrokers.find(b => b.id === id)?.slug).filter(Boolean);
-    const params = new URLSearchParams();
-    slugs.forEach(s => params.append("b", s!));
-    const newUrl = slugs.length ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
-    window.history.replaceState(null, "", newUrl);
-  };
-
-  useEffect(() => {
-    if (!initializedRef.current || !allBrokers.length) return;
-    updateUrl(selected);
-  }, [selected, allBrokers]);
+  // Derive selected from URL — single source of truth
+  const selectedSlugs = searchParams.getAll("b");
+  const compared = selectedSlugs
+    .map(slug => allBrokers.find(b => b.slug === slug))
+    .filter(Boolean) as BrokerRow[];
 
   const addBroker = (id: string) => {
-    setSelected(prev => {
-      if (prev.includes(id) || prev.length >= 4) return prev;
-      return [...prev, id];
-    });
-    selectKeyRef.current += 1;
+    const broker = allBrokers.find(b => b.id === id);
+    if (!broker) return;
+    if (selectedSlugs.includes(broker.slug) || selectedSlugs.length >= 4) return;
+
+    const next = new URLSearchParams(searchParams);
+    next.append("b", broker.slug);
+    setSearchParams(next, { replace: true });
+    setSelectKey(k => k + 1);
   };
 
   const removeBroker = (id: string) => {
-    setSelected(prev => prev.filter(s => s !== id));
-  };
+    const broker = allBrokers.find(b => b.id === id);
+    if (!broker) return;
 
-  const compared = selected.map(id => allBrokers.find(b => b.id === id)).filter(Boolean) as BrokerRow[];
+    const next = new URLSearchParams();
+    // Preserve all non-"b" params
+    searchParams.forEach((v, k) => {
+      if (k !== "b") next.append(k, v);
+    });
+    // Re-add all "b" params except the removed one
+    selectedSlugs.filter(s => s !== broker.slug).forEach(s => next.append("b", s));
+    setSearchParams(next, { replace: true });
+  };
 
   const renderCell = (broker: BrokerRow, key: keyof BrokerRow) => {
     const val = broker[key];
@@ -134,13 +122,13 @@ const Compare = () => {
               </button>
             </div>
           ))}
-          {selected.length < 4 && (
-            <Select key={`broker-select-${selectKeyRef.current}`} onValueChange={addBroker}>
+          {selectedSlugs.length < 4 && (
+            <Select key={`broker-select-${selectKey}`} onValueChange={addBroker}>
               <SelectTrigger className="w-[200px] bg-background">
                 <SelectValue placeholder="+ Add broker" />
               </SelectTrigger>
               <SelectContent>
-                {allBrokers.filter(b => !selected.includes(b.id)).map(b => (
+                {allBrokers.filter(b => !selectedSlugs.includes(b.slug)).map(b => (
                   <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                 ))}
               </SelectContent>
