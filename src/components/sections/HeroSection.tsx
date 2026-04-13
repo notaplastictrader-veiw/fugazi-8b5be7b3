@@ -1,6 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+
+const typewriterTexts = [
+  "Search Brokers...",
+  "Search Prop Firms...",
+  "Search Signal Providers...",
+  "Search Crypto Exchanges...",
+  "Search Scam Alerts...",
+];
 
 const eyebrowItems = [
   { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -29,6 +37,8 @@ const HeroSection = () => {
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
+  const [displayText, setDisplayText] = useState("");
+  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
   useEffect(() => {
@@ -51,6 +61,34 @@ const HeroSection = () => {
       }, 300);
     }, 3000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Typewriter effect
+  useEffect(() => {
+    const ref = typewriterRef.current;
+    const tick = () => {
+      const fullText = typewriterTexts[ref.textIndex];
+      if (ref.isDeleting) {
+        ref.charIndex--;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === 0) {
+          ref.isDeleting = false;
+          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
+          return setTimeout(tick, 300);
+        }
+        return setTimeout(tick, 40);
+      } else {
+        ref.charIndex++;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === fullText.length) {
+          ref.isDeleting = true;
+          return setTimeout(tick, 1500);
+        }
+        return setTimeout(tick, 80);
+      }
+    };
+    const timer = setTimeout(tick, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const eyebrow = eyebrowItems[eyebrowIndex];
@@ -104,12 +142,18 @@ const HeroSection = () => {
         <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
           <div className="relative flex items-center rounded-[14px] overflow-hidden bg-card/40 border border-primary/20 backdrop-blur-xl focus-within:border-primary/50 focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.1)] transition-all">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
+            {!searchValue && (
+              <span className="absolute left-12 text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide">
+                {displayText}
+                <span className="inline-block w-[2px] h-[14px] bg-muted-foreground/60 ml-[1px] align-middle animate-[pulse_1s_steps(1)_infinite]" />
+              </span>
+            )}
             <input
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              placeholder={t("hero.search", "Search Brokers, Prop Firms, Signal Providers...")}
-              className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground placeholder:text-muted-foreground placeholder:font-normal placeholder:tracking-wide font-mono outline-none"
+              placeholder=""
+              className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground font-mono outline-none"
             />
             <button
               onClick={() => (window as any).__openGlobalSearch?.(searchValue)}
