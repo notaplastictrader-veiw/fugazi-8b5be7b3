@@ -9,33 +9,26 @@ const perks = [
 
 const tiers = [
   {
+    name: "Featured + Verified",
+    features: ["Everything in Verified", "Featured in search results", "Homepage placement", "Dedicated account manager"],
+    cta: "Contact Us →",
+    ctaStyle: "highlight" as const,
+    note: "Best for high-volume brokers",
+  },
+  {
+    name: "Verified Partner",
+    features: ["Verified badge", "Reply to reviews", "Priority support", "Enhanced profile"],
+    cta: "Contact Us →",
+    ctaStyle: "secondary" as const,
+    note: "Most popular choice",
+  },
+  {
     name: "Basic Listing",
-    price: "Free",
-    priceLabel: null,
     features: ["Company profile", "User reviews", "Basic analytics"],
     cta: "Get Listed →",
     ctaStyle: "ghost" as const,
   },
-  {
-    name: "Verified Partner",
-    price: null,
-    priceLabel: "Pricing on request",
-    features: ["Verified badge", "Reply to reviews", "Priority support", "Enhanced profile"],
-    cta: "Contact Us →",
-    ctaStyle: "ghost" as const,
-    note: "Most popular with mid-size brokers",
-  },
-  {
-    name: "Featured + Verified",
-    price: null,
-    priceLabel: "Pricing on request",
-    features: ["Everything in Verified", "Featured in search results", "Homepage placement", "Dedicated account manager"],
-    cta: "Contact Us →",
-    ctaStyle: "highlight" as const,
-    note: "Recommended for high-volume brokers",
-  },
 ];
-
 const BrokerJoinSection = () => {
   return (
     <section className="py-20 px-4">
