@@ -1,0 +1,124 @@
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, XCircle, Clock, TrendingUp, AlertTriangle } from "lucide-react";
+
+interface Prediction {
+  id: string;
+  title: string;
+  sport: string;
+  team_a: string;
+  team_b: string;
+  match_date: string;
+  prediction: string;
+  confidence: number;
+  analyst_note: string;
+  result: string;
+  is_correct: boolean | null;
+}
+
+const sportIcons: Record<string, string> = { football: "⚽", cricket: "🏏", basketball: "🏀", tennis: "🎾", mma: "🥊" };
+const sportColors: Record<string, string> = {
+  football: "bg-primary/20 text-primary",
+  cricket: "bg-accent/20 text-accent",
+  basketball: "bg-[hsl(var(--coral))]/20 text-[hsl(var(--coral))]",
+  tennis: "bg-[hsl(var(--teal))]/20 text-[hsl(var(--teal))]",
+  mma: "bg-[hsl(var(--purple))]/20 text-[hsl(var(--purple))]",
+};
+
+const getRoiPotential = (confidence: number) => {
+  if (confidence >= 75) return { label: "HIGH ROI", color: "bg-primary/20 text-primary" };
+  if (confidence >= 55) return { label: "MED ROI", color: "bg-accent/20 text-accent" };
+  return { label: "LOW ROI", color: "bg-muted text-muted-foreground" };
+};
+
+const getRiskLevel = (confidence: number) => {
+  if (confidence >= 75) return { label: "Low Risk", color: "text-primary" };
+  if (confidence >= 55) return { label: "Medium Risk", color: "text-accent" };
+  return { label: "High Risk", color: "text-destructive" };
+};
+
+const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
+  const isPast = !!p.result;
+  const matchTime = new Date(p.match_date);
+  const isLive = !isPast && matchTime <= new Date();
+  const roi = getRoiPotential(p.confidence);
+  const risk = getRiskLevel(p.confidence);
+
+  return (
+    <div className={`glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20 ${isPast ? "opacity-80" : ""}`}>
+      <div className="flex items-center justify-between">
+        <Badge className={`text-[10px] font-mono uppercase ${sportColors[p.sport] || "bg-muted text-muted-foreground"}`}>
+          {sportIcons[p.sport]} {p.sport}
+        </Badge>
+        <div className="flex items-center gap-1.5">
+          {!isPast && (
+            <Badge className={`text-[10px] font-mono ${roi.color}`}>
+              <TrendingUp className="w-3 h-3 mr-0.5" /> {roi.label}
+            </Badge>
+          )}
+          {isPast && p.is_correct !== null && (
+            p.is_correct ? (
+              <Badge className="bg-primary/20 text-primary text-[10px] font-mono flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> CORRECT
+              </Badge>
+            ) : (
+              <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono flex items-center gap-1">
+                <XCircle className="w-3 h-3" /> WRONG
+              </Badge>
+            )
+          )}
+          {isLive && (
+            <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono animate-pulse">
+              🔴 LIVE
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground font-mono">{p.title}</p>
+
+      <div className="flex items-center justify-center gap-4">
+        <span className="text-base font-bold text-foreground text-right flex-1">{p.team_a}</span>
+        <span className="text-xs text-muted-foreground font-mono px-3 py-1 rounded bg-secondary">VS</span>
+        <span className="text-base font-bold text-foreground text-left flex-1">{p.team_b}</span>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] text-muted-foreground uppercase font-mono">Our Pick</p>
+          <p className="text-sm font-bold text-primary">{p.prediction}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] text-muted-foreground uppercase font-mono">Confidence</p>
+          <p className={`text-sm font-bold ${p.confidence >= 70 ? "text-primary" : p.confidence >= 50 ? "text-accent" : "text-destructive"}`}>
+            {p.confidence}%
+          </p>
+        </div>
+      </div>
+
+      {/* Risk Warning */}
+      {!isPast && (
+        <div className={`flex items-center gap-1.5 text-[10px] font-mono ${risk.color}`}>
+          <AlertTriangle className="w-3 h-3" />
+          <span>{risk.label} — Betting involves financial risk. Never bet more than you can afford to lose.</span>
+        </div>
+      )}
+
+      {p.analyst_note && (
+        <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
+          💡 {p.analyst_note}
+        </p>
+      )}
+
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <Clock className="w-3 h-3" />
+          {matchTime.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {matchTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+        </span>
+        {isPast && <span className="font-semibold text-foreground">Result: {p.result}</span>}
+      </div>
+    </div>
+  );
+};
+
+export default PredictionCard;
+export type { Prediction };
