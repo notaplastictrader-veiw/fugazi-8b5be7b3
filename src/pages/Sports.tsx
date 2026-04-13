@@ -95,9 +95,17 @@ const Sports = () => {
             <button
               key={tab}
               onClick={() => setActiveFilter(tab)}
-              className={`px-3 py-1.5 rounded-full text-xs font-mono uppercase transition-all ${activeFilter === tab ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-mono uppercase transition-all ${
+                tab === "betting"
+                  ? activeFilter === tab
+                    ? "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-lg shadow-primary/30 scale-105 ring-2 ring-primary/40"
+                    : "bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-primary/30 hover:from-primary/30 hover:to-accent/30 hover:scale-105 animate-pulse"
+                  : activeFilter === tab
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground hover:text-foreground"
+              }`}
             >
-              {filterLabels[tab]}
+              {tab === "betting" && "🔥 "}{filterLabels[tab]}
             </button>
           ))}
         </div>
