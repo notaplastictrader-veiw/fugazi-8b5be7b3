@@ -26,9 +26,10 @@ const fields: { key: keyof BrokerRow; label: string }[] = [
 ];
 
 const Compare = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [allBrokers, setAllBrokers] = useState<BrokerRow[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const selectKeyRef = useRef(0);
 
   useEffect(() => {
     supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
