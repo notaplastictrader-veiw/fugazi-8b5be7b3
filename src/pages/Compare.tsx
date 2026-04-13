@@ -57,18 +57,21 @@ const Compare = () => {
     window.history.replaceState(null, "", newUrl);
   };
 
+  useEffect(() => {
+    if (!initializedRef.current || !allBrokers.length) return;
+    updateUrl(selected);
+  }, [selected, allBrokers]);
+
   const addBroker = (id: string) => {
-    if (selected.includes(id) || selected.length >= 4) return;
-    const next = [...selected, id];
-    setSelected(next);
+    setSelected(prev => {
+      if (prev.includes(id) || prev.length >= 4) return prev;
+      return [...prev, id];
+    });
     selectKeyRef.current += 1;
-    updateUrl(next);
   };
 
   const removeBroker = (id: string) => {
-    const next = selected.filter(s => s !== id);
-    setSelected(next);
-    updateUrl(next);
+    setSelected(prev => prev.filter(s => s !== id));
   };
 
   const compared = selected.map(id => allBrokers.find(b => b.id === id)).filter(Boolean) as BrokerRow[];
