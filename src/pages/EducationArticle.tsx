@@ -1,13 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { getArticleBySlug, getNextArticle } from "@/data/educationArticles";
+import { educationArticles, getArticleBySlug, getNextArticle } from "@/data/educationArticles";
 import { ChevronRight, Clock, User, ArrowRight, Lock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotFound from "./NotFound";
 import { useState, useEffect } from "react";
 
-const trackLabels = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+const trackLabels: Record<string, string> = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
 
 const EducationArticle = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -56,6 +56,10 @@ const EducationArticle = () => {
       </MainLayout>
     );
   }
+
+  const related = educationArticles
+    .filter(a => a.track === article.track && a.slug !== article.slug && !a.isLocked)
+    .slice(0, 3);
 
   return (
     <MainLayout>
@@ -155,31 +159,24 @@ const EducationArticle = () => {
               </div>
 
               {/* Related */}
-              {(() => {
-                const related = (
-                  // Import educationArticles directly for related
-                  require("@/data/educationArticles").educationArticles as typeof import("@/data/educationArticles").educationArticles
-                ).filter(a => a.track === article.track && a.slug !== article.slug && !a.isLocked).slice(0, 3);
-                if (!related.length) return null;
-                return (
-                  <div className="glass-card rounded-xl p-5">
-                    <h4 className="text-xs font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                      Related Articles
-                    </h4>
-                    <div className="space-y-2">
-                      {related.map(r => (
-                        <Link
-                          key={r.slug}
-                          to={`/education/${r.slug}`}
-                          className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
-                        >
-                          {r.title}
-                        </Link>
-                      ))}
-                    </div>
+              {related.length > 0 && (
+                <div className="glass-card rounded-xl p-5">
+                  <h4 className="text-xs font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Related Articles
+                  </h4>
+                  <div className="space-y-2">
+                    {related.map(r => (
+                      <Link
+                        key={r.slug}
+                        to={`/education/${r.slug}`}
+                        className="block text-sm text-muted-foreground hover:text-primary transition-colors py-1"
+                      >
+                        {r.title}
+                      </Link>
+                    ))}
                   </div>
-                );
-              })()}
+                </div>
+              )}
             </div>
           </aside>
         </div>

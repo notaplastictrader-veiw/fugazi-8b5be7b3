@@ -1,67 +1,36 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { BookOpen, TrendingUp, Zap, ChevronRight, CheckCircle, Lock } from "lucide-react";
-
-interface Lesson {
-  title: string;
-  desc: string;
-  free: boolean;
-}
+import { BookOpen, TrendingUp, Zap, ChevronRight, CheckCircle, Lock, ShoppingBag, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { educationArticles, courses } from "@/data/educationArticles";
+import CoursePurchaseModal from "@/components/modals/CoursePurchaseModal";
+import type { Course } from "@/data/educationArticles";
 
 interface Track {
   id: string;
   label: string;
   icon: typeof BookOpen;
-  color: string;
-  lessons: Lesson[];
 }
 
 const tracks: Track[] = [
-  {
-    id: "beginner",
-    label: "Beginner",
-    icon: BookOpen,
-    color: "text-primary",
-    lessons: [
-      { title: "What is Forex Trading?", desc: "How currencies are traded, who participates, and why it matters. A simple example with EUR/USD.", free: true },
-      { title: "How Does a Broker Work?", desc: "The role of brokers, how they make money (spreads & commissions), and why choosing the right one matters.", free: true },
-      { title: "Pips, Spreads & Leverage Explained", desc: "The three numbers every trader must understand. Real calculation examples included.", free: true },
-      { title: "Reading a Candlestick Chart", desc: "Open, close, high, low — what each part means. Identify bullish and bearish patterns at a glance.", free: true },
-      { title: "Risk Management Basics", desc: "The 1% rule, stop-losses, position sizing. Why risk management is more important than entry strategy.", free: true },
-    ],
-  },
-  {
-    id: "intermediate",
-    label: "Intermediate",
-    icon: TrendingUp,
-    color: "text-accent",
-    lessons: [
-      { title: "Support & Resistance", desc: "How to identify key price levels where markets are likely to react. Draw them on any chart.", free: true },
-      { title: "Moving Averages (SMA & EMA)", desc: "The difference between simple and exponential, when to use each, and how to spot crossover signals.", free: true },
-      { title: "RSI & MACD Indicators", desc: "Two of the most popular momentum indicators. Learn to read overbought/oversold conditions.", free: true },
-      { title: "Reading the Economic Calendar", desc: "Which events move markets the most? How to prepare for NFP, CPI, and central bank decisions.", free: true },
-      { title: "Building a Trading Journal", desc: "Why tracking every trade is the fastest way to improve. Template and metrics included.", free: false },
-    ],
-  },
-  {
-    id: "advanced",
-    label: "Advanced",
-    icon: Zap,
-    color: "text-coral",
-    lessons: [
-      { title: "ICT Concepts Simplified", desc: "Order blocks, fair value gaps, and liquidity — explained without the jargon.", free: false },
-      { title: "Smart Money Concepts", desc: "How institutional traders think. Market structure, break of structure, and change of character.", free: false },
-      { title: "Building a Trading Plan", desc: "A complete framework: entry rules, risk per trade, daily limits, and psychological rules.", free: true },
-      { title: "How Prop Firm Challenges Work", desc: "Rules, targets, drawdown limits, and strategies to pass. Covers FTMO, MFF, and others.", free: true },
-      { title: "Psychology of a Winning Trader", desc: "Fear, greed, revenge trading — how to recognize and overcome the mental traps.", free: false },
-    ],
-  },
+  { id: "beginner", label: "Beginner", icon: BookOpen },
+  { id: "intermediate", label: "Intermediate", icon: TrendingUp },
+  { id: "advanced", label: "Advanced", icon: Zap },
 ];
+
+const typeBadgeColors: Record<string, string> = {
+  course: "bg-primary/10 text-primary",
+  ebook: "bg-accent/10 text-accent",
+  bundle: "bg-coral/10 text-coral",
+};
 
 const Education = () => {
   const [activeTrack, setActiveTrack] = useState("beginner");
-  const current = tracks.find(t => t.id === activeTrack)!;
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
+  const filteredLessons = educationArticles.filter(a => a.track === activeTrack);
 
   return (
     <MainLayout>
@@ -104,8 +73,12 @@ const Education = () => {
 
         {/* Lessons */}
         <div className="space-y-3">
-          {current.lessons.map((lesson, i) => (
-            <div key={i} className="glass-card rounded-xl p-6 flex items-start gap-4 group hover:border-primary/20 transition-colors cursor-pointer">
+          {filteredLessons.map((lesson, i) => (
+            <Link
+              key={lesson.slug}
+              to={lesson.isLocked ? "/education#courses" : `/education/${lesson.slug}`}
+              className="glass-card rounded-xl p-6 flex items-start gap-4 group hover:border-primary/20 transition-colors cursor-pointer block"
+            >
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
                 {i + 1}
               </div>
@@ -114,16 +87,18 @@ const Education = () => {
                   <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors">
                     {lesson.title}
                   </h3>
-                  {lesson.free ? (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary">FREE</span>
-                  ) : (
+                  {lesson.isLocked ? (
                     <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                  ) : (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary">FREE</span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">{lesson.desc}</p>
+                <p className="text-sm text-muted-foreground">
+                  {lesson.sections[0]?.content?.replace(/<[^>]*>/g, "").slice(0, 120)}...
+                </p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -135,7 +110,76 @@ const Education = () => {
             Sign up for a free account to save your progress, bookmark lessons, and get notified when new content drops.
           </p>
         </div>
+
+        {/* Courses Section */}
+        <div id="courses" className="mt-20">
+          <div className="text-center mb-10">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent mb-4">
+              PREMIUM CONTENT
+            </span>
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-3">
+              Take Your Trading Further
+            </h2>
+            <p className="text-muted-foreground max-w-lg mx-auto">
+              Structured courses and ebooks written by professional traders.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courses.filter(c => c.isActive).map((course) => (
+              <div
+                key={course.id}
+                className={`glass-card rounded-xl p-6 flex flex-col relative ${
+                  course.isFeatured ? "border-accent/40 ring-1 ring-accent/20" : ""
+                }`}
+              >
+                {course.isFeatured && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="bg-accent text-accent-foreground text-[10px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> BEST VALUE
+                    </span>
+                  </div>
+                )}
+
+                <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full w-fit mb-3 ${typeBadgeColors[course.type] || "bg-muted text-muted-foreground"}`}>
+                  {course.type}
+                </span>
+
+                <h3 className="font-display font-bold text-foreground mb-2 text-lg leading-tight">{course.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4 flex-1">{course.description}</p>
+
+                <div className="text-xs text-muted-foreground mb-4">{course.includes}</div>
+
+                <div className="flex items-end justify-between mt-auto">
+                  <div>
+                    <span className="text-2xl font-bold text-foreground">${course.price}</span>
+                    {course.originalPrice && (
+                      <span className="text-sm text-muted-foreground line-through ml-2">${course.originalPrice}</span>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={course.isFeatured ? "default" : "outline"}
+                    onClick={() => setSelectedCourse(course)}
+                    className="shrink-0"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 mr-1.5" />
+                    Buy Now →
+                  </Button>
+                </div>
+
+                <p className="text-[10px] text-muted-foreground mt-3 font-mono">{course.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
+
+      <CoursePurchaseModal
+        course={selectedCourse}
+        open={!!selectedCourse}
+        onClose={() => setSelectedCourse(null)}
+      />
     </MainLayout>
   );
 };
