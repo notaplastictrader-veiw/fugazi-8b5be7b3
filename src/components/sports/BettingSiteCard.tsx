@@ -6,7 +6,7 @@ import type { BettingSite } from "@/data/bettingSites";
 
 const BettingSiteCard = forwardRef<HTMLDivElement, { site: BettingSite }>(({ site }, ref) => {
   return (
-    <div className="glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20">
+    <div ref={ref} className="glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-3xl">{site.logo}</span>
