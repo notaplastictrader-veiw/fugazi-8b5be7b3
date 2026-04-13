@@ -105,7 +105,7 @@ const Sports = () => {
                     : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
             >
-              {tab === "betting" && "🔥 "}{filterLabels[tab]}
+              {filterLabels[tab]}{tab === "betting" && " 🔥"}
             </button>
           ))}
         </div>
