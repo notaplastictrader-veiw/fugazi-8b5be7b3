@@ -1,33 +1,27 @@
 
 
-# Glass-Card — Revert Tint, Only Highlight Border
+# BrokerJoinSection — Remove Pricing, Highlight Verified/Featured
 
-## Problem
-তুমি শুধু box গুলোর border highlight করতে বলেছিলে, কিন্তু আমি background tint আর shadow ও বাড়িয়ে দিয়েছিলাম। সেটা আগের মতো ফিরিয়ে রাখবো, শুধু border টা আরেকটু visible করবো।
+## Changes
 
-## Change
+**File: `src/components/sections/BrokerJoinSection.tsx`**
 
-**File: `src/index.css`** — `.glass-card` class update:
+### 1. Remove all pricing references
+- Remove `price: "Free"` and `priceLabel: "Pricing on request"` from tier data
+- Remove the price/priceLabel rendering block (lines 77-81)
 
-| Property | Current | New |
-|----------|---------|-----|
-| background | `hsl(--card/0.7)` → `hsl(--primary/0.08)` gradient | Revert to original: `hsl(--card/0.7)` → `hsl(--primary/0.08)` — actually keep as original was `0.08` already |
-| border | `1px solid hsl(--border/0.8)` | `1px solid hsl(--primary/0.25)` — primary-tinted border for highlight |
-| box-shadow | `hsl(--primary/0.10)` | Revert to `hsl(--primary/0.10)` (keep same) |
+### 2. Reorder tiers: Featured + Verified first (most highlighted), then Verified, then Basic
+- Rearrange array order: Featured + Verified → Verified Partner → Basic Listing
+- Featured + Verified gets `highlight` style (accent border + ring + accent CTA) — already has it
+- Verified Partner gets a secondary highlight (primary border + ring)
+- Basic Listing stays plain/ghost
 
-Actually let me revert to the **original** values and only change border:
+### 3. Update wording
+- Featured + Verified: note → "Best for high-volume brokers"
+- Verified Partner: note → "Most popular choice"
+- Basic Listing: no note, CTA stays "Get Listed →"
+- Both Verified & Featured CTA: "Contact Us →"
 
-```css
-.glass-card {
-  background: linear-gradient(135deg, hsl(var(--card) / 0.7), hsl(var(--primary) / 0.08));
-  border: 1px solid hsl(var(--primary) / 0.25);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px -4px hsl(var(--primary) / 0.10);
-}
-```
-
-The only real change: border color from `hsl(--border/0.8)` → `hsl(--primary/0.25)` so the box edges glow with the primary color (lime/green/red depending on theme).
-
-### Files Modified
-- `src/index.css` — border highlight on `.glass-card`
+### Result
+No pricing visible. Featured + Verified card stands out most (left position, accent highlight). Verified Partner has primary highlight. Basic is subdued.
 
