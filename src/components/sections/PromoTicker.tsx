@@ -25,7 +25,7 @@ const PromoTicker = () => {
     fetch();
   }, []);
 
-  const items = [...promoItems, ...promoItems];
+  const items = [...promoItems, ...promoItems, ...promoItems];
   return (
     <div className="relative z-[200] bg-secondary/80 backdrop-blur-sm border-b border-border overflow-hidden h-[34px] flex items-center">
       <div className="flex-shrink-0 px-3">
