@@ -1,43 +1,142 @@
 
 
-# Light Theme — Premium Warm Multi-Tone Redesign
+# NAPT — 7 Changes Implementation Plan
 
-## Vision
-The current light theme uses cold blue-grey tones (`220 hue`) which feels dated. The reference image shows a warm, premium aesthetic with beige/cream backgrounds, rich brown accents, and gold highlights — a 2025 luxury feel.
+This is one of the largest feature requests to date. It involves new database tables, new pages, new admin panels, rich text editing, and a social/community system. Below is the phased plan.
 
-## Changes
+---
 
-### File: `src/index.css` — Light theme CSS variables
+## Scope Assessment
 
-Replace all `[data-theme="light"]` HSL values with a warm beige/brown/gold palette:
+| Change | Complexity | New Files | New DB Tables | Priority |
+|--------|-----------|-----------|---------------|----------|
+| 1. Sports + Betting Sites | High | ~5 | 1 (betting_sites) | 5 |
+| 2. Education Full Rebuild | Very High | ~8 | 2 (education_articles, courses) | 1 |
+| 3. Promotions Upgrade | Medium | ~3 | 1 (promotions_detail) | 4 |
+| 4. Calendar | None | 0 | 0 | — |
+| 5. News | None | 0 | 0 | — |
+| 6. Full Review Pages | Very High | ~6 | 0 (extends brokers) | 2 |
+| 7. Trading Ideas Rebuild | Very High | ~8 | 3 (trading_ideas, idea_reactions, idea_comments, private_submissions) | 3 |
 
-| Token | Current (cold grey) | New (warm premium) |
-|-------|--------------------|--------------------|
-| `--background` | `220 10% 82%` | `30 25% 92%` (warm cream) |
-| `--foreground` | `220 20% 12%` | `25 30% 15%` (rich dark brown) |
-| `--card` | `220 10% 88%` | `30 20% 96%` (off-white warm) |
-| `--card-foreground` | `220 20% 12%` | `25 30% 15%` |
-| `--popover` | `220 10% 88%` | `30 20% 96%` |
-| `--primary` | `83 100% 30%` (green) | `28 60% 45%` (rich warm brown) |
-| `--primary-foreground` | `0 0% 100%` | `30 25% 96%` (cream white) |
-| `--secondary` | `220 10% 76%` | `30 15% 85%` (light beige) |
-| `--secondary-foreground` | `220 15% 25%` | `25 25% 25%` |
-| `--muted` | `220 8% 74%` | `30 12% 88%` (muted beige) |
-| `--muted-foreground` | `220 8% 45%` | `25 15% 50%` |
-| `--accent` | `43 86% 45%` | `38 70% 50%` (warm gold) |
-| `--accent-foreground` | `0 0% 100%` | `30 25% 96%` |
-| `--border` | `220 10% 72%` | `30 15% 82%` (warm border) |
-| `--input` | `220 10% 72%` | `30 15% 82%` |
-| `--ring` | `83 100% 30%` | `28 60% 45%` |
-| `--teal` | `174 65% 40%` | `174 45% 40%` (slightly muted) |
-| `--coral` | `14 100% 55%` | `14 70% 50%` (warmer) |
-| `--purple` | `260 80% 55%` | `260 50% 50%` (muted luxury) |
-| Sidebar tokens | cold grey `220` hues | Matching warm `25-30` hues |
+**Total estimated: ~30+ new/modified files, 7 new database tables, 6 migrations.**
 
-### File: `src/index.css` — Light theme body grid overlay
+---
 
-Update the `[data-theme="light"] body::before` grid colors from cold blue `hsl(220 15% 50%)` to warm brown tones `hsl(30 20% 50%)` to match the new palette.
+## IMPORTANT: This must be built in multiple rounds
 
-### Files Modified
-- `src/index.css` — Light theme variables + grid overlay
+This plan covers ALL 7 changes but they cannot all be implemented in a single response. I recommend building them in this order across multiple rounds:
+
+---
+
+## PHASE 1 — Education Hub (Change 2)
+
+### Database migrations:
+- `education_articles` table: id, title, slug, track, body_html, read_time_minutes, is_locked, course_id, is_published, author, created_at, updated_at
+- `courses` table: id, title, type (course/ebook/bundle), price, description, includes_text, is_active, is_featured, slug, created_at
+
+### Frontend:
+- **New page: `/education/:slug`** — Full article page with breadcrumb, TOC sidebar, read time, sections, Key Takeaway box, Next Article link
+- **Update `/education`** — Make lesson items clickable (Link to `/education/:slug`), locked items redirect to course section or show tooltip
+- **New section on Education page** — "Take Your Trading Further" courses grid (6 course cards with Buy Now buttons)
+- **Purchase modal component** — Crypto payment flow (copy wallet, Telegram link, email instructions)
+- **Write all 15 article contents** as seed data (HTML content for each lesson)
+
+### Admin:
+- Education Articles admin page (CRUD, rich text with track selector, publish toggle)
+- Courses admin page (CRUD, price, type, active toggle)
+- New admin routes + sidebar entries
+
+---
+
+## PHASE 2 — Full Review Page Template (Change 6)
+
+### Database:
+- Add `full_review_html` column to `brokers` table (text, nullable)
+- Add `meta_title`, `meta_description` columns to `brokers`
+
+### Frontend:
+- **Rebuild `BrokerDetail.tsx`** with tabbed layout: Overview | Reviews | Complaints | Promotions | Comparison | Scam Score
+- Overview tab renders the rich HTML review content from `full_review_html`
+- Reviews tab shows existing community reviews
+- Header redesign: logo + name + score bar + badges + regulation + "Open Account" CTA
+- Same template reusable for prop firms, betting sites, signal providers (via entity type prop)
+
+### Admin:
+- Add "Full Review" tab in broker edit with rich text editor (TipTap)
+- Section-based content builder with drag-to-reorder
+- SEO fields, preview button
+
+---
+
+## PHASE 3 — Trading Ideas / Share Ideas Rebuild (Change 7)
+
+### Database migrations:
+- `trading_ideas`: id, user_id, asset, direction, title, body, chart_image_url, timeframe, risk_level, created_at, is_hidden, is_pinned, is_featured
+- `idea_reactions`: id, idea_id, user_id, reaction_type, created_at (unique on idea_id + user_id)
+- `idea_comments`: id, idea_id, user_id, parent_comment_id, body, created_at, is_hidden
+- `private_submissions`: id, user_id, category, title, body, status, admin_note, created_at
+
+### Frontend:
+- **Rebuild `/ideas`** as Trading Ideas community page
+- Two-column layout: scrollable feed (left) + quick post + top contributors (right)
+- Trading idea cards with reactions (🔥👍👎💡⚠️), inline comments
+- Feed container: ~600px height, scrollable, sorting tabs (Trending/Latest/Most Reactions/Most Discussed)
+- Asset filter pills
+- Post modal: asset selector, direction toggle, title, analysis textarea, chart upload, timeframe, risk level, disclaimer checkbox
+- Private submission form for Bug/Feature/Content (goes to admin only)
+
+### Admin:
+- Trading Ideas moderation panel (hide/pin/feature)
+- Private Submissions table with status management
+
+---
+
+## PHASE 4 — Promotions Upgrade (Change 3)
+
+### Database:
+- `promotions_detail`: id (FK to promotions), full_description, how_to_claim, terms_json, expiry_date, is_featured_in_ticker, slug
+
+### Frontend:
+- Add filter tabs: All | Deposit Bonus | No Deposit | Cashback | Challenge Discount | Free Trial
+- Add "Read More →" and "Claim Offer →" buttons to each card
+- **New page: `/promotions/:slug`** — Full promotion detail with terms, steps, countdown timer, sticky CTA on mobile
+- "View all promotions →" link in homepage promotions section
+
+### Admin:
+- Extended promotions editor with full description, terms, how-to-claim, featured toggle
+
+---
+
+## PHASE 5 — Sports + Betting Sites (Change 1)
+
+### Database:
+- `betting_sites`: id, name, slug, logo_url, license_info, supported_sports, affiliate_url, scam_score, rating, review_count, is_verified, is_featured, is_active, created_at
+
+### Frontend:
+- Add "Betting Sites" filter to Sports page
+- When active: show betting site card grid (same style as broker cards)
+- Add "Potential" row + mandatory risk warning to every prediction card
+- Betting site cards: logo, name, badge, supported sports, license, scam score, star rating, Visit Site + Read Reviews buttons
+
+### Admin:
+- Betting Sites CRUD admin page
+
+---
+
+## Changes 4 & 5 — Calendar & News
+Leave as-is. No changes.
+
+---
+
+## Technical Notes
+
+- **Rich text editor**: Will use TipTap (free, React-native, excellent for WYSIWYG). Added as npm dependency.
+- **Image uploads**: Chart images in trading ideas will use Supabase Storage bucket (no Cloudinary needed — keeps stack simpler).
+- **No payment gateway**: Course purchases use the manual crypto/Telegram/email flow as specified.
+- **RLS policies**: All new tables get proper RLS — public read for published content, authenticated write for user-generated content, admin-only for moderation.
+- **Types regeneration**: After each migration, Supabase types will need regeneration.
+
+---
+
+## Shall I start with Phase 1 (Education Hub)?
 
