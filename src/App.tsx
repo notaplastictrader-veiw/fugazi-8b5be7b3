@@ -81,6 +81,7 @@ const EducationAdmin = lazy(() => import("./pages/admin/EducationAdmin"));
 const CoursesAdmin = lazy(() => import("./pages/admin/CoursesAdmin"));
 const TradingIdeasAdmin = lazy(() => import("./pages/admin/TradingIdeasAdmin"));
 const SubmissionsAdmin = lazy(() => import("./pages/admin/SubmissionsAdmin"));
+const BettingSitesAdmin = lazy(() => import("./pages/admin/BettingSitesAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -198,6 +199,7 @@ const AppContent = () => {
             <Route path="courses" element={<CoursesAdmin />} />
             <Route path="trading-ideas" element={<TradingIdeasAdmin />} />
             <Route path="submissions" element={<SubmissionsAdmin />} />
+            <Route path="betting-sites" element={<BettingSitesAdmin />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

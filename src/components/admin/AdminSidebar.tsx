@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
-  Lightbulb, Mail
+  Lightbulb, Mail, Dices
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -45,6 +45,7 @@ const items: MenuItem[] = [
   { title: "Courses", url: "/admin/courses", icon: GraduationCap, roles: ["super_admin", "content_ops"] },
   { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb, roles: ["super_admin", "content_ops", "moderator"] },
   { title: "Submissions", url: "/admin/submissions", icon: Mail, roles: ["super_admin", "content_ops"] },
+  { title: "Betting Sites", url: "/admin/betting-sites", icon: Dices, roles: ["super_admin", "content_ops"] },
 ];
 
 const dashboardItems: MenuItem[] = [
