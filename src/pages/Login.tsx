@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 
+const ADMIN_ROLES = ["super_admin", "content_ops", "moderator"];
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,23 +16,42 @@ const Login = () => {
   const { toast } = useToast();
   const { t } = useI18n();
 
+  const redirectByRole = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const roles = data?.map((r) => r.role) ?? [];
+
+    if (roles.some((r) => ADMIN_ROLES.includes(r))) {
+      navigate("/admin");
+    } else if (roles.includes("broker")) {
+      navigate("/admin/broker-dashboard");
+    } else if (roles.includes("signal_provider")) {
+      navigate("/admin/signal-dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Welcome back!" });
-      navigate("/");
+      await redirectByRole(data.user.id);
     }
   };
 
   const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: window.location.origin + "/dashboard" },
     });
     if (error) {
       toast({ title: "Google login failed", description: error.message, variant: "destructive" });
