@@ -1,142 +1,54 @@
 
 
-# NAPT — 7 Changes Implementation Plan
+# Plan: 4 Tasks — Compare Bug Fix, BrokerDetail Rebuild, Supabase Migrations, Sports Console Check
 
-This is one of the largest feature requests to date. It involves new database tables, new pages, new admin panels, rich text editing, and a social/community system. Below is the phased plan.
+## Task 1: Fix Compare Page — 2nd Broker Selection Bug
 
----
+**Problem**: When adding a 2nd broker, `setSearchParams` triggers a component re-render. The `Select` component doesn't reset after selection, and the URL update may cause state desync.
 
-## Scope Assessment
+**Fix**:
+- Add a `key` prop to `Select` that changes on each selection (e.g., `key={selected.length}`) to force reset after each broker is added
+- Ensure `updateUrl` doesn't trigger unnecessary re-renders by checking if params actually changed
+- File: `src/pages/Compare.tsx`
 
-| Change | Complexity | New Files | New DB Tables | Priority |
-|--------|-----------|-----------|---------------|----------|
-| 1. Sports + Betting Sites | High | ~5 | 1 (betting_sites) | 5 |
-| 2. Education Full Rebuild | Very High | ~8 | 2 (education_articles, courses) | 1 |
-| 3. Promotions Upgrade | Medium | ~3 | 1 (promotions_detail) | 4 |
-| 4. Calendar | None | 0 | 0 | — |
-| 5. News | None | 0 | 0 | — |
-| 6. Full Review Pages | Very High | ~6 | 0 (extends brokers) | 2 |
-| 7. Trading Ideas Rebuild | Very High | ~8 | 3 (trading_ideas, idea_reactions, idea_comments, private_submissions) | 3 |
+## Task 2: BrokerDetail Page — Already Has Tabbed Layout
 
-**Total estimated: ~30+ new/modified files, 7 new database tables, 6 migrations.**
+The BrokerDetail page already has a full tabbed layout with **Overview, Reviews, Complaints, and Scam Score** tabs (545 lines). The existing tabs cover:
+- Overview: Verdict, Key Facts, Regulation, Trading Conditions, Platforms, Deposits, Support, Pros/Cons, Best For, Final Verdict, How to Open Account
+- Reviews: Community reviews with submission form
+- Complaints: Complaint count with file complaint CTA
+- Scam Score: Rating bars and methodology
 
----
+**Enhancement** — Add 2 missing tabs:
+- **Promotions tab**: Show active promotions for this broker (from `promotions` table where `broker_id` matches)
+- **Comparison tab**: Quick compare link to `/compare?b=<slug>` with "Add another broker to compare" CTA
 
-## IMPORTANT: This must be built in multiple rounds
+File: `src/pages/BrokerDetail.tsx`
 
-This plan covers ALL 7 changes but they cannot all be implemented in a single response. I recommend building them in this order across multiple rounds:
+## Task 3: Supabase Migrations for Local Data
 
----
+Create migrations for 4 new tables that currently only exist as local TypeScript data:
 
-## PHASE 1 — Education Hub (Change 2)
+1. **`education_articles`** — title, slug, category, track, content, image_url, read_time, status, created_at
+2. **`courses`** — title, slug, description, type (course/ebook/bundle), price, original_price, is_active, is_featured, image_url, status
+3. **`betting_sites`** — name, slug, logo, rating, bonus, sports (text[]), features (text[]), min_deposit, withdrawal_speed, license, url, warning, status
+4. **`trading_ideas`** — user_id, username, handle, asset, direction, title, body, chart_image_url, timeframe, risk_level, is_pinned, is_featured, reactions (jsonb), comment_count, status
+5. **`idea_comments`** — idea_id, user_id, username, body, parent_comment_id
 
-### Database migrations:
-- `education_articles` table: id, title, slug, track, body_html, read_time_minutes, is_locked, course_id, is_published, author, created_at, updated_at
-- `courses` table: id, title, type (course/ebook/bundle), price, description, includes_text, is_active, is_featured, slug, created_at
+Each table gets RLS enabled with public read for published content and authenticated write policies.
 
-### Frontend:
-- **New page: `/education/:slug`** — Full article page with breadcrumb, TOC sidebar, read time, sections, Key Takeaway box, Next Article link
-- **Update `/education`** — Make lesson items clickable (Link to `/education/:slug`), locked items redirect to course section or show tooltip
-- **New section on Education page** — "Take Your Trading Further" courses grid (6 course cards with Buy Now buttons)
-- **Purchase modal component** — Crypto payment flow (copy wallet, Telegram link, email instructions)
-- **Write all 15 article contents** as seed data (HTML content for each lesson)
+## Task 4: Sports Page Console Warning Check
 
-### Admin:
-- Education Articles admin page (CRUD, rich text with track selector, publish toggle)
-- Courses admin page (CRUD, price, type, active toggle)
-- New admin routes + sidebar entries
+Navigate to Sports page, switch to Betting Sites tab, and verify console is clean after the `forwardRef` fix applied to `BettingSiteCard.tsx`.
 
 ---
 
-## PHASE 2 — Full Review Page Template (Change 6)
+## Technical Summary
 
-### Database:
-- Add `full_review_html` column to `brokers` table (text, nullable)
-- Add `meta_title`, `meta_description` columns to `brokers`
-
-### Frontend:
-- **Rebuild `BrokerDetail.tsx`** with tabbed layout: Overview | Reviews | Complaints | Promotions | Comparison | Scam Score
-- Overview tab renders the rich HTML review content from `full_review_html`
-- Reviews tab shows existing community reviews
-- Header redesign: logo + name + score bar + badges + regulation + "Open Account" CTA
-- Same template reusable for prop firms, betting sites, signal providers (via entity type prop)
-
-### Admin:
-- Add "Full Review" tab in broker edit with rich text editor (TipTap)
-- Section-based content builder with drag-to-reorder
-- SEO fields, preview button
-
----
-
-## PHASE 3 — Trading Ideas / Share Ideas Rebuild (Change 7)
-
-### Database migrations:
-- `trading_ideas`: id, user_id, asset, direction, title, body, chart_image_url, timeframe, risk_level, created_at, is_hidden, is_pinned, is_featured
-- `idea_reactions`: id, idea_id, user_id, reaction_type, created_at (unique on idea_id + user_id)
-- `idea_comments`: id, idea_id, user_id, parent_comment_id, body, created_at, is_hidden
-- `private_submissions`: id, user_id, category, title, body, status, admin_note, created_at
-
-### Frontend:
-- **Rebuild `/ideas`** as Trading Ideas community page
-- Two-column layout: scrollable feed (left) + quick post + top contributors (right)
-- Trading idea cards with reactions (🔥👍👎💡⚠️), inline comments
-- Feed container: ~600px height, scrollable, sorting tabs (Trending/Latest/Most Reactions/Most Discussed)
-- Asset filter pills
-- Post modal: asset selector, direction toggle, title, analysis textarea, chart upload, timeframe, risk level, disclaimer checkbox
-- Private submission form for Bug/Feature/Content (goes to admin only)
-
-### Admin:
-- Trading Ideas moderation panel (hide/pin/feature)
-- Private Submissions table with status management
-
----
-
-## PHASE 4 — Promotions Upgrade (Change 3)
-
-### Database:
-- `promotions_detail`: id (FK to promotions), full_description, how_to_claim, terms_json, expiry_date, is_featured_in_ticker, slug
-
-### Frontend:
-- Add filter tabs: All | Deposit Bonus | No Deposit | Cashback | Challenge Discount | Free Trial
-- Add "Read More →" and "Claim Offer →" buttons to each card
-- **New page: `/promotions/:slug`** — Full promotion detail with terms, steps, countdown timer, sticky CTA on mobile
-- "View all promotions →" link in homepage promotions section
-
-### Admin:
-- Extended promotions editor with full description, terms, how-to-claim, featured toggle
-
----
-
-## PHASE 5 — Sports + Betting Sites (Change 1)
-
-### Database:
-- `betting_sites`: id, name, slug, logo_url, license_info, supported_sports, affiliate_url, scam_score, rating, review_count, is_verified, is_featured, is_active, created_at
-
-### Frontend:
-- Add "Betting Sites" filter to Sports page
-- When active: show betting site card grid (same style as broker cards)
-- Add "Potential" row + mandatory risk warning to every prediction card
-- Betting site cards: logo, name, badge, supported sports, license, scam score, star rating, Visit Site + Read Reviews buttons
-
-### Admin:
-- Betting Sites CRUD admin page
-
----
-
-## Changes 4 & 5 — Calendar & News
-Leave as-is. No changes.
-
----
-
-## Technical Notes
-
-- **Rich text editor**: Will use TipTap (free, React-native, excellent for WYSIWYG). Added as npm dependency.
-- **Image uploads**: Chart images in trading ideas will use Supabase Storage bucket (no Cloudinary needed — keeps stack simpler).
-- **No payment gateway**: Course purchases use the manual crypto/Telegram/email flow as specified.
-- **RLS policies**: All new tables get proper RLS — public read for published content, authenticated write for user-generated content, admin-only for moderation.
-- **Types regeneration**: After each migration, Supabase types will need regeneration.
-
----
-
-## Shall I start with Phase 1 (Education Hub)?
+| Task | Files Modified | Complexity |
+|------|---------------|------------|
+| Compare bug fix | `Compare.tsx` | Small — add Select key reset |
+| BrokerDetail tabs | `BrokerDetail.tsx` | Medium — add 2 tab panels |
+| Supabase migrations | 2-3 migration files | Medium — DDL + RLS + enums |
+| Console check | None — browser verification | Trivial |
 
