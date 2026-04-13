@@ -78,6 +78,8 @@ const AuditLog = lazy(() => import("./pages/admin/AuditLog"));
 const ReferralAnalyticsAdmin = lazy(() => import("./pages/admin/ReferralAnalyticsAdmin"));
 const EducationAdmin = lazy(() => import("./pages/admin/EducationAdmin"));
 const CoursesAdmin = lazy(() => import("./pages/admin/CoursesAdmin"));
+const TradingIdeasAdmin = lazy(() => import("./pages/admin/TradingIdeasAdmin"));
+const SubmissionsAdmin = lazy(() => import("./pages/admin/SubmissionsAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -192,6 +194,8 @@ const AppContent = () => {
             <Route path="audit-log" element={<AuditLog />} />
             <Route path="education" element={<EducationAdmin />} />
             <Route path="courses" element={<CoursesAdmin />} />
+            <Route path="trading-ideas" element={<TradingIdeasAdmin />} />
+            <Route path="submissions" element={<SubmissionsAdmin />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
