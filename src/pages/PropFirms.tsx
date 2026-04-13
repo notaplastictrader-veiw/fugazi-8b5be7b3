@@ -39,7 +39,7 @@ const PropFirms = () => {
         description="Verified prop trading firms reviewed and rated. Compare challenges, profit splits, and real trader experiences."
         path="/prop-firms"
       />
-      <section className="py-24 px-4">
+      <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// PROP FIRMS</span>
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">

@@ -71,7 +71,7 @@ const Sports = () => {
         description="Data-driven sports predictions across football, cricket, basketball, and tennis. Track records, confidence scores, and verified results."
         path="/sports"
       />
-      <section className="max-w-6xl mx-auto px-4 py-20">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             🏆 SPORTS PREDICTIONS
