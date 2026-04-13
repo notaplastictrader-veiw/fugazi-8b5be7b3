@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -36,13 +36,17 @@ const Compare = () => {
     });
   }, []);
 
+  const initializedRef = useRef(false);
+
   useEffect(() => {
+    if (initializedRef.current || !allBrokers.length) return;
     const slugs = searchParams.getAll("b");
-    if (slugs.length && allBrokers.length) {
+    if (slugs.length) {
       const ids = allBrokers.filter(b => slugs.includes(b.slug)).map(b => b.id);
       setSelected(ids);
     }
-  }, [searchParams, allBrokers]);
+    initializedRef.current = true;
+  }, [allBrokers]);
 
   const updateUrl = (ids: string[]) => {
     const slugs = ids.map(id => allBrokers.find(b => b.id === id)?.slug).filter(Boolean);
