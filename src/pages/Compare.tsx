@@ -61,6 +61,7 @@ const Compare = () => {
     if (selected.includes(id) || selected.length >= 4) return;
     const next = [...selected, id];
     setSelected(next);
+    selectKeyRef.current += 1;
     updateUrl(next);
   };
 
