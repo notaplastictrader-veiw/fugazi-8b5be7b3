@@ -30,6 +30,7 @@ const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Compare = lazy(() => import("./pages/Compare"));
 const Education = lazy(() => import("./pages/Education"));
+const EducationArticle = lazy(() => import("./pages/EducationArticle"));
 const Promotions = lazy(() => import("./pages/Promotions"));
 const News = lazy(() => import("./pages/News"));
 const Calendar = lazy(() => import("./pages/Calendar"));
@@ -75,6 +76,8 @@ const CalendarAdmin = lazy(() => import("./pages/admin/CalendarAdmin"));
 const SportsAdmin = lazy(() => import("./pages/admin/SportsAdmin"));
 const AuditLog = lazy(() => import("./pages/admin/AuditLog"));
 const ReferralAnalyticsAdmin = lazy(() => import("./pages/admin/ReferralAnalyticsAdmin"));
+const EducationAdmin = lazy(() => import("./pages/admin/EducationAdmin"));
+const CoursesAdmin = lazy(() => import("./pages/admin/CoursesAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -151,6 +154,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/education" element={<Education />} />
+          <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/news" element={<News />} />
           <Route path="/calendar" element={<Calendar />} />
@@ -186,6 +190,8 @@ const AppContent = () => {
             <Route path="user-dashboard" element={<UserDashboardAdmin />} />
             <Route path="referrals" element={<ReferralAnalyticsAdmin />} />
             <Route path="audit-log" element={<AuditLog />} />
+            <Route path="education" element={<EducationAdmin />} />
+            <Route path="courses" element={<CoursesAdmin />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

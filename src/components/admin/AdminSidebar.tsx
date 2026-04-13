@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
-  Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2
+  Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -40,6 +40,8 @@ const items: MenuItem[] = [
   { title: "Site Settings", url: "/admin/settings", icon: Settings, roles: ["super_admin"] },
   { title: "Referral Analytics", url: "/admin/referrals", icon: Share2, roles: ["super_admin"] },
   { title: "Audit Log", url: "/admin/audit-log", icon: ScrollText, roles: ["super_admin"] },
+  { title: "Education", url: "/admin/education", icon: BookOpen, roles: ["super_admin", "content_ops"] },
+  { title: "Courses", url: "/admin/courses", icon: GraduationCap, roles: ["super_admin", "content_ops"] },
 ];
 
 const dashboardItems: MenuItem[] = [
