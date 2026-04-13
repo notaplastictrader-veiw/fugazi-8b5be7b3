@@ -1,22 +1,34 @@
 
 
-# Search Bar — Full Sentence Swap (No Typewriter)
+# Mobile View Fixes — A to Z
 
-## তুমি যা চাও
-Letter-by-letter type/delete বাদ। পুরো sentence একবারে দেখাবে, তারপর fade out করে পরের sentence আসবে। ৩টা sentence ৩ বার cycle করবে।
+## Issues Found
 
-## Technical Plan
+1. **Promo Ticker (top)** — Animation `ticker-track-fast` is 40s, way too slow for mobile. Only 1 item visible at a time, feels broken.
+2. **Search bar placeholder text** — Typewriter text wraps to 2 lines on mobile because `left-12 pr-36` leaves very little space. Text overlaps with SEARCH button.
+3. **Stats bar** — 4 stats in a row on mobile is tight but functional (works ok).
+4. **Rest of sections** — Look acceptable on mobile, no major breaks.
 
-### File: `src/components/sections/HeroSection.tsx`
+## Plan
 
-1. **Remove typewriter logic** — `typewriterRef`, `displayText` state, এবং typewriter `useEffect` (lines 38, 40, 65-90) বাদ দাও
-2. **Add simple text rotation** — `useState` দিয়ে `textIndex` track করো, `setInterval` দিয়ে প্রতি ~3 সেকেন্ডে next sentence এ switch করো with fade animation
-3. **Update the overlay `<span>`** — `displayText` এর বদলে `typewriterTexts[textIndex]` দেখাবে, CSS transition দিয়ে fade-in/fade-out effect
-4. **Keep blinking cursor** — cursor থাকবে sentence এর শেষে
+### 1. Fix Promo Ticker Speed on Mobile
+**File: `src/index.css`**
+- Add a `@media (max-width: 768px)` rule for `.ticker-track-fast` to reduce animation duration from 40s to **15s** so items scroll visibly faster on small screens
+- Reduce gap from 48px to 24px on mobile
 
-### Animation
-- Sentence দেখাবে 2.5s → fade out 300ms → next sentence fade in 300ms → repeat
+### 2. Fix Search Bar Placeholder Overflow on Mobile
+**File: `src/components/sections/HeroSection.tsx`**
+- Add `whitespace-nowrap overflow-hidden text-ellipsis` and constrain `right` to avoid overlapping the SEARCH button
+- Change the overlay span to have `right-[100px]` (or similar) so it clips before reaching the button
+- On mobile, use shorter typewriter texts: e.g. "Search Brokers, Signals..." instead of "Search Brokers, Signals, News..."
+- OR simply add `overflow-hidden` with `max-width: calc(100% - 130px)` to the placeholder span so it never overlaps the button
+
+### 3. Promo Ticker — Triple the items on mobile
+**File: `src/components/sections/PromoTicker.tsx`**
+- Change `items` from `[...promoItems, ...promoItems]` to `[...promoItems, ...promoItems, ...promoItems]` to ensure seamless looping at faster speeds
 
 ### Files Modified
-- `src/components/sections/HeroSection.tsx` — Simplify animation logic (~15 lines changed)
+- `src/index.css` — Mobile media query for ticker speed
+- `src/components/sections/HeroSection.tsx` — Placeholder text overflow fix
+- `src/components/sections/PromoTicker.tsx` — Triple items for smooth loop
 
