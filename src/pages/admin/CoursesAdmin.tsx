@@ -8,7 +8,7 @@ import { Plus, Edit, DollarSign } from "lucide-react";
 const CoursesAdmin = () => {
   return (
     <div className="space-y-6">
-      <SEO title="Courses Admin" path="/admin/courses" />
+      <SEO title="Courses Admin" description="Manage courses and ebooks" path="/admin/courses" />
 
       <div className="flex items-center justify-between">
         <div>

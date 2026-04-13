@@ -4,8 +4,7 @@ import { educationArticles } from "@/data/educationArticles";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Plus, Edit, Eye, EyeOff, Lock, Unlock } from "lucide-react";
-import StatusBadge from "@/components/admin/StatusBadge";
+import { BookOpen, Plus, Edit, Lock, Unlock } from "lucide-react";
 
 const EducationAdmin = () => {
   const [trackFilter, setTrackFilter] = useState("all");
@@ -16,7 +15,7 @@ const EducationAdmin = () => {
 
   return (
     <div className="space-y-6">
-      <SEO title="Education Admin" path="/admin/education" />
+      <SEO title="Education Admin" description="Manage education articles" path="/admin/education" />
 
       <div className="flex items-center justify-between">
         <div>
