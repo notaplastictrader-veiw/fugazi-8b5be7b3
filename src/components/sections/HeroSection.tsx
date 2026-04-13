@@ -35,8 +35,8 @@ const HeroSection = () => {
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
-  const [displayText, setDisplayText] = useState("");
-  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
+  const [textIndex, setTextIndex] = useState(0);
+  const [textFade, setTextFade] = useState(true);
   const { t } = useI18n();
 
   useEffect(() => {
