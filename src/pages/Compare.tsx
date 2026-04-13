@@ -126,7 +126,7 @@ const Compare = () => {
             </div>
           ))}
           {selected.length < 4 && (
-            <Select onValueChange={addBroker}>
+            <Select key={`broker-select-${selected.length}`} onValueChange={addBroker} value="">
               <SelectTrigger className="w-[200px] bg-background">
                 <SelectValue placeholder="+ Add broker" />
               </SelectTrigger>

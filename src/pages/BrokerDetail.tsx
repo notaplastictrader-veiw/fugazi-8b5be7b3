@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale
+  TrendingUp, FileText, Scale, Gift, GitCompare
 } from "lucide-react";
 
 interface Broker {
@@ -197,6 +197,8 @@ const BrokerDetail = () => {
               <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
               <TabsTrigger value="reviews" className="font-display text-sm">Reviews ({reviews.length})</TabsTrigger>
               <TabsTrigger value="complaints" className="font-display text-sm">Complaints ({broker.complaints || 0})</TabsTrigger>
+              <TabsTrigger value="promotions" className="font-display text-sm">Promotions</TabsTrigger>
+              <TabsTrigger value="comparison" className="font-display text-sm">Comparison</TabsTrigger>
               <TabsTrigger value="scam-score" className="font-display text-sm">Scam Score</TabsTrigger>
             </TabsList>
 
@@ -499,6 +501,37 @@ const BrokerDetail = () => {
                 </p>
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/contact">File a Complaint</Link>
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* ===== PROMOTIONS TAB ===== */}
+            <TabsContent value="promotions" className="mt-6">
+              <div className="glass-card rounded-xl p-8 text-center">
+                <Gift className="w-10 h-10 text-accent mx-auto mb-3" />
+                <h2 className="text-xl font-display font-bold text-foreground mb-2">Active Promotions</h2>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+                  No active promotions found for {broker.name} at the moment. Check back soon or browse all available offers.
+                </p>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/promotions">Browse All Promotions</Link>
+                </Button>
+              </div>
+            </TabsContent>
+
+            {/* ===== COMPARISON TAB ===== */}
+            <TabsContent value="comparison" className="mt-6">
+              <div className="glass-card rounded-xl p-8 text-center">
+                <GitCompare className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h2 className="text-xl font-display font-bold text-foreground mb-2">Compare {broker.name}</h2>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+                  See how {broker.name} stacks up against other brokers — regulation, spreads, leverage, and more side-by-side.
+                </p>
+                <Button size="sm" asChild>
+                  <Link to={`/compare?b=${broker.slug}`}>
+                    <GitCompare className="w-4 h-4 mr-2" />
+                    Start Comparison
+                  </Link>
                 </Button>
               </div>
             </TabsContent>
