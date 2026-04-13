@@ -63,6 +63,34 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Typewriter effect
+  useEffect(() => {
+    const ref = typewriterRef.current;
+    const tick = () => {
+      const fullText = typewriterTexts[ref.textIndex];
+      if (ref.isDeleting) {
+        ref.charIndex--;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === 0) {
+          ref.isDeleting = false;
+          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
+          return setTimeout(tick, 300);
+        }
+        return setTimeout(tick, 40);
+      } else {
+        ref.charIndex++;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === fullText.length) {
+          ref.isDeleting = true;
+          return setTimeout(tick, 1500);
+        }
+        return setTimeout(tick, 80);
+      }
+    };
+    const timer = setTimeout(tick, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const eyebrow = eyebrowItems[eyebrowIndex];
   const currentChips = chipGroups[chipGroupIndex];
 
