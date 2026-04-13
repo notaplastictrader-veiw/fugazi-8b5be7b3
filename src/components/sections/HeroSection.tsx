@@ -141,7 +141,7 @@ const HeroSection = () => {
           <div className="relative flex items-center rounded-[14px] overflow-hidden bg-card/40 border border-primary/20 backdrop-blur-xl focus-within:border-primary/50 focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.1)] transition-all">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             {!searchValue && (
-              <span className="absolute left-12 text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide">
+              <span className="absolute left-12 right-[110px] text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
                 {displayText}
                 <span className="inline-block w-[2px] h-[14px] bg-muted-foreground/60 ml-[1px] align-middle animate-[pulse_1s_steps(1)_infinite]" />
               </span>
