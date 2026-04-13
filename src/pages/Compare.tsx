@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,28 +25,32 @@ const fields: { key: keyof BrokerRow; label: string }[] = [
 ];
 
 const Compare = () => {
-  const [searchParams] = useSearchParams();
   const [allBrokers, setAllBrokers] = useState<BrokerRow[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const selectKeyRef = useRef(0);
-
-  useEffect(() => {
-    supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
-      if (data) setAllBrokers(data as BrokerRow[]);
-    });
-  }, []);
-
   const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (initializedRef.current || !allBrokers.length) return;
-    const slugs = searchParams.getAll("b");
-    if (slugs.length) {
-      const ids = allBrokers.filter(b => slugs.includes(b.slug)).map(b => b.id);
-      setSelected(ids);
-    }
-    initializedRef.current = true;
-  }, [allBrokers]);
+    let isActive = true;
+
+    supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
+      if (!isActive || !data) return;
+
+      const brokers = data as BrokerRow[];
+      const slugs = new URLSearchParams(window.location.search).getAll("b");
+      const initialSelected = slugs.length
+        ? brokers.filter((broker) => slugs.includes(broker.slug)).map((broker) => broker.id)
+        : [];
+
+      initializedRef.current = true;
+      setAllBrokers(brokers);
+      setSelected(initialSelected);
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const updateUrl = (ids: string[]) => {
     const slugs = ids.map(id => allBrokers.find(b => b.id === id)?.slug).filter(Boolean);
