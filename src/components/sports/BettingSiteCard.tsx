@@ -70,6 +70,8 @@ const BettingSiteCard = forwardRef<HTMLDivElement, { site: BettingSite }>(({ sit
       </Button>
     </div>
   );
-};
+});
+
+BettingSiteCard.displayName = "BettingSiteCard";
 
 export default BettingSiteCard;
