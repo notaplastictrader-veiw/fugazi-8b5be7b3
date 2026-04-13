@@ -65,13 +65,8 @@ const BrokerJoinSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {tiers.map((tier) => (
-              <div key={tier.name} className={`glass-card rounded-xl p-5 flex flex-col ${tier.ctaStyle === "highlight" ? "border-accent/30 ring-1 ring-accent/20" : ""}`}>
-                <div className="text-xs font-mono text-muted-foreground mb-2">{tier.name}</div>
-                {tier.price ? (
-                  <div className="text-2xl font-display font-black text-foreground mb-1">{tier.price}</div>
-                ) : (
-                  <div className="text-sm font-mono text-muted-foreground mb-1">{tier.priceLabel}</div>
-                )}
+              <div key={tier.name} className={`glass-card rounded-xl p-5 flex flex-col ${tier.ctaStyle === "highlight" ? "border-accent/30 ring-1 ring-accent/20" : tier.ctaStyle === "secondary" ? "border-primary/20 ring-1 ring-primary/10" : ""}`}>
+                <div className="text-xs font-mono text-muted-foreground mb-4">{tier.name}</div>
                 <ul className="space-y-2 mt-4 mb-6 flex-1">
                   {tier.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
