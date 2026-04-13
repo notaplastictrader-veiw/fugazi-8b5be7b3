@@ -1,40 +1,22 @@
 
 
-# Search Bar Typewriter Placeholder Animation
+# Search Bar — Full Sentence Swap (No Typewriter)
 
-## What You Want
-Search bar এর ভেতরে placeholder text একটা typewriter effect এ — একটা একটা character লিখবে, তারপর মুছে ফেলবে (reverse), তারপর নতুন text লিখবে। Multiple placeholder texts cycle করবে।
-
-## How It Works
-
-Multiple placeholder texts rotate করবে typewriter style:
-1. "Search Brokers..." → type letter by letter
-2. Pause briefly
-3. Delete letter by letter (reverse)
-4. "Search Prop Firms..." → type letter by letter
-5. Repeat
-
-### Placeholder texts to cycle:
-- `Search Brokers...`
-- `Search Prop Firms...`
-- `Search Signal Providers...`
-- `Search Crypto Exchanges...`
-- `Search Scam Alerts...`
+## তুমি যা চাও
+Letter-by-letter type/delete বাদ। পুরো sentence একবারে দেখাবে, তারপর fade out করে পরের sentence আসবে। ৩টা sentence ৩ বার cycle করবে।
 
 ## Technical Plan
 
 ### File: `src/components/sections/HeroSection.tsx`
 
-1. **Add typewriter state & effect** — `useState` for `displayText`, `useEffect` that types/deletes characters with `setTimeout`
-2. **Replace static `placeholder`** — Use the animated text as a custom overlay `<span>` positioned inside the search bar (since native `placeholder` can't animate per-character). When `searchValue` is empty, show the animated text; when user types, hide it.
-3. **Blinking cursor** — Add a blinking `|` cursor after the animated text for authentic typewriter feel
+1. **Remove typewriter logic** — `typewriterRef`, `displayText` state, এবং typewriter `useEffect` (lines 38, 40, 65-90) বাদ দাও
+2. **Add simple text rotation** — `useState` দিয়ে `textIndex` track করো, `setInterval` দিয়ে প্রতি ~3 সেকেন্ডে next sentence এ switch করো with fade animation
+3. **Update the overlay `<span>`** — `displayText` এর বদলে `typewriterTexts[textIndex]` দেখাবে, CSS transition দিয়ে fade-in/fade-out effect
+4. **Keep blinking cursor** — cursor থাকবে sentence এর শেষে
 
-### Approach
-- Overlay a `<span>` with the typewriter text inside the search container (pointer-events-none)
-- Hide it when `searchValue` is not empty
-- Keep the native `placeholder` empty
-- Typing speed: ~80ms per char, deleting speed: ~40ms, pause between words: ~1500ms
+### Animation
+- Sentence দেখাবে 2.5s → fade out 300ms → next sentence fade in 300ms → repeat
 
 ### Files Modified
-- `src/components/sections/HeroSection.tsx` — Add typewriter hook + overlay span (~30 lines added)
+- `src/components/sections/HeroSection.tsx` — Simplify animation logic (~15 lines changed)
 
