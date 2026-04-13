@@ -1,6 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+
+const typewriterTexts = [
+  "Search Brokers...",
+  "Search Prop Firms...",
+  "Search Signal Providers...",
+  "Search Crypto Exchanges...",
+  "Search Scam Alerts...",
+];
 
 const eyebrowItems = [
   { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -29,6 +37,8 @@ const HeroSection = () => {
   const [chipFade, setChipFade] = useState(true);
   const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
+  const [displayText, setDisplayText] = useState("");
+  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
   useEffect(() => {
