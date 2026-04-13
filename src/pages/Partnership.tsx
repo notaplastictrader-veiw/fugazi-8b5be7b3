@@ -76,7 +76,7 @@ const Partnership = () => {
   return (
     <MainLayout>
       <SEO title="Partnership Program" description="Join NAFT's partner ecosystem. Become an affiliate, introducing broker, or brand collaborator." path="/partnership" />
-      <section className="max-w-6xl mx-auto px-4 py-24">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-12">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             <Handshake className="w-3 h-3 inline mr-1" /> PARTNERSHIPS

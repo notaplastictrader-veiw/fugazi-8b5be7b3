@@ -4,7 +4,7 @@ import SEO from "@/components/SEO";
 const Cookies = () => (
   <MainLayout>
     <SEO title="Cookie Policy" description="Understand how Not A Fugazi Trader uses cookies and similar technologies." path="/cookies" />
-    <section className="max-w-4xl mx-auto px-4 py-24 prose prose-sm dark:prose-invert max-w-none">
+    <section className="max-w-4xl mx-auto px-4 pt-6 pb-24 prose prose-sm dark:prose-invert max-w-none">
       <h1 className="text-4xl font-display font-extrabold text-foreground mb-8">Cookie Policy</h1>
       <p className="text-muted-foreground mb-6">Last updated: April 2026</p>
 

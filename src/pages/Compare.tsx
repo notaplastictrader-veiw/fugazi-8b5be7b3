@@ -97,7 +97,7 @@ const Compare = () => {
         description="Compare forex brokers side-by-side. Regulation, spreads, leverage, deposits, scores — see how they stack up."
         path="/compare"
       />
-      <section className="max-w-6xl mx-auto px-4 py-24">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             COMPARE

@@ -4,7 +4,7 @@ import SEO from "@/components/SEO";
 const Terms = () => (
   <MainLayout>
     <SEO title="Terms & Conditions" description="Read the terms and conditions for using Not A Fugazi Trader platform." path="/terms" />
-    <section className="max-w-4xl mx-auto px-4 py-24 prose prose-sm dark:prose-invert max-w-none">
+    <section className="max-w-4xl mx-auto px-4 pt-6 pb-24 prose prose-sm dark:prose-invert max-w-none">
       <h1 className="text-4xl font-display font-extrabold text-foreground mb-8">Terms &amp; Conditions</h1>
       <p className="text-muted-foreground mb-6">Last updated: April 2026</p>
 

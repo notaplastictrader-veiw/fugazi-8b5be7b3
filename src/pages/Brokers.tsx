@@ -41,7 +41,7 @@ const Brokers = () => {
         description="Compare 280+ forex and CFD brokers with verified scores, spreads, regulation status, and real trader reviews. Find the best broker for you."
         path="/brokers"
       />
-      <section className="py-24 px-4">
+      <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// ALL BROKERS</span>
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">

@@ -32,7 +32,7 @@ const Signals = () => {
         description="Every Telegram signal group listed, reviewed, and rated by real traders. Win rates, track records, and verified performance."
         path="/signals"
       />
-      <section className="py-24 px-4">
+      <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SIGNAL HUB</span>
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">

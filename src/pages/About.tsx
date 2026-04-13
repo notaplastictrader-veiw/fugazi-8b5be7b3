@@ -16,7 +16,7 @@ const About = () => (
       description="Learn about Not A Fugazi Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
       path="/about"
     />
-    <section className="max-w-4xl mx-auto px-4 py-24">
+    <section className="max-w-4xl mx-auto px-4 pt-6 pb-24">
       {/* Hero */}
       <div className="text-center mb-16">
         <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

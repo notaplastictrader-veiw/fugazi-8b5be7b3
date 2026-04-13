@@ -29,7 +29,7 @@ const ScamAlerts = () => {
         description="Verified forex scam alerts and warnings. Protect yourself from fraudulent brokers, Ponzi schemes, and fake signal providers."
         path="/scam-alerts"
       />
-      <section className="py-24 px-4">
+      <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SCAM WATCH</span>
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">
