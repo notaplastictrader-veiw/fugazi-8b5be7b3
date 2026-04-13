@@ -1,52 +1,40 @@
 
 
-# Complete All Missing Pages & Fix Broken Links
+# Search Bar Typewriter Placeholder Animation
 
-## Current Status
-21 pages done, but **8 linked routes lead to 404** because the pages don't exist yet.
+## What You Want
+Search bar এর ভেতরে placeholder text একটা typewriter effect এ — একটা একটা character লিখবে, তারপর মুছে ফেলবে (reverse), তারপর নতুন text লিখবে। Multiple placeholder texts cycle করবে।
 
-## What Can Be Done Now (No API/Premium Needed)
+## How It Works
 
-### 1. Create `/ideas` — Share Ideas Page
-Community idea board with a submission form (title, description, category). Ideas stored in Supabase table. Users can browse and submit ideas.
+Multiple placeholder texts rotate করবে typewriter style:
+1. "Search Brokers..." → type letter by letter
+2. Pause briefly
+3. Delete letter by letter (reverse)
+4. "Search Prop Firms..." → type letter by letter
+5. Repeat
 
-### 2. Create `/partnership` — Partnership Page (3 tabs)
-- **Affiliate** tab: Earn commissions referring traders
-- **IB (Introducing Broker)** tab: Partner as an IB
-- **Collaboration** tab: Brand/content collaboration
-Each tab has info + application form. Tab selected via `?tab=` query param.
+### Placeholder texts to cycle:
+- `Search Brokers...`
+- `Search Prop Firms...`
+- `Search Signal Providers...`
+- `Search Crypto Exchanges...`
+- `Search Scam Alerts...`
 
-### 3. Create `/terms` — Terms & Conditions Page
-Static legal page with standard trading platform T&C content.
+## Technical Plan
 
-### 4. Create `/privacy` — Privacy Policy Page
-Static legal page with GDPR-compliant privacy policy.
+### File: `src/components/sections/HeroSection.tsx`
 
-### 5. Create `/cookies` — Cookie Policy Page
-Static page explaining cookie usage (ties into existing CookieConsent component).
+1. **Add typewriter state & effect** — `useState` for `displayText`, `useEffect` that types/deletes characters with `setTimeout`
+2. **Replace static `placeholder`** — Use the animated text as a custom overlay `<span>` positioned inside the search bar (since native `placeholder` can't animate per-character). When `searchValue` is empty, show the animated text; when user types, hide it.
+3. **Blinking cursor** — Add a blinking `|` cursor after the animated text for authentic typewriter feel
 
-### 6. Create `/advertise` — Advertise With Us Page
-Info page with ad placement options + contact form for advertisers.
+### Approach
+- Overlay a `<span>` with the typewriter text inside the search container (pointer-events-none)
+- Hide it when `searchValue` is not empty
+- Keep the native `placeholder` empty
+- Typing speed: ~80ms per char, deleting speed: ~40ms, pause between words: ~1500ms
 
-### 7. Create `/forecasts` — Forecasts Page
-Standalone page showing forex/crypto/gold forecasts from existing Supabase `forecasts` table. Supports `?tab=forex|crypto|gold` filter.
-
-### 8. Contact Form Backend
-Wire existing contact form to save submissions to a new `contact_submissions` Supabase table.
-
-## What Needs External Setup (Skip for Now)
-| Item | What's Needed |
-|------|--------------|
-| Google OAuth | Configure in Supabase Auth dashboard |
-| Live market prices | Real-time API (e.g. TradingView widget or forex API key) |
-| Email notifications | Email service (Resend connector or SMTP) |
-| Education lesson content | Individual lesson markdown/content to be written |
-
-## Files to Create/Modify
-- **7 new pages**: `src/pages/Ideas.tsx`, `Partnership.tsx`, `Terms.tsx`, `Privacy.tsx`, `Cookies.tsx`, `Advertise.tsx`, `Forecasts.tsx`
-- **1 migration**: `contact_submissions` table + optionally `ideas` table
-- **`src/App.tsx`**: Add 7 new routes
-- **`src/components/layout/Footer.tsx`**: Fix `/signals/ours` link
-
-## Estimated: ~7 files created, 2 files modified, 1 migration
+### Files Modified
+- `src/components/sections/HeroSection.tsx` — Add typewriter hook + overlay span (~30 lines added)
 
