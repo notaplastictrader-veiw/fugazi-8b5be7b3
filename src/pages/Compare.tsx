@@ -26,9 +26,10 @@ const fields: { key: keyof BrokerRow; label: string }[] = [
 ];
 
 const Compare = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [allBrokers, setAllBrokers] = useState<BrokerRow[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
+  const selectKeyRef = useRef(0);
 
   useEffect(() => {
     supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
@@ -52,13 +53,15 @@ const Compare = () => {
     const slugs = ids.map(id => allBrokers.find(b => b.id === id)?.slug).filter(Boolean);
     const params = new URLSearchParams();
     slugs.forEach(s => params.append("b", s!));
-    setSearchParams(params, { replace: true });
+    const newUrl = slugs.length ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+    window.history.replaceState(null, "", newUrl);
   };
 
   const addBroker = (id: string) => {
     if (selected.includes(id) || selected.length >= 4) return;
     const next = [...selected, id];
     setSelected(next);
+    selectKeyRef.current += 1;
     updateUrl(next);
   };
 
@@ -126,7 +129,7 @@ const Compare = () => {
             </div>
           ))}
           {selected.length < 4 && (
-            <Select key={`broker-select-${selected.length}`} onValueChange={addBroker} value="">
+            <Select key={`broker-select-${selectKeyRef.current}`} onValueChange={addBroker}>
               <SelectTrigger className="w-[200px] bg-background">
                 <SelectValue placeholder="+ Add broker" />
               </SelectTrigger>
