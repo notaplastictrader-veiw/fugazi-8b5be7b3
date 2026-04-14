@@ -230,6 +230,18 @@ const AppContent = () => {
             <Route path="tier-upgrades" element={<TierUpgradesAdmin />} />
           </Route>
 
+          {/* Moderator Panel — separate layout */}
+          <Route path="/moderator" element={<ProtectedAdminRoute requiredRoles={["moderator"]}><ModeratorLayout /></ProtectedAdminRoute>}>
+            <Route index element={<ModeratorDashboard />} />
+            <Route path="reviews" element={<ReviewsAdmin />} />
+            <Route path="complaints" element={<ComplaintsAdmin />} />
+            <Route path="ideas" element={<TradingIdeasAdmin />} />
+            <Route path="promotions" element={<PromotionsAdmin />} />
+            <Route path="all-pending" element={<ApprovalQueueAdmin />} />
+            <Route path="escalated" element={<ApprovalQueueAdmin />} />
+            <Route path="stats" element={<ModeratorDashboard />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
