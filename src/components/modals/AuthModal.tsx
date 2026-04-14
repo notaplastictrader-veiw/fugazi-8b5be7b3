@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { X, Check, ChevronDown, Loader2 } from "lucide-react";
+import { X, Check, ChevronDown, Loader2, Shield, BarChart3, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
+import { useNavigate } from "react-router-dom";
 
 interface AuthModalProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface AuthModalProps {
 }
 
 type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
+type LoginContext = "user" | "broker" | "admin";
 
 const roleLabels: Record<SignupRole, string> = {
   user: "Trader",
@@ -20,12 +22,20 @@ const roleLabels: Record<SignupRole, string> = {
   betting_site: "Betting Site",
 };
 
+const loginContextConfig: Record<LoginContext, { label: string; icon: typeof User; desc: string }> = {
+  user: { label: "User", icon: User, desc: "Access your dashboard" },
+  broker: { label: "Broker / Provider", icon: BarChart3, desc: "Manage your listings" },
+  admin: { label: "Admin", icon: Shield, desc: "System management" },
+};
+
 const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [showUnderReview, setShowUnderReview] = useState(false);
+  const [loginContext, setLoginContext] = useState<LoginContext>("user");
 
   // Login
   const [loginEmail, setLoginEmail] = useState("");
@@ -66,13 +76,50 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
     c.dialCode.includes(countrySearch)
   );
 
+  const redirectAfterLogin = async (userId: string) => {
+    if (loginContext === "user") {
+      onClose();
+      return;
+    }
+
+    // For broker/admin contexts, check roles and redirect
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+
+    const roleList = roles?.map(r => r.role) || [];
+    const hasAdminRole = roleList.some(r =>
+      ["super_admin", "content_ops", "moderator", "broker", "signal_provider"].includes(r)
+    );
+
+    if (hasAdminRole) {
+      onClose();
+      navigate("/admin");
+    } else if (loginContext === "broker" || loginContext === "admin") {
+      toast.error("You don't have access to this dashboard");
+      onClose();
+    } else {
+      onClose();
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Logged in!");
+    if (data.user) {
+      await redirectAfterLogin(data.user.id);
+    } else {
+      onClose();
+    }
     setLoading(false);
-    if (error) toast.error(error.message);
-    else { toast.success("Logged in!"); onClose(); }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -96,7 +143,6 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       return;
     }
 
-    // Update profile with phone
     if (data.user) {
       await supabase.from("profiles").update({
         phone,
@@ -104,7 +150,6 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
         country: selectedCountry.name,
       }).eq("user_id", data.user.id);
 
-      // If non-user role, create application
       if (signupRole !== "user") {
         const appData: Record<string, string> = {};
         if (signupRole === "signal_provider") {
@@ -138,7 +183,6 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       }
     }
 
-    // Track referral conversion
     if (data.user) {
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
@@ -162,9 +206,10 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   };
 
   const handleGoogle = async () => {
+    const redirectPath = loginContext === "user" ? "/" : "/admin";
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}${redirectPath}` },
     });
   };
 
@@ -235,7 +280,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
         ) : (
           <>
             {/* Tab Switcher */}
-            <div className="flex gap-1 mb-6 border-b border-border">
+            <div className="flex gap-1 mb-4 border-b border-border">
               {(["login", "signup"] as const).map((t) => (
                 <button key={t} onClick={() => setTab(t)} className={`pb-3 px-4 text-sm font-semibold transition-colors relative ${tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   {t === "login" ? "Log In" : "Sign Up"}
@@ -244,15 +289,51 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
               ))}
             </div>
 
+            {/* Login Context Selector — only show on login tab */}
+            {tab === "login" && (
+              <div className="grid grid-cols-3 gap-1 p-1 bg-secondary/50 rounded-xl mb-5">
+                {(Object.keys(loginContextConfig) as LoginContext[]).map((ctx) => {
+                  const { label, icon: Icon } = loginContextConfig[ctx];
+                  return (
+                    <button
+                      key={ctx}
+                      type="button"
+                      onClick={() => setLoginContext(ctx)}
+                      className={`flex items-center justify-center gap-1.5 px-2 py-2 text-[11px] font-semibold rounded-lg transition-all ${
+                        loginContext === ctx
+                          ? ctx === "admin"
+                            ? "bg-destructive/20 text-destructive border border-destructive/30 shadow-[0_0_8px_rgba(239,68,68,0.2)]"
+                            : "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {tab === "login" ? (
               <form onSubmit={handleLogin} className="space-y-4">
+                {/* Context description */}
+                <p className="text-xs text-muted-foreground text-center -mt-2 mb-2">
+                  {loginContextConfig[loginContext].desc}
+                </p>
+
                 <input type="email" placeholder="Email address" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} className={inputClass} />
                 <input type="password" placeholder="Password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} className={inputClass} />
                 <div className="flex justify-end">
                   <button type="button" onClick={() => setShowForgot(true)} className="text-xs text-primary hover:underline">Forgot password?</button>
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-3 text-sm font-bold bg-primary text-primary-foreground rounded-xl hover:opacity-90 disabled:opacity-50">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Log In"}
+                <button type="submit" disabled={loading}
+                  className={`w-full py-3 text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all ${
+                    loginContext === "admin"
+                      ? "bg-destructive text-destructive-foreground shadow-[0_0_12px_rgba(239,68,68,0.3)]"
+                      : "bg-primary text-primary-foreground"
+                  }`}>
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : loginContext === "admin" ? "Secure Login" : "Log In"}
                 </button>
                 <div className="flex items-center gap-3 my-2">
                   <div className="flex-1 h-px bg-border" /><span className="text-xs text-muted-foreground">or</span><div className="flex-1 h-px bg-border" />
