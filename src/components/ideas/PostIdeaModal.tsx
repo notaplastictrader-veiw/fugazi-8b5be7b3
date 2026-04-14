@@ -24,6 +24,9 @@ const PostIdeaModal = ({ open, onClose }: Props) => {
   const [riskLevel, setRiskLevel] = useState<IdeaRiskLevel | "">("");
   const [disclaimer, setDisclaimer] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [chartImage, setChartImage] = useState<File | null>(null);
+  const [chartPreview, setChartPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const directionButtons: { value: IdeaDirection; label: string; icon: any; cls: string }[] = [
     { value: "bullish", label: "Bullish", icon: TrendingUp, cls: "border-green-500/50 bg-green-500/10 text-green-400" },
@@ -116,10 +119,41 @@ const PostIdeaModal = ({ open, onClose }: Props) => {
           {/* Chart Upload */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">Chart Image (optional)</Label>
-            <button className="w-full border-2 border-dashed border-border rounded-lg py-6 flex flex-col items-center gap-2 text-muted-foreground hover:border-primary/40 transition-colors">
-              <ImagePlus className="w-6 h-6" />
-              <span className="text-xs">Click to upload chart screenshot (max 5MB)</span>
-            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error("Image must be under 5MB");
+                    return;
+                  }
+                  setChartImage(file);
+                  setChartPreview(URL.createObjectURL(file));
+                }
+              }}
+            />
+            {chartPreview ? (
+              <div className="relative rounded-lg overflow-hidden border border-border">
+                <img src={chartPreview} alt="Chart preview" className="w-full max-h-48 object-cover" />
+                <button
+                  onClick={() => { setChartImage(null); setChartPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                  className="absolute top-2 right-2 px-2 py-1 text-xs bg-destructive text-destructive-foreground rounded"
+                >Remove</button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full border-2 border-dashed border-border rounded-lg py-6 flex flex-col items-center gap-2 text-muted-foreground hover:border-primary/40 transition-colors"
+              >
+                <ImagePlus className="w-6 h-6" />
+                <span className="text-xs">Click to upload chart screenshot (max 5MB)</span>
+              </button>
+            )}
           </div>
 
           {/* Timeframe & Risk */}

@@ -15,7 +15,7 @@ const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Fundi
 
 const PropFirms = () => {
   const [firms, setFirms] = useState<Broker[]>([]);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("All Prop Firms");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
