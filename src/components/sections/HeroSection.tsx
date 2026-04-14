@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const typewriterTexts = [
+const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
   "Search Prop Firms, Sports, Alerts...",
   "Search Crypto, Forecasts, Reviews...",
 ];
 
-const eyebrowItems = [
+const defaultEyebrowItems = [
   { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
   { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
   { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
@@ -16,13 +17,13 @@ const eyebrowItems = [
   { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
 ];
 
-const chipGroups = [
+const defaultChipGroups = [
   { label: "Top Brokers", items: ["Exness", "IC Markets", "Pepperstone", "XM Global", "FBS"] },
   { label: "Top Prop Firms", items: ["FTMO", "MyForexFunds", "The5ers", "True Forex Funds", "Funded Next"] },
   { label: "Top Crypto", items: ["Binance", "Bybit", "OKX", "Coinbase", "Kraken"] },
 ];
 
-const stats = [
+const defaultStats = [
   { value: "4.8K+", label: "Verified reviews" },
   { value: "280+", label: "Brokers listed" },
   { value: "61+", label: "Scam alerts issued" },
@@ -30,6 +31,13 @@ const stats = [
 ];
 
 const HeroSection = () => {
+  const cms = useSiteSettings<Record<string, any>>("hero_section", {});
+
+  const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
+  const eyebrowItems = (cms.eyebrow_items?.length ? cms.eyebrow_items : defaultEyebrowItems) as typeof defaultEyebrowItems;
+  const chipGroups = defaultChipGroups; // chip groups stay hardcoded (complex nested)
+  const stats = (cms.stats?.length ? cms.stats : defaultStats) as typeof defaultStats;
+
   const [eyebrowIndex, setEyebrowIndex] = useState(0);
   const [chipGroupIndex, setChipGroupIndex] = useState(0);
   const [chipFade, setChipFade] = useState(true);
@@ -48,7 +56,7 @@ const HeroSection = () => {
       }, 300);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [eyebrowItems.length]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -59,9 +67,8 @@ const HeroSection = () => {
       }, 300);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [chipGroups.length]);
 
-  // Typewriter effect — type full sentence, then reverse-delete
   useEffect(() => {
     const ref = typewriterRef.current;
     const tick = () => {
@@ -87,7 +94,7 @@ const HeroSection = () => {
     };
     const timer = setTimeout(tick, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [typewriterTexts]);
 
   const eyebrow = eyebrowItems[eyebrowIndex];
   const currentChips = chipGroups[chipGroupIndex];
@@ -116,9 +123,9 @@ const HeroSection = () => {
               eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
             }`}
           >
-            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
+            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color || "hsl(var(--primary))" }} />
             {eyebrow.text}
-            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
+            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color || "hsl(var(--primary))"}20`, color: eyebrow.color || "hsl(var(--primary))", textShadow: `0 0 8px ${eyebrow.color || "hsl(var(--primary))"}40` }}>
               {eyebrow.highlight}
             </span>
             {eyebrow.suffix}
@@ -127,9 +134,9 @@ const HeroSection = () => {
 
         <div className="hero-grain">
           <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
-            <span className="grunge-text grunge-high">Broker Reviews</span>
+            <span className="grunge-text grunge-high">{cms.headline || "Broker Reviews"}</span>
             <br />
-            <span className="grunge-text-accent grunge-high">That Actually Matter.</span>
+            <span className="grunge-text-accent grunge-high">{cms.subheadline || "That Actually Matter."}</span>
           </h1>
         </div>
 

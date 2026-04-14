@@ -1,11 +1,14 @@
 import { Shield, MessageSquare, Award, BarChart3, Check } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const perks = [
-  { icon: Shield, text: "Verified badge on your profile" },
-  { icon: MessageSquare, text: "Reply to user reviews publicly" },
-  { icon: Award, text: "Featured placement in search" },
-  { icon: BarChart3, text: "Promotion & analytics dashboard" },
+const defaultPerks = [
+  { icon: "Shield", text: "Verified badge on your profile" },
+  { icon: "MessageSquare", text: "Reply to user reviews publicly" },
+  { icon: "Award", text: "Featured placement in search" },
+  { icon: "BarChart3", text: "Promotion & analytics dashboard" },
 ];
+
+const iconMap: Record<string, any> = { Shield, MessageSquare, Award, BarChart3 };
 
 const tiers = [
   {
@@ -29,36 +32,42 @@ const tiers = [
     ctaStyle: "ghost" as const,
   },
 ];
+
 const BrokerJoinSection = () => {
+  const cms = useSiteSettings<Record<string, any>>("broker_join_section", {});
+
+  const title = cms.title || "For Brokers & Signal Providers —";
+  const description = cms.description || "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
+  const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
+  const ctaText = cms.cta_text || "Promote Your Broker →";
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FOR BROKERS</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          For Brokers & Signal Providers — <span className="text-accent">List With Us.</span>
+          {title} <span className="text-accent">List With Us.</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-10 max-w-2xl">Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div>
-            <p className="text-muted-foreground mb-8 max-w-md">
-              Join 280+ brokers on the fastest-growing global trading review platform.
-              Build trust with verified reviews and transparent ratings.
-            </p>
+            <p className="text-muted-foreground mb-8 max-w-md">{description}</p>
             <div className="space-y-4">
-              {perks.map((perk) => {
-                const Icon = perk.icon;
+              {benefits.map((text, i) => {
+                const perk = defaultPerks[i];
+                const Icon = perk ? iconMap[perk.icon] || Shield : Shield;
                 return (
-                  <div key={perk.text} className="flex items-center gap-3">
+                  <div key={i} className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center"><Icon className="w-4 h-4 text-accent" /></div>
-                    <span className="text-sm text-foreground">{perk.text}</span>
+                    <span className="text-sm text-foreground">{text}</span>
                   </div>
                 );
               })}
             </div>
             <div className="mt-8">
               <a href="/partnership" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
-                Promote Your Broker →
+                {ctaText}
               </a>
             </div>
           </div>

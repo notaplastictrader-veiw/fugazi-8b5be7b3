@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface Review {
   id: string;
@@ -15,14 +16,18 @@ interface Review {
 const CommunityReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const cms = useSiteSettings<Record<string, any>>("community_reviews", {});
+
+  const sectionTitle = cms.section_title || "What Traders";
+  const displayCount = cms.display_count || 50;
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("reviews").select("*").eq("status", "published").order("created_at", { ascending: false });
+      const { data } = await supabase.from("reviews").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(displayCount);
       if (data) setReviews(data as Review[]);
     };
     fetch();
-  }, []);
+  }, [displayCount]);
 
   const items = [...reviews, ...reviews];
 
@@ -41,7 +46,7 @@ const CommunityReviews = () => {
       <div className="max-w-7xl mx-auto mb-8">
         <span className="section-tag">// COMMUNITY REVIEWS</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3">
-          What Traders <span className="text-primary">Say</span>
+          {sectionTitle} <span className="text-primary">Say</span>
         </h2>
       </div>
 
