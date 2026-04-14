@@ -93,6 +93,8 @@ const BettingDashboardsList = lazy(() => import("./pages/admin/BettingDashboards
 const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList"));
 const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
 const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
+const ModeratorLayout = lazy(() => import("./components/admin/ModeratorLayout"));
+const ModeratorDashboard = lazy(() => import("./pages/admin/ModeratorDashboard"));
 
 const queryClient = new QueryClient();
 
@@ -226,6 +228,18 @@ const AppContent = () => {
             <Route path="user-dashboards/:id" element={<UserDashboardsList />} />
             <Route path="claims" element={<BrokerClaimsAdmin />} />
             <Route path="tier-upgrades" element={<TierUpgradesAdmin />} />
+          </Route>
+
+          {/* Moderator Panel — separate layout */}
+          <Route path="/moderator" element={<ProtectedAdminRoute requiredRoles={["moderator"]}><ModeratorLayout /></ProtectedAdminRoute>}>
+            <Route index element={<ModeratorDashboard />} />
+            <Route path="reviews" element={<ReviewsAdmin />} />
+            <Route path="complaints" element={<ComplaintsAdmin />} />
+            <Route path="ideas" element={<TradingIdeasAdmin />} />
+            <Route path="promotions" element={<PromotionsAdmin />} />
+            <Route path="all-pending" element={<ApprovalQueueAdmin />} />
+            <Route path="escalated" element={<ApprovalQueueAdmin />} />
+            <Route path="stats" element={<ModeratorDashboard />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
