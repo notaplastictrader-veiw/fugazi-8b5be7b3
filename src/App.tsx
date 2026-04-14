@@ -210,6 +210,14 @@ const AppContent = () => {
             <Route path="betting-sites" element={<BettingSitesAdmin />} />
             <Route path="site-content" element={<SiteContentAdmin />} />
             <Route path="site-content/:section" element={<SectionEditor />} />
+            <Route path="broker-dashboards" element={<BrokerDashboardsList />} />
+            <Route path="broker-dashboards/:id" element={<BrokerDashboardsList />} />
+            <Route path="signal-dashboards" element={<SignalDashboardsList />} />
+            <Route path="signal-dashboards/:id" element={<SignalDashboardsList />} />
+            <Route path="betting-dashboards" element={<BettingDashboardsList />} />
+            <Route path="betting-dashboards/:id" element={<BettingDashboardsList />} />
+            <Route path="user-dashboards" element={<UserDashboardsList />} />
+            <Route path="user-dashboards/:id" element={<UserDashboardsList />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

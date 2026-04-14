@@ -54,6 +54,10 @@ const dashboardItems: MenuItem[] = [
   { title: "Signal Dashboard", url: "/admin/signal-dashboard", icon: Radio, roles: ["super_admin", "signal_provider"] },
   { title: "Sports Dashboard", url: "/admin/sports-dashboard", icon: TrendingUp, roles: ["super_admin", "content_ops"] },
   { title: "User Dashboard", url: "/admin/user-dashboard", icon: Users, roles: ["super_admin"] },
+  { title: "All Brokers", url: "/admin/broker-dashboards", icon: Building2, roles: ["super_admin"] },
+  { title: "All Signals", url: "/admin/signal-dashboards", icon: Radio, roles: ["super_admin"] },
+  { title: "All Betting", url: "/admin/betting-dashboards", icon: Dices, roles: ["super_admin"] },
+  { title: "All Users", url: "/admin/user-dashboards", icon: Users, roles: ["super_admin"] },
 ];
 
 export function AdminSidebar() {
