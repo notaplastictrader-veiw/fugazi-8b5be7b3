@@ -14,16 +14,1213 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          application_data: Json
+          contact_email: string | null
+          contact_phone: string | null
+          contact_telegram: string | null
+          created_at: string
+          id: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_data?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_telegram?: string | null
+          created_at?: string
+          id?: string
+          role: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_data?: Json
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_telegram?: string | null
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      approval_queue: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          escalated_at: string | null
+          escalated_by: string | null
+          id: string
+          priority: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          status: string
+          submitted_by: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          escalated_at?: string | null
+          escalated_by?: string | null
+          id?: string
+          priority?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          submitted_by?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          escalated_at?: string | null
+          escalated_by?: string | null
+          id?: string
+          priority?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          submitted_by?: string | null
+        }
+        Relationships: []
+      }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      betting_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          affiliate_url: string | null
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          site_name: string
+          slug: string
+          supported_sports: string[] | null
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          affiliate_url?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name: string
+          slug: string
+          supported_sports?: string[] | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          affiliate_url?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name?: string
+          slug?: string
+          supported_sports?: string[] | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: []
+      }
+      broker_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          broker_id: string
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          broker_id: string
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          broker_id?: string
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_profiles_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brokers: {
+        Row: {
+          avg_spread: string | null
+          badge: string | null
+          complaints: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          leverage: string | null
+          logo_url: string | null
+          min_deposit: string | null
+          name: string
+          regulation: string[] | null
+          review_count: number | null
+          score: number | null
+          slug: string
+          stars: number | null
+          status: Database["public"]["Enums"]["content_status"]
+          tags: string[] | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          avg_spread?: string | null
+          badge?: string | null
+          complaints?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          leverage?: string | null
+          logo_url?: string | null
+          min_deposit?: string | null
+          name: string
+          regulation?: string[] | null
+          review_count?: number | null
+          score?: number | null
+          slug: string
+          stars?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_spread?: string | null
+          badge?: string | null
+          complaints?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          leverage?: string | null
+          logo_url?: string | null
+          min_deposit?: string | null
+          name?: string
+          regulation?: string[] | null
+          review_count?: number | null
+          score?: number | null
+          slug?: string
+          stars?: number | null
+          status?: Database["public"]["Enums"]["content_status"]
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      calendar_events: {
+        Row: {
+          actual_value: string | null
+          category: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          event_date: string
+          event_time: string | null
+          forecast_value: string | null
+          id: string
+          impact: string
+          previous_value: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_value?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          forecast_value?: string | null
+          id?: string
+          impact?: string
+          previous_value?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_value?: string | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          forecast_value?: string | null
+          id?: string
+          impact?: string
+          previous_value?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      complaints: {
+        Row: {
+          broker_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          proof_urls: string[] | null
+          status: Database["public"]["Enums"]["content_status"]
+          user_id: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          proof_urls?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          proof_urls?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forecasts: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          id: string
+          pair: string
+          potential: string
+          reasoning: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+          updated_label: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          pair: string
+          potential?: string
+          reasoning?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_label?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          id?: string
+          pair?: string
+          potential?: string
+          reasoning?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_label?: string | null
+        }
+        Relationships: []
+      }
+      news_articles: {
+        Row: {
+          author: string | null
+          category: string
+          content: string | null
+          created_at: string
+          created_by: string | null
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          slug: string
+          source_url: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          slug: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          category?: string
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          slug?: string
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profile_claims: {
+        Row: {
+          admin_note: string | null
+          claimed_by: string
+          created_at: string | null
+          documents_url: string | null
+          id: string
+          profile_id: string
+          profile_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          claimed_by: string
+          created_at?: string | null
+          documents_url?: string | null
+          id?: string
+          profile_id: string
+          profile_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          claimed_by?: string
+          created_at?: string | null
+          documents_url?: string | null
+          id?: string
+          profile_id?: string
+          profile_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string
+          experience_level: string | null
+          full_name: string | null
+          id: string
+          is_public: boolean | null
+          phone: string | null
+          reputation_score: number | null
+          reputation_tier: string | null
+          show_complaints: boolean | null
+          show_country: boolean | null
+          show_real_name: boolean | null
+          social_telegram: string | null
+          social_twitter: string | null
+          trading_style: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string
+          is_public?: boolean | null
+          phone?: string | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_real_name?: boolean | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          trading_style?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string
+          is_public?: boolean | null
+          phone?: string | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_real_name?: boolean | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          trading_style?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          bonus_amount: string | null
+          broker_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expiry_date: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          link_url: string | null
+          promo_type: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bonus_amount?: string | null
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          link_url?: string | null
+          promo_type?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bonus_amount?: string | null
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expiry_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          link_url?: string | null
+          promo_type?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotions_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_clicks: {
+        Row: {
+          converted: boolean
+          created_at: string
+          id: string
+          ip_hash: string | null
+          referral_code_id: string
+          referrer_url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          converted?: boolean
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          referral_code_id: string
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          converted?: boolean
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          referral_code_id?: string
+          referrer_url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_clicks_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_codes: {
+        Row: {
+          broker_id: string | null
+          clicks: number
+          code: string
+          conversions: number
+          created_at: string
+          earnings: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          broker_id?: string | null
+          clicks?: number
+          code: string
+          conversions?: number
+          created_at?: string
+          earnings?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string | null
+          clicks?: number
+          code?: string
+          conversions?: number
+          created_at?: string
+          earnings?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reputation_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          points_delta: number
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          points_delta: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          points_delta?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author: string | null
+          avatar: string | null
+          broker_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          rating: number | null
+          role: string | null
+          status: Database["public"]["Enums"]["content_status"]
+          user_id: string | null
+        }
+        Insert: {
+          author?: string | null
+          avatar?: string | null
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Update: {
+          author?: string | null
+          avatar?: string | null
+          broker_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: Database["public"]["Enums"]["content_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scam_alerts: {
+        Row: {
+          broker_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          severity: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          severity?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          severity?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scam_alerts_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signal_groups: {
+        Row: {
+          avg_rr: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          members: string | null
+          monthly_signals: string | null
+          name: string
+          status: Database["public"]["Enums"]["content_status"]
+          track_record: string | null
+          updated_at: string
+          verified: boolean | null
+          win_rate: number | null
+        }
+        Insert: {
+          avg_rr?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          members?: string | null
+          monthly_signals?: string | null
+          name: string
+          status?: Database["public"]["Enums"]["content_status"]
+          track_record?: string | null
+          updated_at?: string
+          verified?: boolean | null
+          win_rate?: number | null
+        }
+        Update: {
+          avg_rr?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          members?: string | null
+          monthly_signals?: string | null
+          name?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          track_record?: string | null
+          updated_at?: string
+          verified?: boolean | null
+          win_rate?: number | null
+        }
+        Relationships: []
+      }
+      signal_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          signal_group_id: string
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id: string
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id?: string
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_profiles_signal_group_id_fkey"
+            columns: ["signal_group_id"]
+            isOneToOne: true
+            referencedRelation: "signal_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      sports_predictions: {
+        Row: {
+          analyst_note: string | null
+          confidence: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_correct: boolean | null
+          match_date: string
+          prediction: string
+          result: string | null
+          sport: string
+          status: Database["public"]["Enums"]["content_status"]
+          team_a: string
+          team_b: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          analyst_note?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_correct?: boolean | null
+          match_date?: string
+          prediction?: string
+          result?: string | null
+          sport?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          team_a?: string
+          team_b?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          analyst_note?: string | null
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_correct?: boolean | null
+          match_date?: string
+          prediction?: string
+          result?: string | null
+          sport?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          team_a?: string
+          team_b?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tier_upgrades: {
+        Row: {
+          admin_note: string | null
+          contact_info: Json | null
+          created_at: string | null
+          current_tier: string
+          id: string
+          profile_id: string
+          profile_type: string
+          requested_by: string
+          requested_tier: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          contact_info?: Json | null
+          created_at?: string | null
+          current_tier: string
+          id?: string
+          profile_id: string
+          profile_type: string
+          requested_by: string
+          requested_tier: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          contact_info?: Json | null
+          created_at?: string | null
+          current_tier?: string
+          id?: string
+          profile_id?: string
+          profile_type?: string
+          requested_by?: string
+          requested_tier?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_activity: {
+        Row: {
+          action_type: string
+          content_id: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          broker_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          broker_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      convert_referral: { Args: { code_text: string }; Returns: string }
+      has_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      increment_referral_clicks: {
+        Args: { code_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "content_ops"
+        | "moderator"
+        | "user"
+        | "broker"
+        | "signal_provider"
+        | "betting_site"
+      content_status: "draft" | "pending" | "published" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +1347,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "super_admin",
+        "content_ops",
+        "moderator",
+        "user",
+        "broker",
+        "signal_provider",
+        "betting_site",
+      ],
+      content_status: ["draft", "pending", "published", "rejected"],
+    },
   },
 } as const
