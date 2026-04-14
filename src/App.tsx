@@ -44,6 +44,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const CookiesPage = lazy(() => import("./pages/Cookies"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const Forecasts = lazy(() => import("./pages/Forecasts"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -179,6 +180,7 @@ const AppContent = () => {
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
+          <Route path="/profile/:username" element={<UserProfile />} />
 
           {/* Admin Panel */}
           <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
