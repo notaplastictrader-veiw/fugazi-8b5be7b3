@@ -7,6 +7,7 @@ import { Sparkles, Plus } from "lucide-react";
 import { sampleIdeas, TradingIdea } from "@/data/tradingIdeas";
 import TradingIdeaCard from "@/components/ideas/TradingIdeaCard";
 import PostIdeaModal from "@/components/ideas/PostIdeaModal";
+import PrivateReportModal from "@/components/ideas/PrivateReportModal";
 import IdeasSidebar from "@/components/ideas/IdeasSidebar";
 
 const SORT_OPTIONS = ["trending", "latest", "reactions", "discussed"] as const;
@@ -19,6 +20,7 @@ const ASSET_FILTERS = ["All", "XAU/USD", "EUR/USD", "GBP/USD", "BTC/USD", "USD/J
 
 const Ideas = () => {
   const [postOpen, setPostOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>("trending");
   const [assetFilter, setAssetFilter] = useState("All");
 
@@ -139,13 +141,14 @@ const Ideas = () => {
           {/* Sidebar — Right */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24">
-              <IdeasSidebar onPostClick={() => setPostOpen(true)} />
+              <IdeasSidebar onPostClick={() => setPostOpen(true)} onReportClick={() => setReportOpen(true)} />
             </div>
           </div>
         </div>
       </section>
 
       <PostIdeaModal open={postOpen} onClose={() => setPostOpen(false)} />
+      <PrivateReportModal open={reportOpen} onClose={() => setReportOpen(false)} />
     </MainLayout>
   );
 };
