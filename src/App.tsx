@@ -93,6 +93,8 @@ const BettingDashboardsList = lazy(() => import("./pages/admin/BettingDashboards
 const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList"));
 const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
 const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
+const ModeratorLayout = lazy(() => import("./components/admin/ModeratorLayout"));
+const ModeratorDashboard = lazy(() => import("./pages/admin/ModeratorDashboard"));
 
 const queryClient = new QueryClient();
 
