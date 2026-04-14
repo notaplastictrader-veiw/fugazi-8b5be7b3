@@ -1,39 +1,50 @@
 
 
-# Broker Role-Aware User Dropdown
+# UserDropdown ও Broken Routes Fix
 
-## সমস্যা
-Broker হিসেবে login করার পরেও dropdown এ শুধু regular user menu দেখাচ্ছে (My Profile, My Reviews, My Complaints, Signal Subscriptions)। Broker-specific options নেই।
+## সমস্যাগুলো
+
+### 1. Broken Links (404 দেয়)
+UserDropdown এ যেসব link আছে সেগুলোর routes App.tsx এ নেই:
+- `/profile` → route নেই (আছে `/profile/:username`)
+- `/my-reviews` → route নেই (আছে `/dashboard/reviews`)
+- `/my-complaints` → route নেই (আছে `/dashboard/complaints`)
+- `/subscriptions` → route নেই (কোনো route-ই নেই)
+
+### 2. Role Priority Issue
+তোমার account এ সব roles আছে (super_admin, broker, signal_provider, betting_site, etc.)। কিন্তু `getMenuItems()` এ **broker** সবার আগে check হয়, তাই সবসময় broker menu দেখায়। Super admin হওয়া সত্ত্বেও Admin Panel দেখায় না।
+
+### 3. Betting Site role এর কোনো menu নেই
+`betting_site` role এর জন্য কোনো specific menu items নেই।
 
 ## সমাধান
 
-### `src/components/UserDropdown.tsx` পরিবর্তন:
+### `src/components/UserDropdown.tsx`:
 
-1. **`useUserRole` hook import করো** — user এর roles check করতে
-2. **Role-based menu items** — roles অনুযায়ী আলাদা menu দেখাবে:
+1. **Role priority fix** — Check order ঠিক করা:
+   - `super_admin` → Admin Panel first
+   - `content_ops` / `moderator` → Admin Panel
+   - `broker` → Broker Dashboard
+   - `signal_provider` → Signal Dashboard
+   - `betting_site` → Betting Dashboard
+   - Regular user → User dashboard links
 
-   **Broker role থাকলে:**
-   - 🏢 Broker Dashboard → `/admin/broker-dashboard`
-   - 📊 My Listings → `/admin/broker-dashboard`
-   - 👤 My Profile → `/profile`
-   - ⚙️ Settings → `/dashboard/settings`
+2. **Broken href fix**:
+   - `/profile` → `/dashboard` (or `/profile/${username}`)
+   - `/my-reviews` → `/dashboard/reviews`
+   - `/my-complaints` → `/dashboard/complaints`
+   - `/subscriptions` → `/signals` (public signals page)
 
-   **Signal Provider role থাকলে:**
-   - 📡 Signal Dashboard → `/admin/signal-dashboard`
-   - 👤 My Profile → `/profile`
-   - ⚙️ Settings → `/dashboard/settings`
+3. **Betting site menu** add:
+   - Betting Dashboard → `/admin/betting-dashboards`
+   - My Profile → `/dashboard`
+   - Settings → `/dashboard/settings`
 
-   **Admin roles (super_admin/content_ops/moderator) থাকলে:**
-   - 🛡️ Admin Panel → `/admin`
-   - 👤 My Profile → `/profile`
+4. **Multiple roles case** — Super admin সবসময় top priority পাবে, তারপর admin roles, তারপে provider roles।
 
-   **Regular user (default):**
-   - Current menu items (My Profile, My Reviews, My Complaints, Signal Subscriptions)
+### Changes Summary
 
-3. **Role badge** — Dropdown header এ role name দেখাবে (e.g., "Broker", "Signal Provider", "Admin") — email এর নিচে ছোট badge
-
-### একটাই ফাইল change:
 | File | Change |
 |------|--------|
-| `src/components/UserDropdown.tsx` | Add `useUserRole`, show role-specific menu items & role badge |
+| `src/components/UserDropdown.tsx` | Fix role priority order (admin first), fix all broken hrefs, add betting_site menu |
 
