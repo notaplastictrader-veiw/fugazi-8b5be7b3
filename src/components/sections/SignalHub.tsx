@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Users, BarChart3, TrendingUp } from "lucide-react";
 
@@ -17,7 +18,7 @@ const SignalHub = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchGroups = async () => {
       const { data } = await supabase
         .from("signal_groups")
         .select("*")
@@ -25,16 +26,23 @@ const SignalHub = () => {
         .order("win_rate", { ascending: false });
       if (data) setGroups(data as SignalGroup[]);
     };
-    fetch();
+    fetchGroups();
   }, []);
 
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
-        <span className="section-tag">// SIGNAL HUB</span>
-        <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          Verified Signal <span className="text-primary">Groups</span>
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <span className="section-tag">// SIGNAL HUB</span>
+            <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3">
+              Verified Signal <span className="text-primary">Groups</span>
+            </h2>
+          </div>
+          <Link to="/signals" className="text-sm font-semibold text-primary hover:underline">
+            View All →
+          </Link>
+        </div>
         <p className="text-sm text-muted-foreground mb-10">Every Telegram group listed, reviewed and rated by real traders.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -75,9 +83,9 @@ const SignalHub = () => {
                   <Users className="w-4 h-4" />
                   {group.members} members
                 </div>
-                <button className="px-4 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                <Link to={`/signals/${group.id}`} className="px-4 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                   View Group
-                </button>
+                </Link>
               </div>
             </div>
           ))}
