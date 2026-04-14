@@ -10,12 +10,12 @@ interface Broker {
   min_deposit: string; stars: number; review_count: number; complaints: number; badge: string;
 }
 
-const filters = ["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"];
-const filterMap: Record<string, string> = { All: "", "Instant Funding": "instant-funding", "Challenge-based": "challenge", "Crypto Funded": "crypto-funded", "No Time Limit": "no-time-limit" };
+const filters = ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"];
+const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Funding": "instant-funding", "1-Step Challenge": "1-step", "2-Step Challenge": "2-step", "Discount Offers": "discount", "Crypto Funded": "crypto-funded", "No Time Limit": "no-time-limit" };
 
 const PropFirms = () => {
   const [firms, setFirms] = useState<Broker[]>([]);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("All Prop Firms");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const PropFirms = () => {
   }, []);
 
   const filtered = firms
-    .filter(b => filter === "All" || b.tags?.includes(filterMap[filter]))
+    .filter(b => filter === "All Prop Firms" || b.tags?.includes(filterMap[filter]))
     .filter(b => !search || b.name.toLowerCase().includes(search.toLowerCase()));
 
   const scoreColor = (s: number) => s >= 8 ? "bg-primary" : s >= 6 ? "bg-accent" : "bg-destructive";
