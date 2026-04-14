@@ -229,9 +229,6 @@ const SignalGroupDetail = () => {
               {showReviewForm && (
                 <div className="glass-card rounded-xl p-6">
                   <ReviewSubmissionForm
-                    entityType="signal_group"
-                    entityId={group.id}
-                    entityName={group.name}
                     onSuccess={() => setShowReviewForm(false)}
                   />
                 </div>
