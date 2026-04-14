@@ -1,7 +1,7 @@
 import { sampleContributors, sampleIdeas } from "@/data/tradingIdeas";
 import { Trophy, TrendingUp, MessageSquare } from "lucide-react";
 
-const IdeasSidebar = ({ onPostClick }: { onPostClick: () => void }) => {
+const IdeasSidebar = ({ onPostClick, onReportClick }: { onPostClick: () => void; onReportClick: () => void }) => {
   // Compute trending assets from sample data
   const assetCounts: Record<string, number> = {};
   sampleIdeas.forEach(i => { assetCounts[i.asset] = (assetCounts[i.asset] || 0) + 1; });
@@ -67,16 +67,16 @@ const IdeasSidebar = ({ onPostClick }: { onPostClick: () => void }) => {
         </div>
       </div>
 
-      {/* Private Submissions Note */}
+      {/* Report & Request */}
       <div className="glass-card rounded-xl p-4 border-border/50">
         <h3 className="text-sm font-display font-bold text-foreground flex items-center gap-2 mb-2">
-          <MessageSquare className="w-4 h-4 text-muted-foreground" /> Report an Issue
+          <MessageSquare className="w-4 h-4 text-muted-foreground" /> Report & Request
         </h3>
         <p className="text-xs text-muted-foreground leading-relaxed mb-3">
           Bug reports, feature requests, and content suggestions go directly to our team privately.
         </p>
         <button
-          onClick={onPostClick}
+          onClick={onReportClick}
           className="text-xs text-primary hover:underline font-medium"
         >
           Submit a private report →

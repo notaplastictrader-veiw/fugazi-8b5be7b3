@@ -42,9 +42,14 @@ const Education = () => {
       <section className="max-w-5xl mx-auto px-4 pt-6 pb-24">
         {/* Hero */}
         <div className="text-center mb-12">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
-            LEARN TRADING
-          </span>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary">
+              LEARN TRADING
+            </span>
+            <a href="#courses" className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent hover:bg-accent/20 transition-colors">
+              FOR PREMIUM ↓
+            </a>
+          </div>
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mb-4">
             Education Hub
           </h1>

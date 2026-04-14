@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -61,7 +62,9 @@ const Signals = () => {
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground"><Users className="w-4 h-4" />{group.members} members</div>
-                  <button className="px-4 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">View Group</button>
+                  <Link to={`/signals/${group.id}`}>
+                    <button className="px-4 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">View Group</button>
+                  </Link>
                 </div>
               </div>
             ))}

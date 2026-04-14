@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
+import { countries, Country } from "@/data/countries";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -11,9 +12,31 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [countryOpen, setCountryOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useI18n();
+
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch) return countries;
+    const q = countrySearch.toLowerCase();
+    return countries.filter(c =>
+      c.name.toLowerCase().includes(q) || c.dialCode.includes(q) || c.code.toLowerCase().includes(q)
+    );
+  }, [countrySearch]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setCountryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +52,15 @@ const Signup = () => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: selectedCountry ? { country: selectedCountry.code, country_name: selectedCountry.name } : undefined,
+      },
     });
     setLoading(false);
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
-      // Track referral conversion
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
         const { data: ownerId } = await supabase.rpc("convert_referral" as any, { code_text: refCode });
@@ -99,6 +124,61 @@ const Signup = () => {
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4">
+            {/* Country Selector */}
+            <div className="relative" ref={dropdownRef}>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Country</label>
+              <button
+                type="button"
+                onClick={() => setCountryOpen(!countryOpen)}
+                className="w-full flex items-center gap-2 px-3 py-3 rounded-xl bg-secondary/50 border border-border text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                <Globe className="w-4 h-4 text-muted-foreground shrink-0" />
+                {selectedCountry ? (
+                  <span className="flex items-center gap-2 flex-1 text-left">
+                    <span>{selectedCountry.flag}</span>
+                    <span>{selectedCountry.name}</span>
+                    <span className="text-muted-foreground ml-auto">{selectedCountry.dialCode}</span>
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground flex-1 text-left">Select your country</span>
+                )}
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {countryOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
+                  <div className="p-2 border-b border-border">
+                    <input
+                      type="text"
+                      value={countrySearch}
+                      onChange={(e) => setCountrySearch(e.target.value)}
+                      placeholder="Search country or code..."
+                      className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    {filteredCountries.length > 0 ? filteredCountries.map(c => (
+                      <button
+                        key={c.code}
+                        type="button"
+                        onClick={() => { setSelectedCountry(c); setCountryOpen(false); setCountrySearch(""); }}
+                        className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors text-left ${
+                          selectedCountry?.code === c.code ? "bg-primary/10 text-primary" : "text-foreground"
+                        }`}
+                      >
+                        <span className="text-base">{c.flag}</span>
+                        <span className="flex-1">{c.name}</span>
+                        <span className="text-xs text-muted-foreground font-mono">{c.dialCode}</span>
+                      </button>
+                    )) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">No countries found</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
