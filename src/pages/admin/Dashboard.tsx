@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +7,9 @@ import {
   Building2, Radio, TrendingUp, MessageSquare, AlertTriangle,
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import BrokerDashboard from "./BrokerDashboard";
 import SignalDashboard from "./SignalDashboard";
-
+import ModeratorDashboard from "./ModeratorDashboard";
 interface Stats {
   brokers: number; signals: number; forecasts: number; reviews: number;
   complaints: number; scamAlerts: number; pendingApprovals: number; users: number;
@@ -246,6 +246,12 @@ const Dashboard = () => {
     );
   }
 
+  // Users with no admin/provider roles → redirect to user dashboard
+  const hasAdminAccess = hasRole("super_admin") || hasRole("content_ops") || hasRole("moderator") || hasRole("broker") || hasRole("signal_provider");
+  if (!hasAdminAccess) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Broker-only users
   if (hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator")) {
     return <BrokerDashboard />;
@@ -256,8 +262,13 @@ const Dashboard = () => {
     return <SignalDashboard />;
   }
 
-  // Content ops / moderator
-  if ((hasRole("content_ops") || hasRole("moderator")) && !hasRole("super_admin")) {
+  // Moderator-only
+  if (hasRole("moderator") && !hasRole("super_admin") && !hasRole("content_ops")) {
+    return <ModeratorDashboard />;
+  }
+
+  // Content ops (without super_admin)
+  if (hasRole("content_ops") && !hasRole("super_admin")) {
     return <ContentOpsDashboard />;
   }
 
