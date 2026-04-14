@@ -249,7 +249,7 @@ const BrokerTrustHub = () => {
           </h2>
           <p className="text-sm text-muted-foreground mb-4">Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.</p>
           <div className="flex flex-wrap gap-2 mb-8">
-            {["Bullwaves Prime", "FTMO", "MyForexFunds", "The Funded Trader", "True Forex Funds", "Maven Trading"].map((name) => (
+            {["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"].map((name) => (
               <span key={name} className="px-3 py-1 text-xs font-mono rounded-full border border-accent/30 text-accent bg-accent/5">{name}</span>
             ))}
           </div>

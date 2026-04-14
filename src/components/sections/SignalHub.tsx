@@ -40,7 +40,7 @@ const SignalHub = () => {
             </h2>
           </div>
           <Link to="/signals" className="text-sm font-semibold text-primary hover:underline">
-            View All →
+            View All Groups →
           </Link>
         </div>
         <p className="text-sm text-muted-foreground mb-10">Every Telegram group listed, reviewed and rated by real traders.</p>
