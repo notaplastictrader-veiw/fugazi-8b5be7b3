@@ -1,14 +1,29 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Building2, Star, AlertTriangle, TrendingUp, Pencil } from "lucide-react";
+import { Building2, Star, AlertTriangle, TrendingUp, Pencil, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+
+const HudGauge = ({ value, label, icon: Icon }: { value: string | number; label: string; icon: any }) => {
+  return (
+    <div className="hud-stat p-4 flex flex-col items-center gap-2 hud-scanline">
+      <div className="relative w-20 h-20 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+        <div className="absolute inset-1 rounded-full border border-primary/10" />
+        <div className="flex flex-col items-center">
+          <Icon className="w-4 h-4 text-primary mb-1" />
+          <span className="text-lg font-bold text-foreground font-mono">{value}</span>
+        </div>
+      </div>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{label}</span>
+    </div>
+  );
+};
 
 const BrokerDashboard = () => {
   const { user } = useAuth();
@@ -43,9 +58,9 @@ const BrokerDashboard = () => {
   };
 
   if (!broker) return (
-    <div className="text-center py-16 text-muted-foreground">
-      <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-      <p>No broker listing linked to your account yet.</p>
+    <div className="text-center py-16 text-muted-foreground hud-scanline">
+      <Building2 className="w-12 h-12 mx-auto mb-4 opacity-30" />
+      <p className="font-mono text-sm">NO BROKER LISTING LINKED TO YOUR ACCOUNT</p>
     </div>
   );
 
@@ -57,42 +72,53 @@ const BrokerDashboard = () => {
   ];
 
   return (
-    <div>
+    <div className="hud-scanline">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground">My Broker Dashboard</h2>
-        <Button size="sm" onClick={() => setEditOpen(true)}><Pencil className="w-4 h-4 mr-1" /> Edit Profile</Button>
+        <div className="flex items-center gap-3">
+          <div className="hud-badge">BROKER</div>
+          <h2 className="text-2xl font-bold text-foreground font-['Barlow_Condensed'] uppercase tracking-wide">
+            My Broker Dashboard
+          </h2>
+        </div>
+        <Button size="sm" variant="outline" className="border-primary/30 hover:border-primary/60 font-mono text-xs" onClick={() => setEditOpen(true)}>
+          <Pencil className="w-3 h-3 mr-1" /> EDIT PROFILE
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {cards.map(c => (
-          <Card key={c.label} className="bg-card border-border">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><c.icon className="w-4 h-4 text-primary" />{c.label}</CardTitle></CardHeader>
-            <CardContent><p className="text-3xl font-bold text-foreground">{c.value}</p></CardContent>
-          </Card>
+          <HudGauge key={c.label} value={c.value} label={c.label} icon={c.icon} />
         ))}
       </div>
 
-      <h3 className="text-lg font-semibold text-foreground mb-4">Complaints Against You ({complaints.length})</h3>
-      <div className="space-y-2">
-        {complaints.map((c, i) => (
-          <div key={i} className="p-3 bg-card border border-border rounded-lg">
-            <p className="text-sm text-foreground">{c.content || "No details"}</p>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1 inline-block ${c.status === "published" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{c.status}</span>
+      <div className="hud-card p-1">
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-4 h-4 text-primary" />
+            <span className="text-xs font-mono text-primary uppercase tracking-widest">Complaints ({complaints.length})</span>
           </div>
-        ))}
-        {complaints.length === 0 && <p className="text-sm text-muted-foreground">No complaints filed.</p>}
+          <div className="space-y-2">
+            {complaints.map((c, i) => (
+              <div key={i} className="p-3 bg-background/50 border border-border/50 rounded">
+                <p className="text-sm text-foreground font-mono">{c.content || "No details"}</p>
+                <span className={`text-[10px] px-2 py-0.5 rounded font-mono mt-1 inline-block ${c.status === "published" ? "bg-primary/10 text-primary border border-primary/20" : "bg-muted text-muted-foreground border border-border"}`}>{c.status}</span>
+              </div>
+            ))}
+            {complaints.length === 0 && <p className="text-sm text-muted-foreground font-mono">NO COMPLAINTS FILED</p>}
+          </div>
+        </div>
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Edit Broker Profile</DialogTitle></DialogHeader>
-          <p className="text-xs text-muted-foreground mb-3">Changes will be submitted for admin approval.</p>
+          <DialogHeader><DialogTitle className="font-['Barlow_Condensed'] uppercase tracking-wide">Edit Broker Profile</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground mb-3 font-mono">Changes → Pending → Admin Approval → Live</p>
           <div className="space-y-3">
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-            <div><Label>Avg Spread</Label><Input value={form.avg_spread} onChange={e => setForm({...form, avg_spread: e.target.value})} /></div>
-            <div><Label>Leverage</Label><Input value={form.leverage} onChange={e => setForm({...form, leverage: e.target.value})} /></div>
-            <div><Label>Min Deposit</Label><Input value={form.min_deposit} onChange={e => setForm({...form, min_deposit: e.target.value})} /></div>
-            <Button onClick={handleEdit} className="w-full">Submit for Review</Button>
+            <div><Label className="font-mono text-xs">Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Avg Spread</Label><Input value={form.avg_spread} onChange={e => setForm({...form, avg_spread: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Leverage</Label><Input value={form.leverage} onChange={e => setForm({...form, leverage: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Min Deposit</Label><Input value={form.min_deposit} onChange={e => setForm({...form, min_deposit: e.target.value})} /></div>
+            <Button onClick={handleEdit} className="w-full font-mono">SUBMIT FOR REVIEW</Button>
           </div>
         </DialogContent>
       </Dialog>

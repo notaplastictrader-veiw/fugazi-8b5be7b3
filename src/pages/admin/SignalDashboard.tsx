@@ -1,14 +1,29 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Radio, TrendingUp, Users, CheckCircle, Pencil } from "lucide-react";
+import { Radio, TrendingUp, Users, CheckCircle, Pencil, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+
+const HudGauge = ({ value, label, icon: Icon }: { value: string | number; label: string; icon: any }) => {
+  return (
+    <div className="hud-stat p-4 flex flex-col items-center gap-2 hud-scanline">
+      <div className="relative w-20 h-20 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+        <div className="absolute inset-1 rounded-full border border-primary/10" />
+        <div className="flex flex-col items-center">
+          <Icon className="w-4 h-4 text-primary mb-1" />
+          <span className="text-lg font-bold text-foreground font-mono">{value}</span>
+        </div>
+      </div>
+      <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">{label}</span>
+    </div>
+  );
+};
 
 const SignalDashboard = () => {
   const { user } = useAuth();
@@ -40,9 +55,9 @@ const SignalDashboard = () => {
   };
 
   if (!group) return (
-    <div className="text-center py-16 text-muted-foreground">
-      <Radio className="w-12 h-12 mx-auto mb-4 opacity-50" />
-      <p>No signal group linked to your account yet.</p>
+    <div className="text-center py-16 text-muted-foreground hud-scanline">
+      <Radio className="w-12 h-12 mx-auto mb-4 opacity-30" />
+      <p className="font-mono text-sm">NO SIGNAL GROUP LINKED TO YOUR ACCOUNT</p>
     </div>
   );
 
@@ -54,32 +69,36 @@ const SignalDashboard = () => {
   ];
 
   return (
-    <div>
+    <div className="hud-scanline">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground">My Signal Dashboard</h2>
-        <Button size="sm" onClick={() => setEditOpen(true)}><Pencil className="w-4 h-4 mr-1" /> Edit Group</Button>
+        <div className="flex items-center gap-3">
+          <div className="hud-badge">SIGNAL PROVIDER</div>
+          <h2 className="text-2xl font-bold text-foreground font-['Barlow_Condensed'] uppercase tracking-wide">
+            My Signal Dashboard
+          </h2>
+        </div>
+        <Button size="sm" variant="outline" className="border-primary/30 hover:border-primary/60 font-mono text-xs" onClick={() => setEditOpen(true)}>
+          <Pencil className="w-3 h-3 mr-1" /> EDIT GROUP
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {cards.map(c => (
-          <Card key={c.label} className="bg-card border-border">
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-2"><c.icon className="w-4 h-4 text-primary" />{c.label}</CardTitle></CardHeader>
-            <CardContent><p className="text-3xl font-bold text-foreground">{c.value}</p></CardContent>
-          </Card>
+          <HudGauge key={c.label} value={c.value} label={c.label} icon={c.icon} />
         ))}
       </div>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Edit Signal Group</DialogTitle></DialogHeader>
-          <p className="text-xs text-muted-foreground mb-3">Changes will be submitted for admin approval.</p>
+          <DialogHeader><DialogTitle className="font-['Barlow_Condensed'] uppercase tracking-wide">Edit Signal Group</DialogTitle></DialogHeader>
+          <p className="text-xs text-muted-foreground mb-3 font-mono">Changes → Pending → Admin Approval → Live</p>
           <div className="space-y-3">
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-            <div><Label>Members</Label><Input value={form.members} onChange={e => setForm({...form, members: e.target.value})} /></div>
-            <div><Label>Monthly Signals</Label><Input value={form.monthly_signals} onChange={e => setForm({...form, monthly_signals: e.target.value})} /></div>
-            <div><Label>Avg R:R</Label><Input value={form.avg_rr} onChange={e => setForm({...form, avg_rr: e.target.value})} /></div>
-            <div><Label>Track Record</Label><Input value={form.track_record} onChange={e => setForm({...form, track_record: e.target.value})} /></div>
-            <Button onClick={handleEdit} className="w-full">Submit for Review</Button>
+            <div><Label className="font-mono text-xs">Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Members</Label><Input value={form.members} onChange={e => setForm({...form, members: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Monthly Signals</Label><Input value={form.monthly_signals} onChange={e => setForm({...form, monthly_signals: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Avg R:R</Label><Input value={form.avg_rr} onChange={e => setForm({...form, avg_rr: e.target.value})} /></div>
+            <div><Label className="font-mono text-xs">Track Record</Label><Input value={form.track_record} onChange={e => setForm({...form, track_record: e.target.value})} /></div>
+            <Button onClick={handleEdit} className="w-full font-mono">SUBMIT FOR REVIEW</Button>
           </div>
         </DialogContent>
       </Dialog>
