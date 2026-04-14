@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Building2, Radio, TrendingUp, MessageSquare, AlertTriangle,
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 import BrokerDashboard from "./BrokerDashboard";
 import SignalDashboard from "./SignalDashboard";
 import ModeratorDashboard from "./ModeratorDashboard";
