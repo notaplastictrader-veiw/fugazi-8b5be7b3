@@ -1,4 +1,4 @@
-import { User, LogOut, MessageSquare, Star, Bell, Shield, LayoutDashboard, Building2, Radio, Settings } from "lucide-react";
+import { User, LogOut, MessageSquare, Star, Shield, LayoutDashboard, Building2, Radio, Settings, Trophy } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -17,47 +17,59 @@ const UserDropdown = ({ onClose }: UserDropdownProps) => {
   const firstName = fullName.split(" ")[0];
   const initial = firstName.charAt(0).toUpperCase();
 
-  const isBroker = hasRole("broker");
-  const isSignalProvider = hasRole("signal_provider");
-  const isAdmin = hasAnyRole(["super_admin", "content_ops", "moderator"]);
-
   const getRoleBadge = () => {
     if (hasRole("super_admin")) return { label: "Super Admin", className: "bg-destructive/15 text-destructive border-destructive/30" };
     if (hasRole("content_ops")) return { label: "Content Ops", className: "bg-primary/15 text-primary border-primary/30" };
     if (hasRole("moderator")) return { label: "Moderator", className: "bg-accent/15 text-accent-foreground border-accent/30" };
-    if (isBroker) return { label: "Broker", className: "bg-primary/15 text-primary border-primary/30" };
-    if (isSignalProvider) return { label: "Signal Provider", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("broker")) return { label: "Broker", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("signal_provider")) return { label: "Signal Provider", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("betting_site")) return { label: "Betting Site", className: "bg-primary/15 text-primary border-primary/30" };
     return null;
   };
 
   const getMenuItems = () => {
-    if (isBroker) {
+    // Priority: super_admin > content_ops/moderator > broker > signal_provider > betting_site > regular
+    if (hasRole("super_admin")) {
+      return [
+        { icon: Shield, label: "Admin Panel", href: "/admin" },
+        { icon: User, label: "Dashboard", href: "/dashboard" },
+        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+      ];
+    }
+    if (hasAnyRole(["content_ops", "moderator"])) {
+      return [
+        { icon: Shield, label: "Admin Panel", href: "/admin" },
+        { icon: User, label: "Dashboard", href: "/dashboard" },
+        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+      ];
+    }
+    if (hasRole("broker")) {
       return [
         { icon: LayoutDashboard, label: "Broker Dashboard", href: "/admin/broker-dashboard" },
         { icon: Building2, label: "My Listings", href: "/admin/broker-dashboard" },
-        { icon: User, label: "My Profile", href: "/profile" },
+        { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];
     }
-    if (isSignalProvider) {
+    if (hasRole("signal_provider")) {
       return [
         { icon: Radio, label: "Signal Dashboard", href: "/admin/signal-dashboard" },
-        { icon: User, label: "My Profile", href: "/profile" },
+        { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];
     }
-    if (isAdmin) {
+    if (hasRole("betting_site")) {
       return [
-        { icon: Shield, label: "Admin Panel", href: "/admin" },
-        { icon: User, label: "My Profile", href: "/profile" },
+        { icon: Trophy, label: "Betting Dashboard", href: "/admin/betting-dashboards" },
+        { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];
     }
     return [
-      { icon: User, label: "My Profile", href: "/profile" },
-      { icon: Star, label: "My Reviews", href: "/my-reviews" },
-      { icon: MessageSquare, label: "My Complaints", href: "/my-complaints" },
-      { icon: Bell, label: "Signal Subscriptions", href: "/subscriptions" },
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Star, label: "My Reviews", href: "/dashboard/reviews" },
+      { icon: MessageSquare, label: "My Complaints", href: "/dashboard/complaints" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ];
   };
 
