@@ -65,10 +65,15 @@ const BrokerJoinSection = () => {
                 );
               })}
             </div>
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               <a href="/partnership" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
                 {ctaText}
               </a>
+              <div>
+                <a href="/brokers" className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors">
+                  Already listed? Claim your profile →
+                </a>
+              </div>
             </div>
           </div>
 

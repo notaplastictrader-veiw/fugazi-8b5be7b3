@@ -21,6 +21,7 @@ const footerLinks = {
     { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
     { label: "Binary Options", href: "/brokers?type=binary" },
     { label: "Broker Comparison", href: "/compare" },
+    { label: "Claim Your Profile", href: "/brokers" },
     { label: "Scam Alerts", href: "/scam-alerts" },
   ],
   "Prop Firms": [

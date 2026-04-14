@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown } from "lucide-react";
@@ -7,6 +7,9 @@ import { useI18n } from "@/contexts/I18nContext";
 import { countries, Country } from "@/data/countries";
 
 const Signup = () => {
+  const [searchParams] = useSearchParams();
+  const signupRole = searchParams.get("role");
+  const brokerIdParam = searchParams.get("broker_id");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -61,6 +64,12 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
+      // Handle broker claim flow after signup
+      if (signupRole === "broker" && brokerIdParam) {
+        // Store broker claim info for post-confirmation processing
+        sessionStorage.setItem("pending-broker-claim", brokerIdParam);
+      }
+
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
         const { data: ownerId } = await supabase.rpc("convert_referral" as any, { code_text: refCode });
@@ -100,8 +109,12 @@ const Signup = () => {
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>
             </Link>
-            <h1 className="text-2xl font-display font-extrabold text-foreground">{t("signup.title")}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{t("signup.subtitle")}</p>
+            <h1 className="text-2xl font-display font-extrabold text-foreground">
+              {signupRole === "broker" ? "Sign Up as Broker" : t("signup.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {signupRole === "broker" ? "Create your account to claim and manage your broker profile." : t("signup.subtitle")}
+            </p>
           </div>
 
           <button
