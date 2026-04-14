@@ -78,7 +78,7 @@ export function AdminSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>
             {!collapsed && (
-              <span className="text-primary font-bold text-sm">NAFT Admin</span>
+              <span className="text-primary font-bold text-xs font-mono tracking-widest uppercase">NAFT ADMIN</span>
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
