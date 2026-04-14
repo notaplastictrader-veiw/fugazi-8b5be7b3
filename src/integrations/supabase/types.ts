@@ -58,7 +58,11 @@ export type Database = {
           content_id: string
           content_type: string
           created_at: string
+          escalated_at: string | null
+          escalated_by: string | null
           id: string
+          priority: number | null
+          rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           reviewer_notes: string | null
@@ -69,7 +73,11 @@ export type Database = {
           content_id: string
           content_type: string
           created_at?: string
+          escalated_at?: string | null
+          escalated_by?: string | null
           id?: string
+          priority?: number | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_notes?: string | null
@@ -80,7 +88,11 @@ export type Database = {
           content_id?: string
           content_type?: string
           created_at?: string
+          escalated_at?: string | null
+          escalated_by?: string | null
           id?: string
+          priority?: number | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_notes?: string | null
@@ -121,6 +133,119 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      betting_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          affiliate_url: string | null
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          site_name: string
+          slug: string
+          supported_sports: string[] | null
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          affiliate_url?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name: string
+          slug: string
+          supported_sports?: string[] | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          affiliate_url?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name?: string
+          slug?: string
+          supported_sports?: string[] | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: []
+      }
+      broker_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          broker_id: string
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          broker_id: string
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          broker_id?: string
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_profiles_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       brokers: {
         Row: {
@@ -403,39 +528,114 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_claims: {
+        Row: {
+          admin_note: string | null
+          claimed_by: string
+          created_at: string | null
+          documents_url: string | null
+          id: string
+          profile_id: string
+          profile_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          claimed_by: string
+          created_at?: string | null
+          documents_url?: string | null
+          id?: string
+          profile_id: string
+          profile_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          claimed_by?: string
+          created_at?: string | null
+          documents_url?: string | null
+          id?: string
+          profile_id?: string
+          profile_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           country: string | null
           country_code: string | null
           created_at: string
+          experience_level: string | null
           full_name: string | null
           id: string
+          is_public: boolean | null
           phone: string | null
+          reputation_score: number | null
+          reputation_tier: string | null
+          show_complaints: boolean | null
+          show_country: boolean | null
+          show_real_name: boolean | null
+          social_telegram: string | null
+          social_twitter: string | null
+          trading_style: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string
+          experience_level?: string | null
           full_name?: string | null
           id?: string
+          is_public?: boolean | null
           phone?: string | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_real_name?: boolean | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          trading_style?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           country?: string | null
           country_code?: string | null
           created_at?: string
+          experience_level?: string | null
           full_name?: string | null
           id?: string
+          is_public?: boolean | null
           phone?: string | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_real_name?: boolean | null
+          social_telegram?: string | null
+          social_twitter?: string | null
+          trading_style?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -580,6 +780,36 @@ export type Database = {
           },
         ]
       }
+      reputation_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          points_delta: number
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          points_delta: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          points_delta?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           author: string | null
@@ -713,6 +943,62 @@ export type Database = {
         }
         Relationships: []
       }
+      signal_profiles: {
+        Row: {
+          account_manager_contact: string | null
+          account_manager_name: string | null
+          claim_status: string
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          signal_group_id: string
+          tier: string
+          updated_at: string | null
+          verification_docs_url: string | null
+        }
+        Insert: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id: string
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Update: {
+          account_manager_contact?: string | null
+          account_manager_name?: string | null
+          claim_status?: string
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id?: string
+          tier?: string
+          updated_at?: string | null
+          verification_docs_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_profiles_signal_group_id_fkey"
+            columns: ["signal_group_id"]
+            isOneToOne: true
+            referencedRelation: "signal_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_settings: {
         Row: {
           id: string
@@ -788,6 +1074,48 @@ export type Database = {
           team_b?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      tier_upgrades: {
+        Row: {
+          admin_note: string | null
+          contact_info: Json | null
+          created_at: string | null
+          current_tier: string
+          id: string
+          profile_id: string
+          profile_type: string
+          requested_by: string
+          requested_tier: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          contact_info?: Json | null
+          created_at?: string | null
+          current_tier: string
+          id?: string
+          profile_id: string
+          profile_type: string
+          requested_by: string
+          requested_tier: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          contact_info?: Json | null
+          created_at?: string | null
+          current_tier?: string
+          id?: string
+          profile_id?: string
+          profile_type?: string
+          requested_by?: string
+          requested_tier?: string
+          status?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -891,6 +1219,7 @@ export type Database = {
         | "user"
         | "broker"
         | "signal_provider"
+        | "betting_site"
       content_status: "draft" | "pending" | "published" | "rejected"
     }
     CompositeTypes: {
@@ -1026,6 +1355,7 @@ export const Constants = {
         "user",
         "broker",
         "signal_provider",
+        "betting_site",
       ],
       content_status: ["draft", "pending", "published", "rejected"],
     },
