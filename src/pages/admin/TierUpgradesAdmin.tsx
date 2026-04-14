@@ -38,11 +38,11 @@ const TierUpgradesAdmin = () => {
       const { profile_type, profile_id, requested_tier } = reviewItem;
       const table = profile_type === "broker" ? "broker_profiles" : profile_type === "signal" ? "signal_profiles" : "betting_profiles";
       const idCol = profile_type === "broker" ? "broker_id" : profile_type === "signal" ? "signal_group_id" : "id";
-      await supabase.from(table).update({
+      await (supabase.from(table) as any).update({
         tier: requested_tier,
         is_verified: requested_tier !== "basic",
         is_featured: requested_tier === "featured",
-      } as any).eq(idCol, profile_id);
+      }).eq(idCol, profile_id);
     }
 
     await logAuditAction(user.id, status === "approved" ? "approve_upgrade" : "reject_upgrade", "tier_upgrades", id, null, { status, note });

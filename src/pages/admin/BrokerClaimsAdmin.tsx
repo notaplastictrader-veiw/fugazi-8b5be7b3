@@ -40,7 +40,7 @@ const BrokerClaimsAdmin = () => {
     if (status === "approved" && reviewClaim) {
       const { profile_type, profile_id, claimed_by } = reviewClaim;
       const table = profile_type === "broker" ? "broker_profiles" : profile_type === "signal" ? "signal_profiles" : "betting_profiles";
-      await supabase.from(table).update({ claim_status: "claimed", claimed_by } as any).eq(profile_type === "broker" ? "broker_id" : profile_type === "signal" ? "signal_group_id" : "id", profile_id);
+      await (supabase.from(table) as any).update({ claim_status: "claimed", claimed_by }).eq(profile_type === "broker" ? "broker_id" : profile_type === "signal" ? "signal_group_id" : "id", profile_id);
 
       // Assign role
       const roleMap: Record<string, string> = { broker: "broker", signal: "signal_provider", betting: "betting_site" };
