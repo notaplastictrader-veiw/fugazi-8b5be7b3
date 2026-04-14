@@ -1,8 +1,9 @@
+import { useState } from "react";
 import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
-  Lightbulb, Mail, Dices, FileText
+  Lightbulb, Mail, Dices, FileText, ChevronDown
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -77,6 +79,12 @@ export function AdminSidebar() {
   const visibleItems = items.filter(canSee);
   const visibleDashboards = dashboardItems.filter(canSee);
 
+  const isDashboardActive = visibleDashboards.some((d) => isActive(d.url));
+  const [dashOpen, setDashOpen] = useState(isDashboardActive);
+
+  const activeClasses = "bg-primary/15 text-primary font-medium shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4),inset_0_0_8px_-4px_hsl(var(--primary)/0.2)] border border-primary/30 rounded-md";
+  const hoverClasses = "hover:bg-muted/50 hover:shadow-[0_0_8px_-2px_hsl(var(--primary)/0.15)] transition-all duration-200";
+
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
@@ -94,10 +102,10 @@ export function AdminSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/admin"}
-                      className={`hover:bg-muted/50 ${isActive(item.url) ? "bg-muted text-primary font-medium" : ""}`}
-                      activeClassName="bg-muted text-primary font-medium"
+                      className={`${hoverClasses} ${isActive(item.url) ? activeClasses : ""}`}
+                      activeClassName={activeClasses}
                     >
-                      <item.icon className="mr-2 h-4 w-4" />
+                      <item.icon className={`mr-2 h-4 w-4 ${isActive(item.url) ? "drop-shadow-[0_0_4px_hsl(var(--primary)/0.6)]" : ""}`} />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -107,7 +115,7 @@ export function AdminSidebar() {
                 <SidebarMenuButton asChild>
                   <button
                     onClick={async () => { await signOut(); navigate("/"); }}
-                    className="flex items-center w-full hover:bg-destructive/10 text-destructive"
+                    className="flex items-center w-full hover:bg-destructive/10 text-destructive transition-all duration-200"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     {!collapsed && <span>Log Out</span>}
@@ -117,29 +125,41 @@ export function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
         {visibleDashboards.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>
-              {!collapsed && <span className="text-muted-foreground text-xs">Dashboards</span>}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {visibleDashboards.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={`hover:bg-muted/50 ${isActive(item.url) ? "bg-muted text-primary font-medium" : ""}`}
-                        activeClassName="bg-muted text-primary font-medium"
-                      >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
+            <Collapsible open={dashOpen} onOpenChange={setDashOpen}>
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="cursor-pointer select-none hover:text-primary transition-colors duration-200 flex items-center justify-between w-full pr-2">
+                  {!collapsed && (
+                    <>
+                      <span className="text-muted-foreground text-xs">Dashboards</span>
+                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${dashOpen ? "rotate-180" : ""}`} />
+                    </>
+                  )}
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="transition-all duration-300 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {visibleDashboards.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <NavLink
+                            to={item.url}
+                            className={`${hoverClasses} ${isActive(item.url) ? activeClasses : ""}`}
+                            activeClassName={activeClasses}
+                          >
+                            <item.icon className={`mr-2 h-4 w-4 ${isActive(item.url) ? "drop-shadow-[0_0_4px_hsl(var(--primary)/0.6)]" : ""}`} />
+                            {!collapsed && <span>{item.title}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </Collapsible>
           </SidebarGroup>
         )}
       </SidebarContent>
