@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
@@ -86,24 +87,72 @@ const RatingBar = ({ label, value }: { label: string; value: number }) => {
 
 const BrokerDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
+  const [claimLoading, setClaimLoading] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
       setBroker(b as Broker);
-      const { data: r } = await supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false });
+      const [{ data: r }, { data: bp }] = await Promise.all([
+        supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
+        supabase.from("broker_profiles").select("claim_status").eq("broker_id", b.id).maybeSingle(),
+      ]);
       if (r) setReviews(r as Review[]);
+      if (bp) setClaimStatus(bp.claim_status);
     }
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, [slug]);
+
+  const handleClaimClick = () => {
+    if (!broker) return;
+    if (!user) {
+      navigate(`/signup?role=broker&broker_id=${broker.id}`);
+    } else {
+      // Logged in — direct claim
+      handleDirectClaim();
+    }
+  };
+
+  const handleDirectClaim = async () => {
+    if (!broker || !user) return;
+    setClaimLoading(true);
+    try {
+      // Insert broker role if not exists
+      await supabase.from("user_roles").upsert(
+        { user_id: user.id, role: "broker" as any },
+        { onConflict: "user_id,role" }
+      );
+      // Create or update broker_profiles
+      const { data: existing } = await supabase.from("broker_profiles").select("id").eq("broker_id", broker.id).maybeSingle();
+      if (existing) {
+        await supabase.from("broker_profiles").update({ claim_status: "claimed", claimed_by: user.id }).eq("broker_id", broker.id);
+      } else {
+        await supabase.from("broker_profiles").insert({ broker_id: broker.id, claim_status: "claimed", claimed_by: user.id, tier: "basic" });
+      }
+      // Insert claim record
+      await supabase.from("profile_claims").insert({
+        profile_id: broker.id,
+        profile_type: "broker",
+        claimed_by: user.id,
+        status: "approved",
+      });
+      setClaimStatus("claimed");
+    } catch (err) {
+      console.error("Claim failed:", err);
+    }
+    setClaimLoading(false);
+  };
 
   if (loading) return <MainLayout><div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div></MainLayout>;
   if (!broker) return <MainLayout><div className="min-h-screen flex flex-col items-center justify-center gap-4"><p className="text-muted-foreground">Broker not found.</p><Link to="/brokers" className="text-primary hover:underline">← Back to Brokers</Link></div></MainLayout>;
@@ -152,6 +201,19 @@ const BrokerDetail = () => {
                       <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-destructive bg-destructive/10 border-destructive/20">
                         <AlertTriangle className="w-3 h-3" /> Warning
                       </span>
+                    )}
+                    {claimStatus === "claimed" ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
+                        <CheckCircle className="w-3 h-3" /> Claimed
+                      </span>
+                    ) : (
+                      <button
+                        onClick={handleClaimClick}
+                        disabled={claimLoading}
+                        className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20 hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        <Shield className="w-3 h-3" /> {claimLoading ? "Claiming..." : "Claim This Profile"}
+                      </button>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
