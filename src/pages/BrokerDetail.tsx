@@ -2,15 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
 
 interface Broker {
@@ -96,6 +98,9 @@ const BrokerDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
   const [claimLoading, setClaimLoading] = useState(false);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [claimForm, setClaimForm] = useState({ companyName: "", position: "", proofUrl: "", contactEmail: "" });
+  const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
@@ -108,48 +113,56 @@ const BrokerDetail = () => {
       ]);
       if (r) setReviews(r as Review[]);
       if (bp) setClaimStatus(bp.claim_status);
+
+      // Check if current user has a pending claim
+      if (user) {
+        const { data: pendingClaim } = await supabase
+          .from("profile_claims")
+          .select("status")
+          .eq("profile_id", b.id)
+          .eq("claimed_by", user.id)
+          .eq("status", "pending")
+          .maybeSingle();
+        if (pendingClaim) setClaimStatus("pending");
+      }
     }
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [slug]);
+  useEffect(() => { fetchData(); }, [slug, user]);
 
   const handleClaimClick = () => {
     if (!broker) return;
     if (!user) {
       navigate(`/signup?role=broker&broker_id=${broker.id}`);
     } else {
-      // Logged in — direct claim
-      handleDirectClaim();
+      setShowClaimModal(true);
     }
   };
 
-  const handleDirectClaim = async () => {
+  const handleClaimSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!broker || !user) return;
+    if (!claimForm.companyName || !claimForm.position || !claimForm.proofUrl || !claimForm.contactEmail) {
+      toast({ title: "All fields are required", variant: "destructive" });
+      return;
+    }
     setClaimLoading(true);
     try {
-      // Insert broker role if not exists
-      await supabase.from("user_roles").upsert(
-        { user_id: user.id, role: "broker" as any },
-        { onConflict: "user_id,role" }
-      );
-      // Create or update broker_profiles
-      const { data: existing } = await supabase.from("broker_profiles").select("id").eq("broker_id", broker.id).maybeSingle();
-      if (existing) {
-        await supabase.from("broker_profiles").update({ claim_status: "claimed", claimed_by: user.id }).eq("broker_id", broker.id);
-      } else {
-        await supabase.from("broker_profiles").insert({ broker_id: broker.id, claim_status: "claimed", claimed_by: user.id, tier: "basic" });
-      }
-      // Insert claim record
-      await supabase.from("profile_claims").insert({
+      const { error } = await supabase.from("profile_claims").insert({
         profile_id: broker.id,
         profile_type: "broker",
         claimed_by: user.id,
-        status: "approved",
+        status: "pending",
+        documents_url: claimForm.proofUrl,
+        admin_note: `Company: ${claimForm.companyName} | Position: ${claimForm.position} | Email: ${claimForm.contactEmail}`,
       });
-      setClaimStatus("claimed");
-    } catch (err) {
-      console.error("Claim failed:", err);
+      if (error) throw error;
+      setClaimStatus("pending");
+      setShowClaimModal(false);
+      toast({ title: "Claim submitted!", description: "Your claim is under review. We'll notify you once approved." });
+    } catch (err: any) {
+      toast({ title: "Claim failed", description: err.message || "Something went wrong", variant: "destructive" });
     }
     setClaimLoading(false);
   };
@@ -206,13 +219,17 @@ const BrokerDetail = () => {
                       <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
                         <CheckCircle className="w-3 h-3" /> Claimed
                       </span>
+                    ) : claimStatus === "pending" ? (
+                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20">
+                        <Clock className="w-3 h-3" /> Pending Review
+                      </span>
                     ) : (
                       <button
                         onClick={handleClaimClick}
                         disabled={claimLoading}
                         className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20 hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-50"
                       >
-                        <Shield className="w-3 h-3" /> {claimLoading ? "Claiming..." : "Claim This Profile"}
+                        <Shield className="w-3 h-3" /> Claim This Profile
                       </button>
                     )}
                   </div>
@@ -633,6 +650,66 @@ const BrokerDetail = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Claim Proof Modal */}
+      <Dialog open={showClaimModal} onOpenChange={setShowClaimModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display">Claim {broker?.name} Profile</DialogTitle>
+            <DialogDescription>Submit proof of ownership. Our team will review and approve your claim.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleClaimSubmit} className="space-y-4 mt-2">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Company Name *</label>
+              <input
+                type="text"
+                value={claimForm.companyName}
+                onChange={(e) => setClaimForm(f => ({ ...f, companyName: e.target.value }))}
+                placeholder="e.g. FBS Markets Inc."
+                className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Your Position/Role *</label>
+              <input
+                type="text"
+                value={claimForm.position}
+                onChange={(e) => setClaimForm(f => ({ ...f, position: e.target.value }))}
+                placeholder="e.g. Head of Partnerships"
+                className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Proof Document URL *</label>
+              <input
+                type="url"
+                value={claimForm.proofUrl}
+                onChange={(e) => setClaimForm(f => ({ ...f, proofUrl: e.target.value }))}
+                placeholder="Google Drive / Dropbox link to verification docs"
+                className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                required
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">Upload business registration, employee ID, or official letter to Google Drive/Dropbox and paste the link.</p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Contact Email *</label>
+              <input
+                type="email"
+                value={claimForm.contactEmail}
+                onChange={(e) => setClaimForm(f => ({ ...f, contactEmail: e.target.value }))}
+                placeholder="your@company.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                required
+              />
+            </div>
+            <Button type="submit" disabled={claimLoading} className="w-full font-display font-bold">
+              {claimLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</> : "Submit Claim for Review"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };

@@ -27,34 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (_event, session) => {
         setSession(session);
         setLoading(false);
-
-        // Process pending broker claim after login/signup
-        if (session?.user && _event === "SIGNED_IN") {
-          const pendingBrokerId = sessionStorage.getItem("pending-broker-claim");
-          if (pendingBrokerId) {
-            sessionStorage.removeItem("pending-broker-claim");
-            try {
-              await supabase.from("user_roles").upsert(
-                { user_id: session.user.id, role: "broker" as any },
-                { onConflict: "user_id,role" }
-              );
-              const { data: existing } = await supabase.from("broker_profiles").select("id").eq("broker_id", pendingBrokerId).maybeSingle();
-              if (existing) {
-                await supabase.from("broker_profiles").update({ claim_status: "claimed", claimed_by: session.user.id }).eq("broker_id", pendingBrokerId);
-              } else {
-                await supabase.from("broker_profiles").insert({ broker_id: pendingBrokerId, claim_status: "claimed", claimed_by: session.user.id, tier: "basic" });
-              }
-              await supabase.from("profile_claims").insert({
-                profile_id: pendingBrokerId,
-                profile_type: "broker",
-                claimed_by: session.user.id,
-                status: "approved",
-              });
-            } catch (err) {
-              console.error("Auto broker claim failed:", err);
-            }
-          }
-        }
       }
     );
 
