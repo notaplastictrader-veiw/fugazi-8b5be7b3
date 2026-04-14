@@ -1,95 +1,59 @@
 
 
-# Plan: Futuristic HUD Dashboard Ecosystem
+# Plan: Role-Specific Dashboards + Login Page Tabs
 
-This is a large-scale project. I recommend implementing it in 3 phases to keep things manageable. Here's the full plan — we'll start with Phase 1.
+## Problem
+Currently, all roles see the super_admin dashboard. Only super_admin and content_ops/moderator routing works. There's no moderator-specific dashboard, no user dashboard in admin, and no betting site dashboard (note: "betting_site" is not a role in the DB — betting sites are managed by content_ops). The Login page has no way to distinguish user vs admin login.
 
----
+## Current roles in DB
+`super_admin`, `content_ops`, `moderator`, `user`, `broker`, `signal_provider`
 
-## Phase 1: Role-Based Dashboard Routing + HUD Styling (implement now)
+There is NO "betting_site" role. Betting sites are static data managed by content_ops/super_admin. So we build 5 distinct dashboards (not 6):
 
-### 1A. Role-aware /admin landing
-Currently all roles see the same Dashboard page. Change so:
-- **super_admin** → Super Admin HUD Dashboard (full CMS + stats)
-- **broker** → Broker-only Dashboard (their listing, complaints, reviews)
-- **signal_provider** → Signal-only Dashboard (their group stats)
-- **content_ops / moderator** → Content Ops Dashboard (approval queue focus)
+1. **super_admin** — already done ✓
+2. **moderator** — needs its own HUD dashboard (reviews, complaints, approval queue focus)
+3. **broker** — already done ✓ (but needs sidebar filtering so they only see their items)
+4. **signal_provider** — already done ✓ (same)
+5. **user** — regular users who somehow reach /admin should be redirected to /dashboard
 
-**How:** Modify `src/pages/admin/Dashboard.tsx` to check roles and render the appropriate dashboard component, OR create a `DashboardRouter.tsx` that conditionally renders based on role.
+## Changes
 
-### 1B. Futuristic HUD visual overhaul
-Apply to all admin pages:
-- New CSS classes: `hud-card` (dark bg, glowing cyan/lime border on hover, subtle scan-line overlay), `hud-stat` (radial gradient bg, animated border pulse)
-- Update `AdminLayout.tsx` header with HUD styling — gradient top bar, subtle grid background
-- Stat cards get circular progress indicators or gauge-style displays
-- Color scheme: cyan (`#00E5FF`), lime (`hsl(var(--primary))`), dark charcoal backgrounds with 1px glowing borders
+### 1. Login Page — Add role tabs (`src/pages/Login.tsx`)
+Add 3 tabs at the top: **User**, **Broker / Provider**, **Admin**
+- **User** tab: default, redirects to `/dashboard` after login
+- **Broker / Provider** tab: same form, redirects to `/admin/broker-dashboard` or `/admin/signal-dashboard` based on role
+- **Admin** tab: HUD-styled variant, redirects to `/admin`
+- All tabs use the same email/password form — the tab only changes the post-login redirect and visual styling
+- URL routes `/login/user`, `/login/broker`, `/login/admin` already exist — use path to set default tab
 
-### 1C. Super Admin Dashboard redesign
-Replace current basic card grid with:
-- Top row: 8 HUD stat gauges (brokers, signals, forecasts, reviews, complaints, scam alerts, pending, users)
-- Middle: Live activity feed (approval queue) + system health indicators
-- Bottom: Quick action grid with glowing icon buttons
-- All with animated borders and subtle pulse effects
+### 2. Moderator Dashboard (`src/pages/admin/Dashboard.tsx`)
+Create a `ModeratorDashboard` component inside Dashboard.tsx:
+- HUD-styled with scanline effects
+- Stats: Pending Reviews, Pending Complaints, Approval Queue count, Published Today
+- Quick links to Reviews, Complaints, Approval Queue
+- Recent activity feed from approval_queue
 
----
+### 3. User role redirect (`src/pages/admin/Dashboard.tsx`)
+If user has only the "user" role (no admin roles), redirect them to `/dashboard` instead of showing a blank admin page.
 
-## Phase 2: CMS Site Content Editor (next iteration)
+### 4. Sidebar filtering for broker/signal_provider (`src/components/admin/AdminSidebar.tsx`)
+- Broker-only users: show only Dashboard + Broker Dashboard in sidebar
+- Signal-only users: show only Dashboard + Signal Dashboard in sidebar
+- Hide all other admin menu items they can't access
 
-### 2A. New route: `/admin/site-content`
-A page listing all 15 homepage sections as editable cards:
-- PromoTicker, Navbar items, Hero (texts, stats, chip groups), BrokerTrustHub (broker cards, prop firm tags), ScamAlertSection, SignalChannel, SignalHub, ForecastSection, HowItWorks, CommunityReviews, BrokerJoinSection, Footer
+### 5. ProtectedAdminRoute update (`src/components/admin/ProtectedAdminRoute.tsx`)
+- Add "user" role to `canAccessAdmin` check is NOT needed — users without admin/broker/signal roles already get redirected away
 
-### 2B. Per-section editor pages
-Each section gets `/admin/site-content/:section` with:
-- Rich text editing for headings/descriptions
-- Image upload for logos/backgrounds
-- Add/remove/reorder list items (e.g., promo ticker messages, broker cards)
-- Live preview toggle
-- All saves go to `site_settings` table with section-specific keys
+## Files to modify
 
-### 2C. Sidebar update
-Add "Site Content" item under super_admin section in `AdminSidebar.tsx`
-
----
-
-## Phase 3: Company Dashboard Sub-pages (next iteration)
-
-### 3A. Broker Dashboards listing
-`/admin/broker-dashboards` — Lists all brokers from DB with search, each row has "View Dashboard" button → `/admin/broker-dashboards/:id` showing that broker's stats, reviews, complaints, edit form
-
-### 3B. Signal Dashboards listing
-Same pattern: `/admin/signal-dashboards` → `/admin/signal-dashboards/:id`
-
-### 3C. Betting Site Dashboards
-Same pattern for betting/sports sites
-
-### 3D. User Dashboards listing
-`/admin/user-dashboards` → `/admin/user-dashboards/:id` with user's activity, reviews, complaints, role management
-
----
-
-## Phase 1 — Files to create/modify
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `src/index.css` | Add HUD CSS classes (hud-card, hud-stat, scan-line overlay, glow animations) |
-| `src/pages/admin/Dashboard.tsx` | Complete rewrite — role-aware routing + HUD-styled super admin dashboard |
-| `src/components/admin/AdminLayout.tsx` | HUD header styling, grid background |
-| `src/components/admin/AdminSidebar.tsx` | HUD styling, grouped sections |
-| `src/pages/admin/BrokerDashboard.tsx` | HUD visual upgrade for broker-role users |
-| `src/pages/admin/SignalDashboard.tsx` | HUD visual upgrade for signal provider users |
+| `src/pages/Login.tsx` | Add 3 login tabs (User / Broker-Provider / Admin) with different styling and redirect logic |
+| `src/pages/admin/Dashboard.tsx` | Add ModeratorDashboard component; add user-role redirect to /dashboard |
+| `src/components/admin/AdminSidebar.tsx` | Filter sidebar items more strictly for broker/signal_provider-only users |
 
-### New HUD CSS additions
-```text
-.hud-card     → dark bg, 1px cyan/lime border, glow on hover
-.hud-stat     → radial gradient, animated pulse border
-.hud-scanline → subtle animated horizontal scan line overlay
-.hud-glow     → box-shadow glow effect (cyan or lime based on theme)
-```
-
-### Technical notes
-- Roles come from `useUserRole()` hook — already supports all 6 roles
-- The `ProtectedAdminRoute` already handles access control — dashboard routing is additive
-- All edits from broker/signal dashboards already go through approval queue
-- HUD styling will be scoped to admin pages via CSS classes, won't affect public site
+## Technical notes
+- Login tabs are cosmetic + redirect logic only — authentication is identical for all roles
+- The `/login/user`, `/login/broker`, `/login/admin` routes already exist in App.tsx — we use `useLocation` to determine default tab
+- No DB migration needed — all 6 roles already exist in the `app_role` enum
 
