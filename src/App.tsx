@@ -85,6 +85,10 @@ const SubmissionsAdmin = lazy(() => import("./pages/admin/SubmissionsAdmin"));
 const BettingSitesAdmin = lazy(() => import("./pages/admin/BettingSitesAdmin"));
 const SiteContentAdmin = lazy(() => import("./pages/admin/SiteContentAdmin"));
 const SectionEditor = lazy(() => import("./pages/admin/SectionEditor"));
+const BrokerDashboardsList = lazy(() => import("./pages/admin/BrokerDashboardsList"));
+const SignalDashboardsList = lazy(() => import("./pages/admin/SignalDashboardsList"));
+const BettingDashboardsList = lazy(() => import("./pages/admin/BettingDashboardsList"));
+const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList"));
 
 const queryClient = new QueryClient();
 
@@ -206,6 +210,14 @@ const AppContent = () => {
             <Route path="betting-sites" element={<BettingSitesAdmin />} />
             <Route path="site-content" element={<SiteContentAdmin />} />
             <Route path="site-content/:section" element={<SectionEditor />} />
+            <Route path="broker-dashboards" element={<BrokerDashboardsList />} />
+            <Route path="broker-dashboards/:id" element={<BrokerDashboardsList />} />
+            <Route path="signal-dashboards" element={<SignalDashboardsList />} />
+            <Route path="signal-dashboards/:id" element={<SignalDashboardsList />} />
+            <Route path="betting-dashboards" element={<BettingDashboardsList />} />
+            <Route path="betting-dashboards/:id" element={<BettingDashboardsList />} />
+            <Route path="user-dashboards" element={<UserDashboardsList />} />
+            <Route path="user-dashboards/:id" element={<UserDashboardsList />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
