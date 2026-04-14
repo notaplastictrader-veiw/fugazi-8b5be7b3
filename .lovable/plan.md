@@ -1,36 +1,56 @@
 
 
-# Diagnosis: Login redirects to homepage instead of admin dashboard
+# Plan: Multiple UI Improvements
 
-## Problem
+## 1. Prop Firms Page — Remove hardcoded firm names, improve filters
+**File:** `src/pages/PropFirms.tsx`
+- The page currently fetches from Supabase `brokers` table where `type = "prop-firm"`. If no data exists in DB, it shows "No prop firms found." The filter buttons (All, Instant Funding, Challenge-based, Crypto Funded, No Time Limit) already exist and work correctly.
+- No firm names are hardcoded in code — those come from the database. If BullWaves/Prime/FTMO/MyForexFunds appear, they are in Supabase. To remove them, delete those rows from the `brokers` table via Supabase Dashboard.
+- The filters are already in place and functional.
 
-In `src/pages/Login.tsx` line 26, after successful login the code always runs `navigate("/")`, sending every user — including super_admins — back to the homepage. There is no role-aware redirect logic.
+## 2. Signal Groups — Add "View All" button + Full Profile/Review pages
+**Files:** `src/pages/Signals.tsx`, new `src/pages/SignalGroupDetail.tsx`, `src/App.tsx`
+- Add a "View All" link/button on each signal group card (like brokers have "Full review" links).
+- Create a new `SignalGroupDetail.tsx` page at `/signals/:slug` with a full profile layout similar to `BrokerDetail.tsx`:
+  - Header with name, verified badge, win rate score bar
+  - Key facts grid (win rate, monthly signals, avg R:R, track record, members)
+  - Pros/cons section, performance chart placeholder
+  - Community reviews section with `ReviewSubmissionForm` adapted for signal groups
+  - Tabs: Overview, Performance, Reviews
+- Add the route `/signals/:id` in `App.tsx`
 
-Additionally, the Google OAuth redirect (line 32) uses `window.location.origin` which also lands on `/`.
+## 3. Education Page — Add "for Premium" badge next to "LEARN TRADING"
+**File:** `src/pages/Education.tsx`
+- Change the hero badge from `LEARN TRADING` to `LEARN TRADING` and add a separate "FOR PREMIUM" badge or append text next to it
+- Add a smooth scroll-down indicator/arrow pointing to the Premium Courses section below
 
-## Plan
+## 4. Ideas Sidebar — Change "Report an Issue" to "Report and Request" + New Form
+**Files:** `src/components/ideas/IdeasSidebar.tsx`, new `src/components/ideas/PrivateReportModal.tsx`, `src/pages/Ideas.tsx`
+- Rename "Report an Issue" → "Report and Request"
+- Rename "Submit a private report" → "Submit a private report"
+- Currently clicking "Submit a private report" opens the same `PostIdeaModal` (trading idea form). Fix this by:
+  - Creating a new `PrivateReportModal.tsx` with fields: Category (Bug / Feature Request / Content Suggestion), Title, Description, optional screenshot upload, Submit button
+  - Pass a separate `onReportClick` callback from `Ideas.tsx` to `IdeasSidebar` that opens this new modal instead of the trading idea modal
 
-### 1. Add role-aware redirect after login (`src/pages/Login.tsx`)
+## 5. Signup Form — Add Country Search/Code Selection
+**File:** `src/pages/Signup.tsx`
+- Add a searchable country/dial code selector field before the email field
+- Use the existing `src/data/countries.ts` data (flags, dial codes, country names)
+- Implement as a searchable dropdown (type to filter countries by name or code)
+- Show flag + country name + dial code in the dropdown
+- Store selected country in signup metadata
 
-After successful email/password login, fetch the user's roles and redirect accordingly:
-- If user has any admin role (`super_admin`, `content_ops`, `moderator`) → redirect to `/admin`
-- If user has `broker` role → redirect to `/admin/broker-dashboard`
-- If user has `signal_provider` role → redirect to `/admin/signal-dashboard`
-- Otherwise → redirect to `/dashboard` (user dashboard)
+## Technical Details
 
-### 2. Fix Google OAuth redirect URL
+### New files:
+- `src/pages/SignalGroupDetail.tsx` — Full signal group profile page
+- `src/components/ideas/PrivateReportModal.tsx` — Report & Request form modal
 
-Change the OAuth `redirectTo` from `window.location.origin` to `window.location.origin + "/dashboard"` so Google login users also land somewhere useful. The admin redirect for OAuth users can be handled by a post-login check in the `AuthContext` or on the dashboard page itself.
-
-### 3. Optional: Add a post-auth redirect hook
-
-Create a small utility that checks roles after auth state changes and navigates admins to `/admin` if they land on `/`. This handles the OAuth flow where we can't do the redirect inline.
-
-## Files involved
-- `src/pages/Login.tsx` — main change: role-aware redirect after login
-- Possibly `src/contexts/AuthContext.tsx` or a new redirect component for OAuth flow
-
-## Technical notes
-- The `user_roles` query uses RLS, so it must run after the session is established
-- The role fetch is a quick single-table query, so the redirect delay will be minimal
+### Modified files:
+- `src/App.tsx` — Add `/signals/:id` route
+- `src/pages/Signals.tsx` — Add "View All" link on cards
+- `src/pages/Education.tsx` — Add "FOR PREMIUM" badge
+- `src/components/ideas/IdeasSidebar.tsx` — Rename text, separate report click handler
+- `src/pages/Ideas.tsx` — Add PrivateReportModal state and pass to sidebar
+- `src/pages/Signup.tsx` — Add searchable country selector
 
