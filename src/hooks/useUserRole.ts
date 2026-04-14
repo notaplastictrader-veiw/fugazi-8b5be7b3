@@ -6,6 +6,7 @@ import type { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 const ADMIN_ROLES: AppRole[] = ["super_admin", "content_ops", "moderator"];
+const ALL_DASHBOARD_ROLES: AppRole[] = ["super_admin", "content_ops", "moderator", "broker", "signal_provider", "betting_site"];
 
 const PERMISSION_MATRIX: Record<string, AppRole[]> = {
   dashboard: ["super_admin", "content_ops", "moderator", "broker", "signal_provider"],
