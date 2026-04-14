@@ -99,6 +99,7 @@ const sections: SidebarSection[] = [
     icon: UserCog,
     items: [
       { title: "Users & Roles", url: "/admin/users", icon: Users, roles: ["super_admin"] },
+      { title: "Applications", url: "/admin/applications", icon: UserCog, roles: ["super_admin"] },
       { title: "Profile Claims", url: "/admin/claims", icon: ShieldCheck, roles: ["super_admin"] },
       { title: "Tier Upgrades", url: "/admin/tier-upgrades", icon: ArrowUpCircle, roles: ["super_admin"] },
     ],

@@ -93,6 +93,7 @@ const BettingDashboardsList = lazy(() => import("./pages/admin/BettingDashboards
 const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList"));
 const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
 const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
+const ApplicationsAdmin = lazy(() => import("./pages/admin/ApplicationsAdmin"));
 const ModeratorLayout = lazy(() => import("./components/admin/ModeratorLayout"));
 const ModeratorDashboard = lazy(() => import("./pages/admin/ModeratorDashboard"));
 
@@ -228,6 +229,7 @@ const AppContent = () => {
             <Route path="user-dashboards/:id" element={<UserDashboardsList />} />
             <Route path="claims" element={<BrokerClaimsAdmin />} />
             <Route path="tier-upgrades" element={<TierUpgradesAdmin />} />
+            <Route path="applications" element={<ApplicationsAdmin />} />
           </Route>
 
           {/* Moderator Panel — separate layout */}
