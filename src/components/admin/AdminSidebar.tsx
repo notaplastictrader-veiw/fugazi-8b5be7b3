@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Building2, Radio, TrendingUp, MessageSquare,
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
-  Lightbulb, Mail, Dices, FileText, ChevronDown
+  Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -49,6 +49,8 @@ const items: MenuItem[] = [
   { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb, roles: ["super_admin", "content_ops", "moderator"] },
   { title: "Submissions", url: "/admin/submissions", icon: Mail, roles: ["super_admin", "content_ops"] },
   { title: "Betting Sites", url: "/admin/betting-sites", icon: Dices, roles: ["super_admin", "content_ops"] },
+  { title: "Profile Claims", url: "/admin/claims", icon: ShieldCheck, roles: ["super_admin"] },
+  { title: "Tier Upgrades", url: "/admin/tier-upgrades", icon: ArrowUpCircle, roles: ["super_admin"] },
 ];
 
 const dashboardItems: MenuItem[] = [
