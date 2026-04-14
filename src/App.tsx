@@ -83,6 +83,8 @@ const CoursesAdmin = lazy(() => import("./pages/admin/CoursesAdmin"));
 const TradingIdeasAdmin = lazy(() => import("./pages/admin/TradingIdeasAdmin"));
 const SubmissionsAdmin = lazy(() => import("./pages/admin/SubmissionsAdmin"));
 const BettingSitesAdmin = lazy(() => import("./pages/admin/BettingSitesAdmin"));
+const SiteContentAdmin = lazy(() => import("./pages/admin/SiteContentAdmin"));
+const SectionEditor = lazy(() => import("./pages/admin/SectionEditor"));
 
 const queryClient = new QueryClient();
 
@@ -202,6 +204,8 @@ const AppContent = () => {
             <Route path="trading-ideas" element={<TradingIdeasAdmin />} />
             <Route path="submissions" element={<SubmissionsAdmin />} />
             <Route path="betting-sites" element={<BettingSitesAdmin />} />
+            <Route path="site-content" element={<SiteContentAdmin />} />
+            <Route path="site-content/:section" element={<SectionEditor />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

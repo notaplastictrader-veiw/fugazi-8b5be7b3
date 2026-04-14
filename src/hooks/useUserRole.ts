@@ -28,6 +28,7 @@ const PERMISSION_MATRIX: Record<string, AppRole[]> = {
   "user-dashboard": ["super_admin"],
   "audit-log": ["super_admin"],
   forecasts: ["super_admin", "content_ops"],
+  "site-content": ["super_admin"],
 };
 
 export const useUserRole = () => {
