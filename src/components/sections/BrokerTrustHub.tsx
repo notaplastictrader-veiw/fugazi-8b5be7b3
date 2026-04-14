@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface Broker {
   id: string;
@@ -186,19 +187,22 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
 };
 
 const BrokerTrustHub = () => {
+  const cms = useSiteSettings<Record<string, any>>("broker_trust_hub", {});
+  const sectionTitleText = cms.section_title || "Top Verified";
+  const brokerCount = cms.broker_count || 50;
+  const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"]) as string[];
   const [brokerFilter, setBrokerFilter] = useState("All");
-  
   const [visible, setVisible] = useState(false);
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchBrokers = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").order("score", { ascending: false });
+      const { data } = await supabase.from("brokers").select("*").eq("status", "published").order("score", { ascending: false }).limit(brokerCount);
       if (data) setBrokers(data as Broker[]);
     };
     fetchBrokers();
-  }, []);
+  }, [brokerCount]);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -220,7 +224,7 @@ const BrokerTrustHub = () => {
         {/* Brokers Section */}
         <span className="section-tag">// TRUST HUB</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          Top Verified <span className="text-primary">Brokers</span>
+          {sectionTitleText} <span className="text-primary">Brokers</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-8">Every broker scored by real user data — complaints, withdrawal speed, regulation strength.</p>
 
@@ -249,7 +253,7 @@ const BrokerTrustHub = () => {
           </h2>
           <p className="text-sm text-muted-foreground mb-4">Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.</p>
           <div className="flex flex-wrap gap-2 mb-8">
-            {["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"].map((name) => (
+            {propFirmCategories.map((name) => (
               <span key={name} className="px-3 py-1 text-xs font-mono rounded-full border border-accent/30 text-accent bg-accent/5">{name}</span>
             ))}
           </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface Forecast {
   id: string;
@@ -12,13 +13,16 @@ interface Forecast {
   category: string;
 }
 
-const tabs = [
+const defaultTabs = [
   { key: "forex", label: "Forex" },
   { key: "gold", label: "Metal (GOLD)" },
   { key: "crypto", label: "Crypto" },
 ];
 
 const ForecastSection = () => {
+  const cms = useSiteSettings<Record<string, any>>("forecast_section", {});
+  const sectionTitle = cms.section_title || "Market";
+  const tabs = defaultTabs;
   const [activeTab, setActiveTab] = useState("forex");
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
 
@@ -37,7 +41,7 @@ const ForecastSection = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FORECAST ENGINE</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          Market <span className="text-accent">Forecasts</span>
+          {sectionTitle} <span className="text-accent">Forecasts</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-8">Daily analysis. No paid promotions. No broker bias.</p>
 

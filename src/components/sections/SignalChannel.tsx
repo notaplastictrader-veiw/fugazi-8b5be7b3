@@ -1,27 +1,29 @@
 import { useState } from "react";
 import { Check, Zap } from "lucide-react";
 import PremiumApplicationModal from "@/components/modals/PremiumApplicationModal";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const SignalChannel = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const cms = useSiteSettings<Record<string, any>>("signal_channel", {});
+
+  const title = cms.title || "Gold & Forex Signals You Can Actually";
+  const description = cms.description || "We don't talk about signals. We post them. Entry. Stop. Target. Done. No charity. No hand-holding. No fake screenshots of wins. We publish our track record publicly — every trade, every loss, every win. If you can't handle a loss, this channel isn't for you. If you're built different — you already know what to do.";
+  const ctaPrimary = cms.cta_primary || "Join Free Telegram →";
+  const ctaSecondary = cms.cta_secondary || "Apply for Access →";
 
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// OUR SIGNAL CHANNEL</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-3">
-          Gold & Forex Signals You Can Actually <span className="text-primary">Trust.</span>
+          {title} <span className="text-primary">Trust.</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10">
           <div>
             <p className="text-[15px] text-muted-foreground leading-[1.8] mb-6">
-              We don't talk about signals. We post them.{" "}
-              <span className="font-display font-bold text-primary">Entry. Stop. Target. Done.</span>{" "}
-              No charity. No hand-holding. No fake screenshots of wins.
-              We publish our track record publicly — every trade, every loss, every win.
-              If you can't handle a loss, this channel isn't for you.
-              If you're built different — you already know what to do.
+              {description}
             </p>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>→ Around 78% win rate — tracked and published publicly every month</li>
@@ -47,7 +49,7 @@ const SignalChannel = () => {
               <div className="text-lg font-display font-extrabold text-foreground mb-3">Free — forever</div>
               <a href="https://t.me/notaplastictrader" target="_blank" rel="noopener noreferrer"
                 className="block w-full py-2.5 text-sm font-semibold border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors text-center">
-                Join Free Telegram →
+                {ctaPrimary}
               </a>
               <p className="text-[11px] text-muted-foreground mt-2">No credit card. No BS. Just signals.</p>
             </div>
@@ -70,7 +72,7 @@ const SignalChannel = () => {
               <div className="text-sm font-display font-semibold text-foreground mb-3">Premium Access — Serious Traders Only</div>
               <button onClick={() => setModalOpen(true)}
                 className="w-full py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
-                Apply for Access →
+                {ctaSecondary}
               </button>
               <p className="text-[10px] text-muted-foreground mt-2 text-center">Or contact us on <a href="https://t.me/notaplastictrader" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Telegram</a> for faster processing.</p>
             </div>

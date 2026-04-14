@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface ScamAlert {
   id: string;
@@ -10,7 +11,7 @@ interface ScamAlert {
   created_at: string;
 }
 
-const scamScoreFactors = [
+const defaultScamScoreFactors = [
   { factor: "Complaint Ratio", level: "High", value: 85, color: "danger" as const },
   { factor: "Withdrawal Speed", level: "Med", value: 55, color: "accent" as const },
   { factor: "Regulation Strength", level: "High", value: 80, color: "danger" as const },
@@ -20,21 +21,26 @@ const scamScoreFactors = [
 
 const ScamAlertSection = () => {
   const [alerts, setAlerts] = useState<ScamAlert[]>([]);
+  const cms = useSiteSettings<Record<string, any>>("scam_alert_section", {});
+
+  const sectionTitle = cms.section_title || "Active Scam";
+  const ctaText = cms.cta_text || "View All Scam Alerts →";
+  const displayCount = cms.display_count || 10;
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("scam_alerts").select("*").eq("status", "published").order("created_at", { ascending: false });
+      const { data } = await supabase.from("scam_alerts").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(displayCount);
       if (data) setAlerts(data as ScamAlert[]);
     };
     fetch();
-  }, []);
+  }, [displayCount]);
 
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// SCAM WATCH</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-10">
-          Active Scam <span className="text-destructive">Alerts</span>
+          {sectionTitle} <span className="text-destructive">Alerts</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -61,7 +67,7 @@ const ScamAlertSection = () => {
               );
             })}
             <div className="mt-4">
-              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">View All Scam Alerts →</a>
+              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">{ctaText}</a>
             </div>
           </div>
 
@@ -72,7 +78,7 @@ const ScamAlertSection = () => {
             </div>
             <p className="text-xs text-muted-foreground mb-6">Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.</p>
             <div className="space-y-5">
-              {scamScoreFactors.map((f, i) => {
+              {defaultScamScoreFactors.map((f, i) => {
                 const barColor = f.color === "danger" ? "bg-destructive" : f.color === "accent" ? "bg-accent" : "bg-primary";
                 const textColor = f.color === "danger" ? "text-destructive" : f.color === "accent" ? "text-accent" : "text-primary";
                 return (
