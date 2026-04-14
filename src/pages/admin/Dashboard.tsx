@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Navigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -247,6 +247,12 @@ const Dashboard = () => {
     );
   }
 
+  // Users with no admin/provider roles → redirect to user dashboard
+  const hasAdminAccess = hasRole("super_admin") || hasRole("content_ops") || hasRole("moderator") || hasRole("broker") || hasRole("signal_provider");
+  if (!hasAdminAccess) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Broker-only users
   if (hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator")) {
     return <BrokerDashboard />;
@@ -257,8 +263,13 @@ const Dashboard = () => {
     return <SignalDashboard />;
   }
 
-  // Content ops / moderator
-  if ((hasRole("content_ops") || hasRole("moderator")) && !hasRole("super_admin")) {
+  // Moderator-only
+  if (hasRole("moderator") && !hasRole("super_admin") && !hasRole("content_ops")) {
+    return <ModeratorDashboard />;
+  }
+
+  // Content ops (without super_admin)
+  if (hasRole("content_ops") && !hasRole("super_admin")) {
     return <ContentOpsDashboard />;
   }
 
