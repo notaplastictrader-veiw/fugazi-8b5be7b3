@@ -1,16 +1,21 @@
 
 
-# Create Super Admin Account
+# Existing Account এ সব Role Assign করা
+
+তোমার `notaplastictrader@gmail.com` (user ID: `c80732d4-4a9b-49bb-8f33-c9a4754554b9`) account এ ইতিমধ্যে `super_admin` role আছে। বাকি সব role গুলো add করবো।
 
 ## Steps
 
-1. **Enable auto-confirm** for email signups (temporarily, for development) using `configure_auth`
-2. **Sign up the user** programmatically via the Supabase auth API with:
-   - Email: notaplastictrader@gmail.com
-   - Password: Fuhazi@06fx
-   - Name: Boss
-3. **Insert `super_admin` role** into `user_roles` table for the new user
-4. **Verify** the profile was auto-created by the `handle_new_user` trigger
+1. **Insert remaining roles** into `user_roles` table for user `c80732d4-4a9b-49bb-8f33-c9a4754554b9`:
+   - `content_ops`
+   - `moderator`
+   - `broker`
+   - `signal_provider`
+   - `betting_site`
 
-This will give you full Super Admin access to the entire admin panel.
+   Single SQL insert via the data insert tool.
+
+2. **Verify** all 6 roles are assigned by querying `user_roles`.
+
+This will give you access to every dashboard and admin section in the platform.
 
