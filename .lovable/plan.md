@@ -1,59 +1,49 @@
 
 
-# Plan: Role-Specific Dashboards + Login Page Tabs
+# Plan: Fix Role-Based Login + Dashboard Access
 
-## Problem
-Currently, all roles see the super_admin dashboard. Only super_admin and content_ops/moderator routing works. There's no moderator-specific dashboard, no user dashboard in admin, and no betting site dashboard (note: "betting_site" is not a role in the DB — betting sites are managed by content_ops). The Login page has no way to distinguish user vs admin login.
+## Problems Identified
 
-## Current roles in DB
-`super_admin`, `content_ops`, `moderator`, `user`, `broker`, `signal_provider`
+1. **AuthModal (site "Log In" button)** has no role-based redirect — after login it just closes the modal, user stays on the same page. No way to reach admin/broker dashboards from here.
 
-There is NO "betting_site" role. Betting sites are static data managed by content_ops/super_admin. So we build 5 distinct dashboards (not 6):
+2. **AuthModal lacks role tabs** — the `/login` page has User/Broker/Admin tabs, but the modal (used everywhere on the site) only has Login/Signup tabs with no role awareness.
 
-1. **super_admin** — already done ✓
-2. **moderator** — needs its own HUD dashboard (reviews, complaints, approval queue focus)
-3. **broker** — already done ✓ (but needs sidebar filtering so they only see their items)
-4. **signal_provider** — already done ✓ (same)
-5. **user** — regular users who somehow reach /admin should be redirected to /dashboard
+3. **Dashboard routing works correctly in code** — `Dashboard.tsx` already checks roles and shows the right component (BrokerDashboard, SignalDashboard, ModeratorDashboard, etc.). The issue is users never get routed TO `/admin` after modal login.
 
-## Changes
+## Solution
 
-### 1. Login Page — Add role tabs (`src/pages/Login.tsx`)
-Add 3 tabs at the top: **User**, **Broker / Provider**, **Admin**
-- **User** tab: default, redirects to `/dashboard` after login
-- **Broker / Provider** tab: same form, redirects to `/admin/broker-dashboard` or `/admin/signal-dashboard` based on role
-- **Admin** tab: HUD-styled variant, redirects to `/admin`
-- All tabs use the same email/password form — the tab only changes the post-login redirect and visual styling
-- URL routes `/login/user`, `/login/broker`, `/login/admin` already exist — use path to set default tab
+### 1. Add role-based redirect to AuthModal after login
 
-### 2. Moderator Dashboard (`src/pages/admin/Dashboard.tsx`)
-Create a `ModeratorDashboard` component inside Dashboard.tsx:
-- HUD-styled with scanline effects
-- Stats: Pending Reviews, Pending Complaints, Approval Queue count, Published Today
-- Quick links to Reviews, Complaints, Approval Queue
-- Recent activity feed from approval_queue
+In `src/components/modals/AuthModal.tsx`, after successful login:
+- Fetch the user's roles from `user_roles` table
+- Redirect based on role priority:
+  - `super_admin` / `content_ops` → `/admin`
+  - `moderator` → `/admin`
+  - `broker` → `/admin` (Dashboard.tsx will show BrokerDashboard)
+  - `signal_provider` → `/admin` (Dashboard.tsx will show SignalDashboard)
+  - No admin roles → stay on current page (just close modal)
+- Use `useNavigate()` for redirect
 
-### 3. User role redirect (`src/pages/admin/Dashboard.tsx`)
-If user has only the "user" role (no admin roles), redirect them to `/dashboard` instead of showing a blank admin page.
+### 2. Add "Login as" context to AuthModal
 
-### 4. Sidebar filtering for broker/signal_provider (`src/components/admin/AdminSidebar.tsx`)
-- Broker-only users: show only Dashboard + Broker Dashboard in sidebar
-- Signal-only users: show only Dashboard + Signal Dashboard in sidebar
-- Hide all other admin menu items they can't access
+Add a subtle role selector below the Login tab in the AuthModal — 3 small buttons: **User** (default), **Broker/Provider**, **Admin** — matching the `/login` page design. This determines where to redirect after login:
+- **User**: close modal, stay on page (or go to `/dashboard`)
+- **Broker/Provider**: redirect to `/admin` (broker/signal dashboard auto-selects)
+- **Admin**: redirect to `/admin`
 
-### 5. ProtectedAdminRoute update (`src/components/admin/ProtectedAdminRoute.tsx`)
-- Add "user" role to `canAccessAdmin` check is NOT needed — users without admin/broker/signal roles already get redirected away
+### 3. Verify sidebar filtering is working
 
-## Files to modify
+The sidebar code already filters items for broker-only and signal-only users (lines 73-86 of AdminSidebar). The Dashboard.tsx routing (lines 256-276) already conditionally renders the correct dashboard. These are working — the missing piece is just getting users TO `/admin` after login.
+
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/pages/Login.tsx` | Add 3 login tabs (User / Broker-Provider / Admin) with different styling and redirect logic |
-| `src/pages/admin/Dashboard.tsx` | Add ModeratorDashboard component; add user-role redirect to /dashboard |
-| `src/components/admin/AdminSidebar.tsx` | Filter sidebar items more strictly for broker/signal_provider-only users |
+| `src/components/modals/AuthModal.tsx` | Add login role tabs (User/Broker/Admin), add post-login redirect logic using `useNavigate`, fetch roles after login to validate access |
 
-## Technical notes
-- Login tabs are cosmetic + redirect logic only — authentication is identical for all roles
-- The `/login/user`, `/login/broker`, `/login/admin` routes already exist in App.tsx — we use `useLocation` to determine default tab
-- No DB migration needed — all 6 roles already exist in the `app_role` enum
+## Technical Notes
+- The Google OAuth handler in AuthModal also needs the redirect update — set `redirectTo` based on selected login tab
+- Dashboard.tsx already handles showing the right dashboard per role — no changes needed there
+- AdminSidebar already filters menu items per role — no changes needed there
+- One file change solves both issues
 
