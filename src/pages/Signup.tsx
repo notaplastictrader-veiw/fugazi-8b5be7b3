@@ -64,12 +64,6 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
-      // Handle broker claim flow after signup
-      if (signupRole === "broker" && brokerIdParam) {
-        // Store broker claim info for post-confirmation processing
-        sessionStorage.setItem("pending-broker-claim", brokerIdParam);
-      }
-
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
         const { data: ownerId } = await supabase.rpc("convert_referral" as any, { code_text: refCode });
