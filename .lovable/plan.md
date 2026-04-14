@@ -1,35 +1,39 @@
 
 
-# Plan: 4 Fixes
+# Plan: Prop Firm Homepage Tags + Signal Hub "View All" Text
 
-## 1. Signal Groups — Add "View All" link + Fix "View Group" buttons
+## 1. Replace firm name tags with category tags on homepage
 
-**Problem:** The homepage `SignalHub.tsx` has no "View All" link to `/signals`, and its "View Group" buttons are plain `<button>` without any link — they don't navigate anywhere.
+**File:** `src/components/sections/BrokerTrustHub.tsx` (lines 251-255)
 
-**Fix:**
-- `src/components/sections/SignalHub.tsx`: Add a "View All →" `<Link>` to `/signals` next to the section heading. Wrap each "View Group" button in a `<Link to={/signals/${group.id}}>`.
-- `src/pages/Signals.tsx`: The cards already have working `<Link>` — no change needed there.
+The homepage Prop Firms section has hardcoded firm names as yellow tags: "Bullwaves Prime", "FTMO", "MyForexFunds", etc. Replace these with category labels matching the Prop Firms page filters:
 
-## 2. Prop Firms — Replace filter labels
+**Replace:**
+```
+["Bullwaves Prime", "FTMO", "MyForexFunds", "The Funded Trader", "True Forex Funds", "Maven Trading"]
+```
 
-**Problem:** The screenshot shows firm names (Bullwaves Prime, FTMO, etc.) as filter buttons. User wants category-based filters instead.
+**With:**
+```
+["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"]
+```
 
-**Fix in `src/pages/PropFirms.tsx`:**
-- Change the `filters` array from `["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"]` to:
-  `["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"]`
-- Update the `filterMap` accordingly with matching tag values.
+These will remain as styled display tags (not clickable filters) — just labels showing the categories available.
 
-## 3. Post Idea — Fix chart image upload
+## 2. Signal Hub — Change "View All →" to "View All Groups →"
 
-**Problem:** The "Chart Image" upload button in `PostIdeaModal.tsx` is a dummy `<button>` — it has no file input, so clicking does nothing.
+**File:** `src/components/sections/SignalHub.tsx` (line 43)
 
-**Fix in `src/components/ideas/PostIdeaModal.tsx`:**
-- Add a hidden `<input type="file" accept="image/*">` with a ref.
-- Wire the upload button's `onClick` to trigger the file input.
-- Show a preview of the selected image and store it in state.
+Change `View All →` to `View All Groups →` for clarity.
+
+Also check and update other "View All" links for consistency:
+- `BrokerTrustHub.tsx` line 241: `View All Brokers →` — already good
+- `BrokerTrustHub.tsx` line 263: `View All Prop Firms →` — already good
+- `ScamAlertSection.tsx` line 64: `View All Scam Alerts →` — already good
+
+Only SignalHub needs the update.
 
 ## Files to modify
-- `src/components/sections/SignalHub.tsx` — Add "View All" link + wrap View Group in `<Link>`
-- `src/pages/PropFirms.tsx` — Update filter labels
-- `src/components/ideas/PostIdeaModal.tsx` — Add real file input for chart upload
+- `src/components/sections/BrokerTrustHub.tsx` — Replace firm name tags with categories
+- `src/components/sections/SignalHub.tsx` — "View All Groups →"
 
