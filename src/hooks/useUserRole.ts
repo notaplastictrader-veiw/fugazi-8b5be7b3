@@ -9,7 +9,7 @@ const ADMIN_ROLES: AppRole[] = ["super_admin", "content_ops", "moderator"];
 const ALL_DASHBOARD_ROLES: AppRole[] = ["super_admin", "content_ops", "moderator", "broker", "signal_provider", "betting_site"];
 
 const PERMISSION_MATRIX: Record<string, AppRole[]> = {
-  dashboard: ["super_admin", "content_ops", "moderator", "broker", "signal_provider"],
+  dashboard: ["super_admin", "content_ops", "moderator", "broker", "signal_provider", "betting_site"],
   brokers: ["super_admin", "content_ops"],
   signals: ["super_admin", "content_ops"],
   reviews: ["super_admin", "content_ops", "moderator"],
