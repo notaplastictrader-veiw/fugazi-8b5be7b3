@@ -70,15 +70,21 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const { roles, hasRole } = useUserRole();
 
+  const isBrokerOnly = hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
+  const isSignalOnly = hasRole("signal_provider") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
+  const isLimitedProvider = isBrokerOnly || isSignalOnly;
+
   const canSee = (item: MenuItem) =>
     hasRole("super_admin") || item.roles.some((r) => roles.includes(r));
 
   const isActive = (path: string) =>
     path === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(path);
 
-  const visibleItems = items.filter(canSee);
+  // For broker/signal-only users, show only Dashboard in main menu
+  const visibleItems = isLimitedProvider
+    ? items.filter((i) => i.url === "/admin")
+    : items.filter(canSee);
   const visibleDashboards = dashboardItems.filter(canSee);
-
   const isDashboardActive = visibleDashboards.some((d) => isActive(d.url));
   const [dashOpen, setDashOpen] = useState(isDashboardActive);
 

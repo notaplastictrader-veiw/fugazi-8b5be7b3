@@ -7,9 +7,10 @@ import {
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import BrokerDashboard from "./BrokerDashboard";
 import SignalDashboard from "./SignalDashboard";
-
+import ModeratorDashboard from "./ModeratorDashboard";
 interface Stats {
   brokers: number; signals: number; forecasts: number; reviews: number;
   complaints: number; scamAlerts: number; pendingApprovals: number; users: number;
