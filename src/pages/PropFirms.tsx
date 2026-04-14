@@ -27,7 +27,7 @@ const PropFirms = () => {
   }, []);
 
   const filtered = firms
-    .filter(b => filter === "All" || b.tags?.includes(filterMap[filter]))
+    .filter(b => filter === "All Prop Firms" || b.tags?.includes(filterMap[filter]))
     .filter(b => !search || b.name.toLowerCase().includes(search.toLowerCase()));
 
   const scoreColor = (s: number) => s >= 8 ? "bg-primary" : s >= 6 ? "bg-accent" : "bg-destructive";
