@@ -187,19 +187,22 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
 };
 
 const BrokerTrustHub = () => {
+  const cms = useSiteSettings<Record<string, any>>("broker_trust_hub", {});
+  const sectionTitleText = cms.section_title || "Top Verified";
+  const brokerCount = cms.broker_count || 50;
+  const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"]) as string[];
   const [brokerFilter, setBrokerFilter] = useState("All");
-  
   const [visible, setVisible] = useState(false);
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchBrokers = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").order("score", { ascending: false });
+      const { data } = await supabase.from("brokers").select("*").eq("status", "published").order("score", { ascending: false }).limit(brokerCount);
       if (data) setBrokers(data as Broker[]);
     };
     fetchBrokers();
-  }, []);
+  }, [brokerCount]);
 
   useEffect(() => {
     const el = sectionRef.current;
