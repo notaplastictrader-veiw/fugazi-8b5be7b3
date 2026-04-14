@@ -45,6 +45,7 @@ const CookiesPage = lazy(() => import("./pages/Cookies"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const Forecasts = lazy(() => import("./pages/Forecasts"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
+const BrokerClaimProfile = lazy(() => import("./pages/BrokerClaimProfile"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -90,6 +91,8 @@ const BrokerDashboardsList = lazy(() => import("./pages/admin/BrokerDashboardsLi
 const SignalDashboardsList = lazy(() => import("./pages/admin/SignalDashboardsList"));
 const BettingDashboardsList = lazy(() => import("./pages/admin/BettingDashboardsList"));
 const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList"));
+const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
+const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
 
 const queryClient = new QueryClient();
 
@@ -181,6 +184,7 @@ const AppContent = () => {
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
           <Route path="/profile/:username" element={<UserProfile />} />
+          <Route path="/claim-broker" element={<BrokerClaimProfile />} />
 
           {/* Admin Panel */}
           <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
@@ -220,6 +224,8 @@ const AppContent = () => {
             <Route path="betting-dashboards/:id" element={<BettingDashboardsList />} />
             <Route path="user-dashboards" element={<UserDashboardsList />} />
             <Route path="user-dashboards/:id" element={<UserDashboardsList />} />
+            <Route path="claims" element={<BrokerClaimsAdmin />} />
+            <Route path="tier-upgrades" element={<TierUpgradesAdmin />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
