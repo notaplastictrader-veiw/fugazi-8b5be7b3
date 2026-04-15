@@ -94,8 +94,9 @@ const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList")
 const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
 const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
 const ApplicationsAdmin = lazy(() => import("./pages/admin/ApplicationsAdmin"));
-const ModeratorLayout = lazy(() => import("./components/admin/ModeratorLayout"));
-const ModeratorDashboard = lazy(() => import("./pages/admin/ModeratorDashboard"));
+
+// Provider Portal
+const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
 
 const queryClient = new QueryClient();
 
