@@ -82,22 +82,23 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       return;
     }
 
-    // For broker/admin contexts, check roles and redirect
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
 
     const roleList = roles?.map(r => r.role) || [];
-    const hasAdminRole = roleList.some(r =>
-      ["super_admin", "content_ops", "moderator", "broker", "signal_provider"].includes(r)
-    );
 
-    if (hasAdminRole) {
+    if (loginContext === "admin" && roleList.includes("super_admin")) {
       onClose();
       navigate("/admin");
-    } else if (loginContext === "broker" || loginContext === "admin") {
-      toast.error("You don't have access to this dashboard");
+    } else if (loginContext === "broker") {
+      if (roleList.includes("broker")) { onClose(); navigate("/portal/broker"); }
+      else if (roleList.includes("signal_provider")) { onClose(); navigate("/portal/signal"); }
+      else if (roleList.includes("betting_site")) { onClose(); navigate("/portal/betting"); }
+      else { toast.error("You don't have access to this dashboard"); onClose(); }
+    } else if (loginContext === "admin") {
+      toast.error("You don't have admin access");
       onClose();
     } else {
       onClose();
@@ -206,7 +207,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   };
 
   const handleGoogle = async () => {
-    const redirectPath = loginContext === "user" ? "/" : "/admin";
+    const redirectPath = loginContext === "admin" ? "/admin" : loginContext === "broker" ? "/portal/broker" : "/";
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}${redirectPath}` },

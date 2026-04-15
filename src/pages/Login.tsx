@@ -46,7 +46,7 @@ const Login = () => {
     const roles = data?.map((r) => r.role) ?? [];
 
     if (activeTab === "admin") {
-      if (roles.some((r) => ADMIN_ROLES.includes(r))) {
+      if (roles.includes("super_admin")) {
         navigate("/admin");
       } else {
         toast({ title: "Access denied", description: "You don't have admin privileges.", variant: "destructive" });
@@ -54,9 +54,11 @@ const Login = () => {
       }
     } else if (activeTab === "broker") {
       if (roles.includes("broker")) {
-        navigate("/admin/broker-dashboard");
+        navigate("/portal/broker");
       } else if (roles.includes("signal_provider")) {
-        navigate("/admin/signal-dashboard");
+        navigate("/portal/signal");
+      } else if (roles.includes("betting_site")) {
+        navigate("/portal/betting");
       } else {
         toast({ title: "No provider account", description: "Contact support to register as a broker or signal provider.", variant: "destructive" });
         navigate("/dashboard");
@@ -78,7 +80,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const redirectPath = activeTab === "admin" ? "/admin" : activeTab === "broker" ? "/admin/broker-dashboard" : "/dashboard";
+    const redirectPath = activeTab === "admin" ? "/admin" : activeTab === "broker" ? "/portal/broker" : "/dashboard";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: window.location.origin + redirectPath },

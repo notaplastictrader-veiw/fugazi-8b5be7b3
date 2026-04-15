@@ -28,15 +28,7 @@ const UserDropdown = ({ onClose }: UserDropdownProps) => {
   };
 
   const getMenuItems = () => {
-    // Priority: super_admin > content_ops/moderator > broker > signal_provider > betting_site > regular
     if (hasRole("super_admin")) {
-      return [
-        { icon: Shield, label: "Admin Panel", href: "/admin" },
-        { icon: User, label: "Dashboard", href: "/dashboard" },
-        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-      ];
-    }
-    if (hasAnyRole(["content_ops", "moderator"])) {
       return [
         { icon: Shield, label: "Admin Panel", href: "/admin" },
         { icon: User, label: "Dashboard", href: "/dashboard" },
@@ -45,22 +37,21 @@ const UserDropdown = ({ onClose }: UserDropdownProps) => {
     }
     if (hasRole("broker")) {
       return [
-        { icon: LayoutDashboard, label: "Broker Dashboard", href: "/admin/broker-dashboard" },
-        { icon: Building2, label: "My Listings", href: "/admin/broker-dashboard" },
+        { icon: Building2, label: "Broker Portal", href: "/portal/broker" },
         { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];
     }
     if (hasRole("signal_provider")) {
       return [
-        { icon: Radio, label: "Signal Dashboard", href: "/admin/signal-dashboard" },
+        { icon: Radio, label: "Signal Portal", href: "/portal/signal" },
         { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];
     }
     if (hasRole("betting_site")) {
       return [
-        { icon: Trophy, label: "Betting Dashboard", href: "/admin/betting-dashboards" },
+        { icon: Trophy, label: "Betting Portal", href: "/portal/betting" },
         { icon: User, label: "Dashboard", href: "/dashboard" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
       ];

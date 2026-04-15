@@ -10,8 +10,8 @@ interface Props {
   requiredRoles?: AppRole[];
 }
 
-const ProtectedAdminRoute = ({ children, requiredRoles }: Props) => {
-  const { canAccessAdmin, hasAnyRole, hasRole, loading } = useUserRole();
+const ProtectedAdminRoute = ({ children }: Props) => {
+  const { hasRole, loading } = useUserRole();
 
   if (loading) {
     return (
@@ -21,12 +21,9 @@ const ProtectedAdminRoute = ({ children, requiredRoles }: Props) => {
     );
   }
 
-  if (!canAccessAdmin) {
+  // Only super_admin can access /admin
+  if (!hasRole("super_admin")) {
     return <Navigate to="/" replace />;
-  }
-
-  if (requiredRoles && requiredRoles.length > 0 && !hasRole("super_admin") && !hasAnyRole(requiredRoles)) {
-    return <AccessDenied />;
   }
 
   return <>{children}</>;

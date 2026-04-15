@@ -4,26 +4,21 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, Palette, BarChart3, Briefcase, UserCog, Wrench
+  Globe, BarChart3, Briefcase, UserCog
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserRole } from "@/hooks/useUserRole";
-import type { Database } from "@/integrations/supabase/types";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
   SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-type AppRole = Database["public"]["Enums"]["app_role"];
-
 interface MenuItem {
   title: string;
   url: string;
   icon: any;
-  roles: AppRole[];
 }
 
 interface SidebarSection {
@@ -39,77 +34,76 @@ const sections: SidebarSection[] = [
     label: "OVERVIEW",
     icon: LayoutDashboard,
     items: [
-      { title: "Command Center", url: "/admin", icon: LayoutDashboard, roles: ["super_admin", "content_ops", "moderator", "broker", "signal_provider", "betting_site"] },
-      { title: "Approval Queue", url: "/admin/approvals", icon: CheckCircle, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Audit Log", url: "/admin/audit-log", icon: ScrollText, roles: ["super_admin"] },
+      { title: "Command Center", url: "/admin", icon: LayoutDashboard },
+      { title: "Approval Queue", url: "/admin/approvals", icon: CheckCircle },
+      { title: "Audit Log", url: "/admin/audit-log", icon: ScrollText },
     ],
   },
   {
     label: "SITE CONTENT",
     icon: Globe,
     items: [
-      { title: "Homepage Sections", url: "/admin/site-content", icon: FileText, roles: ["super_admin"] },
-      { title: "Global Settings", url: "/admin/settings", icon: Settings, roles: ["super_admin"] },
+      { title: "Homepage Sections", url: "/admin/site-content", icon: FileText },
+      { title: "Global Settings", url: "/admin/settings", icon: Settings },
     ],
   },
   {
     label: "CONTENT MANAGEMENT",
     icon: Briefcase,
     items: [
-      { title: "Brokers", url: "/admin/brokers", icon: Building2, roles: ["super_admin", "content_ops"] },
-      { title: "Prop Firms", url: "/admin/brokers", icon: Building2, roles: ["super_admin", "content_ops"] },
-      { title: "Betting Sites", url: "/admin/betting-sites", icon: Dices, roles: ["super_admin", "content_ops"] },
-      { title: "Signal Groups", url: "/admin/signals", icon: Radio, roles: ["super_admin", "content_ops"] },
-      { title: "Forecasts", url: "/admin/forecasts", icon: TrendingUp, roles: ["super_admin", "content_ops"] },
-      { title: "Promotions", url: "/admin/promotions", icon: Gift, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "News", url: "/admin/news", icon: Newspaper, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Calendar", url: "/admin/calendar", icon: CalendarDays, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Sports", url: "/admin/sports", icon: Trophy, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Education", url: "/admin/education", icon: BookOpen, roles: ["super_admin", "content_ops"] },
-      { title: "Courses", url: "/admin/courses", icon: GraduationCap, roles: ["super_admin", "content_ops"] },
-      { title: "Scam Alerts", url: "/admin/scam-alerts", icon: ShieldAlert, roles: ["super_admin", "content_ops"] },
+      { title: "Brokers", url: "/admin/brokers", icon: Building2 },
+      { title: "Betting Sites", url: "/admin/betting-sites", icon: Dices },
+      { title: "Signal Groups", url: "/admin/signals", icon: Radio },
+      { title: "Forecasts", url: "/admin/forecasts", icon: TrendingUp },
+      { title: "Promotions", url: "/admin/promotions", icon: Gift },
+      { title: "News", url: "/admin/news", icon: Newspaper },
+      { title: "Calendar", url: "/admin/calendar", icon: CalendarDays },
+      { title: "Sports", url: "/admin/sports", icon: Trophy },
+      { title: "Education", url: "/admin/education", icon: BookOpen },
+      { title: "Courses", url: "/admin/courses", icon: GraduationCap },
+      { title: "Scam Alerts", url: "/admin/scam-alerts", icon: ShieldAlert },
     ],
   },
   {
     label: "COMMUNITY",
     icon: MessageSquare,
     items: [
-      { title: "Reviews", url: "/admin/reviews", icon: MessageSquare, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Complaints", url: "/admin/complaints", icon: AlertTriangle, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb, roles: ["super_admin", "content_ops", "moderator"] },
-      { title: "Submissions", url: "/admin/submissions", icon: Mail, roles: ["super_admin", "content_ops"] },
+      { title: "Reviews", url: "/admin/reviews", icon: MessageSquare },
+      { title: "Complaints", url: "/admin/complaints", icon: AlertTriangle },
+      { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb },
+      { title: "Submissions", url: "/admin/submissions", icon: Mail },
     ],
   },
   {
     label: "COMPANY DASHBOARDS",
     icon: BarChart3,
     items: [
-      { title: "Broker Dashboard", url: "/admin/broker-dashboard", icon: Building2, roles: ["super_admin", "broker"] },
-      { title: "Signal Dashboard", url: "/admin/signal-dashboard", icon: Radio, roles: ["super_admin", "signal_provider"] },
-      { title: "Sports Dashboard", url: "/admin/sports-dashboard", icon: TrendingUp, roles: ["super_admin", "betting_site"] },
-      { title: "User Dashboard", url: "/admin/user-dashboard", icon: Users, roles: ["super_admin"] },
-      { title: "All Brokers", url: "/admin/broker-dashboards", icon: Building2, roles: ["super_admin"] },
-      { title: "All Signals", url: "/admin/signal-dashboards", icon: Radio, roles: ["super_admin"] },
-      { title: "All Betting", url: "/admin/betting-dashboards", icon: Dices, roles: ["super_admin"] },
-      { title: "All Users", url: "/admin/user-dashboards", icon: Users, roles: ["super_admin"] },
+      { title: "Broker Dashboard", url: "/admin/broker-dashboard", icon: Building2 },
+      { title: "Signal Dashboard", url: "/admin/signal-dashboard", icon: Radio },
+      { title: "Sports Dashboard", url: "/admin/sports-dashboard", icon: TrendingUp },
+      { title: "User Dashboard", url: "/admin/user-dashboard", icon: Users },
+      { title: "All Brokers", url: "/admin/broker-dashboards", icon: Building2 },
+      { title: "All Signals", url: "/admin/signal-dashboards", icon: Radio },
+      { title: "All Betting", url: "/admin/betting-dashboards", icon: Dices },
+      { title: "All Users", url: "/admin/user-dashboards", icon: Users },
     ],
   },
   {
     label: "PEOPLE",
     icon: UserCog,
     items: [
-      { title: "Users & Roles", url: "/admin/users", icon: Users, roles: ["super_admin"] },
-      { title: "Applications", url: "/admin/applications", icon: UserCog, roles: ["super_admin"] },
-      { title: "Profile Claims", url: "/admin/claims", icon: ShieldCheck, roles: ["super_admin"] },
-      { title: "Tier Upgrades", url: "/admin/tier-upgrades", icon: ArrowUpCircle, roles: ["super_admin"] },
+      { title: "Users & Roles", url: "/admin/users", icon: Users },
+      { title: "Applications", url: "/admin/applications", icon: UserCog },
+      { title: "Profile Claims", url: "/admin/claims", icon: ShieldCheck },
+      { title: "Tier Upgrades", url: "/admin/tier-upgrades", icon: ArrowUpCircle },
     ],
   },
   {
     label: "ANALYTICS & REVENUE",
     icon: DollarSign,
     items: [
-      { title: "Revenue", url: "/admin/revenue", icon: DollarSign, roles: ["super_admin"] },
-      { title: "Referral Analytics", url: "/admin/referrals", icon: Share2, roles: ["super_admin"] },
+      { title: "Revenue", url: "/admin/revenue", icon: DollarSign },
+      { title: "Referral Analytics", url: "/admin/referrals", icon: Share2 },
     ],
   },
 ];
@@ -120,12 +114,6 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { roles, hasRole } = useUserRole();
-
-  const isBrokerOnly = hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isSignalOnly = hasRole("signal_provider") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isBettingOnly = hasRole("betting_site") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isLimitedProvider = isBrokerOnly || isSignalOnly || isBettingOnly;
 
   // Load persisted section state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -133,7 +121,6 @@ export function AdminSidebar() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch {}
-    // Default: OVERVIEW open
     return { OVERVIEW: true };
   });
 
@@ -145,19 +132,13 @@ export function AdminSidebar() {
     setOpenSections(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const canSee = (item: MenuItem) =>
-    hasRole("super_admin") || item.roles.some((r) => roles.includes(r));
-
   const isActive = (path: string) =>
     path === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(path);
 
   const activeClasses = "bg-primary/15 text-primary font-medium shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4),inset_0_0_8px_-4px_hsl(var(--primary)/0.2)] border border-primary/30 rounded-md";
   const hoverClasses = "hover:bg-muted/50 hover:shadow-[0_0_8px_-2px_hsl(var(--primary)/0.15)] transition-all duration-200";
 
-  // For limited providers, only show OVERVIEW section
-  const visibleSections = isLimitedProvider
-    ? sections.filter(s => s.label === "OVERVIEW" || s.label === "COMPANY DASHBOARDS")
-    : sections;
+  // Super admin sees everything — no role filtering needed
 
   return (
     <Sidebar collapsible="icon">
@@ -172,8 +153,8 @@ export function AdminSidebar() {
         </SidebarGroup>
 
         {/* Section groups */}
-        {visibleSections.map(section => {
-          const sectionItems = section.items.filter(canSee);
+        {sections.map(section => {
+          const sectionItems = section.items;
           if (sectionItems.length === 0) return null;
           const sectionHasActive = sectionItems.some(i => isActive(i.url));
           const isOpen = openSections[section.label] ?? sectionHasActive;

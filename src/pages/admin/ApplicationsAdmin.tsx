@@ -90,6 +90,56 @@ const ApplicationsAdmin = () => {
       return;
     }
 
+    // Create profile/listing based on role
+    const data = (app.application_data as any) || {};
+    try {
+      if (appRole === "broker") {
+        const slug = (data.company_name || "broker").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Date.now();
+        const { data: brokerRow } = await supabase.from("brokers").insert({
+          name: data.company_name || "New Broker",
+          slug,
+          type: "forex",
+          status: "draft",
+          created_by: app.user_id,
+        }).select("id").single();
+
+        if (brokerRow) {
+          await supabase.from("broker_profiles").insert({
+            broker_id: brokerRow.id,
+            claimed_by: app.user_id,
+            claim_status: "claimed",
+            tier: "basic",
+          });
+        }
+      } else if (appRole === "signal_provider") {
+        const { data: signalRow } = await supabase.from("signal_groups").insert({
+          name: data.telegram_link || data.group_name || "New Signal Group",
+          status: "draft",
+          created_by: app.user_id,
+        }).select("id").single();
+
+        if (signalRow) {
+          await supabase.from("signal_profiles").insert({
+            signal_group_id: signalRow.id,
+            claimed_by: app.user_id,
+            claim_status: "claimed",
+            tier: "basic",
+          });
+        }
+      } else if (appRole === "betting_site") {
+        const slug = (data.platform_name || "betting").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Date.now();
+        await supabase.from("betting_profiles").insert({
+          site_name: data.platform_name || "New Betting Site",
+          slug,
+          claimed_by: app.user_id,
+          claim_status: "claimed",
+          tier: "basic",
+        });
+      }
+    } catch (e) {
+      console.error("Profile creation error:", e);
+    }
+
     // Update application status
     const { error: updateError } = await supabase
       .from("applications")
@@ -99,7 +149,7 @@ const ApplicationsAdmin = () => {
     if (updateError) {
       toast.error("Role assigned but failed to update application status");
     } else {
-      toast.success(`${app.role} role assigned successfully!`);
+      toast.success(`${app.role} role assigned + profile created!`);
     }
 
     // Audit log
@@ -110,6 +160,17 @@ const ApplicationsAdmin = () => {
         table_name: "applications",
         record_id: app.id,
         new_data: { role: appRole, target_user: app.user_id },
+      });
+    }
+
+    // Notify the user
+    if (app.user_id) {
+      await supabase.from("notifications").insert({
+        user_id: app.user_id,
+        type: "system",
+        title: "Application Approved!",
+        message: `Your ${app.role.replace("_", " ")} application has been approved. You can now access your portal.`,
+        link: appRole === "broker" ? "/portal/broker" : appRole === "signal_provider" ? "/portal/signal" : "/portal/betting",
       });
     }
 
