@@ -1,112 +1,88 @@
 
 
-# Full System Audit — সব সমস্যা ও সমাধান
+# Combined Fix: RLS + Claims Admin + Claim Page
 
-## Audit Summary
+## 4 Problems, 1 Plan
 
-আমি প্রতিটা role হিসেবে পুরো system check করেছি। নিচে সব সমস্যা ও সমাধান:
+### Problem 1: Broker/Signal can't see own draft listings (RLS)
+`brokers` and `signal_groups` tables only allow `super_admin` or `status='published'`. Creators with `created_by = auth.uid()` get empty results.
 
----
+### Problem 2: Claims admin shows UUIDs, not human info
+No join to `profiles` for claimant name/email/phone. No lookup of broker/signal/betting entity name.
 
-## সমস্যা তালিকা
+### Problem 3: Only brokers can be claimed
+`BrokerClaimProfile.tsx` is hardcoded to search `brokers` only. No signal/betting support.
 
-### 🔴 CRITICAL: Security — Broker/Signal/Betting users can see FULL Super Admin panel
-**Problem:** `/admin` route এ `ProtectedAdminRoute` শুধু check করে `canAccessAdmin` — যেটা broker, signal_provider, betting_site সবাইকে allow করে। AdminLayout + AdminSidebar তে সব section দেখায়। যদিও sidebar filtering আছে, কিন্তু **URL direct type করলে** broker user `/admin/users`, `/admin/settings`, `/admin/revenue` সব access করতে পারে কারণ individual route-এ কোনো `requiredRoles` guard নেই।
-
-### 🔴 CRITICAL: Provider dashboards are INSIDE admin panel
-Broker/Signal/Betting dashboard গুলো `/admin/broker-dashboard` এ আছে — মানে providers কে AdminLayout (admin sidebar, admin header) দেখতে হয়। তাদের নিজস্ব isolated panel নেই।
-
-### 🔴 CRITICAL: No provider profiles exist
-Database check: `broker_profiles`, `signal_profiles`, `betting_profiles` tables সব **empty**। Application approve করলে শুধু role assign হয় কিন্তু কোনো profile create হয় না। তাই BrokerDashboard এ ঢুকলে "NO BROKER LISTING LINKED TO YOUR ACCOUNT" দেখায়।
-
-### 🟡 Major: content_ops ও moderator roles অব্যবহৃত
-তুমি (owner) নিজে সব করবে। এই roles গুলো শুধু complexity বাড়াচ্ছে। Dashboard.tsx এ 5টা আলাদা dashboard component আছে (SuperAdmin, ContentOps, Broker, Signal, Moderator, Sports) — বেশিরভাগই unnecessary।
-
-### 🟡 Major: Signup flow role-specific তথ্য collect করে কিন্তু কোথাও ব্যবহার হয় না
-AuthModal signup এ broker এর জন্য company_name, website, regulation etc. collect হয় `applications` table এ, কিন্তু approve করলে শুধু role assign হয়, broker entry বা broker_profile create হয় না।
-
-### 🟡 Major: Login broker tab — "No provider account" error
-Broker role approve হওয়ার পরেও, `redirectByTab` check করে `roles.includes("betting_site")` — কিন্তু betting_site role থাকলে কোথায় redirect করবে সেটা handle করা নেই (Login.tsx line 55-64)।
-
-### 🟠 Minor: Duplicate signup systems
-`AuthModal.tsx` (modal) এবং `Signup.tsx` (page) — দুইটা আলাদা signup system আছে। `Signup.tsx` page এ কোনো role selection নেই, শুধু basic email/password signup। `AuthModal.tsx` এ role-specific fields আছে।
+### Problem 4: No contact info collected on claim submission
+Claim form only saves `documents_url`. No company name, position, or contact details.
 
 ---
 
-## সমাধান Plan
+## Solution
 
-### Architecture Redesign:
+### Step 1: Database Migration — RLS Policies
+Add SELECT + UPDATE policies for creators on `brokers`, `signal_groups`, and `betting_profiles`:
 
-```text
-/admin/*          → ONLY for owner (super_admin) — full control panel
-/portal/broker/*  → Broker's own isolated dashboard  
-/portal/signal/*  → Signal Provider's own isolated dashboard
-/portal/betting/* → Betting Site's own isolated dashboard
-/dashboard/*      → Regular user dashboard (keep as is)
+```sql
+-- Brokers: creator can view & update own
+CREATE POLICY "Creators can view own brokers"
+ON public.brokers FOR SELECT TO authenticated
+USING (created_by = auth.uid());
+
+CREATE POLICY "Creators can update own brokers"
+ON public.brokers FOR UPDATE TO authenticated
+USING (created_by = auth.uid())
+WITH CHECK (created_by = auth.uid());
+
+-- Signal groups: creator can view & update own
+CREATE POLICY "Creators can view own signal_groups"
+ON public.signal_groups FOR SELECT TO authenticated
+USING (created_by = auth.uid());
+
+CREATE POLICY "Creators can update own signal_groups"
+ON public.signal_groups FOR UPDATE TO authenticated
+USING (created_by = auth.uid())
+WITH CHECK (created_by = auth.uid());
+
+-- Betting profiles: claimed_by can view & update own
+CREATE POLICY "Creators can view own betting_profiles"
+ON public.betting_profiles FOR SELECT TO authenticated
+USING (claimed_by = auth.uid());
+
+CREATE POLICY "Creators can update own betting_profiles"
+ON public.betting_profiles FOR UPDATE TO authenticated
+USING (claimed_by = auth.uid())
+WITH CHECK (claimed_by = auth.uid());
 ```
 
-### Step 1: Create Provider Portal Layout & Routes
-**New file:** `src/components/portal/ProviderLayout.tsx`  
-- Simple layout with provider-specific sidebar (NOT admin sidebar)
-- Shows only their relevant menu items (My Dashboard, My Profile, Upgrade, Settings)
+### Step 2: Add `contact_info` column to `profile_claims`
+Store claimant's submitted contact details (company, position, email, phone) as JSONB:
 
-**New file:** `src/components/portal/ProviderSidebar.tsx`  
-- Role-aware sidebar: broker sees broker items, signal sees signal items
+```sql
+ALTER TABLE public.profile_claims
+ADD COLUMN contact_info jsonb DEFAULT '{}'::jsonb;
+```
 
-### Step 2: Move provider dashboards to `/portal/*`
-- `/portal/broker` → BrokerDashboard
-- `/portal/signal` → SignalDashboard  
-- `/portal/betting` → SportsDashboard
-- Each wrapped in `ProviderLayout` with role-specific guard
+### Step 3: Update `BrokerClaimsAdmin.tsx`
+- After fetching claims, do secondary queries to:
+  - Fetch claimant profiles (`profiles` table) by `claimed_by` IDs → get name, phone, country, email (from auth if needed)
+  - Fetch entity names: broker names from `brokers`, signal names from `signal_groups`, betting names from `betting_profiles`
+- Claims list shows: **Claimant Name** claiming **Entity Name** (type) instead of UUIDs
+- Review modal shows: Claimant full name, phone, country, contact_info JSON fields, entity name, docs URL, admin note input
 
-### Step 3: Lock down `/admin` to super_admin ONLY
-- Remove broker/signal_provider/betting_site from `canAccessAdmin`
-- Remove content_ops/moderator from ProtectedAdminRoute (just super_admin)
-- Remove ModeratorLayout/ModeratorDashboard routes
-- Clean AdminSidebar: remove role-based filtering, show all sections always (since only super_admin sees it)
-
-### Step 4: Fix Application Approval → Create Profile
-When admin approves an application:
-- Insert `user_roles` (already done)  
-- **Also create** `broker_profiles`/`signal_profiles`/`betting_profiles` entry with `claimed_by = user_id`
-- For broker: also create entry in `brokers` table using application_data (company_name as name, etc.)
-- For signal: create entry in `signal_groups` table
-- For betting: create entry in `betting_profiles` table
-
-### Step 5: Fix UserDropdown links
-- Broker → `/portal/broker`
-- Signal → `/portal/signal`  
-- Betting → `/portal/betting`
-- Super admin → `/admin`
-- Regular user → `/dashboard`
-
-### Step 6: Fix Login redirect
-- Broker tab → `/portal/broker`
-- Add betting_site handling → `/portal/betting`
-- Admin tab → `/admin`
-
-### Step 7: Remove unused roles/components
-- Remove content_ops, moderator from active use  
-- Remove ModeratorLayout, ModeratorDashboard, ContentOpsDashboard
-- Simplify Dashboard.tsx to just SuperAdminDashboard
+### Step 4: Update `BrokerClaimProfile.tsx` → Support all 3 types
+- Add tabs: **Broker** | **Signal Group** | **Betting Site**
+- Each tab searches its respective table
+- Claim form adds fields: Company Name, Position, Contact Email, Contact Phone
+- On submit: saves `profile_type` based on active tab, saves contact fields into `contact_info` JSONB column
 
 ---
 
-## Technical Changes Summary
+## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/portal/ProviderLayout.tsx` | **New** — isolated provider portal layout |
-| `src/components/portal/ProviderSidebar.tsx` | **New** — role-aware provider sidebar |
-| `src/App.tsx` | Add `/portal/*` routes, remove moderator routes, add guards |
-| `src/pages/admin/Dashboard.tsx` | Simplify to just SuperAdminDashboard |
-| `src/pages/admin/ApplicationsAdmin.tsx` | On approve: create broker/signal/betting profile + listing |
-| `src/components/admin/ProtectedAdminRoute.tsx` | Lock to super_admin only |
-| `src/components/admin/AdminSidebar.tsx` | Remove role-based filtering, always show all |
-| `src/hooks/useUserRole.ts` | Remove unused PERMISSION_MATRIX entries, simplify |
-| `src/components/UserDropdown.tsx` | Update portal links |
-| `src/pages/Login.tsx` | Fix redirect paths, add betting_site support |
-| `src/components/modals/AuthModal.tsx` | Fix redirect paths |
-
-No database migrations needed — all tables exist with correct structure.
+| DB Migration | RLS policies for brokers, signal_groups, betting_profiles + contact_info column |
+| `src/pages/admin/BrokerClaimsAdmin.tsx` | Join profiles + entity tables, show human-readable info in list and review modal |
+| `src/pages/BrokerClaimProfile.tsx` | Add 3 tabs, contact info fields, dynamic profile_type |
 
