@@ -532,6 +532,7 @@ export type Database = {
         Row: {
           admin_note: string | null
           claimed_by: string
+          contact_info: Json | null
           created_at: string | null
           documents_url: string | null
           id: string
@@ -544,6 +545,7 @@ export type Database = {
         Insert: {
           admin_note?: string | null
           claimed_by: string
+          contact_info?: Json | null
           created_at?: string | null
           documents_url?: string | null
           id?: string
@@ -556,6 +558,7 @@ export type Database = {
         Update: {
           admin_note?: string | null
           claimed_by?: string
+          contact_info?: Json | null
           created_at?: string | null
           documents_url?: string | null
           id?: string
