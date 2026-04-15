@@ -68,7 +68,7 @@ export const useUserRole = () => {
 
   const isAdmin = hasAnyRole(ADMIN_ROLES);
 
-  const canAccessAdmin = hasAnyRole([...ADMIN_ROLES, "broker", "signal_provider"]);
+  const canAccessAdmin = hasRole("super_admin");
 
   const canAccess = (section: string): boolean => {
     if (hasRole("super_admin")) return true;
