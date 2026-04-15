@@ -15,13 +15,10 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-type AppRole = Database["public"]["Enums"]["app_role"];
-
 interface MenuItem {
   title: string;
   url: string;
   icon: any;
-  roles: AppRole[];
 }
 
 interface SidebarSection {
