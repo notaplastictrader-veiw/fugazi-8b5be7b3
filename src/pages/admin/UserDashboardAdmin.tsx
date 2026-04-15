@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Shield, UserCheck } from "lucide-react";
 
-const UserDashboardAdmin = () => {
+const UserDashboardAdmin: React.FC = () => {
   const [stats, setStats] = useState({ totalProfiles: 0, totalRoles: 0 });
   const [recentProfiles, setRecentProfiles] = useState<any[]>([]);
 
