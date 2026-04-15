@@ -4,7 +4,7 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, Palette, BarChart3, Briefcase, UserCog, Wrench
+  Globe, BarChart3, Briefcase, UserCog
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
