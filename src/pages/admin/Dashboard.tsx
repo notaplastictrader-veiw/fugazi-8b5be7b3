@@ -7,10 +7,6 @@ import {
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye,
   ShieldCheck, ArrowUpCircle, Clock, Cpu, Wifi
 } from "lucide-react";
-import BrokerDashboard from "./BrokerDashboard";
-import SignalDashboard from "./SignalDashboard";
-import ModeratorDashboard from "./ModeratorDashboard";
-import SportsDashboard from "./SportsDashboard";
 
 interface Stats {
   brokers: number; signals: number; forecasts: number; reviews: number;
@@ -46,55 +42,8 @@ const HudGauge = ({ value, max, label, icon: Icon }: {
   );
 };
 
-/* ── Content Ops Dashboard ── */
-const ContentOpsDashboard = () => {
-  const [pending, setPending] = useState<any[]>([]);
-  useEffect(() => {
-    supabase.from("approval_queue").select("*").eq("status", "pending")
-      .order("created_at", { ascending: false }).limit(20)
-      .then(({ data }) => { if (data) setPending(data); });
-  }, []);
-
-  return (
-    <div className="hud-scanline">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="hud-badge">CONTENT OPS</div>
-        <h2 className="text-2xl font-bold text-foreground font-['Barlow_Condensed'] uppercase tracking-wide">Approval Queue</h2>
-      </div>
-      <div className="hud-card p-1">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-primary" />
-            <span className="text-sm font-mono text-primary">{pending.length} PENDING ITEMS</span>
-          </div>
-          <div className="space-y-2">
-            {pending.map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-3 bg-background/50 border border-border/50 rounded">
-                <span className="text-sm text-foreground capitalize font-mono">{item.content_type}</span>
-                <div className="flex items-center gap-3">
-                  <span className="hud-badge">{item.status}</span>
-                  <span className="text-[10px] font-mono text-muted-foreground">{new Date(item.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-            ))}
-            {pending.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm font-mono">ALL CLEAR — NO PENDING ITEMS</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      <Link to="/admin/approvals" className="hud-action-btn mt-4 p-4 flex items-center justify-center gap-2">
-        <Eye className="w-4 h-4 text-primary" /><span className="text-sm text-foreground font-mono">OPEN FULL QUEUE</span>
-      </Link>
-    </div>
-  );
-};
-
-/* ── Super Admin Command Center ── */
-const SuperAdminDashboard = () => {
+const Dashboard = () => {
+  const { hasRole, loading } = useUserRole();
   const [stats, setStats] = useState<Stats>({
     brokers: 0, signals: 0, forecasts: 0, reviews: 0,
     complaints: 0, scamAlerts: 0, pendingApprovals: 0, users: 0,
@@ -139,9 +88,18 @@ const SuperAdminDashboard = () => {
     fetchAll();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!hasRole("super_admin")) return <Navigate to="/dashboard" replace />;
+
   const maxStat = Math.max(...Object.values(stats), 1);
 
-  // 4-column primary stats
   const primaryStats = [
     { label: "Pending", value: stats.pendingApprovals, icon: CheckCircle, link: "/admin/approvals" },
     { label: "Users", value: stats.users, icon: Users, link: "/admin/users" },
@@ -149,7 +107,6 @@ const SuperAdminDashboard = () => {
     { label: "Revenue", value: 0, icon: DollarSign, link: "/admin/revenue" },
   ];
 
-  // Health gauges
   const healthGauges = [
     { label: "Reviews", value: stats.reviews, icon: MessageSquare },
     { label: "Complaints", value: stats.complaints, icon: AlertTriangle },
@@ -170,7 +127,6 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="hud-scanline">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="hud-badge">SUPER ADMIN</div>
         <h2 className="text-2xl font-bold text-foreground font-['Barlow_Condensed'] uppercase tracking-wide">Command Center</h2>
@@ -180,7 +136,6 @@ const SuperAdminDashboard = () => {
         </div>
       </div>
 
-      {/* 4-Column Primary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {primaryStats.map(s => (
           <Link key={s.label} to={s.link} className="hud-stat p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform">
@@ -195,9 +150,7 @@ const SuperAdminDashboard = () => {
         ))}
       </div>
 
-      {/* 3-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Col 1: Quick Actions */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Zap className="w-4 h-4 text-primary" />
@@ -216,7 +169,6 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* Col 2: Approval Queue Preview + Recent Users */}
         <div className="space-y-6">
           <div className="hud-card p-1">
             <div className="p-4">
@@ -268,7 +220,6 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* Col 3: Health Gauges + Top Brokers */}
         <div className="space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -309,30 +260,6 @@ const SuperAdminDashboard = () => {
       </div>
     </div>
   );
-};
-
-/* ── Role-Aware Dashboard Router ── */
-const Dashboard = () => {
-  const { hasRole, loading } = useUserRole();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const hasAdminAccess = hasRole("super_admin") || hasRole("content_ops") || hasRole("moderator") || hasRole("broker") || hasRole("signal_provider") || hasRole("betting_site");
-  if (!hasAdminAccess) return <Navigate to="/dashboard" replace />;
-
-  if (hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator")) return <BrokerDashboard />;
-  if (hasRole("signal_provider") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator")) return <SignalDashboard />;
-  if (hasRole("betting_site") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator")) return <SportsDashboard />;
-  if (hasRole("moderator") && !hasRole("super_admin") && !hasRole("content_ops")) return <ModeratorDashboard />;
-  if (hasRole("content_ops") && !hasRole("super_admin")) return <ContentOpsDashboard />;
-
-  return <SuperAdminDashboard />;
 };
 
 export default Dashboard;
