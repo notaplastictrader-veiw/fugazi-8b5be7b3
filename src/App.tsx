@@ -233,16 +233,21 @@ const AppContent = () => {
             <Route path="applications" element={<ApplicationsAdmin />} />
           </Route>
 
-          {/* Moderator Panel — separate layout */}
-          <Route path="/moderator" element={<ProtectedAdminRoute requiredRoles={["moderator"]}><ModeratorLayout /></ProtectedAdminRoute>}>
-            <Route index element={<ModeratorDashboard />} />
-            <Route path="reviews" element={<ReviewsAdmin />} />
-            <Route path="complaints" element={<ComplaintsAdmin />} />
-            <Route path="ideas" element={<TradingIdeasAdmin />} />
-            <Route path="promotions" element={<PromotionsAdmin />} />
-            <Route path="all-pending" element={<ApprovalQueueAdmin />} />
-            <Route path="escalated" element={<ApprovalQueueAdmin />} />
-            <Route path="stats" element={<ModeratorDashboard />} />
+          {/* Provider Portals */}
+          <Route path="/portal/broker" element={<ProviderLayout requiredRole="broker" />}>
+            <Route index element={<BrokerDashboard />} />
+            <Route path="listing" element={<BrokerDashboard />} />
+            <Route path="upgrade" element={<BrokerDashboard />} />
+          </Route>
+          <Route path="/portal/signal" element={<ProviderLayout requiredRole="signal_provider" />}>
+            <Route index element={<SignalDashboard />} />
+            <Route path="channel" element={<SignalDashboard />} />
+            <Route path="upgrade" element={<SignalDashboard />} />
+          </Route>
+          <Route path="/portal/betting" element={<ProviderLayout requiredRole="betting_site" />}>
+            <Route index element={<SportsDashboard />} />
+            <Route path="profile" element={<SportsDashboard />} />
+            <Route path="upgrade" element={<SportsDashboard />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
