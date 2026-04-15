@@ -120,12 +120,6 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useAuth();
-  const { roles, hasRole } = useUserRole();
-
-  const isBrokerOnly = hasRole("broker") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isSignalOnly = hasRole("signal_provider") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isBettingOnly = hasRole("betting_site") && !hasRole("super_admin") && !hasRole("content_ops") && !hasRole("moderator");
-  const isLimitedProvider = isBrokerOnly || isSignalOnly || isBettingOnly;
 
   // Load persisted section state
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -133,7 +127,6 @@ export function AdminSidebar() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch {}
-    // Default: OVERVIEW open
     return { OVERVIEW: true };
   });
 
@@ -145,19 +138,13 @@ export function AdminSidebar() {
     setOpenSections(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const canSee = (item: MenuItem) =>
-    hasRole("super_admin") || item.roles.some((r) => roles.includes(r));
-
   const isActive = (path: string) =>
     path === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(path);
 
   const activeClasses = "bg-primary/15 text-primary font-medium shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4),inset_0_0_8px_-4px_hsl(var(--primary)/0.2)] border border-primary/30 rounded-md";
   const hoverClasses = "hover:bg-muted/50 hover:shadow-[0_0_8px_-2px_hsl(var(--primary)/0.15)] transition-all duration-200";
 
-  // For limited providers, only show OVERVIEW section
-  const visibleSections = isLimitedProvider
-    ? sections.filter(s => s.label === "OVERVIEW" || s.label === "COMPANY DASHBOARDS")
-    : sections;
+  // Super admin sees everything — no role filtering needed
 
   return (
     <Sidebar collapsible="icon">
@@ -172,8 +159,8 @@ export function AdminSidebar() {
         </SidebarGroup>
 
         {/* Section groups */}
-        {visibleSections.map(section => {
-          const sectionItems = section.items.filter(canSee);
+        {sections.map(section => {
+          const sectionItems = section.items;
           if (sectionItems.length === 0) return null;
           const sectionHasActive = sectionItems.some(i => isActive(i.url));
           const isOpen = openSections[section.label] ?? sectionHasActive;
