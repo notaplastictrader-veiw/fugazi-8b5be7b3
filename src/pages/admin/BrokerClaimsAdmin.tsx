@@ -3,25 +3,81 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CheckCircle, XCircle, ExternalLink, Building2, Radio, Dices } from "lucide-react";
+import { CheckCircle, XCircle, ExternalLink, Building2, Radio, Dices, User, Phone, MapPin, Mail, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/approvalQueue";
 
 const typeIcons: Record<string, any> = { broker: Building2, signal: Radio, betting: Dices };
 
+interface ClaimWithDetails {
+  id: string;
+  profile_type: string;
+  profile_id: string;
+  claimed_by: string;
+  documents_url: string | null;
+  status: string;
+  admin_note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string | null;
+  contact_info: any;
+  claimant_name?: string;
+  claimant_phone?: string;
+  claimant_country?: string;
+  entity_name?: string;
+}
+
 const BrokerClaimsAdmin = () => {
   const { user } = useAuth();
-  const [claims, setClaims] = useState<any[]>([]);
+  const [claims, setClaims] = useState<ClaimWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const [reviewClaim, setReviewClaim] = useState<any>(null);
+  const [reviewClaim, setReviewClaim] = useState<ClaimWithDetails | null>(null);
   const [note, setNote] = useState("");
 
   const fetchClaims = async () => {
     setLoading(true);
     const { data } = await supabase.from("profile_claims").select("*").order("created_at", { ascending: false });
-    setClaims(data || []);
+    if (!data || data.length === 0) { setClaims([]); setLoading(false); return; }
+
+    const enriched: ClaimWithDetails[] = data.map(c => ({ ...c, contact_info: (c as any).contact_info }));
+
+    // Fetch claimant profiles
+    const userIds = [...new Set(data.map(c => c.claimed_by))];
+    const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, phone, country").in("user_id", userIds);
+    const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
+
+    // Fetch entity names per type
+    const brokerIds = data.filter(c => c.profile_type === "broker").map(c => c.profile_id);
+    const signalIds = data.filter(c => c.profile_type === "signal").map(c => c.profile_id);
+    const bettingIds = data.filter(c => c.profile_type === "betting").map(c => c.profile_id);
+
+    const entityMap = new Map<string, string>();
+
+    if (brokerIds.length > 0) {
+      const { data: brokers } = await supabase.from("brokers").select("id, name").in("id", brokerIds);
+      (brokers || []).forEach(b => entityMap.set(b.id, b.name));
+    }
+    if (signalIds.length > 0) {
+      const { data: signals } = await supabase.from("signal_groups").select("id, name").in("id", signalIds);
+      (signals || []).forEach(s => entityMap.set(s.id, s.name));
+    }
+    if (bettingIds.length > 0) {
+      const { data: betting } = await supabase.from("betting_profiles").select("id, site_name").in("id", bettingIds);
+      (betting || []).forEach(b => entityMap.set(b.id, b.site_name));
+    }
+
+    enriched.forEach(c => {
+      const profile = profileMap.get(c.claimed_by);
+      if (profile) {
+        c.claimant_name = profile.full_name || undefined;
+        c.claimant_phone = profile.phone || undefined;
+        c.claimant_country = profile.country || undefined;
+      }
+      c.entity_name = entityMap.get(c.profile_id);
+    });
+
+    setClaims(enriched);
     setLoading(false);
   };
 
@@ -42,7 +98,6 @@ const BrokerClaimsAdmin = () => {
       const table = profile_type === "broker" ? "broker_profiles" : profile_type === "signal" ? "signal_profiles" : "betting_profiles";
       await (supabase.from(table) as any).update({ claim_status: "claimed", claimed_by }).eq(profile_type === "broker" ? "broker_id" : profile_type === "signal" ? "signal_group_id" : "id", profile_id);
 
-      // Assign role
       const roleMap: Record<string, string> = { broker: "broker", signal: "signal_provider", betting: "betting_site" };
       const role = roleMap[profile_type];
       if (role) {
@@ -57,7 +112,13 @@ const BrokerClaimsAdmin = () => {
     fetchClaims();
   };
 
-  const statusColor: Record<string, string> = { pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30", approved: "bg-green-500/10 text-green-400 border-green-500/30", rejected: "bg-red-500/10 text-red-400 border-red-500/30" };
+  const statusColor: Record<string, string> = {
+    pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+    approved: "bg-green-500/10 text-green-400 border-green-500/30",
+    rejected: "bg-red-500/10 text-red-400 border-red-500/30",
+  };
+
+  const typeLabel: Record<string, string> = { broker: "Broker", signal: "Signal Group", betting: "Betting Site" };
 
   return (
     <div className="hud-scanline">
@@ -79,8 +140,12 @@ const BrokerClaimsAdmin = () => {
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5 text-primary" />
                   <div>
-                    <p className="font-mono text-sm font-semibold uppercase">{c.profile_type} Profile</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">ID: {c.profile_id?.slice(0, 8)}... · By: {c.claimed_by?.slice(0, 8)}...</p>
+                    <p className="font-mono text-sm font-semibold">
+                      {c.claimant_name || "Unknown User"} → <span className="text-primary">{c.entity_name || c.profile_id?.slice(0, 8) + "..."}</span>
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase">
+                      {typeLabel[c.profile_type] || c.profile_type} · {c.created_at ? new Date(c.created_at).toLocaleDateString() : ""}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -99,16 +164,71 @@ const BrokerClaimsAdmin = () => {
       )}
 
       <Dialog open={!!reviewClaim} onOpenChange={() => setReviewClaim(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle className="font-['Barlow_Condensed'] uppercase">Review Claim</DialogTitle></DialogHeader>
           {reviewClaim && (
             <div className="space-y-4">
-              <div className="text-sm font-mono space-y-1">
-                <p><span className="text-muted-foreground">Type:</span> {reviewClaim.profile_type}</p>
-                <p><span className="text-muted-foreground">Profile ID:</span> {reviewClaim.profile_id}</p>
-                <p><span className="text-muted-foreground">Claimed By:</span> {reviewClaim.claimed_by}</p>
-                {reviewClaim.documents_url && <p><span className="text-muted-foreground">Docs:</span> <a href={reviewClaim.documents_url} target="_blank" className="text-primary underline">{reviewClaim.documents_url}</a></p>}
+              {/* Entity Info */}
+              <div className="border border-border rounded-lg p-3 bg-muted/30">
+                <p className="text-xs font-mono text-muted-foreground uppercase mb-1">Claiming</p>
+                <div className="flex items-center gap-2">
+                  {(() => { const Icon = typeIcons[reviewClaim.profile_type] || Building2; return <Icon className="w-4 h-4 text-primary" />; })()}
+                  <span className="font-semibold">{reviewClaim.entity_name || reviewClaim.profile_id}</span>
+                  <span className="text-[10px] text-muted-foreground font-mono uppercase">({typeLabel[reviewClaim.profile_type] || reviewClaim.profile_type})</span>
+                </div>
               </div>
+
+              {/* Claimant Info */}
+              <div className="border border-border rounded-lg p-3 bg-muted/30">
+                <p className="text-xs font-mono text-muted-foreground uppercase mb-2">Claimant Details</p>
+                <div className="space-y-1.5 text-sm font-mono">
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{reviewClaim.claimant_name || "Not provided"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{reviewClaim.claimant_phone || "Not provided"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{reviewClaim.claimant_country || "Not provided"}</span>
+                  </div>
+                  {/* Contact info from claim submission */}
+                  {reviewClaim.contact_info && Object.keys(reviewClaim.contact_info).length > 0 && (
+                    <>
+                      {reviewClaim.contact_info.company && (
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>{reviewClaim.contact_info.company} {reviewClaim.contact_info.position ? `(${reviewClaim.contact_info.position})` : ""}</span>
+                        </div>
+                      )}
+                      {reviewClaim.contact_info.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>{reviewClaim.contact_info.email}</span>
+                        </div>
+                      )}
+                      {reviewClaim.contact_info.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>{reviewClaim.contact_info.phone} <span className="text-[10px] text-muted-foreground">(submitted)</span></span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Documents */}
+              {reviewClaim.documents_url && (
+                <div className="text-sm font-mono">
+                  <span className="text-muted-foreground">Docs: </span>
+                  <a href={reviewClaim.documents_url} target="_blank" className="text-primary underline break-all">{reviewClaim.documents_url}</a>
+                </div>
+              )}
+
+              {/* Admin Note */}
               <div>
                 <label className="font-mono text-xs text-muted-foreground">Admin Note</label>
                 <Input value={note} onChange={e => setNote(e.target.value)} placeholder="Optional note..." />
