@@ -179,6 +179,12 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
           contact_telegram: telegramLink || null,
         });
 
+        notifyAdmins(
+          `New ${roleLabels[signupRole]} Application`,
+          `${fullName} (${signupEmail}) submitted a ${roleLabels[signupRole].toLowerCase()} application`,
+          "/admin/approvals"
+        );
+
         setLoading(false);
         setShowUnderReview(true);
         return;
