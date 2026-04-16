@@ -111,7 +111,7 @@ const Signup = () => {
       }
       // Force sign out to prevent auto-login before email verification
       await supabase.auth.signOut();
-      toast({ title: "Check your email", description: "We sent you a confirmation link. Please verify your email before signing in." });
+      toast({ title: "Check your email", description: "We sent you a confirmation link. Please verify your email to complete your sign up." });
       navigate("/login");
     }
   };
