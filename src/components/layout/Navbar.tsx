@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import AuthModal from "@/components/modals/AuthModal";
 import LanguageSelector from "@/components/LanguageSelector";
 import UserDropdown from "@/components/UserDropdown";
