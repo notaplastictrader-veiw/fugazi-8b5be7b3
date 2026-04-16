@@ -37,6 +37,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const isHome = pathSegments.length === 0;
+  const isDashboard = pathSegments[0] === "dashboard";
 
   const getPageName = () => {
     if (pathSegments.length === 0) return "";
@@ -70,7 +71,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         )}
         {children}
       </main>
-      <Footer />
+      {!isDashboard && <Footer />}
       {/* Fixed bottom ticker */}
       <div className="fixed bottom-0 left-0 right-0 z-[200]">
         <TickerBar />
