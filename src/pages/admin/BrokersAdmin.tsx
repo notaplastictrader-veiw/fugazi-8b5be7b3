@@ -14,6 +14,11 @@ import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
+};
+
 interface Broker {
   id: string;
   name: string;
