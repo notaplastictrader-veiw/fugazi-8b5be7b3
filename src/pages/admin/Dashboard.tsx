@@ -5,13 +5,13 @@ import { useUserRole } from "@/hooks/useUserRole";
 import {
   Building2, Radio, TrendingUp, MessageSquare, AlertTriangle,
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye,
-  ShieldCheck, ArrowUpCircle, Clock, Cpu, Wifi
+  ShieldCheck, ArrowUpCircle, Clock, Cpu, Wifi, UserPlus
 } from "lucide-react";
 
 interface Stats {
   brokers: number; signals: number; forecasts: number; reviews: number;
   complaints: number; scamAlerts: number; pendingApprovals: number; users: number;
-  pendingClaims: number; pendingUpgrades: number;
+  pendingClaims: number; pendingUpgrades: number; pendingApplications: number;
 }
 
 const HudGauge = ({ value, max, label, icon: Icon }: {
@@ -47,7 +47,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState<Stats>({
     brokers: 0, signals: 0, forecasts: 0, reviews: 0,
     complaints: 0, scamAlerts: 0, pendingApprovals: 0, users: 0,
-    pendingClaims: 0, pendingUpgrades: 0,
+    pendingClaims: 0, pendingUpgrades: 0, pendingApplications: 0,
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
@@ -55,7 +55,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [b, s, f, r, c, sa, aq, u, pc, pu] = await Promise.all([
+      const [b, s, f, r, c, sa, aq, u, pc, pu, pa] = await Promise.all([
         supabase.from("brokers").select("id", { count: "exact", head: true }),
         supabase.from("signal_groups").select("id", { count: "exact", head: true }),
         supabase.from("forecasts").select("id", { count: "exact", head: true }),
@@ -66,11 +66,12 @@ const Dashboard = () => {
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("profile_claims").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("tier_upgrades").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       setStats({
         brokers: b.count || 0, signals: s.count || 0, forecasts: f.count || 0, reviews: r.count || 0,
         complaints: c.count || 0, scamAlerts: sa.count || 0, pendingApprovals: aq.count || 0, users: u.count || 0,
-        pendingClaims: pc.count || 0, pendingUpgrades: pu.count || 0,
+        pendingClaims: pc.count || 0, pendingUpgrades: pu.count || 0, pendingApplications: pa.count || 0,
       });
 
       const { data: activity } = await supabase.from("approval_queue").select("content_type, status, created_at, priority")
@@ -101,7 +102,7 @@ const Dashboard = () => {
   const maxStat = Math.max(...Object.values(stats), 1);
 
   const primaryStats = [
-    { label: "Pending", value: stats.pendingApprovals, icon: CheckCircle, link: "/admin/approvals" },
+    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications, icon: CheckCircle, link: "/admin/approvals" },
     { label: "Users", value: stats.users, icon: Users, link: "/admin/users" },
     { label: "Brokers", value: stats.brokers, icon: Building2, link: "/admin/brokers" },
     { label: "Revenue", value: 0, icon: DollarSign, link: "/admin/revenue" },
@@ -118,6 +119,7 @@ const Dashboard = () => {
 
   const quickActions = [
     { label: "Approvals", icon: CheckCircle, link: "/admin/approvals", badge: stats.pendingApprovals },
+    { label: "Applications", icon: UserPlus, link: "/admin/applications", badge: stats.pendingApplications },
     { label: "Claims", icon: ShieldCheck, link: "/admin/claims", badge: stats.pendingClaims },
     { label: "Upgrades", icon: ArrowUpCircle, link: "/admin/tier-upgrades", badge: stats.pendingUpgrades },
     { label: "Scam Alerts", icon: ShieldAlert, link: "/admin/scam-alerts" },
