@@ -287,11 +287,31 @@ const Navbar = () => {
                   <>
                     <div className="flex items-center gap-2 px-3 py-2">
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">{initial}</div>
-                      <span className="text-sm font-medium text-foreground">{firstName}</span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-foreground">{firstName}</span>
+                        {getMobileRoleBadge() && (
+                          <Badge variant="outline" className={`ml-2 text-[10px] px-1.5 py-0 ${getMobileRoleBadge()!.className}`}>
+                            {getMobileRoleBadge()!.label}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-0.5">
+                      {getMobileMenuItems().map((item) => (
+                        <Link
+                          key={item.label}
+                          to={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-md transition-colors"
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.label}
+                        </Link>
+                      ))}
                     </div>
                     <button onClick={async () => { await signOut(); setMobileOpen(false); }}
-                      className="w-full px-4 py-2.5 text-sm font-semibold border border-border text-foreground rounded-lg flex items-center justify-center gap-2">
-                      <LogOut className="w-4 h-4" /> {t("nav.login", "Log Out")}
+                      className="w-full px-4 py-2.5 text-sm font-semibold border border-border text-destructive rounded-lg flex items-center justify-center gap-2 mt-1">
+                      <LogOut className="w-4 h-4" /> Log Out
                     </button>
                   </>
                 ) : (
