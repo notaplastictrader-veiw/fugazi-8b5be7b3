@@ -284,12 +284,14 @@ const ApplicationsAdmin = () => {
         </div>
       </div>
 
+      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
+
       {/* Table */}
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : dateFiltered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           No {filter !== "all" ? filter : ""} applications found
         </div>
@@ -307,7 +309,7 @@ const ApplicationsAdmin = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((app) => {
+              {dateFiltered.map((app) => {
                 const data = (app.application_data as any) || {};
                 return (
                   <TableRow key={app.id}>
