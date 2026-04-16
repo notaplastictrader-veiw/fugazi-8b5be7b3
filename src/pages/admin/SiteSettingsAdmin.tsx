@@ -206,7 +206,7 @@ const SiteSettingsAdmin = () => {
       }
       toast.success(`${key} saved`);
     } catch {
-      toast.error("Invalid JSON — সঠিক JSON format দিন");
+      toast.error("Invalid JSON — please enter valid JSON format");
     } finally {
       setSavingKey(null);
     }
@@ -219,7 +219,7 @@ const SiteSettingsAdmin = () => {
   return (
     <div>
       <h2 className="text-2xl font-bold text-foreground mb-2 font-['Barlow_Condensed'] uppercase tracking-wide">Site Settings</h2>
-      <p className="text-sm text-muted-foreground mb-6">Homepage এর প্রতিটা section এর content এখান থেকে control করুন। JSON format এ data edit করে Save করুন।</p>
+      <p className="text-sm text-muted-foreground mb-6">Control every homepage section's content from here. Edit the JSON data and hit Save.</p>
 
       {groups.map(group => (
         <div key={group} className="mb-8">
