@@ -91,7 +91,7 @@ const ScamAlerts = () => {
         </div>
       </section>
       <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </MainLayout>
   );
 };
