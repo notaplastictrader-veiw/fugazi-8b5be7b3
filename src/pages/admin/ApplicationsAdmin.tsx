@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock, Search, UserPlus } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
+import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
