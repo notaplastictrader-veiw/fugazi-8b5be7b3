@@ -185,7 +185,7 @@ const Navbar = () => {
                 )}
                 {link.children && (
                   <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
-                    {link.label === t("nav.more") ? (
+                    {link.label === moreLabel && link.children.length >= 6 ? (
                       <>
                         <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Main Menu</div>
                         {link.children.slice(0, 4).map((child) => (
