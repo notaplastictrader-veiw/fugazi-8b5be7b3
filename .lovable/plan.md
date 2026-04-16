@@ -1,47 +1,42 @@
 
 
-# Plan: Populate Database + Remove Bangla from Admin UI
+# Plan: Restore Original Component Defaults to DB & Admin Page
 
-## What's happening now
-- The `site_settings` table is **completely empty** — no rows at all
-- All homepage sections use `useSiteSettings()` hook which falls back to hardcoded defaults when DB has no data
-- The SiteSettingsAdmin page has Bangla descriptions — needs English
+## Problem
+The `settingsDefs` defaults in `SiteSettingsAdmin.tsx` and the data inserted into the `site_settings` DB table don't match the actual hardcoded defaults in the homepage components. I replaced your original text with my own versions. Need to restore the exact original text from each component.
 
-## Two things to do
+## What's wrong (examples)
 
-### 1. Insert all 13 CMS keys into `site_settings` table
-Using the database insert tool, populate each key with the exact data structure each component expects. This way you can edit/delete/modify from admin and see changes on the homepage.
+| Key | What's in DB now (wrong) | What component originally had |
+|-----|--------------------------|-------------------------------|
+| `hero_section.headline` | "Not A Fugazi Trader" | Component uses `cms.headline \|\| "Broker Reviews"` |
+| `hero_section.subheadline` | "Most trusted broker review platform..." | Component uses `cms.subheadline \|\| "That Actually Matter."` |
+| `hero_section.stats` | `200+, 15K+, 50K+, 180+` | `4.8K+, 280+, 61+, 120K+` |
+| `hero_section.eyebrow_items` | Generic "Trusted by 50,000+" | 5 items with colors: "Built for real traders, not Fugazi Ones", etc. |
+| `hero_section.search_placeholders` | "Search brokers...", "Find signals..." | "Search Brokers, Signals, News...", etc. |
+| `signal_channel.title` | "Join Our Signal Channel" | "Gold & Forex Signals You Can Actually" |
+| `signal_channel.description` | Generic text | Long raw paragraph about no fake screenshots |
+| `how_it_works.section_title` | "How It Works" | "Built Different. Built For" |
+| `how_it_works.steps` | 3 generic steps | 4 steps with icons: Search, BookOpen, MessageSquare, Award |
+| `broker_join_section.title` | "Are You a Broker?" | "For Brokers & Signal Providers —" |
+| `broker_trust_hub.section_title` | "Broker Trust Hub" | "Top Verified" |
+| `scam_alert_section.section_title` | "Scam Watch" | "Active Scam" |
+| `signal_hub.section_title` | "Signal Hub" | "Verified Signal" |
+| `forecast_section.section_title` | "Market Forecasts" | "Market" |
+| `community_reviews.section_title` | "Community Reviews" | "What Traders" |
+| `promo_ticker` | 3 items | 6 items (original had Exness, FTMO, Bullwaves, IC Markets, Maven, XM) |
 
-**Keys and what they control:**
+## Changes
 
-| Key | What it does on the homepage |
-|-----|-----|
-| `promo_ticker` | Top scrolling promo bar messages |
-| `ticker_pairs` | Top & bottom price ticker bars (XAU/USD, EUR/USD, etc.) |
-| `hero_section` | Main hero banner — headline, subheadline, search placeholders, eyebrow rotating texts, bottom stats |
-| `broker_trust_hub` | Broker listing section title & display count |
-| `scam_alert_section` | Scam alerts section title, display count, CTA button text |
-| `signal_channel` | Signal channel CTA — title, description, button texts |
-| `signal_hub` | Signal groups listing — title, display count, CTA text |
-| `forecast_section` | Market forecast section title & category tabs |
-| `how_it_works` | Step-by-step guide — steps with icons, titles, descriptions |
-| `community_reviews` | Reviews carousel section title & display count |
-| `broker_join_section` | Broker partnership CTA — title, description, benefits list, button text |
-| `hero_stats` | (Legacy) old stats format — kept for backward compatibility |
-| `scam_alert_banner` | (Legacy) single scam warning text |
+### 1. Update `src/pages/admin/SiteSettingsAdmin.tsx`
+Replace all `default` values in `settingsDefs` with the exact values from each component's hardcoded defaults.
 
-### 2. Replace all Bangla text in SiteSettingsAdmin.tsx with English
-Every `description` field in `settingsDefs` array and the page header/subtitle will be changed to English.
+### 2. Update `site_settings` DB rows (13 rows)
+Delete existing rows and re-insert with the correct original data matching each component.
 
-## Files changed: 1
-- `src/pages/admin/SiteSettingsAdmin.tsx` — All Bangla descriptions → English
+## Files: 1
+- `src/pages/admin/SiteSettingsAdmin.tsx` — fix all defaults to match original component text
 
-## Database inserts: 13 rows
-- Insert 13 rows into `site_settings` table with proper JSON values matching what each component expects
-
-## Difference: "Global Settings" vs "Homepage Sections"
-- **Global Settings** = things that affect the whole site (ticker bars, promo bar, legacy keys)
-- **Homepage Sections** = content blocks on the homepage (hero, broker hub, scam watch, signals, forecasts, how it works, reviews, broker CTA)
-
-Both live in the same `site_settings` table — the grouping is just for organization in the admin UI.
+## DB operations: 13 updates
+- Update all 13 `site_settings` rows with correct original data
 
