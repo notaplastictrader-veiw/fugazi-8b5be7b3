@@ -4,7 +4,7 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, BarChart3, Briefcase, UserCog
+  Globe, BarChart3, Briefcase, UserCog, UserPlus
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -72,6 +72,7 @@ const sections: SidebarSection[] = [
       { title: "Complaints", url: "/admin/complaints", icon: AlertTriangle },
       { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb },
       { title: "Submissions", url: "/admin/submissions", icon: Mail },
+      { title: "Applications", url: "/admin/applications", icon: UserPlus },
     ],
   },
   {
