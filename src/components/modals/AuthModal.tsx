@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigate } from "react-router-dom";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 interface AuthModalProps {
   open: boolean;
@@ -177,6 +178,12 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
           contact_phone: `${selectedCountry.dialCode}${phone}`,
           contact_telegram: telegramLink || null,
         });
+
+        notifyAdmins(
+          `New ${roleLabels[signupRole]} Application`,
+          `${fullName} (${signupEmail}) submitted a ${roleLabels[signupRole].toLowerCase()} application`,
+          "/admin/approvals"
+        );
 
         setLoading(false);
         setShowUnderReview(true);
