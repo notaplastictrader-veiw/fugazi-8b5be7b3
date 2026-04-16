@@ -1,4 +1,5 @@
 import { Shield, MessageSquare, Award, BarChart3, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const defaultPerks = [
@@ -17,6 +18,7 @@ const tiers = [
     cta: "Contact Us →",
     ctaStyle: "highlight" as const,
     note: "Best for high-volume brokers",
+    link: "/advertise",
   },
   {
     name: "Verified Partner",
@@ -24,12 +26,14 @@ const tiers = [
     cta: "Contact Us →",
     ctaStyle: "secondary" as const,
     note: "Most popular choice",
+    link: "/advertise",
   },
   {
     name: "Basic Listing",
     features: ["Company profile", "User reviews", "Basic analytics"],
     cta: "Get Listed →",
     ctaStyle: "ghost" as const,
+    link: "/broker-claim",
   },
 ];
 
@@ -66,7 +70,7 @@ const BrokerJoinSection = () => {
               })}
             </div>
             <div className="mt-8 space-y-3">
-              <a href="/partnership" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
+              <a href="/advertise" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
                 {ctaText}
               </a>
               <div>
@@ -88,9 +92,9 @@ const BrokerJoinSection = () => {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-2.5 text-xs font-semibold rounded-lg transition-all ${
+                <Link to={tier.link} className={`block w-full py-2.5 text-xs font-semibold rounded-lg transition-all text-center ${
                   tier.ctaStyle === "highlight" ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg shadow-accent/20" : "border border-border text-foreground hover:border-primary/40"
-                }`}>{tier.cta}</button>
+                }`}>{tier.cta}</Link>
                 {"note" in tier && tier.note && <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>}
               </div>
             ))}
