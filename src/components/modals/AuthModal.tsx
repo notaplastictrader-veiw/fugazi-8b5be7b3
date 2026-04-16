@@ -106,8 +106,14 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
     }
   };
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidEmail(loginEmail)) {
+      toast.error("Please enter a valid email address (e.g. name@example.com)");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
     if (error) {

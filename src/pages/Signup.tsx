@@ -41,8 +41,14 @@ const Signup = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidEmail(email)) {
+      toast({ title: "Please enter a valid email address", description: "Example: name@example.com", variant: "destructive" });
+      return;
+    }
     if (password !== confirmPassword) {
       toast({ title: "Passwords don't match", variant: "destructive" });
       return;
