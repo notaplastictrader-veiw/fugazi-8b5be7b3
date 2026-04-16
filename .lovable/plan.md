@@ -1,57 +1,71 @@
 
 
-# Plan: Make Broker Trust Hub Fully Editable from CMS
+# Plan: Complete CMS Alignment + Populate Empty Tables
 
 ## Problem
-The Broker Trust Hub has many hardcoded texts that can't be edited from admin:
-- Broker subtitle: "Every broker scored by real user data — complaints, withdrawal speed, regulation strength."
-- Broker filter tabs: All, Forex, Crypto, Binary, ECN, Prop Firms, Scam Watch
-- Prop Firms title: "Top Verified" (hardcoded separately from broker title)
-- Prop Firms subtitle: "Funded trading accounts reviewed by real traders..."
-- Prop firm display count: hardcoded to 6 (`.slice(0, 6)`)
-- No separate broker_count vs prop_firm_count
+1. **Signal groups, forecasts, and reviews tables are empty** (0 rows each) — frontend falls back to hardcoded data instead of DB data
+2. **Many sections have hardcoded subtitles/descriptions** not editable from CMS — unlike Broker Trust Hub which is now fully editable
 
-## Changes
+## Part 1: Insert Data into Empty Tables
 
-### 1. Update DB `site_settings.broker_trust_hub` value
-Add missing fields to the JSON:
-```json
-{
-  "section_title": "Top Verified",
-  "broker_subtitle": "Every broker scored by real user data — complaints, withdrawal speed, regulation strength.",
-  "broker_count": 50,
-  "broker_filters": ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"],
-  "prop_section_title": "Top Verified",
-  "prop_subtitle": "Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.",
-  "prop_firm_count": 6,
-  "prop_firm_categories": ["All Prop Firms", "Instant Funding", "1-Step Clg", "2-Step Clg", "Dis% Offers", "No Time Limit"]
-}
-```
+### signal_groups table (3 rows)
+| Name | Win Rate | Monthly | Avg R:R | Track Record | Members | Status |
+|------|----------|---------|---------|--------------|---------|--------|
+| Gold Pulse Signals | 81 | 35 | 1:2.4 | 14 months | 4,200 | published |
+| Asia FX Scalpers | 84 | 48 | 1:1.8 | 22 months | 12,400 | published |
+| Prop Killer Trades | 78 | 60+ | 1:3.1 | 9 months | 8,900 | published |
 
-### 2. Update `BrokerTrustHub.tsx`
-Read new CMS fields with fallbacks:
-- `cms.broker_subtitle` for broker description
-- `cms.broker_filters` for filter tabs
-- `cms.prop_section_title` for prop firms heading
-- `cms.prop_subtitle` for prop firms description
-- `cms.prop_firm_count` for prop firms limit
+### forecasts table (5 rows)
+| Pair | Direction | Potential | Category | Status |
+|------|-----------|-----------|----------|--------|
+| XAU/USD | bullish | HIGH | forex | published |
+| EUR/USD | bearish | MED | forex | published |
+| GBP/USD | bullish | HIGH | forex | published |
+| Gold Spot | bullish | HIGH | gold | published |
+| BTC/USD | bullish | HIGH | crypto | published |
 
-### 3. Update `SectionEditor.tsx` broker-trust-hub config
-Add form fields for all new keys:
-- `broker_subtitle` (textarea)
-- `broker_filters` (list)
-- `prop_section_title` (text)
-- `prop_subtitle` (textarea)
-- `prop_firm_count` (number)
+### reviews table (8 rows)
+All 8 fallback reviews (Tyler Mather, Wei Wen Chin, Claudio Pensa, etc.) with correct ratings, content, roles, and avatars — status: published.
 
-### 4. Update `SiteSettingsAdmin.tsx` default
-Update the `broker_trust_hub` default to include all new fields.
+## Part 2: Add Missing CMS Fields to Each Section
 
-## Files: 3
-- `src/components/sections/BrokerTrustHub.tsx` — read new CMS fields
-- `src/pages/admin/SectionEditor.tsx` — add form fields for new keys
-- `src/pages/admin/SiteSettingsAdmin.tsx` — update default JSON
+### What's hardcoded but should be editable:
 
-## DB: 1 update
-- Update `site_settings` row where key = `broker_trust_hub` with full data
+| Section | Missing from CMS |
+|---------|-----------------|
+| Scam Alert | subtitle (hardcoded in component) |
+| Signal Hub | subtitle "Every Telegram group listed..." |
+| Signal Channel | bullet points list, tier features |
+| Forecast | subtitle "Daily analysis. No paid promotions..." |
+| Community Reviews | (already good) |
+| Broker Join | subtitle "Reach 120,000+ real traders worldwide..." |
+
+### Changes per section:
+
+**ScamAlertSection.tsx** — read `cms.subtitle`
+**SignalHub.tsx** — read `cms.subtitle`
+**SignalChannel.tsx** — read `cms.features_list` for bullet points
+**ForecastSection.tsx** — read `cms.subtitle`
+**BrokerJoinSection.tsx** — read `cms.subtitle`
+
+### SectionEditor.tsx — add subtitle fields to each section config
+
+### site_settings DB — update each key with the new subtitle values
+
+## Part 3: Fix audit_log Error
+The network requests show `invalid input syntax for type uuid: "broker_trust_hub"` — the `record_id` column is UUID but code passes the settings key string. Fix the `logAuditAction` call in SectionEditor to pass the actual row UUID.
+
+## Files Changed: 6
+- `src/components/sections/ScamAlertSection.tsx` — read cms.subtitle
+- `src/components/sections/SignalHub.tsx` — read cms.subtitle  
+- `src/components/sections/SignalChannel.tsx` — read cms.features_list
+- `src/components/sections/ForecastSection.tsx` — read cms.subtitle
+- `src/components/sections/BrokerJoinSection.tsx` — read cms.subtitle
+- `src/pages/admin/SectionEditor.tsx` — add subtitle fields + fix audit log UUID
+
+## DB Operations
+- INSERT 3 rows into `signal_groups`
+- INSERT 5 rows into `forecasts`
+- INSERT 8 rows into `reviews`
+- UPDATE 5 rows in `site_settings` (add subtitle values)
 
