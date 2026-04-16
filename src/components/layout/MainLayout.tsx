@@ -71,7 +71,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         )}
         {children}
       </main>
-      <Footer />
+      {!isDashboard && <Footer />}
       {/* Fixed bottom ticker */}
       <div className="fixed bottom-0 left-0 right-0 z-[200]">
         <TickerBar />
