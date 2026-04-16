@@ -115,7 +115,9 @@ const Signup = () => {
         }
         sessionStorage.removeItem("ref-tracked-code");
       }
-      toast({ title: "Check your email", description: "We sent you a confirmation link." });
+      // Force sign out to prevent auto-login before email verification
+      await supabase.auth.signOut();
+      toast({ title: "Check your email", description: "We sent you a confirmation link. Please verify your email before signing in." });
       navigate("/login");
     }
   };
