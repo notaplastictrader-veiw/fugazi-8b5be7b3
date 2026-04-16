@@ -119,7 +119,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
     if (error) {
       setLoading(false);
       if (error.message?.toLowerCase().includes("email not confirmed")) {
-        toast.error("Please verify your email before signing in. Check your inbox.");
+        toast.error("Please verify your email to complete your sign up. Check your inbox.");
       } else {
         toast.error(error.message);
       }
