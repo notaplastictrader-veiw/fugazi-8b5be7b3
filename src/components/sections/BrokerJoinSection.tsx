@@ -11,12 +11,12 @@ const defaultPerks = [
 
 const iconMap: Record<string, any> = { Shield, MessageSquare, Award, BarChart3 };
 
-const tiers = [
+const defaultTiers = [
   {
     name: "Featured + Verified",
     features: ["Everything in Verified", "Featured in search results", "Homepage placement", "Dedicated account manager"],
     cta: "Contact Us →",
-    ctaStyle: "highlight" as const,
+    style: "highlight",
     note: "Best for high-volume brokers",
     link: "/advertise",
   },
@@ -24,7 +24,7 @@ const tiers = [
     name: "Verified Partner",
     features: ["Verified badge", "Reply to reviews", "Priority support", "Enhanced profile"],
     cta: "Contact Us →",
-    ctaStyle: "secondary" as const,
+    style: "secondary",
     note: "Most popular choice",
     link: "/advertise",
   },
@@ -32,7 +32,8 @@ const tiers = [
     name: "Basic Listing",
     features: ["Company profile", "User reviews", "Basic analytics"],
     cta: "Get Listed →",
-    ctaStyle: "ghost" as const,
+    style: "ghost",
+    note: "",
     link: "/broker-claim",
   },
 ];
@@ -44,6 +45,11 @@ const BrokerJoinSection = () => {
   const description = cms.description || "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
   const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
   const ctaText = cms.cta_text || "Promote Your Broker →";
+  const subtitle = cms.subtitle || "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.";
+  const claimText = cms.claim_text || "Already listed? Claim your profile →";
+  const footerNote = cms.footer_note || "All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.";
+
+  const tiers = (Array.isArray(cms.tiers) && cms.tiers.length > 0 ? cms.tiers : defaultTiers) as typeof defaultTiers;
 
   return (
     <section className="py-20 px-4">
@@ -52,7 +58,7 @@ const BrokerJoinSection = () => {
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           {title} <span className="text-accent">List With Us.</span>
         </h2>
-        <p className="text-sm text-muted-foreground mb-10 max-w-2xl">{cms.subtitle || "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform."}</p>
+        <p className="text-sm text-muted-foreground mb-10 max-w-2xl">{subtitle}</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div>
@@ -75,32 +81,36 @@ const BrokerJoinSection = () => {
               </a>
               <div>
                 <a href="/brokers" className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors">
-                  Already listed? Claim your profile →
+                  {claimText}
                 </a>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {tiers.map((tier) => (
-              <div key={tier.name} className={`glass-card rounded-xl p-5 flex flex-col ${tier.ctaStyle === "highlight" ? "border-accent/30 ring-1 ring-accent/20" : tier.ctaStyle === "secondary" ? "border-primary/20 ring-1 ring-primary/10" : ""}`}>
-                <div className="text-xs font-mono text-muted-foreground mb-4">{tier.name}</div>
-                <ul className="space-y-2 mt-4 mb-6 flex-1">
-                  {tier.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Check className="w-3 h-3 text-primary flex-shrink-0" /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to={tier.link} className={`block w-full py-2.5 text-xs font-semibold rounded-lg transition-all text-center ${
-                  tier.ctaStyle === "highlight" ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg shadow-accent/20" : "border border-border text-foreground hover:border-primary/40"
-                }`}>{tier.cta}</Link>
-                {"note" in tier && tier.note && <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>}
-              </div>
-            ))}
+            {tiers.map((tier: any, idx: number) => {
+              const features: string[] = Array.isArray(tier.features) ? tier.features : (typeof tier.features === "string" ? tier.features.split("\n").filter(Boolean) : []);
+              const style = tier.style || "ghost";
+              return (
+                <div key={tier.name || idx} className={`glass-card rounded-xl p-5 flex flex-col ${style === "highlight" ? "border-accent/30 ring-1 ring-accent/20" : style === "secondary" ? "border-primary/20 ring-1 ring-primary/10" : ""}`}>
+                  <div className="text-xs font-mono text-muted-foreground mb-4">{tier.name}</div>
+                  <ul className="space-y-2 mt-4 mb-6 flex-1">
+                    {features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Check className="w-3 h-3 text-primary flex-shrink-0" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to={tier.link || "/advertise"} className={`block w-full py-2.5 text-xs font-semibold rounded-lg transition-all text-center ${
+                    style === "highlight" ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg shadow-accent/20" : "border border-border text-foreground hover:border-primary/40"
+                  }`}>{tier.cta}</Link>
+                  {tier.note && <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>}
+                </div>
+              );
+            })}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mt-6">All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.</p>
+        <p className="text-xs text-muted-foreground mt-6">{footerNote}</p>
       </div>
     </section>
   );

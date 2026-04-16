@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -23,9 +23,29 @@ const ForecastSection = () => {
   const cms = useSiteSettings<Record<string, any>>("forecast_section", {});
   const sectionTitle = cms.section_title || "Market";
   const subtitle = cms.subtitle || "Daily analysis. No paid promotions. No broker bias.";
-  const tabs = defaultTabs;
-  const [activeTab, setActiveTab] = useState("forex");
+
+  // Categories: support both string-list (legacy) and object-list ({key,label})
+  const tabs = useMemo(() => {
+    const raw = cms.categories;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw.map((item: any) => {
+        if (typeof item === "string") {
+          return { key: item.toLowerCase().replace(/[^a-z0-9]/g, ""), label: item };
+        }
+        return { key: item.key || String(item.label || "").toLowerCase().replace(/[^a-z0-9]/g, ""), label: item.label || item.key };
+      });
+    }
+    return defaultTabs;
+  }, [cms.categories]);
+
+  const [activeTab, setActiveTab] = useState(tabs[0]?.key || "forex");
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
+
+  useEffect(() => {
+    if (tabs.length > 0 && !tabs.find((t) => t.key === activeTab)) {
+      setActiveTab(tabs[0].key);
+    }
+  }, [tabs, activeTab]);
 
   const fallbackForecasts: Forecast[] = [
     { id: "f1", pair: "XAU/USD", direction: "bullish", potential: "HIGH", reasoning: "Gold breaking above key resistance at $2,340. Fed rate cut expectations fueling momentum. Target $2,400.", updated_label: "2 hours ago", category: "forex" },
