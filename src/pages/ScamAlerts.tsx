@@ -62,10 +62,8 @@ const ScamAlerts = () => {
               <Plus className="w-4 h-4" /> Report a Scam
             </Button>
           </div>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
-          </div>
+
+
 
           <div className="space-y-4">
             {filtered.map(alert => {
