@@ -5,7 +5,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import {
   Building2, Radio, TrendingUp, MessageSquare, AlertTriangle,
   ShieldAlert, CheckCircle, Users, DollarSign, Activity, Zap, Eye,
-  ShieldCheck, ArrowUpCircle, Clock, Cpu, Wifi
+  ShieldCheck, ArrowUpCircle, Clock, Cpu, Wifi, UserPlus
 } from "lucide-react";
 
 interface Stats {
@@ -102,7 +102,7 @@ const Dashboard = () => {
   const maxStat = Math.max(...Object.values(stats), 1);
 
   const primaryStats = [
-    { label: "Pending", value: stats.pendingApprovals, icon: CheckCircle, link: "/admin/approvals" },
+    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications, icon: CheckCircle, link: "/admin/approvals" },
     { label: "Users", value: stats.users, icon: Users, link: "/admin/users" },
     { label: "Brokers", value: stats.brokers, icon: Building2, link: "/admin/brokers" },
     { label: "Revenue", value: 0, icon: DollarSign, link: "/admin/revenue" },
@@ -119,6 +119,7 @@ const Dashboard = () => {
 
   const quickActions = [
     { label: "Approvals", icon: CheckCircle, link: "/admin/approvals", badge: stats.pendingApprovals },
+    { label: "Applications", icon: UserPlus, link: "/admin/applications", badge: stats.pendingApplications },
     { label: "Claims", icon: ShieldCheck, link: "/admin/claims", badge: stats.pendingClaims },
     { label: "Upgrades", icon: ArrowUpCircle, link: "/admin/tier-upgrades", badge: stats.pendingUpgrades },
     { label: "Scam Alerts", icon: ShieldAlert, link: "/admin/scam-alerts" },
