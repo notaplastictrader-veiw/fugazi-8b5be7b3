@@ -118,7 +118,11 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
     if (error) {
       setLoading(false);
-      toast.error(error.message);
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        toast.error("Please verify your email before signing in. Check your inbox.");
+      } else {
+        toast.error(error.message);
+      }
       return;
     }
     toast.success("Logged in!");
