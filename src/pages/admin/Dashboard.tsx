@@ -102,7 +102,7 @@ const Dashboard = () => {
   const maxStat = Math.max(...Object.values(stats), 1);
 
   const primaryStats = [
-    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications, icon: CheckCircle, link: "/admin/approvals" },
+    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications + stats.pendingClaims + stats.pendingUpgrades, icon: CheckCircle, link: "/admin/approvals" },
     { label: "Users", value: stats.users, icon: Users, link: "/admin/users" },
     { label: "Brokers", value: stats.brokers, icon: Building2, link: "/admin/brokers" },
     { label: "Revenue", value: 0, icon: DollarSign, link: "/admin/revenue" },
