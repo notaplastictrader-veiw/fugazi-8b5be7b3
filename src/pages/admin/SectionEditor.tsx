@@ -19,7 +19,8 @@ interface SectionConfig {
 interface FieldConfig {
   key: string;
   label: string;
-  type: "text" | "textarea" | "number" | "list" | "object-list";
+  type: "text" | "textarea" | "number" | "list" | "object-list" | "json";
+  hint?: string;
   objectFields?: { key: string; label: string; type: "text" | "textarea" | "number" }[];
 }
 
@@ -85,9 +86,15 @@ const sectionConfigs: Record<string, SectionConfig> = {
     fields: [
       { key: "title", label: "Title", type: "text" },
       { key: "description", label: "Description", type: "textarea" },
-      { key: "cta_primary", label: "Primary CTA Text", type: "text" },
-      { key: "cta_secondary", label: "Secondary CTA Text", type: "text" },
-      { key: "features_list", label: "Feature Bullet Points", type: "list" },
+      { key: "features_list", label: "Left-side Bullet Points", type: "list" },
+      {
+        key: "free_tier", label: "FREE TIER Card", type: "json",
+        hint: 'JSON: { "badge": "FREE TIER", "title": "...", "description": "...", "features": ["...", "..."], "price": "Free — forever", "cta": "Join Free Telegram →", "cta_url": "https://t.me/...", "footer_note": "..." }',
+      },
+      {
+        key: "premium_tier", label: "PREMIUM TIER Card", type: "json",
+        hint: 'JSON: { "badge": "PREMIUM", "label": "PREMIUM TIER", "title": "...", "win_rate": "~78%", "win_rate_label": "...", "description": "...", "features": ["..."], "tagline": "...", "cta": "Apply for Access →" }',
+      },
     ],
   },
   "signal-hub": {
@@ -106,7 +113,13 @@ const sectionConfigs: Record<string, SectionConfig> = {
     fields: [
       { key: "section_title", label: "Section Title", type: "text" },
       { key: "subtitle", label: "Subtitle", type: "textarea" },
-      { key: "categories", label: "Categories", type: "list" },
+      {
+        key: "categories", label: "Category Tabs", type: "object-list",
+        objectFields: [
+          { key: "key", label: "Key (used to filter forecasts, e.g. forex)", type: "text" },
+          { key: "label", label: "Display Label (e.g. Metal (GOLD))", type: "text" },
+        ],
+      },
     ],
   },
   "how-it-works": {
@@ -121,7 +134,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
           { key: "description", label: "Description", type: "textarea" },
         ],
       },
-      { key: "cta_text", label: "CTA Button Text", type: "text" },
+      { key: "cta_text", label: "CTA Button Text (leave empty to hide)", type: "text" },
     ],
   },
   "community-reviews": {
@@ -130,6 +143,8 @@ const sectionConfigs: Record<string, SectionConfig> = {
     fields: [
       { key: "section_title", label: "Section Title", type: "text" },
       { key: "display_count", label: "Reviews to Show", type: "number" },
+      { key: "cta_text", label: "Write Review CTA Text", type: "text" },
+      { key: "cancel_text", label: "Cancel Button Text", type: "text" },
     ],
   },
   "broker-join": {
@@ -140,29 +155,64 @@ const sectionConfigs: Record<string, SectionConfig> = {
       { key: "subtitle", label: "Subtitle", type: "textarea" },
       { key: "description", label: "Description", type: "textarea" },
       { key: "benefits", label: "Benefits List", type: "list" },
-      { key: "cta_text", label: "CTA Button Text", type: "text" },
+      { key: "cta_text", label: "Main CTA Button Text", type: "text" },
+      { key: "claim_text", label: "Claim Profile Link Text", type: "text" },
+      { key: "footer_note", label: "Footer Note", type: "textarea" },
+      {
+        key: "tiers", label: "Pricing Tier Cards", type: "object-list",
+        objectFields: [
+          { key: "name", label: "Tier Name", type: "text" },
+          { key: "features", label: "Features (one per line)", type: "textarea" },
+          { key: "cta", label: "CTA Button Text", type: "text" },
+          { key: "link", label: "CTA Link", type: "text" },
+          { key: "style", label: "Style (highlight | secondary | ghost)", type: "text" },
+          { key: "note", label: "Bottom Note", type: "text" },
+        ],
+      },
     ],
   },
   "navbar": {
     title: "Navigation Bar",
     settingsKey: "navbar",
     fields: [
+      { key: "more_label", label: "Label of the 'More' menu (for grouped layout)", type: "text" },
       {
-        key: "menu_items", label: "Menu Items", type: "object-list",
+        key: "menu_items", label: "Menu Items (top-level)", type: "object-list",
         objectFields: [
           { key: "label", label: "Label", type: "text" },
-          { key: "url", label: "URL", type: "text" },
+          { key: "href", label: "URL (use # if it has a dropdown)", type: "text" },
+          { key: "highlight", label: "Highlight (true / false)", type: "text" },
+          { key: "children", label: "Dropdown Children — JSON array, e.g. [{\"label\":\"X\",\"href\":\"/x\"}]", type: "textarea" },
         ],
       },
-      { key: "cta_text", label: "CTA Button Text", type: "text" },
     ],
   },
   "footer": {
     title: "Footer",
     settingsKey: "footer",
     fields: [
-      { key: "disclaimer", label: "Disclaimer Text", type: "textarea" },
-      { key: "social_links", label: "Social Media URLs", type: "list" },
+      { key: "brand_name", label: "Brand Name (left part)", type: "text" },
+      { key: "brand_accent", label: "Brand Accent (right part, in primary color)", type: "text" },
+      { key: "brand_description", label: "Brand Description", type: "textarea" },
+      { key: "about_label", label: "About Link Label", type: "text" },
+      { key: "contact_label", label: "Contact Link Label", type: "text" },
+      {
+        key: "social_links", label: "Social Media Links", type: "object-list",
+        objectFields: [
+          { key: "platform", label: "Platform (X, LinkedIn, YouTube, Telegram, Facebook, Instagram, TikTok)", type: "text" },
+          { key: "url", label: "URL", type: "text" },
+        ],
+      },
+      {
+        key: "columns", label: "Footer Link Columns", type: "object-list",
+        objectFields: [
+          { key: "title", label: "Column Title", type: "text" },
+          { key: "links", label: "Links — JSON array, e.g. [{\"label\":\"X\",\"href\":\"/x\"}]", type: "textarea" },
+        ],
+      },
+      { key: "risk_warning_label", label: "Risk Warning Label", type: "text" },
+      { key: "risk_warning", label: "Risk Warning Body", type: "textarea" },
+      { key: "copyright_suffix", label: "Copyright Suffix", type: "text" },
     ],
   },
   "ticker-pairs": {
@@ -181,6 +231,9 @@ const sectionConfigs: Record<string, SectionConfig> = {
     ],
   },
 };
+
+// JSON-array-like fields that should be parsed before saving
+const JSON_ARRAY_FIELDS = new Set(["children", "links"]);
 
 const SectionEditor = () => {
   const { section } = useParams<{ section: string }>();
@@ -203,7 +256,6 @@ const SectionEditor = () => {
       if (row?.value && typeof row.value === "object" && !Array.isArray(row.value)) {
         setData(row.value as Record<string, any>);
       } else if (row?.value && Array.isArray(row.value)) {
-        // For legacy list-only settings like promo_ticker
         setData({ items: row.value });
       }
       setLoaded(true);
@@ -211,13 +263,88 @@ const SectionEditor = () => {
     fetchData();
   }, [config]);
 
+  // Convert form data → DB-shape: parse stringified JSON inside object-list children, parse JSON fields
+  const normalizeForSave = (raw: Record<string, any>): Record<string, any> => {
+    const out: Record<string, any> = { ...raw };
+    config?.fields.forEach((field) => {
+      if (field.type === "json" && typeof out[field.key] === "string") {
+        try { out[field.key] = JSON.parse(out[field.key]); } catch { /* keep string */ }
+      }
+      if (field.type === "object-list" && Array.isArray(out[field.key])) {
+        out[field.key] = out[field.key].map((item: any) => {
+          const newItem: Record<string, any> = { ...item };
+          // parse boolean-like
+          if ("highlight" in newItem && typeof newItem.highlight === "string") {
+            newItem.highlight = newItem.highlight.trim().toLowerCase() === "true";
+          }
+          if ("up" in newItem && typeof newItem.up === "string") {
+            newItem.up = newItem.up.trim().toLowerCase() === "true";
+          }
+          // parse JSON-array sub-fields (children/links)
+          for (const k of Object.keys(newItem)) {
+            if (JSON_ARRAY_FIELDS.has(k) && typeof newItem[k] === "string") {
+              const trimmed = newItem[k].trim();
+              if (!trimmed) { newItem[k] = []; continue; }
+              try { newItem[k] = JSON.parse(trimmed); } catch { /* leave as string for user to fix */ }
+            }
+          }
+          // tiers.features can be newline-separated string → array
+          if (field.key === "tiers" && typeof newItem.features === "string") {
+            newItem.features = newItem.features.split("\n").map((s: string) => s.trim()).filter(Boolean);
+          }
+          return newItem;
+        });
+      }
+    });
+    return out;
+  };
+
+  // Convert DB-shape → form-friendly: stringify nested arrays and JSON values for display
+  const denormalizeForForm = (raw: Record<string, any>): Record<string, any> => {
+    const out: Record<string, any> = { ...raw };
+    config?.fields.forEach((field) => {
+      if (field.type === "json" && out[field.key] && typeof out[field.key] === "object") {
+        out[field.key] = JSON.stringify(out[field.key], null, 2);
+      }
+      if (field.type === "object-list" && Array.isArray(out[field.key])) {
+        out[field.key] = out[field.key].map((item: any) => {
+          const newItem: Record<string, any> = { ...item };
+          if ("highlight" in newItem && typeof newItem.highlight === "boolean") {
+            newItem.highlight = newItem.highlight ? "true" : "false";
+          }
+          if ("up" in newItem && typeof newItem.up === "boolean") {
+            newItem.up = newItem.up ? "true" : "false";
+          }
+          for (const k of Object.keys(newItem)) {
+            if (JSON_ARRAY_FIELDS.has(k) && Array.isArray(newItem[k])) {
+              newItem[k] = JSON.stringify(newItem[k], null, 2);
+            }
+          }
+          if (field.key === "tiers" && Array.isArray(newItem.features)) {
+            newItem.features = newItem.features.join("\n");
+          }
+          return newItem;
+        });
+      }
+    });
+    return out;
+  };
+
+  useEffect(() => {
+    if (loaded) {
+      setData((prev) => denormalizeForForm(prev));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded]);
+
   const handleSave = async () => {
     if (!config || !user) return;
     setSaving(true);
 
-    const valueToSave = config.settingsKey === "promo_ticker" && data.items
-      ? data.items
-      : data;
+    const normalized = normalizeForSave(data);
+    const valueToSave = config.settingsKey === "promo_ticker" && normalized.items
+      ? normalized.items
+      : normalized;
 
     const { data: existing } = await supabase
       .from("site_settings")
@@ -240,7 +367,9 @@ const SectionEditor = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      await logAuditAction(user.id, "update", "site_settings", existing?.id || null, null, valueToSave);
+      try {
+        await logAuditAction(user.id, "update", "site_settings", existing?.id || null, null, valueToSave);
+      } catch (e) { /* non-fatal */ }
       toast.success("Section content saved successfully");
     }
     setSaving(false);
@@ -319,6 +448,9 @@ const SectionEditor = () => {
                 <Label className="font-mono text-xs uppercase tracking-widest text-primary mb-3 block">
                   {field.label}
                 </Label>
+                {field.hint && (
+                  <p className="text-[11px] text-muted-foreground font-mono mb-2 leading-relaxed">{field.hint}</p>
+                )}
 
                 {field.type === "text" && (
                   <Input
@@ -333,6 +465,15 @@ const SectionEditor = () => {
                     value={data[field.key] || ""}
                     onChange={(e) => updateField(field.key, e.target.value)}
                     className="font-mono text-sm min-h-[100px]"
+                  />
+                )}
+
+                {field.type === "json" && (
+                  <Textarea
+                    value={data[field.key] || ""}
+                    onChange={(e) => updateField(field.key, e.target.value)}
+                    className="font-mono text-xs min-h-[180px]"
+                    placeholder="{ }"
                   />
                 )}
 
