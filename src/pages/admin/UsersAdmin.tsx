@@ -225,7 +225,7 @@ const UsersAdmin = () => {
                 <TableCell className="text-xs">{authUsers[r.user_id]?.email || "—"}</TableCell>
                 <TableCell>{profiles[r.user_id]?.phone || authUsers[r.user_id]?.phone || "—"}</TableCell>
                 <TableCell className="capitalize">{r.role.replace("_", " ")}</TableCell>
-                <TableCell className="text-muted-foreground">
+                <TableCell className="text-sm font-semibold text-foreground">
                   {authUsers[r.user_id]?.created_at
                     ? formatDate(authUsers[r.user_id].created_at)
                     : formatDate(r.created_at)}
