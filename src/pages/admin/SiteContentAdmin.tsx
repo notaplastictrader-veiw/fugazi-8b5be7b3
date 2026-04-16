@@ -87,6 +87,14 @@ const sections = [
     settingsKey: "broker_join_section",
   },
   {
+    key: "ticker-pairs",
+    title: "Ticker Pairs (Price Bar)",
+    description: "Live price ticker pairs shown in the bottom bar",
+    icon: TrendingUp,
+    fields: ["Pair name", "Price", "Change %", "Direction"],
+    settingsKey: "ticker_pairs",
+  },
+  {
     key: "navbar",
     title: "Navigation Bar",
     description: "Main navigation menu items and ordering",

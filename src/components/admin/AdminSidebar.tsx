@@ -44,7 +44,6 @@ const sections: SidebarSection[] = [
     icon: Globe,
     items: [
       { title: "Homepage Sections", url: "/admin/site-content", icon: FileText },
-      { title: "Global Settings", url: "/admin/settings", icon: Settings },
     ],
   },
   {
