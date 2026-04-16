@@ -2,18 +2,20 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown, User, Phone } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { countries, Country } from "@/data/countries";
 
 const Signup = () => {
   const [searchParams] = useSearchParams();
   const signupRole = searchParams.get("role");
-  const brokerIdParam = searchParams.get("broker_id");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [countrySearch, setCountrySearch] = useState("");
@@ -45,6 +47,18 @@ const Signup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!fullName.trim()) {
+      toast({ title: "Full name is required", variant: "destructive" });
+      return;
+    }
+    if (!selectedCountry) {
+      toast({ title: "Please select your country", variant: "destructive" });
+      return;
+    }
+    if (!phone.trim()) {
+      toast({ title: "Phone number is required", variant: "destructive" });
+      return;
+    }
     if (!isValidEmail(email)) {
       toast({ title: "Please enter a valid email address", description: "Example: name@example.com", variant: "destructive" });
       return;
@@ -57,19 +71,36 @@ const Signup = () => {
       toast({ title: "Password must be at least 6 characters", variant: "destructive" });
       return;
     }
+    if (!acceptedTerms) {
+      toast({ title: "You must accept the Terms & Conditions", variant: "destructive" });
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: selectedCountry ? { country: selectedCountry.code, country_name: selectedCountry.name } : undefined,
+        data: {
+          full_name: fullName.trim(),
+          country: selectedCountry.code,
+          country_name: selectedCountry.name,
+        },
       },
     });
     setLoading(false);
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
+      // Update profile with phone & country
+      if (authData?.user?.id) {
+        await supabase.from("profiles").update({
+          phone: `${selectedCountry.dialCode}${phone}`,
+          country: selectedCountry.name,
+          country_code: selectedCountry.code,
+        }).eq("user_id", authData.user.id);
+      }
+
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
         const { data: ownerId } = await supabase.rpc("convert_referral" as any, { code_text: refCode });
@@ -100,7 +131,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
         <div className="glass-card rounded-2xl p-8 border border-border">
           <div className="text-center mb-8">
@@ -137,9 +168,22 @@ const Signup = () => {
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4">
+            {/* Full Name */}
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Full Name *"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
             {/* Country Selector */}
             <div className="relative" ref={dropdownRef}>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Country</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Country *</label>
               <button
                 type="button"
                 onClick={() => setCountryOpen(!countryOpen)}
@@ -192,22 +236,38 @@ const Signup = () => {
               )}
             </div>
 
+            {/* Phone Number */}
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="tel"
+                placeholder={`Phone Number * ${selectedCountry ? selectedCountry.dialCode : ""}`}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+
+            {/* Email */}
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="email"
-                placeholder="Email address"
+                placeholder="Email address *"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
+
+            {/* Password */}
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password (min 6 characters)"
+                placeholder="Password (min 6 characters) *"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -221,17 +281,36 @@ const Signup = () => {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+
+            {/* Confirm Password */}
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Confirm password"
+                placeholder="Confirm password *"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
+
+            {/* Terms Checkbox */}
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary/50 accent-primary"
+              />
+              <span className="text-xs text-muted-foreground leading-relaxed">
+                I agree to the{" "}
+                <Link to="/terms" className="text-primary hover:underline" target="_blank">Terms & Conditions</Link>
+                {" "}and{" "}
+                <Link to="/privacy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>
+                {" "}*
+              </span>
+            </label>
 
             <button
               type="submit"
