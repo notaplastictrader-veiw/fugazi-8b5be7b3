@@ -62,39 +62,56 @@ const Navbar = () => {
     return null;
   };
 
-  const navLinks = [
-    {
-      label: t("nav.brokerReviews"),
-      href: "#",
-      children: [
-        { label: "CFD / Forex Brokers", href: "/brokers" },
-        { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
-        { label: "Binary Options", href: "/brokers?type=binary" },
-        { label: "ECN Brokers", href: "/brokers?type=ecn" },
-        { label: "Broker Comparison", href: "/compare" },
-      ],
-    },
-    { label: t("nav.propFirms"), href: "/prop-firms" },
-    { label: t("nav.sports", "Sports"), href: "/sports" },
-    { label: t("nav.signals"), href: "/signals" },
-    { label: t("nav.education"), href: "/education" },
-    {
-      label: t("nav.more"),
-      href: "#",
-      highlight: true,
-      children: [
-        { label: t("nav.promotions", "Promotions"), href: "/promotions" },
-        { label: "Share Ideas", href: "/ideas" },
-        { label: t("nav.calendar", "Calendar"), href: "/calendar" },
-        { label: t("nav.news", "News"), href: "/news" },
-        { label: t("nav.about", "About Us"), href: "/about" },
-        { label: t("nav.contact", "Contact Us"), href: "/contact" },
-        { label: t("nav.affiliate", "Become an Affiliate"), href: "/partnership?tab=affiliate" },
-        { label: "IB Partnership", href: "/partnership?tab=ib" },
-        { label: "Collaboration", href: "/partnership?tab=collab" },
-      ],
-    },
-  ];
+  const navCms = useSiteSettings<Record<string, any>>("navbar", {});
+
+  const navLinks = useMemo(() => {
+    const items = navCms.menu_items;
+    if (Array.isArray(items) && items.length > 0) {
+      return items.map((item: any) => ({
+        label: item.label,
+        href: item.href || item.url || "#",
+        highlight: !!item.highlight,
+        children: Array.isArray(item.children) && item.children.length > 0
+          ? item.children.map((c: any) => ({ label: c.label, href: c.href || c.url || "#" }))
+          : undefined,
+      }));
+    }
+    return [
+      {
+        label: t("nav.brokerReviews"),
+        href: "#",
+        children: [
+          { label: "CFD / Forex Brokers", href: "/brokers" },
+          { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
+          { label: "Binary Options", href: "/brokers?type=binary" },
+          { label: "ECN Brokers", href: "/brokers?type=ecn" },
+          { label: "Broker Comparison", href: "/compare" },
+        ],
+      },
+      { label: t("nav.propFirms"), href: "/prop-firms" },
+      { label: t("nav.sports", "Sports"), href: "/sports" },
+      { label: t("nav.signals"), href: "/signals" },
+      { label: t("nav.education"), href: "/education" },
+      {
+        label: t("nav.more"),
+        href: "#",
+        highlight: true,
+        children: [
+          { label: t("nav.promotions", "Promotions"), href: "/promotions" },
+          { label: "Share Ideas", href: "/ideas" },
+          { label: t("nav.calendar", "Calendar"), href: "/calendar" },
+          { label: t("nav.news", "News"), href: "/news" },
+          { label: t("nav.about", "About Us"), href: "/about" },
+          { label: t("nav.contact", "Contact Us"), href: "/contact" },
+          { label: t("nav.affiliate", "Become an Affiliate"), href: "/partnership?tab=affiliate" },
+          { label: "IB Partnership", href: "/partnership?tab=ib" },
+          { label: "Collaboration", href: "/partnership?tab=collab" },
+        ],
+      },
+    ] as any[];
+  }, [navCms.menu_items, t]);
+
+  const moreLabel = navCms.more_label || t("nav.more");
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
