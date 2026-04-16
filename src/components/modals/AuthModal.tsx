@@ -192,7 +192,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
         notifyAdmins(
           `New ${roleLabels[signupRole]} Application`,
           `${fullName} (${signupEmail}) submitted a ${roleLabels[signupRole].toLowerCase()} application`,
-          "/admin/applications"
+          "/admin/approvals"
         );
 
         setLoading(false);

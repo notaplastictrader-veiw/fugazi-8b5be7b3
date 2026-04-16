@@ -102,7 +102,7 @@ const Dashboard = () => {
   const maxStat = Math.max(...Object.values(stats), 1);
 
   const primaryStats = [
-    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications, icon: CheckCircle, link: "/admin/approvals" },
+    { label: "Pending", value: stats.pendingApprovals + stats.pendingApplications + stats.pendingClaims + stats.pendingUpgrades, icon: CheckCircle, link: "/admin/approvals" },
     { label: "Users", value: stats.users, icon: Users, link: "/admin/users" },
     { label: "Brokers", value: stats.brokers, icon: Building2, link: "/admin/brokers" },
     { label: "Revenue", value: 0, icon: DollarSign, link: "/admin/revenue" },
@@ -117,11 +117,10 @@ const Dashboard = () => {
     { label: "Claims", value: stats.pendingClaims, icon: ShieldCheck },
   ];
 
+  const totalPending = stats.pendingApprovals + stats.pendingApplications + stats.pendingClaims + stats.pendingUpgrades;
+
   const quickActions = [
-    { label: "Approvals", icon: CheckCircle, link: "/admin/approvals", badge: stats.pendingApprovals },
-    { label: "Applications", icon: UserPlus, link: "/admin/applications", badge: stats.pendingApplications },
-    { label: "Claims", icon: ShieldCheck, link: "/admin/claims", badge: stats.pendingClaims },
-    { label: "Upgrades", icon: ArrowUpCircle, link: "/admin/tier-upgrades", badge: stats.pendingUpgrades },
+    { label: "Approval Queue", icon: CheckCircle, link: "/admin/approvals", badge: totalPending },
     { label: "Scam Alerts", icon: ShieldAlert, link: "/admin/scam-alerts" },
     { label: "Users & Roles", icon: Users, link: "/admin/users" },
     { label: "Settings", icon: Cpu, link: "/admin/settings" },
