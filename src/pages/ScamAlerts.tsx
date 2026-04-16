@@ -20,8 +20,11 @@ const fallbackAlerts: ScamAlert[] = [
 ];
 
 const ScamAlerts = () => {
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState<ScamAlert[]>(fallbackAlerts);
   const [search, setSearch] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
