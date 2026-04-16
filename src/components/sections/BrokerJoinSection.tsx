@@ -70,7 +70,7 @@ const BrokerJoinSection = () => {
               })}
             </div>
             <div className="mt-8 space-y-3">
-              <a href="/partnership" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
+              <a href="/advertise" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
                 {ctaText}
               </a>
               <div>
