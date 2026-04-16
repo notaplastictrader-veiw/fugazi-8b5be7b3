@@ -85,6 +85,7 @@ const Signup = () => {
           full_name: fullName.trim(),
           country: selectedCountry.code,
           country_name: selectedCountry.name,
+          phone: `${selectedCountry.dialCode}${phone}`,
         },
       },
     });
