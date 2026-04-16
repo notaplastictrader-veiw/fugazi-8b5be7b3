@@ -19,14 +19,14 @@ const settingsDefs: SettingDef[] = [
   {
     key: "promo_ticker",
     label: "Promo Ticker",
-    description: "Homepage এর একদম উপরে scrolling promo bar। Array of text strings — প্রতিটা string একটা promo message।",
+    description: "Top scrolling promo bar on homepage. Array of text strings — each string is one promo message.",
     group: "📊 Tickers",
     default: ["🔥 Exness 100% Deposit Bonus", "🚀 FTMO 20% Off Challenge", "💰 Bullwaves — Start with $10"],
   },
   {
     key: "ticker_pairs",
     label: "Ticker Pairs (Price Bar)",
-    description: "Top ও Bottom ticker bar এ currency pair prices দেখায়। প্রতিটা item এ pair, price, change, up (true/false) দিতে হবে।",
+    description: "Top & bottom ticker bars showing currency pair prices. Each item needs: pair, price, change, up (true/false).",
     group: "📊 Tickers",
     default: [
       { pair: "XAU/USD", price: "2,341.50", change: "+0.82%", up: true },
@@ -39,7 +39,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "hero_section",
     label: "Hero Section",
-    description: "Homepage এর main banner — headline, subheadline, search placeholders, rotating eyebrow messages, এবং bottom stats। eyebrow_items এ text/highlight/suffix দিয়ে animated text তৈরি হয়।",
+    description: "Main hero banner — headline, subheadline, search placeholders, rotating eyebrow messages, and bottom stats. eyebrow_items use text/highlight/suffix for animated text.",
     group: "🏠 Homepage Sections",
     default: {
       headline: "Not A Fugazi Trader",
@@ -60,7 +60,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "broker_trust_hub",
     label: "Broker Trust Hub",
-    description: "Broker listing section — section title, কতটা broker দেখাবে, এবং prop firm categories list।",
+    description: "Broker listing section — section title, how many brokers to display, and prop firm category list.",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Broker Trust Hub",
@@ -71,7 +71,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "scam_alert_section",
     label: "Scam Watch Section",
-    description: "Scam alerts section — title, কতটা alert দেখাবে, এবং CTA button এর text।",
+    description: "Scam alerts section — title, how many alerts to show, and CTA button text.",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Scam Watch",
@@ -82,7 +82,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "signal_channel",
     label: "Signal Channel CTA",
-    description: "Signal channel promotion section — title, description, primary ও secondary CTA text, এবং stats।",
+    description: "Signal channel promotion section — title, description, primary & secondary CTA text, and stats.",
     group: "🏠 Homepage Sections",
     default: {
       title: "Join Our Signal Channel",
@@ -99,7 +99,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "signal_hub",
     label: "Signal Hub",
-    description: "Signal groups listing section — title, কতটা group দেখাবে, এবং 'View All' button text।",
+    description: "Signal groups listing section — title, how many groups to show, and 'View All' button text.",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Signal Hub",
@@ -110,7 +110,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "forecast_section",
     label: "Forecast Section",
-    description: "Market forecast section — title এবং categories list।",
+    description: "Market forecast section — title and category tab list.",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Market Forecasts",
@@ -120,7 +120,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "how_it_works",
     label: "How It Works",
-    description: "Step-by-step guide section — title, CTA button text, এবং steps array (প্রতিটায় title ও description)।",
+    description: "Step-by-step guide section — title, CTA button text, and steps array (each with title & description).",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "How It Works",
@@ -135,7 +135,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "community_reviews",
     label: "Community Reviews",
-    description: "Reviews carousel section — title এবং কতটা review দেখাবে।",
+    description: "Reviews carousel section — title and how many reviews to display.",
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Community Reviews",
@@ -145,7 +145,7 @@ const settingsDefs: SettingDef[] = [
   {
     key: "broker_join_section",
     label: "For Brokers (CTA)",
-    description: "Broker sign-up CTA section — title, description, benefits list, এবং CTA button text।",
+    description: "Broker sign-up CTA section — title, description, benefits list, and CTA button text.",
     group: "🏠 Homepage Sections",
     default: {
       title: "Are You a Broker?",
@@ -158,14 +158,14 @@ const settingsDefs: SettingDef[] = [
   {
     key: "hero_stats",
     label: "Hero Stats (Legacy)",
-    description: "পুরনো hero stats key — এখন hero_section এর stats ব্যবহার হয়। Backward compatibility এর জন্য রাখা।",
+    description: "Old hero stats key — now hero_section.stats is used instead. Kept for backward compatibility.",
     group: "⚙️ Legacy",
     default: { brokers_reviewed: "200+", complaints_resolved: "15K+", active_traders: "50K+", countries: "180+" },
   },
   {
     key: "scam_alert_banner",
     label: "Scam Alert Banner (Legacy)",
-    description: "পুরনো single-line scam banner text। এখন scam_alert_section ব্যবহার হয়।",
+    description: "Old single-line scam banner text. Now scam_alert_section is used instead.",
     group: "⚙️ Legacy",
     default: "⚠️ Warning: TradeWave Markets — Withdrawal issues reported",
   },
