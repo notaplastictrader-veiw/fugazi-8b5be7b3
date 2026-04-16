@@ -222,6 +222,8 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       }
     }
 
+    // Force sign out to prevent auto-login before email verification
+    await supabase.auth.signOut();
     setLoading(false);
     toast.success("Check your email to verify your account!");
     onClose();
