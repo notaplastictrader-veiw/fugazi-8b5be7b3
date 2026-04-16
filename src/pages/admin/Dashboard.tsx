@@ -11,7 +11,7 @@ import {
 interface Stats {
   brokers: number; signals: number; forecasts: number; reviews: number;
   complaints: number; scamAlerts: number; pendingApprovals: number; users: number;
-  pendingClaims: number; pendingUpgrades: number;
+  pendingClaims: number; pendingUpgrades: number; pendingApplications: number;
 }
 
 const HudGauge = ({ value, max, label, icon: Icon }: {
