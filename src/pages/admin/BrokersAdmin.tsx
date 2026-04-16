@@ -100,7 +100,20 @@ const BrokersAdmin = () => {
     fetchBrokers();
   };
 
-  const filtered = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(() => {
+    let result = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
+    return filterByDateRange(result, "created_at", fromDate, toDate);
+  }, [brokers, search, fromDate, toDate]);
+
+  const handleExport = () => {
+    exportToCSV(filtered.map(b => ({
+      name: b.name, type: b.type, score: b.score, status: b.status,
+      date: new Date(b.created_at).toLocaleDateString(),
+    })), [
+      { key: "name", label: "Name" }, { key: "type", label: "Type" },
+      { key: "score", label: "Score" }, { key: "status", label: "Status" }, { key: "date", label: "Date" },
+    ], "brokers-export");
+  };
 
   return (
     <div>
@@ -109,6 +122,7 @@ const BrokersAdmin = () => {
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Broker</Button>
       </div>
       <Input placeholder="Search brokers..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 max-w-sm" />
+      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
