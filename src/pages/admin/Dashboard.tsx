@@ -47,7 +47,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState<Stats>({
     brokers: 0, signals: 0, forecasts: 0, reviews: 0,
     complaints: 0, scamAlerts: 0, pendingApprovals: 0, users: 0,
-    pendingClaims: 0, pendingUpgrades: 0,
+    pendingClaims: 0, pendingUpgrades: 0, pendingApplications: 0,
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
