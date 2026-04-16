@@ -37,6 +37,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const isHome = pathSegments.length === 0;
+  const isDashboard = pathSegments[0] === "dashboard";
 
   const getPageName = () => {
     if (pathSegments.length === 0) return "";
