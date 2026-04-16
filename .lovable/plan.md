@@ -1,29 +1,33 @@
 
 
-# Signup.tsx — Add Required Fields (Full Name, Phone, Terms)
+# Disable Auto-Confirm — Require Email Verification Before Login
 
 ## সমস্যা
-Signup page এ শুধু email, password আর country দিয়ে account create হয়ে যাচ্ছে। Full Name, Phone Number, আর Terms acceptance ছাড়াই signup হচ্ছে। AuthModal এ এসব field আছে কিন্তু standalone Signup page এ নেই।
+Signup করার সাথে সাথেই login হয়ে যাচ্ছে — email verification হচ্ছে না। Auth logs এ দেখা যাচ্ছে `"immediate_login_after_signup": true`। এর মানে auto-confirm enabled আছে।
 
 ## সমাধান
-AuthModal এর মতো Signup.tsx তেও mandatory fields যোগ করবো:
 
-1. **Full Name** — required text input
-2. **Phone Number** — country dial code + phone input (country selector already exists)
-3. **Terms & Conditions checkbox** — must accept before signup
+### 1. Auto-confirm disable করবো
+`cloud--configure_auth` tool দিয়ে email auto-confirm বন্ধ করবো। এতে signup এর পর user কে verification email পাঠাবে, এবং verify করার আগে login করতে পারবে না।
 
-### Validation (submit এর আগে)
-- Full Name খালি থাকলে → toast error
-- Phone খালি থাকলে → toast error  
-- Country select না করলে → toast error
-- Terms accept না করলে → toast error
+### 2. Signup.tsx — Success message update
+Signup success হলে এখন dashboard এ redirect করে। পরিবর্তে:
+- Redirect বন্ধ করবো
+- Toast দেখাবো: "Check your email to verify your account before signing in"
+- Form reset করবো
 
-### Data passing
-`supabase.auth.signUp` এর `data` তে `full_name` পাঠাবো। Signup success এর পর `profiles` table এ `phone`, `country_code`, `country` update করবো — ঠিক AuthModal যেভাবে করে।
+### 3. AuthModal.tsx — Same treatment
+Modal এর signup flow তেও same change — success এ redirect না করে verification message দেখাবো।
+
+### 4. Login.tsx — Handle unverified login attempt
+User যদি verify না করে login করতে চায়, Supabase "Email not confirmed" error দেয়। সেটা catch করে user-friendly message দেখাবো।
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/pages/Signup.tsx` | Add `fullName`, `phone`, `acceptedTerms` state। Form এ 3টা নতুন field। Validation + profiles update after signup |
+| Auth config | `configure_auth` — disable auto-confirm email |
+| `src/pages/Signup.tsx` | Success এ redirect বন্ধ, verification message দেখাবে |
+| `src/components/modals/AuthModal.tsx` | Same — signup success এ verify message |
+| `src/pages/Login.tsx` | "Email not confirmed" error handle করে friendly message |
 
