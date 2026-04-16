@@ -224,7 +224,7 @@ const ApplicationsAdmin = () => {
     );
   });
 
-  const dateFiltered = useMemo(() => filterByDateRange(filteredApps, "created_at", fromDate, toDate), [filteredApps, fromDate, toDate]);
+  const dateFiltered = useMemo(() => filterByDateRange(filtered, "created_at", fromDate, toDate), [filtered, fromDate, toDate]);
 
   const handleExport = () => {
     exportToCSV(dateFiltered.map(a => ({
