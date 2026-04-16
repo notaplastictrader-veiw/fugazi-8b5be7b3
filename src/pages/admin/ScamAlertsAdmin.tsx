@@ -14,6 +14,10 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
+};
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; status: string; created_at: string;
@@ -35,7 +39,7 @@ const ScamAlertsAdmin = () => {
   const handleExport = () => {
     exportToCSV(filtered.map(s => ({
       title: s.title, severity: s.severity, status: s.status,
-      date: new Date(s.created_at).toLocaleDateString(),
+      date: formatDate(s.created_at),
     })), [
       { key: "title", label: "Title" }, { key: "severity", label: "Severity" },
       { key: "status", label: "Status" }, { key: "date", label: "Date" },
@@ -99,7 +103,7 @@ const ScamAlertsAdmin = () => {
                 <TableCell className="font-medium">{s.title}</TableCell>
                 <TableCell className={s.severity === "high" ? "text-destructive" : "text-accent"}>{s.severity}</TableCell>
                 <TableCell><StatusBadge status={s.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</TableCell>
+                <TableCell className="text-muted-foreground">{formatDate(s.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
