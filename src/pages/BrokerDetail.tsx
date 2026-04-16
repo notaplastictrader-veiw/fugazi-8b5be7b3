@@ -115,7 +115,6 @@ const BrokerDetail = () => {
       if (r) setReviews(r as Review[]);
       if (bp) setClaimStatus(bp.claim_status);
 
-      // Check if current user has a pending claim
       if (user) {
         const { data: pendingClaim } = await supabase
           .from("profile_claims")
@@ -125,6 +124,27 @@ const BrokerDetail = () => {
           .eq("status", "pending")
           .maybeSingle();
         if (pendingClaim) setClaimStatus("pending");
+      }
+    } else {
+      // Fallback to local data
+      const local = localBrokers.find(lb => lb.slug === slug);
+      if (local) {
+        setBroker({
+          id: local.slug,
+          name: local.name,
+          slug: local.slug,
+          type: local.type === "prop" ? "prop-firm" : local.type,
+          tags: local.tags,
+          regulation: local.regulation,
+          score: local.score,
+          avg_spread: local.avgSpread,
+          leverage: local.leverage,
+          min_deposit: local.minDeposit,
+          stars: local.stars,
+          review_count: local.reviewCount,
+          complaints: local.complaints,
+          badge: local.badge,
+        });
       }
     }
     setLoading(false);
