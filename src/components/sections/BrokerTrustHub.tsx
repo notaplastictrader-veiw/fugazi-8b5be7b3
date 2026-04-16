@@ -97,7 +97,7 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
           ))}
           <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
         </div>
-        <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
+        <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
           Full review <ExternalLink className="w-3 h-3" />
         </a>
       </div>
@@ -178,7 +178,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           ))}
           <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
         </div>
-        <a href={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
+        <a href={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">
           Full review <ExternalLink className="w-3 h-3" />
         </a>
       </div>
