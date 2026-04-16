@@ -1,25 +1,26 @@
 
 
-# Fix Dashboard Visibility + Add "Back to Site" Navigation
+# Fix Dashboard Footer Overlap
 
-## Problems
-1. Dashboard sidebar and content get cut off at the bottom — not enough padding for the fixed bottom ticker
-2. No "Back to Home" or "Back to Site" link anywhere in the dashboard — user gets stuck
+## সমস্যা
+Dashboard এ sidebar fixed/sticky থাকে, কিন্তু Footer full-width render হয় MainLayout এর মধ্যে। ফলে Footer এর বাম দিকের content sidebar এর নিচে চলে যায় — logo, text কাটা পড়ে।
 
-## Solution
+## সমাধান
+Dashboard pages এ Footer দেখানোর দরকার নেই — dashboard এর নিজস্ব "Back to Site" navigation আছে sidebar এ। 
 
-### 1. DashboardLayout.tsx — Fix bottom padding
-Change `pb-16` to `pb-20` and ensure the wrapper has proper height calculation accounting for both top nav (92px) and bottom ticker (32px).
+**MainLayout.tsx** এ change: `/dashboard` route এ থাকলে Footer hide করবো।
 
-### 2. DashboardSidebar.tsx — Add "Back to Site" link
-Add a `Home` / `Back to Site` link at the top of the sidebar with a house icon, linking to `/`. This gives a clear exit from the dashboard back to the main site.
+```tsx
+const isDashboard = pathSegments[0] === "dashboard";
+// ...
+{!isDashboard && <Footer />}
+```
 
-Also add a `SidebarFooter` with a small "← Back to Site" link for extra visibility.
+এতে dashboard pages এ footer আর দেখাবে না, sidebar overlap problem solve হবে, এবং অন্য সব page এ footer আগের মতোই থাকবে।
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/dashboard/DashboardLayout.tsx` | Increase bottom padding to `pb-20`, fix min-height calc |
-| `src/components/dashboard/DashboardSidebar.tsx` | Add "Back to Site" link at top with Home icon + footer link |
+| `src/components/layout/MainLayout.tsx` | Hide Footer when route starts with `/dashboard` |
 
