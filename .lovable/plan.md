@@ -1,26 +1,29 @@
 
 
-# Fix Dashboard Footer Overlap
+# Email Validation Fix — Signup Forms
 
 ## সমস্যা
-Dashboard এ sidebar fixed/sticky থাকে, কিন্তু Footer full-width render হয় MainLayout এর মধ্যে। ফলে Footer এর বাম দিকের content sidebar এর নিচে চলে যায় — logo, text কাটা পড়ে।
+"Fugazi@06" এর মতো invalid email দিয়ে account create করা যাচ্ছে — কোনো warning নেই। Browser এর built-in `type="email"` validation যথেষ্ট না, আর Supabase ও মাঝে মাঝে invalid email accept করে ফেলে।
 
 ## সমাধান
-Dashboard pages এ Footer দেখানোর দরকার নেই — dashboard এর নিজস্ব "Back to Site" navigation আছে sidebar এ। 
+দুইটা signup form এ (Signup.tsx + AuthModal.tsx) proper email validation যোগ করবো — submit এর আগেই check করবো:
 
-**MainLayout.tsx** এ change: `/dashboard` route এ থাকলে Footer hide করবো।
-
-```tsx
-const isDashboard = pathSegments[0] === "dashboard";
-// ...
-{!isDashboard && <Footer />}
+**Regex validation:**
+```typescript
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 ```
 
-এতে dashboard pages এ footer আর দেখাবে না, sidebar overlap problem solve হবে, এবং অন্য সব page এ footer আগের মতোই থাকবে।
+এটা check করবে:
+- `@` আছে কিনা
+- Domain part এ `.` আছে কিনা (e.g. `.com`, `.net`)
+- "Fugazi@06" reject হবে কারণ `06` এ dot নেই
+
+**Toast error:** "Please enter a valid email address"
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/layout/MainLayout.tsx` | Hide Footer when route starts with `/dashboard` |
+| `src/pages/Signup.tsx` | `handleSignup` এ email regex check যোগ, invalid হলে toast দেখাবে |
+| `src/components/modals/AuthModal.tsx` | `handleSignup` ও `handleLogin` এ same email validation যোগ |
 
