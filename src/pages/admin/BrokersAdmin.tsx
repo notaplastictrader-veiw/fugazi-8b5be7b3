@@ -11,6 +11,8 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
+import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
 interface Broker {
   id: string;
