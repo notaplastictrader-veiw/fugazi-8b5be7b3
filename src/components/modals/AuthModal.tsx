@@ -161,6 +161,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
 
       // Profile is created by the database trigger with all signup data
 
+    if (data.user) {
       if (signupRole !== "user") {
         const appData: Record<string, string> = {};
         if (signupRole === "signal_provider") {
