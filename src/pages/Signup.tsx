@@ -93,14 +93,7 @@ const Signup = () => {
     if (error) {
       toast({ title: "Signup failed", description: error.message, variant: "destructive" });
     } else {
-      // Update profile with phone & country
-      if (authData?.user?.id) {
-        await supabase.from("profiles").update({
-          phone: `${selectedCountry.dialCode}${phone}`,
-          country: selectedCountry.name,
-          country_code: selectedCountry.code,
-        }).eq("user_id", authData.user.id);
-      }
+      // Profile is created by the database trigger with all signup data
 
       const refCode = sessionStorage.getItem("ref-tracked-code");
       if (refCode) {
