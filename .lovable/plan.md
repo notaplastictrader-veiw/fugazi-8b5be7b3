@@ -1,30 +1,37 @@
 
 
-# UsersAdmin — Date Format DD-MM-YY, Uppercase Labels & Name
+# Fix: Missing Profile Data for Existing Users
 
-## Changes
+## Problem
+User `01b83db4-13b6-485d-9662-f62fcb0478dc` has roles assigned but no row in `profiles` table — they signed up before the `handle_new_user` trigger was created. So Name and Phone show "—".
 
-### 1. `src/components/admin/AdminTableToolbar.tsx`
-- "From:" ও "To:" labels বড় করবো — `text-sm` থেকে `text-base font-semibold uppercase` করবো
+## Solution — 2 parts
 
-### 2. `src/pages/admin/UsersAdmin.tsx`
-- **Date format DD-MM-YY** — সব জায়গায় `toLocaleDateString()` replace করবো custom formatter দিয়ে:
-  ```ts
-  const formatDate = (d: string) => {
-    const date = new Date(d);
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const yy = String(date.getFullYear()).slice(-2);
-    return `${dd}-${mm}-${yy}`;
-  };
-  ```
-- **Name uppercase** — table cell এ `uppercase` class add করবো: `"MD IMRAN HOSSAIN"` style এ দেখাবে
-- **Phone** — already দেখাচ্ছে `profiles[r.user_id]?.phone`, তাই `+8801903572055` format এ আসবে যেমন DB তে আছে
-- Export CSV তেও same DD-MM-YY format use করবো
+### 1. Database Migration: Backfill missing profiles
+Create a migration that inserts profile rows for any `auth.users` that don't have one yet, pulling `full_name`, `phone`, `country` from `raw_user_meta_data`.
 
-### Files: 2
+```sql
+INSERT INTO public.profiles (user_id, full_name, phone, country, country_code)
+SELECT 
+  u.id,
+  u.raw_user_meta_data ->> 'full_name',
+  u.raw_user_meta_data ->> 'phone',
+  u.raw_user_meta_data ->> 'country_name',
+  u.raw_user_meta_data ->> 'country'
+FROM auth.users u
+LEFT JOIN public.profiles p ON p.user_id = u.id
+WHERE p.user_id IS NULL;
+```
+
+This ensures all existing users get a profile row.
+
+### 2. Edge Function Update: Return name from metadata as fallback
+Update `admin-users` edge function to also return `full_name` and `phone` from `user_metadata`, so even if profiles table is empty, the admin page can show the data from auth metadata as fallback.
+
+### Files
 | File | Change |
 |------|--------|
-| `src/components/admin/AdminTableToolbar.tsx` | From/To labels বড় ও uppercase |
-| `src/pages/admin/UsersAdmin.tsx` | Date → DD-MM-YY, Name → uppercase |
+| New migration | Backfill missing profiles from auth.users metadata |
+| `supabase/functions/admin-users/index.ts` | Return `full_name`, `phone` from user metadata |
+| `src/pages/admin/UsersAdmin.tsx` | Use auth metadata as fallback when profile is empty |
 
