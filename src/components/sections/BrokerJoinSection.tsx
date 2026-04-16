@@ -1,4 +1,5 @@
 import { Shield, MessageSquare, Award, BarChart3, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const defaultPerks = [
