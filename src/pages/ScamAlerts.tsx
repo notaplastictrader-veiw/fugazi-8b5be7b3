@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { AlertTriangle, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ReportScamModal from "@/components/scam/ReportScamModal";
+import AuthModal from "@/components/modals/AuthModal";
+import { AlertTriangle, Search, Plus } from "lucide-react";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; created_at: string;
