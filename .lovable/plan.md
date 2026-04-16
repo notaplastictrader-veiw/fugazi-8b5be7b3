@@ -1,42 +1,55 @@
 
 
-# Plan: Restore Original Component Defaults to DB & Admin Page
+# Plan: Remove Global Settings + Add Full Review CRUD to Content Management
 
-## Problem
-The `settingsDefs` defaults in `SiteSettingsAdmin.tsx` and the data inserted into the `site_settings` DB table don't match the actual hardcoded defaults in the homepage components. I replaced your original text with my own versions. Need to restore the exact original text from each component.
+## What's Changing
 
-## What's wrong (examples)
+### 1. Remove "Global Settings" page (duplicate)
+The **Homepage Sections** page (SectionEditor) already provides proper form-based editing for every CMS key (hero, tickers, scam alerts, etc.). The **Global Settings** page shows the exact same data as raw JSON textareas — it's a duplicate.
 
-| Key | What's in DB now (wrong) | What component originally had |
-|-----|--------------------------|-------------------------------|
-| `hero_section.headline` | "Not A Fugazi Trader" | Component uses `cms.headline \|\| "Broker Reviews"` |
-| `hero_section.subheadline` | "Most trusted broker review platform..." | Component uses `cms.subheadline \|\| "That Actually Matter."` |
-| `hero_section.stats` | `200+, 15K+, 50K+, 180+` | `4.8K+, 280+, 61+, 120K+` |
-| `hero_section.eyebrow_items` | Generic "Trusted by 50,000+" | 5 items with colors: "Built for real traders, not Fugazi Ones", etc. |
-| `hero_section.search_placeholders` | "Search brokers...", "Find signals..." | "Search Brokers, Signals, News...", etc. |
-| `signal_channel.title` | "Join Our Signal Channel" | "Gold & Forex Signals You Can Actually" |
-| `signal_channel.description` | Generic text | Long raw paragraph about no fake screenshots |
-| `how_it_works.section_title` | "How It Works" | "Built Different. Built For" |
-| `how_it_works.steps` | 3 generic steps | 4 steps with icons: Search, BookOpen, MessageSquare, Award |
-| `broker_join_section.title` | "Are You a Broker?" | "For Brokers & Signal Providers —" |
-| `broker_trust_hub.section_title` | "Broker Trust Hub" | "Top Verified" |
-| `scam_alert_section.section_title` | "Scam Watch" | "Active Scam" |
-| `signal_hub.section_title` | "Signal Hub" | "Verified Signal" |
-| `forecast_section.section_title` | "Market Forecasts" | "Market" |
-| `community_reviews.section_title` | "Community Reviews" | "What Traders" |
-| `promo_ticker` | 3 items | 6 items (original had Exness, FTMO, Bullwaves, IC Markets, Maven, XM) |
+**Changes:**
+- Remove `Global Settings` link from `AdminSidebar.tsx` (line 47)
+- Move the 2 ticker keys (`promo_ticker`, `ticker_pairs`) into SectionEditor so they're also editable via the Homepage Sections UI — currently SectionEditor has `promo-ticker` but not `ticker_pairs`
+- Delete `SiteSettingsAdmin.tsx` (or keep as unused — your call)
+- Remove the route for `/admin/settings` from App.tsx
 
-## Changes
+### 2. Add full Review CRUD to ReviewsAdmin
+Currently ReviewsAdmin only shows a table with Approve/Reject buttons. Missing: ability to **create**, **edit**, and **delete** reviews from admin.
 
-### 1. Update `src/pages/admin/SiteSettingsAdmin.tsx`
-Replace all `default` values in `settingsDefs` with the exact values from each component's hardcoded defaults.
+**Add to `ReviewsAdmin.tsx`:**
+- **Add Review** button → opens a modal/form with fields: Author, Rating (1-5), Content, Role, Status
+- **Edit** button per row → opens same form pre-filled
+- **Delete** button per row → confirmation then deletes
+- Search/filter by author name
+- View full content (currently truncated)
 
-### 2. Update `site_settings` DB rows (13 rows)
-Delete existing rows and re-insert with the correct original data matching each component.
+### 3. Add Ticker Pairs to SectionEditor
+Add a `ticker-pairs` section config to SectionEditor so price ticker data is also editable from the Homepage Sections page (not just raw JSON).
 
-## Files: 1
-- `src/pages/admin/SiteSettingsAdmin.tsx` — fix all defaults to match original component text
+```
+"ticker-pairs": {
+  title: "Ticker Pairs (Price Bar)",
+  settingsKey: "ticker_pairs",
+  fields: [
+    { key: "items", type: "object-list", objectFields: [
+      { key: "pair", label: "Pair", type: "text" },
+      { key: "price", label: "Price", type: "text" },
+      { key: "change", label: "Change", type: "text" },
+      { key: "up", label: "Up (true/false)", type: "text" },
+    ]}
+  ]
+}
+```
 
-## DB operations: 13 updates
-- Update all 13 `site_settings` rows with correct original data
+Also add it to `SiteContentAdmin.tsx` sections list.
+
+## Files Changed: 4
+- `src/components/admin/AdminSidebar.tsx` — remove Global Settings link
+- `src/pages/admin/SectionEditor.tsx` — add ticker-pairs config
+- `src/pages/admin/SiteContentAdmin.tsx` — add Ticker Pairs card
+- `src/pages/admin/ReviewsAdmin.tsx` — add Create, Edit, Delete functionality
+- `src/App.tsx` — remove `/admin/settings` route
+
+## No DB changes needed
+Reviews table already has all required columns. Site settings table stays the same.
 
