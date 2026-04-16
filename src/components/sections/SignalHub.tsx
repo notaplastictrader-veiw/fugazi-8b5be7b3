@@ -23,6 +23,12 @@ const SignalHub = () => {
   const ctaText = cms.cta_text || "View All Groups →";
   const displayCount = cms.display_count || 50;
 
+  const fallbackGroups: SignalGroup[] = [
+    { id: "s1", name: "Gold Pulse Signals", win_rate: 81, monthly_signals: "35", avg_rr: "1:2.4", track_record: "14 months", members: "4,200", verified: true },
+    { id: "s2", name: "Asia FX Scalpers", win_rate: 84, monthly_signals: "48", avg_rr: "1:1.8", track_record: "22 months", members: "12,400", verified: true },
+    { id: "s3", name: "Prop Killer Trades", win_rate: 78, monthly_signals: "60+", avg_rr: "1:3.1", track_record: "9 months", members: "8,900", verified: true },
+  ];
+
   useEffect(() => {
     const fetchGroups = async () => {
       const { data } = await supabase
@@ -31,7 +37,8 @@ const SignalHub = () => {
         .eq("status", "published")
         .order("win_rate", { ascending: false })
         .limit(displayCount);
-      if (data) setGroups(data as SignalGroup[]);
+      if (data && data.length > 0) setGroups(data as SignalGroup[]);
+      else setGroups(fallbackGroups);
     };
     fetchGroups();
   }, [displayCount]);

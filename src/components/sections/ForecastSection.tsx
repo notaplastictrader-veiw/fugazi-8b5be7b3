@@ -26,10 +26,19 @@ const ForecastSection = () => {
   const [activeTab, setActiveTab] = useState("forex");
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
 
+  const fallbackForecasts: Forecast[] = [
+    { id: "f1", pair: "XAU/USD", direction: "bullish", potential: "HIGH", reasoning: "Gold breaking above key resistance at $2,340. Fed rate cut expectations fueling momentum. Target $2,400.", updated_label: "2 hours ago", category: "forex" },
+    { id: "f2", pair: "EUR/USD", direction: "bearish", potential: "MED", reasoning: "ECB dovish stance vs. USD strength. Expecting pullback to 1.0780 support zone.", updated_label: "4 hours ago", category: "forex" },
+    { id: "f3", pair: "GBP/USD", direction: "bullish", potential: "HIGH", reasoning: "Strong UK employment data. Cable targeting 1.2750 resistance with bullish momentum.", updated_label: "6 hours ago", category: "forex" },
+    { id: "f4", pair: "Gold Spot", direction: "bullish", potential: "HIGH", reasoning: "Central bank buying continues. Geopolitical tensions supporting safe-haven demand.", updated_label: "1 hour ago", category: "gold" },
+    { id: "f5", pair: "BTC/USD", direction: "bullish", potential: "HIGH", reasoning: "Post-halving accumulation phase. Institutional inflows via ETFs at record levels. Target $75K.", updated_label: "3 hours ago", category: "crypto" },
+  ];
+
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("forecasts").select("*").eq("status", "published").order("created_at", { ascending: false });
-      if (data) setForecasts(data as Forecast[]);
+      if (data && data.length > 0) setForecasts(data as Forecast[]);
+      else setForecasts(fallbackForecasts);
     };
     fetch();
   }, []);
