@@ -72,7 +72,11 @@ const Login = () => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      if (error.message?.toLowerCase().includes("email not confirmed")) {
+        toast({ title: "Email not verified", description: "Please check your inbox and verify your email before signing in.", variant: "destructive" });
+      } else {
+        toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      }
     } else {
       toast({ title: "Welcome back!" });
       await redirectByTab(data.user.id);
