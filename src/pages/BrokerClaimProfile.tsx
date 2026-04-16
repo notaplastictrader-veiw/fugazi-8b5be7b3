@@ -60,7 +60,7 @@ const BrokerClaimProfile = () => {
       const entityName = selected[currentConfig.nameKey] || selected.name || selected.site_name || "Unknown";
       notifyAdmins(
         "New Profile Claim",
-        `${fullName || "A user"} submitted a ${activeTab} claim for "${entityName}"`,
+        `${company || "A user"} submitted a ${activeTab} claim for "${entityName}"`,
         "/admin/approvals"
       );
       setSubmitted(true);
