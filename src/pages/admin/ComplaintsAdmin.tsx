@@ -67,7 +67,7 @@ const ComplaintsAdmin = () => {
                 <TableCell className="max-w-[400px] truncate">{c.content}</TableCell>
                 <TableCell>{c.proof_urls?.length || 0}</TableCell>
                 <TableCell><StatusBadge status={c.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{formatDate(c.created_at)}</TableCell>
+                <TableCell className="text-sm font-semibold text-foreground">{formatDate(c.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "published")}><Check className="w-4 h-4 text-primary" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "rejected")}><X className="w-4 h-4 text-destructive" /></Button>

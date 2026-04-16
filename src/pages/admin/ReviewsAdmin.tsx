@@ -69,7 +69,7 @@ const ReviewsAdmin = () => {
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[300px] truncate">{r.content}</TableCell>
                 <TableCell><StatusBadge status={r.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{formatDate(r.created_at)}</TableCell>
+                <TableCell className="text-sm font-semibold text-foreground">{formatDate(r.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(r.id, "published")}><Check className="w-4 h-4 text-primary" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(r.id, "rejected")}><X className="w-4 h-4 text-destructive" /></Button>
