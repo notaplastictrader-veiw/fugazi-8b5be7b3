@@ -20,7 +20,8 @@ const Advertise = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
-  
+  const [companyUrl, setCompanyUrl] = useState("");
+  const [companyAge, setCompanyAge] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +34,7 @@ const Advertise = () => {
     setSubmitting(true);
     setTimeout(() => {
       toast.success("Enquiry submitted! We'll schedule a meeting and share our media kit within 24 hours.");
-      setName(""); setEmail(""); setCompany(""); setMessage("");
+      setName(""); setEmail(""); setCompany(""); setCompanyUrl(""); setCompanyAge(""); setMessage("");
       setSubmitting(false);
     }, 800);
   };
@@ -76,6 +77,10 @@ const Advertise = () => {
               <Input type="email" placeholder="Email *" value={email} onChange={e => setEmail(e.target.value)} className="bg-background" />
             </div>
             <Input placeholder="Company / Brand *" value={company} onChange={e => setCompany(e.target.value)} className="bg-background" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input type="url" placeholder="Company website URL" value={companyUrl} onChange={e => setCompanyUrl(e.target.value)} className="bg-background" />
+              <Input placeholder="Company age (e.g. 3 years)" value={companyAge} onChange={e => setCompanyAge(e.target.value)} className="bg-background" />
+            </div>
             <Textarea placeholder="Tell us about your advertising goals... *" value={message} onChange={e => setMessage(e.target.value)} className="bg-background min-h-[120px]" />
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? "Submitting..." : "Submit Enquiry"}
