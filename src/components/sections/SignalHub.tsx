@@ -20,6 +20,7 @@ const SignalHub = () => {
   const cms = useSiteSettings<Record<string, any>>("signal_hub", {});
 
   const sectionTitle = cms.section_title || "Verified Signal";
+  const subtitle = cms.subtitle || "Every Telegram group listed, reviewed and rated by real traders.";
   const ctaText = cms.cta_text || "View All Groups →";
   const displayCount = cms.display_count || 50;
 
@@ -57,7 +58,7 @@ const SignalHub = () => {
             {ctaText}
           </Link>
         </div>
-        <p className="text-sm text-muted-foreground mb-10">Every Telegram group listed, reviewed and rated by real traders.</p>
+        <p className="text-sm text-muted-foreground mb-10">{subtitle}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {groups.map((group) => (
