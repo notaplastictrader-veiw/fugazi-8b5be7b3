@@ -1,27 +1,30 @@
 
 
-# UsersAdmin — Bulk CSV Import + User ID Display with Copy
+# UsersAdmin — Date Format DD-MM-YY, Uppercase Labels & Name
 
-## Changes — `src/pages/admin/UsersAdmin.tsx` only
+## Changes
 
-### 1. User ID column with copy button
-- Table এ নতুন "User ID" column add করবো (Name এর পরে)
-- প্রতিটা row তে truncated UUID দেখাবে (প্রথম 8 char + `...`)
-- পাশে একটা copy icon button থাকবে — click করলে full UUID clipboard এ copy হবে + toast "Copied!"
+### 1. `src/components/admin/AdminTableToolbar.tsx`
+- "From:" ও "To:" labels বড় করবো — `text-sm` থেকে `text-base font-semibold uppercase` করবো
 
-### 2. Bulk CSV Import
-- Header area তে "Assign Role" button এর পাশে নতুন **"Bulk Import"** button add করবো (Upload icon সহ)
-- Click করলে একটা Dialog open হবে:
-  - CSV format instruction: `user_id,role` (one per line)
-  - Sample download link — click করলে sample CSV download হবে
-  - File input (`<input type="file" accept=".csv">`)
-  - Preview table — CSV parse করে দেখাবে কতগুলো row আছে
-  - "Import All" button — loop করে প্রতিটা row `user_roles` table এ insert করবে
-  - Success/error count toast দেখাবে শেষে
+### 2. `src/pages/admin/UsersAdmin.tsx`
+- **Date format DD-MM-YY** — সব জায়গায় `toLocaleDateString()` replace করবো custom formatter দিয়ে:
+  ```ts
+  const formatDate = (d: string) => {
+    const date = new Date(d);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yy = String(date.getFullYear()).slice(-2);
+    return `${dd}-${mm}-${yy}`;
+  };
+  ```
+- **Name uppercase** — table cell এ `uppercase` class add করবো: `"MD IMRAN HOSSAIN"` style এ দেখাবে
+- **Phone** — already দেখাচ্ছে `profiles[r.user_id]?.phone`, তাই `+8801903572055` format এ আসবে যেমন DB তে আছে
+- Export CSV তেও same DD-MM-YY format use করবো
 
-### Technical Details
-- CSV parsing: native `FileReader` + split by newline/comma — no library needed
-- Each row insert: `supabase.from("user_roles").insert({ user_id, role })`
-- Invalid rows skip করবে (empty user_id, invalid role)
-- Copy: `navigator.clipboard.writeText(uuid)` use করবো
+### Files: 2
+| File | Change |
+|------|--------|
+| `src/components/admin/AdminTableToolbar.tsx` | From/To labels বড় ও uppercase |
+| `src/pages/admin/UsersAdmin.tsx` | Date → DD-MM-YY, Name → uppercase |
 
