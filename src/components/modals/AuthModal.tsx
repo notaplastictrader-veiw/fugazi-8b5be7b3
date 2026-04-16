@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigate } from "react-router-dom";
-import { notifyAdmins } from "@/lib/notifyAdmins";
+
 
 interface AuthModalProps {
   open: boolean;
@@ -180,7 +180,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
           appData.license = license;
         }
 
-        await supabase.from("applications").insert({
+        const { error: appError } = await supabase.from("applications").insert({
           user_id: data.user.id,
           role: signupRole,
           application_data: appData,
@@ -189,12 +189,14 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
           contact_telegram: telegramLink || null,
         });
 
-        notifyAdmins(
-          `New ${roleLabels[signupRole]} Application`,
-          `${fullName} (${signupEmail}) submitted a ${roleLabels[signupRole].toLowerCase()} application`,
-          "/admin/approvals"
-        );
+        if (appError) {
+          console.error("Application insert failed:", appError);
+          toast.error("Failed to submit application. Please try again or contact support.");
+          setLoading(false);
+          return;
+        }
 
+        // Admin notification is handled by database trigger
         setLoading(false);
         setShowUnderReview(true);
         return;
