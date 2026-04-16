@@ -1,33 +1,27 @@
 
 
-# Disable Auto-Confirm — Require Email Verification Before Login
+# Fix: Signup Still Auto-Logging In Despite Auto-Confirm Off
 
 ## সমস্যা
-Signup করার সাথে সাথেই login হয়ে যাচ্ছে — email verification হচ্ছে না। Auth logs এ দেখা যাচ্ছে `"immediate_login_after_signup": true`। এর মানে auto-confirm enabled আছে।
+Auto-confirm disable করা হয়েছে, কিন্তু signup এর পর এখনও user login হয়ে যাচ্ছে। কারণ: Supabase কিছু ক্ষেত্রে (বিশেষ করে repeated signup বা edge cases এ) `signUp` call এর পরেও একটা session return করে, আর `AuthContext` এর `onAuthStateChange` সেই session ধরে ফেলে auto-login করিয়ে দেয়।
 
 ## সমাধান
+Signup success এর পর explicitly `supabase.auth.signOut()` call করবো — এতে কোনো session যদি create হয়েও যায়, সেটা সাথে সাথে destroy হবে। User কে login page এ পাঠাবো verification message সহ।
 
-### 1. Auto-confirm disable করবো
-`cloud--configure_auth` tool দিয়ে email auto-confirm বন্ধ করবো। এতে signup এর পর user কে verification email পাঠাবে, এবং verify করার আগে login করতে পারবে না।
+### Changes:
 
-### 2. Signup.tsx — Success message update
-Signup success হলে এখন dashboard এ redirect করে। পরিবর্তে:
-- Redirect বন্ধ করবো
-- Toast দেখাবো: "Check your email to verify your account before signing in"
-- Form reset করবো
+**Signup.tsx (line ~96-119):**
+- Signup success এর পর, profile update ও referral logic শেষে `await supabase.auth.signOut()` call
+- তারপর toast ও navigate to `/login`
 
-### 3. AuthModal.tsx — Same treatment
-Modal এর signup flow তেও same change — success এ redirect না করে verification message দেখাবো।
-
-### 4. Login.tsx — Handle unverified login attempt
-User যদি verify না করে login করতে চায়, Supabase "Email not confirmed" error দেয়। সেটা catch করে user-friendly message দেখাবো।
+**AuthModal.tsx (line ~208-227):**
+- Same — regular user signup success এর পর `await supabase.auth.signOut()` call
+- Toast দেখাবে "Check your email to verify"
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| Auth config | `configure_auth` — disable auto-confirm email |
-| `src/pages/Signup.tsx` | Success এ redirect বন্ধ, verification message দেখাবে |
-| `src/components/modals/AuthModal.tsx` | Same — signup success এ verify message |
-| `src/pages/Login.tsx` | "Email not confirmed" error handle করে friendly message |
+| `src/pages/Signup.tsx` | Add `supabase.auth.signOut()` after signup success, before navigate |
+| `src/components/modals/AuthModal.tsx` | Add `supabase.auth.signOut()` after regular user signup success |
 
