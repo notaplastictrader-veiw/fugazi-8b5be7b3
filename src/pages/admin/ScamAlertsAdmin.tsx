@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
+import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 
 interface ScamAlert {
-  id: string; title: string; description: string; severity: string; status: string;
+  id: string; title: string; description: string; severity: string; status: string; created_at: string;
 }
 
 const empty = { title: "", description: "", severity: "medium", status: "draft" };
@@ -25,6 +27,20 @@ const ScamAlertsAdmin = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ScamAlert | null>(null);
   const [form, setForm] = useState(empty);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const filtered = useMemo(() => filterByDateRange(items, "created_at", fromDate, toDate), [items, fromDate, toDate]);
+
+  const handleExport = () => {
+    exportToCSV(filtered.map(s => ({
+      title: s.title, severity: s.severity, status: s.status,
+      date: new Date(s.created_at).toLocaleDateString(),
+    })), [
+      { key: "title", label: "Title" }, { key: "severity", label: "Severity" },
+      { key: "status", label: "Status" }, { key: "date", label: "Date" },
+    ], "scam-alerts-export");
+  };
 
   const fetchData = async () => {
     const { data } = await supabase.from("scam_alerts").select("*").order("created_at", { ascending: false });
@@ -65,6 +81,7 @@ const ScamAlertsAdmin = () => {
         <h2 className="text-2xl font-bold text-foreground">Scam Alerts</h2>
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Alert</Button>
       </div>
+      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
@@ -76,18 +93,19 @@ const ScamAlertsAdmin = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map(s => (
+            {filtered.map(s => (
               <TableRow key={s.id}>
                 <TableCell className="font-medium">{s.title}</TableCell>
                 <TableCell className={s.severity === "high" ? "text-destructive" : "text-accent"}>{s.severity}</TableCell>
                 <TableCell><StatusBadge status={s.status} /></TableCell>
+                <TableCell className="text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                 </TableCell>
               </TableRow>
             ))}
-            {items.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">No scam alerts</TableCell></TableRow>}
+            {filtered.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No scam alerts</TableCell></TableRow>}
           </TableBody>
         </Table>
       </div>
