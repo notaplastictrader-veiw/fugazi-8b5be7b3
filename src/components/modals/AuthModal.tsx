@@ -132,6 +132,10 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidEmail(signupEmail)) {
+      toast.error("Please enter a valid email address (e.g. name@example.com)");
+      return;
+    }
     if (!acceptedTerms) { toast.error("You must accept the Terms & Conditions"); return; }
     if (signupPassword.length < 6) { toast.error("Password must be at least 6 characters"); return; }
 
