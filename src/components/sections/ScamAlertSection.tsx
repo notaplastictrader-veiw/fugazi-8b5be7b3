@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -56,7 +57,7 @@ const ScamAlertSection = () => {
             {alerts.map((alert) => {
               const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
               return (
-                <div key={alert.id} className="glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
+                <Link to={`/scam-alerts/${alert.id}`} key={alert.id} className="block glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="mt-1"><span className="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-destructive" /></div>
                     <div className="flex-1">
@@ -70,7 +71,7 @@ const ScamAlertSection = () => {
                       }`}>{alert.severity} severity</span>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
             <div className="mt-4">

@@ -1,0 +1,139 @@
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import MainLayout from "@/components/layout/MainLayout";
+import SEO from "@/components/SEO";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
+
+interface ScamAlertFull {
+  id: string;
+  title: string;
+  description: string;
+  severity: string;
+  created_at: string;
+  story: string | null;
+}
+
+const fallbackAlerts: ScamAlertFull[] = [
+  {
+    id: "sa1", title: "TradeWave Markets",
+    description: "Withdrawal refused after profit — $12,400 unresolved.",
+    severity: "high",
+    created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
+    story: "TradeWave Markets has been flagged after multiple users reported withdrawal refusals following profitable trades. A total of $12,400 remains unresolved across 8 verified complaints."
+  },
+  {
+    id: "sa2", title: "GoldFX Pro",
+    description: "Fake regulation, platform manipulation — $8,200 under investigation.",
+    severity: "high",
+    created_at: new Date(Date.now() - 7 * 86400000).toISOString(),
+    story: "GoldFX Pro has been identified as operating with falsified regulatory credentials. A combined $8,200 is currently under investigation."
+  },
+  {
+    id: "sa3", title: "CryptoEdge BD",
+    description: "Account frozen, no response 30+ days — $3,800 unresolved.",
+    severity: "medium",
+    created_at: new Date(Date.now() - 12 * 86400000).toISOString(),
+    story: "CryptoEdge BD has frozen multiple user accounts without prior notice or explanation. The total amount held in frozen accounts is approximately $3,800."
+  },
+];
+
+const ScamAlertDetail = () => {
+  const { id } = useParams<{ id: string }>();
+  const [alert, setAlert] = useState<ScamAlertFull | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAlert = async () => {
+      if (!id) return;
+      const { data } = await supabase
+        .from("scam_alerts")
+        .select("*")
+        .eq("id", id)
+        .eq("status", "published")
+        .maybeSingle();
+
+      if (data) {
+        setAlert(data as ScamAlertFull);
+      } else {
+        const fallback = fallbackAlerts.find(a => a.id === id);
+        setAlert(fallback || null);
+      }
+      setLoading(false);
+    };
+    fetchAlert();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!alert) {
+    return (
+      <MainLayout>
+        <SEO title="Alert Not Found" description="Scam alert not found" path={`/scam-alerts/${id}`} />
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+          <AlertTriangle className="w-12 h-12 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground">Scam alert not found.</p>
+          <Link to="/scam-alerts" className="text-sm text-destructive hover:underline">← Back to all alerts</Link>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
+
+  return (
+    <MainLayout>
+      <SEO
+        title={`${alert.title} — Scam Alert`}
+        description={alert.description || ""}
+        path={`/scam-alerts/${id}`}
+      />
+      <section className="pt-6 pb-24 px-4">
+        <div className="max-w-3xl mx-auto">
+          <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to Scam Alerts
+          </Link>
+
+          <div className="glass-card rounded-xl p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertTriangle className="w-6 h-6 text-destructive flex-shrink-0" />
+              <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{alert.title}</h1>
+            </div>
+
+            <div className="flex items-center gap-3 mb-6">
+              <span className={`text-xs px-2.5 py-1 rounded-full border font-mono ${
+                alert.severity === "high"
+                  ? "bg-destructive/10 text-destructive border-destructive/20"
+                  : "bg-accent/10 text-accent border-accent/20"
+              }`}>
+                {alert.severity} severity
+              </span>
+              <span className="text-xs font-mono text-muted-foreground">{daysAgo}d ago</span>
+            </div>
+
+            <p className="text-sm text-muted-foreground mb-6 border-b border-border pb-6">{alert.description}</p>
+
+            {alert.story ? (
+              <div className="prose prose-sm max-w-none">
+                <h2 className="text-lg font-display font-bold text-foreground mb-3">Full Report</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{alert.story}</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Full report coming soon.</p>
+            )}
+          </div>
+        </div>
+      </section>
+    </MainLayout>
+  );
+};
+
+export default ScamAlertDetail;

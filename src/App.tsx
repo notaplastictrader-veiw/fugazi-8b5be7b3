@@ -25,6 +25,7 @@ const Brokers = lazy(() => import("./pages/Brokers"));
 const BrokerDetail = lazy(() => import("./pages/BrokerDetail"));
 const PropFirms = lazy(() => import("./pages/PropFirms"));
 const ScamAlerts = lazy(() => import("./pages/ScamAlerts"));
+const ScamAlertDetail = lazy(() => import("./pages/ScamAlertDetail"));
 const Signals = lazy(() => import("./pages/Signals"));
 const SignalGroupDetail = lazy(() => import("./pages/SignalGroupDetail"));
 const About = lazy(() => import("./pages/About"));
@@ -168,6 +169,7 @@ const AppContent = () => {
           <Route path="/brokers/:slug" element={<BrokerDetail />} />
           <Route path="/prop-firms" element={<PropFirms />} />
           <Route path="/scam-alerts" element={<ScamAlerts />} />
+          <Route path="/scam-alerts/:id" element={<ScamAlertDetail />} />
           <Route path="/signals" element={<Signals />} />
           <Route path="/signals/:id" element={<SignalGroupDetail />} />
           <Route path="/about" element={<About />} />

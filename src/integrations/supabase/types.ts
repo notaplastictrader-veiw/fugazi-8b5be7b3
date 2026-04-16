@@ -884,6 +884,7 @@ export type Database = {
           id: string
           severity: string
           status: Database["public"]["Enums"]["content_status"]
+          story: string | null
           title: string
         }
         Insert: {
@@ -894,6 +895,7 @@ export type Database = {
           id?: string
           severity?: string
           status?: Database["public"]["Enums"]["content_status"]
+          story?: string | null
           title?: string
         }
         Update: {
@@ -904,6 +906,7 @@ export type Database = {
           id?: string
           severity?: string
           status?: Database["public"]["Enums"]["content_status"]
+          story?: string | null
           title?: string
         }
         Relationships: [
