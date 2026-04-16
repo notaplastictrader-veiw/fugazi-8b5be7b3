@@ -162,6 +162,21 @@ const sectionConfigs: Record<string, SectionConfig> = {
       { key: "social_links", label: "Social Media URLs", type: "list" },
     ],
   },
+  "ticker-pairs": {
+    title: "Ticker Pairs (Price Bar)",
+    settingsKey: "ticker_pairs",
+    fields: [
+      {
+        key: "items", label: "Ticker Pairs", type: "object-list",
+        objectFields: [
+          { key: "pair", label: "Pair (e.g. EUR/USD)", type: "text" },
+          { key: "price", label: "Price", type: "text" },
+          { key: "change", label: "Change (e.g. +0.15%)", type: "text" },
+          { key: "up", label: "Direction (true = green, false = red)", type: "text" },
+        ],
+      },
+    ],
+  },
 };
 
 const SectionEditor = () => {
