@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search } from "lucide-react";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import AuthModal from "@/components/modals/AuthModal";
 import LanguageSelector from "@/components/LanguageSelector";
 import UserDropdown from "@/components/UserDropdown";
 import NotificationBell from "@/components/NotificationBell";
+import { Badge } from "@/components/ui/badge";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,7 +20,47 @@ const Navbar = () => {
   const { theme, cycleTheme } = useTheme();
   const { user, signOut } = useAuth();
   const { t } = useI18n();
+  const { hasRole } = useUserRole();
   const navigate = useNavigate();
+
+  const getMobileMenuItems = () => {
+    if (hasRole("super_admin")) return [
+      { icon: Shield, label: "Admin Panel", href: "/admin" },
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ];
+    if (hasRole("broker")) return [
+      { icon: Building2, label: "Broker Portal", href: "/portal/broker" },
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ];
+    if (hasRole("signal_provider")) return [
+      { icon: Radio, label: "Signal Portal", href: "/portal/signal" },
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ];
+    if (hasRole("betting_site")) return [
+      { icon: Trophy, label: "Betting Portal", href: "/portal/betting" },
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ];
+    return [
+      { icon: User, label: "Dashboard", href: "/dashboard" },
+      { icon: Star, label: "My Reviews", href: "/dashboard/reviews" },
+      { icon: MessageSquare, label: "My Complaints", href: "/dashboard/complaints" },
+      { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    ];
+  };
+
+  const getMobileRoleBadge = () => {
+    if (hasRole("super_admin")) return { label: "Super Admin", className: "bg-destructive/15 text-destructive border-destructive/30" };
+    if (hasRole("content_ops")) return { label: "Content Ops", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("moderator")) return { label: "Moderator", className: "bg-accent/15 text-accent-foreground border-accent/30" };
+    if (hasRole("broker")) return { label: "Broker", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("signal_provider")) return { label: "Signal Provider", className: "bg-primary/15 text-primary border-primary/30" };
+    if (hasRole("betting_site")) return { label: "Betting Site", className: "bg-primary/15 text-primary border-primary/30" };
+    return null;
+  };
 
   const navLinks = [
     {
@@ -245,11 +287,31 @@ const Navbar = () => {
                   <>
                     <div className="flex items-center gap-2 px-3 py-2">
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold">{initial}</div>
-                      <span className="text-sm font-medium text-foreground">{firstName}</span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-foreground">{firstName}</span>
+                        {getMobileRoleBadge() && (
+                          <Badge variant="outline" className={`ml-2 text-[10px] px-1.5 py-0 ${getMobileRoleBadge()!.className}`}>
+                            {getMobileRoleBadge()!.label}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-0.5">
+                      {getMobileMenuItems().map((item) => (
+                        <Link
+                          key={item.label}
+                          to={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-md transition-colors"
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.label}
+                        </Link>
+                      ))}
                     </div>
                     <button onClick={async () => { await signOut(); setMobileOpen(false); }}
-                      className="w-full px-4 py-2.5 text-sm font-semibold border border-border text-foreground rounded-lg flex items-center justify-center gap-2">
-                      <LogOut className="w-4 h-4" /> {t("nav.login", "Log Out")}
+                      className="w-full px-4 py-2.5 text-sm font-semibold border border-border text-destructive rounded-lg flex items-center justify-center gap-2 mt-1">
+                      <LogOut className="w-4 h-4" /> Log Out
                     </button>
                   </>
                 ) : (
