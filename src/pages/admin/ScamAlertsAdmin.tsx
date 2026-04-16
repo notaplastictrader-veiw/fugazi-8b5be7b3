@@ -103,7 +103,7 @@ const ScamAlertsAdmin = () => {
                 <TableCell className="font-medium">{s.title}</TableCell>
                 <TableCell className={s.severity === "high" ? "text-destructive" : "text-accent"}>{s.severity}</TableCell>
                 <TableCell><StatusBadge status={s.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{formatDate(s.created_at)}</TableCell>
+                <TableCell className="text-sm font-semibold text-foreground">{formatDate(s.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(s)}><Pencil className="w-4 h-4" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
