@@ -1,29 +1,54 @@
 
 
-# Mobile/Tablet — User Dropdown Menu Missing
+# Admin Panel — User Details + Excel Export + Date Filter
 
 ## সমস্যা
-Mobile menu তে logged-in user এর জন্য শুধু নাম আর "Log Out" button আছে। Desktop এ যে dropdown menu দেখায় (Admin Panel, Dashboard, Settings, role badge) সেগুলো mobile menu তে নেই।
+1. **Users & Roles** page এ শুধু User ID দেখায় — নাম, ফোন, ইমেইল, signup date নেই
+2. কোনো admin page এ date filter বা Excel download নেই
 
 ## সমাধান
 
-### `src/components/layout/Navbar.tsx` — Mobile menu এর user section update
+### 1. Reusable Admin Utilities — `src/lib/adminExport.ts` (NEW)
+- `exportToExcel(data, columns, filename)` function — CSV generate করে `.csv` ফাইল download করবে (Excel compatible)
+- Date range filter helper
 
-Lines 243-254 এ logged-in user block এ desktop dropdown এর মতো full menu items add করবো:
+### 2. `src/components/admin/AdminTableToolbar.tsx` (NEW)
+Reusable toolbar component with:
+- **Date range filter** — From/To date inputs
+- **Download Excel** button — calls `exportToExcel`
+- Search input (optional)
 
-1. **Role badge** দেখাবে (Super Admin, Broker, etc.) — `useUserRole` hook use করে
-2. **Menu items** — Desktop `UserDropdown` এর same logic follow করে role-based links দেখাবে:
-   - Super Admin → Admin Panel, Dashboard, Settings
-   - Broker → Broker Portal, Dashboard, Settings
-   - Signal Provider → Signal Portal, Dashboard, Settings
-   - Regular User → Dashboard, My Reviews, My Complaints, Settings
-3. **Log Out** button থাকবে নিচে
+### 3. `src/pages/admin/UsersAdmin.tsx` — Major Update
+- `user_roles` fetch এর সাথে `profiles` table থেকে join করে user info আনবে
+- Table columns: **Name, Email, Phone, Role, Signup Date, Actions**
+- Email আনতে: profiles table এ email নেই, তাই `auth.users` access করা যায় না client-side থেকে — একটি **edge function** বানাবো যেটা service role key দিয়ে auth.users থেকে email নিয়ে আসবে
+- Date filter + Excel download toolbar add
 
-### Changes — 1 file
+### 4. Edge Function — `supabase/functions/admin-users/index.ts` (NEW)
+- Service role key দিয়ে `auth.admin.listUsers()` call করবে
+- User ID, email, created_at return করবে
+- শুধু super_admin access (JWT verify)
 
-| File | Change |
-|------|--------|
-| `src/components/layout/Navbar.tsx` | Mobile menu তে `useUserRole` import, role badge + full nav links add (lines ~243-254) |
+### 5. Other Admin Pages — Date Filter + Download Add
+এই pages গুলোতে `AdminTableToolbar` add করবো:
+| Page | Filter By | Download Columns |
+|------|-----------|-----------------|
+| UsersAdmin | signup date | Name, Email, Phone, Role, Date |
+| ReviewsAdmin | created_at | Author, Rating, Content, Status, Date |
+| ComplaintsAdmin | created_at | Content, Status, Date |
+| ScamAlertsAdmin | created_at | Title, Severity, Status, Date |
+| BrokersAdmin | created_at | Name, Type, Score, Status, Date |
+| ApplicationsAdmin | created_at | Email, Role, Status, Date |
 
-Desktop dropdown (`UserDropdown.tsx`) এর same `getMenuItems()` logic replicate করবো mobile menu তে, কিন্তু inline style এ (dropdown নয়, list আকারে)।
+### Implementation Order
+1. Create `adminExport.ts` utility (CSV export helper)
+2. Create `AdminTableToolbar.tsx` component
+3. Create `admin-users` edge function for email data
+4. Update `UsersAdmin.tsx` — join profiles + edge function for emails + toolbar
+5. Add toolbar to ReviewsAdmin, ComplaintsAdmin, ScamAlertsAdmin, BrokersAdmin, ApplicationsAdmin
+
+### Technical Notes
+- CSV format ব্যবহার করবো (`.csv`) — Excel এ সরাসরি open হয়, কোনো extra library লাগে না
+- Date filter client-side করবো (data already fetched) — simple and fast
+- Edge function এ JWT verify + role check করবো security এর জন্য
 
