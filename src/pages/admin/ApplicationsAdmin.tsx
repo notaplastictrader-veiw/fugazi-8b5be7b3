@@ -224,6 +224,18 @@ const ApplicationsAdmin = () => {
     );
   });
 
+  const dateFiltered = useMemo(() => filterByDateRange(filteredApps, "created_at", fromDate, toDate), [filteredApps, fromDate, toDate]);
+
+  const handleExport = () => {
+    exportToCSV(dateFiltered.map(a => ({
+      email: a.contact_email || "—", role: a.role, status: a.status,
+      date: new Date(a.created_at).toLocaleDateString(),
+    })), [
+      { key: "email", label: "Email" }, { key: "role", label: "Role" },
+      { key: "status", label: "Status" }, { key: "date", label: "Date" },
+    ], "applications-export");
+  };
+
   const pendingCount = applications.filter((a) => a.status === "pending").length;
 
   return (
