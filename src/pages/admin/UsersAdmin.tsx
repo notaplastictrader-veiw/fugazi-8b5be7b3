@@ -18,7 +18,7 @@ interface ProfileInfo {
   user_id: string; full_name: string | null; phone: string | null;
 }
 interface AuthUser {
-  id: string; email: string; created_at: string;
+  id: string; email: string; created_at: string; full_name?: string; phone?: string;
 }
 interface CsvRow {
   user_id: string; role: string;
