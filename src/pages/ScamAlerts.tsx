@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -53,7 +54,7 @@ const ScamAlerts = () => {
             {filtered.map(alert => {
               const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
               return (
-                <div key={alert.id} className="glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
+                <Link to={`/scam-alerts/${alert.id}`} key={alert.id} className="block glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors cursor-pointer">
                   <div className="flex items-start gap-3">
                     <div className="mt-1"><AlertTriangle className="w-5 h-5 text-destructive" /></div>
                     <div className="flex-1">
@@ -67,7 +68,7 @@ const ScamAlerts = () => {
                       }`}>{alert.severity} severity</span>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
