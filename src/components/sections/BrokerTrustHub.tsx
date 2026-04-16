@@ -189,8 +189,13 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
 const BrokerTrustHub = () => {
   const cms = useSiteSettings<Record<string, any>>("broker_trust_hub", {});
   const sectionTitleText = cms.section_title || "Top Verified";
+  const brokerSubtitle = cms.broker_subtitle || "Every broker scored by real user data — complaints, withdrawal speed, regulation strength.";
   const brokerCount = cms.broker_count || 50;
-  const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"]) as string[];
+  const brokerFiltersList = (cms.broker_filters?.length ? cms.broker_filters : brokerFilters) as string[];
+  const propSectionTitle = cms.prop_section_title || "Top Verified";
+  const propSubtitle = cms.prop_subtitle || "Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.";
+  const propFirmCount = cms.prop_firm_count || 6;
+  const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Clg", "2-Step Clg", "Dis% Offers", "No Time Limit"]) as string[];
   const [brokerFilter, setBrokerFilter] = useState("All");
   const [visible, setVisible] = useState(false);
   const [brokers, setBrokers] = useState<Broker[]>([]);
@@ -226,7 +231,7 @@ const BrokerTrustHub = () => {
     ? brokers.filter(b => b.type !== "prop-firm")
     : brokers.filter(b => b.tags?.includes(filterMap[brokerFilter]));
 
-  const filteredPropFirms = brokers.filter(b => b.type === "prop-firm").slice(0, 6);
+  const filteredPropFirms = brokers.filter(b => b.type === "prop-firm").slice(0, propFirmCount);
 
   return (
     <section ref={sectionRef} className="py-20 px-4">
@@ -236,10 +241,10 @@ const BrokerTrustHub = () => {
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           {sectionTitleText} <span className="text-primary">Brokers</span>
         </h2>
-        <p className="text-sm text-muted-foreground mb-8">Every broker scored by real user data — complaints, withdrawal speed, regulation strength.</p>
+        <p className="text-sm text-muted-foreground mb-8">{brokerSubtitle}</p>
 
         <div className="flex flex-wrap gap-2 mb-10">
-          {brokerFilters.map((f) => (
+          {brokerFiltersList.map((f) => (
             <button key={f} onClick={() => setBrokerFilter(f)}
               className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${
                 brokerFilter === f ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
@@ -259,9 +264,9 @@ const BrokerTrustHub = () => {
         <div className="mt-20">
           <span className="section-tag">// PROP FIRMS</span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-            Top Verified <span className="text-accent">Prop Firms</span>
+            {propSectionTitle} <span className="text-accent">Prop Firms</span>
           </h2>
-          <p className="text-sm text-muted-foreground mb-4">Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.</p>
+          <p className="text-sm text-muted-foreground mb-4">{propSubtitle}</p>
           <div className="flex flex-wrap gap-2 mb-8">
             {propFirmCategories.map((name) => (
               <span key={name} className="px-3 py-1 text-xs font-mono rounded-full border border-accent/30 text-accent bg-accent/5">{name}</span>
