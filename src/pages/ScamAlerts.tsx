@@ -51,7 +51,17 @@ const ScamAlerts = () => {
           </h1>
           <p className="text-sm text-muted-foreground mb-8 max-w-2xl">All verified scam alerts issued by our team and community. Stay safe.</p>
 
-          <div className="relative max-w-md mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
+            </div>
+            <Button onClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-2">
+              <Plus className="w-4 h-4" /> Report a Scam
+            </Button>
+          </div>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
