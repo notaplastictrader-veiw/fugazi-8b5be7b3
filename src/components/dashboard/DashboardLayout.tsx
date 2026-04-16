@@ -12,7 +12,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <MainLayout>
-      <div className="pt-24 pb-16">
+      <div className="pt-24 pb-20">
         <SidebarProvider>
           <div className="min-h-[calc(100vh-8rem)] flex w-full max-w-7xl mx-auto px-4">
             <DashboardSidebar />
