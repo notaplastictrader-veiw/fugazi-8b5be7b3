@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Copy, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
-import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
+import { exportToCSV } from "@/lib/adminExport";
 
 interface UserRole {
   id: string; user_id: string; role: string; created_at: string;
@@ -20,6 +20,9 @@ interface ProfileInfo {
 interface AuthUser {
   id: string; email: string; created_at: string;
 }
+interface CsvRow {
+  user_id: string; role: string;
+}
 
 const roles = ["super_admin", "content_ops", "moderator", "user", "broker", "signal_provider"];
 
@@ -28,10 +31,14 @@ const UsersAdmin = () => {
   const [profiles, setProfiles] = useState<Record<string, ProfileInfo>>({});
   const [authUsers, setAuthUsers] = useState<Record<string, AuthUser>>({});
   const [modalOpen, setModalOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [userId, setUserId] = useState("");
   const [role, setRole] = useState("user");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [csvRows, setCsvRows] = useState<CsvRow[]>([]);
+  const [importing, setImporting] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchData = async () => {
     const { data } = await supabase.from("user_roles").select("*").order("created_at", { ascending: false });
@@ -44,7 +51,6 @@ const UsersAdmin = () => {
       setProfiles(map);
     }
 
-    // Fetch emails from edge function
     try {
       const { data: session } = await supabase.auth.getSession();
       const token = session?.session?.access_token;
@@ -66,7 +72,6 @@ const UsersAdmin = () => {
   useEffect(() => { fetchData(); }, []);
 
   const filteredItems = useMemo(() => {
-    // Filter by signup date from authUsers
     if (!fromDate && !toDate) return items;
     return items.filter(item => {
       const authUser = authUsers[item.user_id];
@@ -80,6 +85,7 @@ const UsersAdmin = () => {
 
   const handleExport = () => {
     const exportData = filteredItems.map(r => ({
+      user_id: r.user_id,
       name: profiles[r.user_id]?.full_name || "—",
       email: authUsers[r.user_id]?.email || "—",
       phone: profiles[r.user_id]?.phone || "—",
@@ -89,12 +95,20 @@ const UsersAdmin = () => {
         : new Date(r.created_at).toLocaleDateString(),
     }));
     exportToCSV(exportData, [
+      { key: "user_id", label: "User ID" },
       { key: "name", label: "Name" },
       { key: "email", label: "Email" },
       { key: "phone", label: "Phone" },
       { key: "role", label: "Role" },
       { key: "signup_date", label: "Signup Date" },
     ], "users-export");
+  };
+
+  const handleCopy = async (uuid: string) => {
+    try {
+      await navigator.clipboard.writeText(uuid);
+      toast.success("Copied!");
+    } catch { toast.error("Failed to copy"); }
   };
 
   const handleAdd = async () => {
@@ -114,11 +128,59 @@ const UsersAdmin = () => {
     fetchData();
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      const parsed: CsvRow[] = [];
+      for (const line of lines) {
+        const [uid, r] = line.split(",").map(s => s.trim().replace(/^"|"$/g, ""));
+        if (uid && r && uid !== "user_id") {
+          parsed.push({ user_id: uid, role: r });
+        }
+      }
+      setCsvRows(parsed);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBulkImport = async () => {
+    if (csvRows.length === 0) { toast.error("No rows to import"); return; }
+    setImporting(true);
+    let success = 0, errors = 0;
+    for (const row of csvRows) {
+      if (!roles.includes(row.role)) { errors++; continue; }
+      const { error } = await supabase.from("user_roles").insert({ user_id: row.user_id, role: row.role as any });
+      if (error) errors++; else success++;
+    }
+    toast.success(`Imported ${success} roles${errors ? `, ${errors} failed` : ""}`);
+    setImporting(false);
+    setBulkModalOpen(false);
+    setCsvRows([]);
+    if (fileRef.current) fileRef.current.value = "";
+    fetchData();
+  };
+
+  const downloadSampleCSV = () => {
+    const csv = "user_id,role\n00000000-0000-0000-0000-000000000000,user";
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "sample-bulk-roles.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-foreground">Users & Roles</h2>
-        <Button onClick={() => setModalOpen(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> Assign Role</Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setBulkModalOpen(true)} size="sm" variant="outline"><Upload className="w-4 h-4 mr-1" /> Bulk Import</Button>
+          <Button onClick={() => setModalOpen(true)} size="sm"><Plus className="w-4 h-4 mr-1" /> Assign Role</Button>
+        </div>
       </div>
 
       <AdminTableToolbar
@@ -132,6 +194,7 @@ const UsersAdmin = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>User ID</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
               <TableHead>Role</TableHead>
@@ -143,6 +206,14 @@ const UsersAdmin = () => {
             {filteredItems.map(r => (
               <TableRow key={r.id}>
                 <TableCell className="font-medium">{profiles[r.user_id]?.full_name || "—"}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-mono text-muted-foreground">{r.user_id.slice(0, 8)}…</span>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopy(r.user_id)}>
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </TableCell>
                 <TableCell className="text-xs">{authUsers[r.user_id]?.email || "—"}</TableCell>
                 <TableCell>{profiles[r.user_id]?.phone || "—"}</TableCell>
                 <TableCell className="capitalize">{r.role.replace("_", " ")}</TableCell>
@@ -156,11 +227,12 @@ const UsersAdmin = () => {
                 </TableCell>
               </TableRow>
             ))}
-            {filteredItems.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground py-8">No roles assigned</TableCell></TableRow>}
+            {filteredItems.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No roles assigned</TableCell></TableRow>}
           </TableBody>
         </Table>
       </div>
 
+      {/* Assign Role Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Assign Role</DialogTitle></DialogHeader>
@@ -175,6 +247,47 @@ const UsersAdmin = () => {
               </Select>
             </div>
             <Button onClick={handleAdd} className="w-full">Assign</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Import Modal */}
+      <Dialog open={bulkModalOpen} onOpenChange={(open) => { setBulkModalOpen(open); if (!open) { setCsvRows([]); if (fileRef.current) fileRef.current.value = ""; } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Bulk Import Roles (CSV)</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              CSV format: <code className="bg-muted px-1 rounded">user_id,role</code> — one per line.
+              <br />Valid roles: {roles.join(", ")}
+            </div>
+            <Button variant="link" size="sm" className="p-0 h-auto" onClick={downloadSampleCSV}>
+              <Download className="w-3 h-3 mr-1" /> Download sample CSV
+            </Button>
+            <Input ref={fileRef} type="file" accept=".csv" onChange={handleFileChange} />
+            {csvRows.length > 0 && (
+              <div className="rounded border border-border max-h-48 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Role</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {csvRows.map((row, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="text-xs font-mono">{row.user_id.slice(0, 8)}…</TableCell>
+                        <TableCell className="capitalize">{row.role.replace("_", " ")}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="p-2 text-xs text-muted-foreground">{csvRows.length} row(s) ready</div>
+              </div>
+            )}
+            <Button onClick={handleBulkImport} className="w-full" disabled={csvRows.length === 0 || importing}>
+              {importing ? "Importing…" : `Import ${csvRows.length} Role(s)`}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
