@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Building2, Upload, CheckCircle, Radio, Dices } from "lucide-react";
 import BrokerTierBadge from "@/components/broker/BrokerTierBadge";
 import { toast } from "sonner";
+import { notifyAdmins } from "@/lib/notifyAdmins";
 
 type ProfileType = "broker" | "signal" | "betting";
 
@@ -56,6 +57,12 @@ const BrokerClaimProfile = () => {
       } as any);
       if (error) throw error;
       toast.success("Claim submitted! Our team will review it shortly.");
+      const entityName = selected[currentConfig.nameKey] || selected.name || selected.site_name || "Unknown";
+      notifyAdmins(
+        "New Profile Claim",
+        `${fullName || "A user"} submitted a ${activeTab} claim for "${entityName}"`,
+        "/admin/approvals"
+      );
       setSubmitted(true);
     } catch (err: any) {
       toast.error(err.message || "Failed to submit claim");
