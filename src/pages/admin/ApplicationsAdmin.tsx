@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock, Search, UserPlus } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
+import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
+import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -53,6 +55,8 @@ const ApplicationsAdmin = () => {
   const [search, setSearch] = useState("");
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [rejectNote, setRejectNote] = useState<Record<string, string>>({});
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const fetchApplications = async () => {
     setLoading(true);
@@ -220,6 +224,18 @@ const ApplicationsAdmin = () => {
     );
   });
 
+  const dateFiltered = useMemo(() => filterByDateRange(filtered, "created_at", fromDate, toDate), [filtered, fromDate, toDate]);
+
+  const handleExport = () => {
+    exportToCSV(dateFiltered.map(a => ({
+      email: a.contact_email || "—", role: a.role, status: a.status,
+      date: new Date(a.created_at).toLocaleDateString(),
+    })), [
+      { key: "email", label: "Email" }, { key: "role", label: "Role" },
+      { key: "status", label: "Status" }, { key: "date", label: "Date" },
+    ], "applications-export");
+  };
+
   const pendingCount = applications.filter((a) => a.status === "pending").length;
 
   return (
@@ -268,12 +284,14 @@ const ApplicationsAdmin = () => {
         </div>
       </div>
 
+      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
+
       {/* Table */}
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : dateFiltered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           No {filter !== "all" ? filter : ""} applications found
         </div>
@@ -291,7 +309,7 @@ const ApplicationsAdmin = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((app) => {
+              {dateFiltered.map((app) => {
                 const data = (app.application_data as any) || {};
                 return (
                   <TableRow key={app.id}>

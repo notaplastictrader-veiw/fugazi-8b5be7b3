@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
+import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
 interface Broker {
   id: string;
@@ -29,6 +31,7 @@ interface Broker {
   badge: string;
   logo_url: string | null;
   status: string;
+  created_at: string;
 }
 
 const emptyBroker = {
@@ -44,6 +47,8 @@ const BrokersAdmin = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Broker | null>(null);
   const [form, setForm] = useState(emptyBroker);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const fetchBrokers = async () => {
     const { data } = await supabase.from("brokers").select("*").order("created_at", { ascending: false });
@@ -96,7 +101,20 @@ const BrokersAdmin = () => {
     fetchBrokers();
   };
 
-  const filtered = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(() => {
+    let result = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
+    return filterByDateRange(result, "created_at", fromDate, toDate);
+  }, [brokers, search, fromDate, toDate]);
+
+  const handleExport = () => {
+    exportToCSV(filtered.map(b => ({
+      name: b.name, type: b.type, score: b.score, status: b.status,
+      date: new Date(b.created_at).toLocaleDateString(),
+    })), [
+      { key: "name", label: "Name" }, { key: "type", label: "Type" },
+      { key: "score", label: "Score" }, { key: "status", label: "Status" }, { key: "date", label: "Date" },
+    ], "brokers-export");
+  };
 
   return (
     <div>
@@ -105,6 +123,7 @@ const BrokersAdmin = () => {
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Broker</Button>
       </div>
       <Input placeholder="Search brokers..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 max-w-sm" />
+      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
