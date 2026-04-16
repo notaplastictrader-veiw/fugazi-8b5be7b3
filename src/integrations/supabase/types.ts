@@ -587,8 +587,13 @@ export type Database = {
           show_complaints: boolean | null
           show_country: boolean | null
           show_real_name: boolean | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
           social_telegram: string | null
+          social_tiktok: string | null
           social_twitter: string | null
+          social_youtube: string | null
           trading_style: string | null
           updated_at: string
           user_id: string
@@ -610,8 +615,13 @@ export type Database = {
           show_complaints?: boolean | null
           show_country?: boolean | null
           show_real_name?: boolean | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
           social_telegram?: string | null
+          social_tiktok?: string | null
           social_twitter?: string | null
+          social_youtube?: string | null
           trading_style?: string | null
           updated_at?: string
           user_id: string
@@ -633,8 +643,13 @@ export type Database = {
           show_complaints?: boolean | null
           show_country?: boolean | null
           show_real_name?: boolean | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
           social_telegram?: string | null
+          social_tiktok?: string | null
           social_twitter?: string | null
+          social_youtube?: string | null
           trading_style?: string | null
           updated_at?: string
           user_id?: string
