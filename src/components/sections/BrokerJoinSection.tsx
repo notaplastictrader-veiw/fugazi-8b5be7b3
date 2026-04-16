@@ -18,6 +18,7 @@ const tiers = [
     cta: "Contact Us →",
     ctaStyle: "highlight" as const,
     note: "Best for high-volume brokers",
+    link: "/advertise",
   },
   {
     name: "Verified Partner",
@@ -25,12 +26,14 @@ const tiers = [
     cta: "Contact Us →",
     ctaStyle: "secondary" as const,
     note: "Most popular choice",
+    link: "/advertise",
   },
   {
     name: "Basic Listing",
     features: ["Company profile", "User reviews", "Basic analytics"],
     cta: "Get Listed →",
     ctaStyle: "ghost" as const,
+    link: "/broker-claim",
   },
 ];
 
