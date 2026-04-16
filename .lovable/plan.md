@@ -1,46 +1,26 @@
 
 
-# Scam Report Submission System
+# Fix: Broker Join Section — Links & Contact Us Buttons
 
-## বর্তমান অবস্থা
-- Scam alerts শুধু **Admin panel** থেকে manually create করা যায়
-- Users এর কোনো public form নেই scam report submit করার জন্য
-- `complaints` table আছে কিন্তু সেটা broker-specific, scam report না
+## সমস্যা
+1. **"Promote Your Broker →"** button `/partnership` এ নিয়ে যায় — কিন্তু এটা Partnership page এর Affiliate tab এ যায়, broker listing এর জন্য relevant না
+2. **Tier cards এর "Contact Us →" ও "Get Listed →"** buttons কোথাও connected না — শুধু `<button>` tag, কোনো link/action নেই
 
-## সমাধান — "Report a Scam" Flow
+## সমাধান
 
-### Flow:
-1. `/scam-alerts` page এ **"Report a Scam"** button add হবে
-2. Button click করলে একটি modal/form খুলবে (logged-in users only)
-3. User form fill করবে: Broker/Platform Name, Description, Severity, Amount Lost
-4. Submit হলে `scam_alerts` table এ `status = 'pending'` হিসেবে insert হবে
-5. Admin approval queue তে যাবে → Admin approve করলে `published` হবে এবং list এ দেখাবে
-6. User তার submitted reports dashboard এ দেখতে পারবে
+### `src/components/sections/BrokerJoinSection.tsx`:
 
-### Database Changes
-কোনো schema change লাগবে না — `scam_alerts` table এ already `status`, `created_by`, `story` columns আছে। শুধু RLS policy add করতে হবে যাতে authenticated users insert করতে পারে।
+1. **"Promote Your Broker →"** link change: `/partnership` → `/advertise` (advertising page, broker promotion এর জন্য relevant)
 
-### New RLS Policy (Migration)
-```sql
--- Users can insert their own scam reports
-CREATE POLICY "Users can insert own scam_alerts"
-ON public.scam_alerts FOR INSERT TO authenticated
-WITH CHECK (created_by = auth.uid());
+2. **Tier card buttons কে functional করা:**
+   - "Contact Us →" (Featured + Verified, Verified Partner) → `/advertise` page এ নিয়ে যাবে (form আছে already)
+   - "Get Listed →" (Basic Listing) → `/broker-claim` page এ নিয়ে যাবে (claim profile flow)
+   - `<button>` → `<a href="...">` বা `<Link>` এ change করবো
 
--- Users can view own pending scam_alerts
-CREATE POLICY "Users can view own scam_alerts"
-ON public.scam_alerts FOR SELECT TO authenticated
-USING (created_by = auth.uid());
-```
+### Changes — 1 file only
 
-### UI Changes
-
-| File | Change |
-|------|--------|
-| `src/components/scam/ReportScamModal.tsx` | New — Form modal: broker name, description, amount, story |
-| `src/pages/ScamAlerts.tsx` | "Report a Scam" button add, modal integrate |
-| SQL Migration | RLS policies for user insert + view own |
-
-### Admin Side
-Already কাজ করে — `ScamAlertsAdmin.tsx` এ pending reports দেখা ও approve/reject করা যায়। `approval_queue` integration ও আছে।
+| Line | Current | New |
+|------|---------|-----|
+| ~72 | `<a href="/partnership">` | `<a href="/advertise">` |
+| ~91-93 | `<button>...</button>` | `<Link to={tier link}>...</Link>` with `/advertise` for Contact Us, `/broker-claim` for Get Listed |
 
