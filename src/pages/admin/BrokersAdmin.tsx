@@ -109,7 +109,7 @@ const BrokersAdmin = () => {
   const handleExport = () => {
     exportToCSV(filtered.map(b => ({
       name: b.name, type: b.type, score: b.score, status: b.status,
-      date: new Date(b.created_at).toLocaleDateString(),
+      date: formatDate(b.created_at),
     })), [
       { key: "name", label: "Name" }, { key: "type", label: "Type" },
       { key: "score", label: "Score" }, { key: "status", label: "Status" }, { key: "date", label: "Date" },

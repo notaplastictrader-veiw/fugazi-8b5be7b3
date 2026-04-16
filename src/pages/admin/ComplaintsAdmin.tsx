@@ -8,6 +8,11 @@ import { toast } from "sonner";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
+};
+
 interface Complaint {
   id: string; content: string; proof_urls: string[]; status: string; created_at: string;
 }
@@ -28,7 +33,7 @@ const ComplaintsAdmin = () => {
   const handleExport = () => {
     exportToCSV(filtered.map(c => ({
       content: c.content, proofs: c.proof_urls?.length || 0, status: c.status,
-      date: new Date(c.created_at).toLocaleDateString(),
+      date: formatDate(c.created_at),
     })), [
       { key: "content", label: "Content" }, { key: "proofs", label: "Proofs" },
       { key: "status", label: "Status" }, { key: "date", label: "Date" },
@@ -62,7 +67,7 @@ const ComplaintsAdmin = () => {
                 <TableCell className="max-w-[400px] truncate">{c.content}</TableCell>
                 <TableCell>{c.proof_urls?.length || 0}</TableCell>
                 <TableCell><StatusBadge status={c.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</TableCell>
+                <TableCell className="text-muted-foreground">{formatDate(c.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "published")}><Check className="w-4 h-4 text-primary" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(c.id, "rejected")}><X className="w-4 h-4 text-destructive" /></Button>

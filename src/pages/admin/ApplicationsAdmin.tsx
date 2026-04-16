@@ -12,6 +12,11 @@ import type { Database } from "@/integrations/supabase/types";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
+};
+
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 interface Application {
@@ -229,7 +234,7 @@ const ApplicationsAdmin = () => {
   const handleExport = () => {
     exportToCSV(dateFiltered.map(a => ({
       email: a.contact_email || "—", role: a.role, status: a.status,
-      date: new Date(a.created_at).toLocaleDateString(),
+      date: formatDate(a.created_at),
     })), [
       { key: "email", label: "Email" }, { key: "role", label: "Role" },
       { key: "status", label: "Status" }, { key: "date", label: "Date" },
@@ -333,7 +338,7 @@ const ApplicationsAdmin = () => {
                     </TableCell>
                     <TableCell>{statusBadge(app.status)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date(app.created_at).toLocaleDateString()}
+                      {formatDate(app.created_at)}
                     </TableCell>
                     <TableCell className="text-right">
                       {app.status === "pending" ? (

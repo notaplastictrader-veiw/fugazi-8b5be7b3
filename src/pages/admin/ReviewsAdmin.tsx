@@ -8,6 +8,11 @@ import { toast } from "sonner";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
+};
+
 interface Review {
   id: string; author: string; content: string; rating: number; role: string; status: string; created_at: string;
 }
@@ -28,7 +33,7 @@ const ReviewsAdmin = () => {
   const handleExport = () => {
     exportToCSV(filtered.map(r => ({
       author: r.author, rating: r.rating, content: r.content, status: r.status,
-      date: new Date(r.created_at).toLocaleDateString(),
+      date: formatDate(r.created_at),
     })), [
       { key: "author", label: "Author" }, { key: "rating", label: "Rating" },
       { key: "content", label: "Content" }, { key: "status", label: "Status" }, { key: "date", label: "Date" },
@@ -64,7 +69,7 @@ const ReviewsAdmin = () => {
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[300px] truncate">{r.content}</TableCell>
                 <TableCell><StatusBadge status={r.status} /></TableCell>
-                <TableCell className="text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</TableCell>
+                <TableCell className="text-muted-foreground">{formatDate(r.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(r.id, "published")}><Check className="w-4 h-4 text-primary" /></Button>
                   <Button variant="ghost" size="sm" onClick={() => updateStatus(r.id, "rejected")}><X className="w-4 h-4 text-destructive" /></Button>
