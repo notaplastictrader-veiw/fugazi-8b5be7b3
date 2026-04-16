@@ -1,6 +1,6 @@
-import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2 } from "lucide-react";
+import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2, Home, ArrowLeft } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
 import {
   Sidebar,
@@ -11,6 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -33,6 +34,21 @@ const DashboardSidebar = () => {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/" className="hover:bg-muted/50 text-primary font-medium">
+                    <Home className="mr-2 h-4 w-4" />
+                    {!collapsed && <span>Back to Site</span>}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -50,6 +66,13 @@ const DashboardSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-border p-2">
+        <Link to="/" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors px-2 py-1.5">
+          <ArrowLeft className="h-3 w-3" />
+          {!collapsed && <span>← Back to Site</span>}
+        </Link>
+      </SidebarFooter>
     </Sidebar>
   );
 };
