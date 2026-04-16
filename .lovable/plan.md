@@ -1,21 +1,29 @@
 
 
-# Advertise Page — Pricing & Budget Remove, Contact-First Flow
+# Mobile/Tablet — User Dropdown Menu Missing
 
-## Changes
+## সমস্যা
+Mobile menu তে logged-in user এর জন্য শুধু নাম আর "Log Out" button আছে। Desktop এ যে dropdown menu দেখায় (Admin Panel, Dashboard, Settings, role badge) সেগুলো mobile menu তে নেই।
 
-### `src/pages/Advertise.tsx`
-1. **Placement cards থেকে `price` field সরাও** — শুধু title + description থাকবে, pricing দেখাবে না
-2. **Budget dropdown সম্পূর্ণ সরাও** — Select component ও `budgetRanges` array remove
-3. **Form description update**: "Fill out the form and our team will schedule a meeting and share our media kit." 
-4. **Success toast update**: "Enquiry submitted! We'll schedule a meeting and share our media kit within 24 hours."
-5. **`budget` state ও related import (`Select`, `SelectContent`, etc.) cleanup**
+## সমাধান
 
-### `src/components/sections/BrokerJoinSection.tsx`
-- কোনো pricing নেই এখানে, তাই change নেই
+### `src/components/layout/Navbar.tsx` — Mobile menu এর user section update
 
-### Summary
-- 1 file edit: `src/pages/Advertise.tsx`
-- Pricing/budget references সব remove
-- Messaging update: contact → meeting → media kit
+Lines 243-254 এ logged-in user block এ desktop dropdown এর মতো full menu items add করবো:
+
+1. **Role badge** দেখাবে (Super Admin, Broker, etc.) — `useUserRole` hook use করে
+2. **Menu items** — Desktop `UserDropdown` এর same logic follow করে role-based links দেখাবে:
+   - Super Admin → Admin Panel, Dashboard, Settings
+   - Broker → Broker Portal, Dashboard, Settings
+   - Signal Provider → Signal Portal, Dashboard, Settings
+   - Regular User → Dashboard, My Reviews, My Complaints, Settings
+3. **Log Out** button থাকবে নিচে
+
+### Changes — 1 file
+
+| File | Change |
+|------|--------|
+| `src/components/layout/Navbar.tsx` | Mobile menu তে `useUserRole` import, role badge + full nav links add (lines ~243-254) |
+
+Desktop dropdown (`UserDropdown.tsx`) এর same `getMenuItems()` logic replicate করবো mobile menu তে, কিন্তু inline style এ (dropdown নয়, list আকারে)।
 
