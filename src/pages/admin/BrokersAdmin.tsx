@@ -31,6 +31,7 @@ interface Broker {
   badge: string;
   logo_url: string | null;
   status: string;
+  created_at: string;
 }
 
 const emptyBroker = {
