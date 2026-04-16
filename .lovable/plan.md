@@ -1,24 +1,27 @@
 
 
-# Fix: Applications Link Missing from Admin Sidebar
+# Fix: Applications Pending Count & Notification Link
 
 ## সমস্যা
-`/admin/applications` page আছে এবং route ও আছে, কিন্তু Admin Sidebar এ এটার link নেই। তাই super admin হিসেবে navigate করার উপায় নেই।
+1. নতুন application আসলে admin notification এর link `/admin/approvals` এ যায়, কিন্তু applications আছে `/admin/applications` এ
+2. Admin Dashboard এ "Pending" count শুধু `approval_queue` table থেকে আসে — `applications` table এর pending count include করে না
+3. Dashboard এ applications এর কোনো stat বা quick action নেই
 
 ## সমাধান
 
-### `src/components/admin/AdminSidebar.tsx`
-Sidebar এর appropriate section এ (likely "OVERVIEW" বা "PROVIDER MANAGEMENT" section) একটা নতুন menu item add করবো:
+### 1. `src/components/modals/AuthModal.tsx`
+- `notifyAdmins()` call এ link `/admin/approvals` → `/admin/applications` change করবো
 
-```typescript
-{ title: "Applications", url: "/admin/applications", icon: UserPlus }
-```
-
-`UserPlus` icon already import list এ আছে কিনা check করবো, না থাকলে add করবো।
+### 2. `src/pages/admin/Dashboard.tsx`
+- Stats interface এ `pendingApplications` add করবো
+- `fetchAll` এ `applications` table থেকে pending count query add করবো
+- Primary stats বা Quick Actions এ "Applications" item add করবো badge সহ
+- Pending stat এ applications count ও include করবো
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/components/admin/AdminSidebar.tsx` | Add "Applications" menu item with `UserPlus` icon to sidebar |
+| `src/components/modals/AuthModal.tsx` | Fix notification link to `/admin/applications` |
+| `src/pages/admin/Dashboard.tsx` | Add pending applications count to stats + quick actions |
 
