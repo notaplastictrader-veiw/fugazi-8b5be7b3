@@ -1,29 +1,29 @@
 
 
-# Email Validation Fix — Signup Forms
+# Signup.tsx — Add Required Fields (Full Name, Phone, Terms)
 
 ## সমস্যা
-"Fugazi@06" এর মতো invalid email দিয়ে account create করা যাচ্ছে — কোনো warning নেই। Browser এর built-in `type="email"` validation যথেষ্ট না, আর Supabase ও মাঝে মাঝে invalid email accept করে ফেলে।
+Signup page এ শুধু email, password আর country দিয়ে account create হয়ে যাচ্ছে। Full Name, Phone Number, আর Terms acceptance ছাড়াই signup হচ্ছে। AuthModal এ এসব field আছে কিন্তু standalone Signup page এ নেই।
 
 ## সমাধান
-দুইটা signup form এ (Signup.tsx + AuthModal.tsx) proper email validation যোগ করবো — submit এর আগেই check করবো:
+AuthModal এর মতো Signup.tsx তেও mandatory fields যোগ করবো:
 
-**Regex validation:**
-```typescript
-const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-```
+1. **Full Name** — required text input
+2. **Phone Number** — country dial code + phone input (country selector already exists)
+3. **Terms & Conditions checkbox** — must accept before signup
 
-এটা check করবে:
-- `@` আছে কিনা
-- Domain part এ `.` আছে কিনা (e.g. `.com`, `.net`)
-- "Fugazi@06" reject হবে কারণ `06` এ dot নেই
+### Validation (submit এর আগে)
+- Full Name খালি থাকলে → toast error
+- Phone খালি থাকলে → toast error  
+- Country select না করলে → toast error
+- Terms accept না করলে → toast error
 
-**Toast error:** "Please enter a valid email address"
+### Data passing
+`supabase.auth.signUp` এর `data` তে `full_name` পাঠাবো। Signup success এর পর `profiles` table এ `phone`, `country_code`, `country` update করবো — ঠিক AuthModal যেভাবে করে।
 
 ## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/pages/Signup.tsx` | `handleSignup` এ email regex check যোগ, invalid হলে toast দেখাবে |
-| `src/components/modals/AuthModal.tsx` | `handleSignup` ও `handleLogin` এ same email validation যোগ |
+| `src/pages/Signup.tsx` | Add `fullName`, `phone`, `acceptedTerms` state। Form এ 3টা নতুন field। Validation + profiles update after signup |
 
