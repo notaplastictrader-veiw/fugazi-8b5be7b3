@@ -1,26 +1,21 @@
 
 
-# Fix: Broker Join Section — Links & Contact Us Buttons
+# Advertise Page — Pricing & Budget Remove, Contact-First Flow
 
-## সমস্যা
-1. **"Promote Your Broker →"** button `/partnership` এ নিয়ে যায় — কিন্তু এটা Partnership page এর Affiliate tab এ যায়, broker listing এর জন্য relevant না
-2. **Tier cards এর "Contact Us →" ও "Get Listed →"** buttons কোথাও connected না — শুধু `<button>` tag, কোনো link/action নেই
+## Changes
 
-## সমাধান
+### `src/pages/Advertise.tsx`
+1. **Placement cards থেকে `price` field সরাও** — শুধু title + description থাকবে, pricing দেখাবে না
+2. **Budget dropdown সম্পূর্ণ সরাও** — Select component ও `budgetRanges` array remove
+3. **Form description update**: "Fill out the form and our team will schedule a meeting and share our media kit." 
+4. **Success toast update**: "Enquiry submitted! We'll schedule a meeting and share our media kit within 24 hours."
+5. **`budget` state ও related import (`Select`, `SelectContent`, etc.) cleanup**
 
-### `src/components/sections/BrokerJoinSection.tsx`:
+### `src/components/sections/BrokerJoinSection.tsx`
+- কোনো pricing নেই এখানে, তাই change নেই
 
-1. **"Promote Your Broker →"** link change: `/partnership` → `/advertise` (advertising page, broker promotion এর জন্য relevant)
-
-2. **Tier card buttons কে functional করা:**
-   - "Contact Us →" (Featured + Verified, Verified Partner) → `/advertise` page এ নিয়ে যাবে (form আছে already)
-   - "Get Listed →" (Basic Listing) → `/broker-claim` page এ নিয়ে যাবে (claim profile flow)
-   - `<button>` → `<a href="...">` বা `<Link>` এ change করবো
-
-### Changes — 1 file only
-
-| Line | Current | New |
-|------|---------|-----|
-| ~72 | `<a href="/partnership">` | `<a href="/advertise">` |
-| ~91-93 | `<button>...</button>` | `<Link to={tier link}>...</Link>` with `/advertise` for Contact Us, `/broker-claim` for Get Listed |
+### Summary
+- 1 file edit: `src/pages/Advertise.tsx`
+- Pricing/budget references সব remove
+- Messaging update: contact → meeting → media kit
 
