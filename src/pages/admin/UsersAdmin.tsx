@@ -94,9 +94,9 @@ const UsersAdmin = () => {
   const handleExport = () => {
     const exportData = filteredItems.map(r => ({
       user_id: r.user_id,
-      name: profiles[r.user_id]?.full_name || "—",
+      name: profiles[r.user_id]?.full_name || authUsers[r.user_id]?.full_name || "—",
       email: authUsers[r.user_id]?.email || "—",
-      phone: profiles[r.user_id]?.phone || "—",
+      phone: profiles[r.user_id]?.phone || authUsers[r.user_id]?.phone || "—",
       role: r.role.replace("_", " "),
       signup_date: authUsers[r.user_id]?.created_at
         ? formatDate(authUsers[r.user_id].created_at)
@@ -213,7 +213,7 @@ const UsersAdmin = () => {
           <TableBody>
             {filteredItems.map(r => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium uppercase">{profiles[r.user_id]?.full_name || "—"}</TableCell>
+                <TableCell className="font-medium uppercase">{profiles[r.user_id]?.full_name || authUsers[r.user_id]?.full_name || "—"}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-mono text-muted-foreground">{r.user_id.slice(0, 8)}…</span>
@@ -223,7 +223,7 @@ const UsersAdmin = () => {
                   </div>
                 </TableCell>
                 <TableCell className="text-xs">{authUsers[r.user_id]?.email || "—"}</TableCell>
-                <TableCell>{profiles[r.user_id]?.phone || "—"}</TableCell>
+                <TableCell>{profiles[r.user_id]?.phone || authUsers[r.user_id]?.phone || "—"}</TableCell>
                 <TableCell className="capitalize">{r.role.replace("_", " ")}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {authUsers[r.user_id]?.created_at
