@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import AuthModal from "@/components/modals/AuthModal";
 import LanguageSelector from "@/components/LanguageSelector";
 import UserDropdown from "@/components/UserDropdown";
@@ -62,39 +63,56 @@ const Navbar = () => {
     return null;
   };
 
-  const navLinks = [
-    {
-      label: t("nav.brokerReviews"),
-      href: "#",
-      children: [
-        { label: "CFD / Forex Brokers", href: "/brokers" },
-        { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
-        { label: "Binary Options", href: "/brokers?type=binary" },
-        { label: "ECN Brokers", href: "/brokers?type=ecn" },
-        { label: "Broker Comparison", href: "/compare" },
-      ],
-    },
-    { label: t("nav.propFirms"), href: "/prop-firms" },
-    { label: t("nav.sports", "Sports"), href: "/sports" },
-    { label: t("nav.signals"), href: "/signals" },
-    { label: t("nav.education"), href: "/education" },
-    {
-      label: t("nav.more"),
-      href: "#",
-      highlight: true,
-      children: [
-        { label: t("nav.promotions", "Promotions"), href: "/promotions" },
-        { label: "Share Ideas", href: "/ideas" },
-        { label: t("nav.calendar", "Calendar"), href: "/calendar" },
-        { label: t("nav.news", "News"), href: "/news" },
-        { label: t("nav.about", "About Us"), href: "/about" },
-        { label: t("nav.contact", "Contact Us"), href: "/contact" },
-        { label: t("nav.affiliate", "Become an Affiliate"), href: "/partnership?tab=affiliate" },
-        { label: "IB Partnership", href: "/partnership?tab=ib" },
-        { label: "Collaboration", href: "/partnership?tab=collab" },
-      ],
-    },
-  ];
+  const navCms = useSiteSettings<Record<string, any>>("navbar", {});
+
+  const navLinks = useMemo(() => {
+    const items = navCms.menu_items;
+    if (Array.isArray(items) && items.length > 0) {
+      return items.map((item: any) => ({
+        label: item.label,
+        href: item.href || item.url || "#",
+        highlight: !!item.highlight,
+        children: Array.isArray(item.children) && item.children.length > 0
+          ? item.children.map((c: any) => ({ label: c.label, href: c.href || c.url || "#" }))
+          : undefined,
+      }));
+    }
+    return [
+      {
+        label: t("nav.brokerReviews"),
+        href: "#",
+        children: [
+          { label: "CFD / Forex Brokers", href: "/brokers" },
+          { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
+          { label: "Binary Options", href: "/brokers?type=binary" },
+          { label: "ECN Brokers", href: "/brokers?type=ecn" },
+          { label: "Broker Comparison", href: "/compare" },
+        ],
+      },
+      { label: t("nav.propFirms"), href: "/prop-firms" },
+      { label: t("nav.sports", "Sports"), href: "/sports" },
+      { label: t("nav.signals"), href: "/signals" },
+      { label: t("nav.education"), href: "/education" },
+      {
+        label: t("nav.more"),
+        href: "#",
+        highlight: true,
+        children: [
+          { label: t("nav.promotions", "Promotions"), href: "/promotions" },
+          { label: "Share Ideas", href: "/ideas" },
+          { label: t("nav.calendar", "Calendar"), href: "/calendar" },
+          { label: t("nav.news", "News"), href: "/news" },
+          { label: t("nav.about", "About Us"), href: "/about" },
+          { label: t("nav.contact", "Contact Us"), href: "/contact" },
+          { label: t("nav.affiliate", "Become an Affiliate"), href: "/partnership?tab=affiliate" },
+          { label: "IB Partnership", href: "/partnership?tab=ib" },
+          { label: "Collaboration", href: "/partnership?tab=collab" },
+        ],
+      },
+    ] as any[];
+  }, [navCms.menu_items, t]);
+
+  const moreLabel = navCms.more_label || t("nav.more");
 
   const toggleDropdown = (label: string) => {
     setOpenDropdown(openDropdown === label ? null : label);
@@ -167,7 +185,7 @@ const Navbar = () => {
                 )}
                 {link.children && (
                   <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
-                    {link.label === t("nav.more") ? (
+                    {link.label === moreLabel && link.children.length >= 6 ? (
                       <>
                         <div className="px-3 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Main Menu</div>
                         {link.children.slice(0, 4).map((child) => (

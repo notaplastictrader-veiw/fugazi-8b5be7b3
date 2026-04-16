@@ -20,6 +20,8 @@ const CommunityReviews = () => {
 
   const sectionTitle = cms.section_title || "What Traders";
   const displayCount = cms.display_count || 50;
+  const ctaText = cms.cta_text || "Write a review →";
+  const cancelText = cms.cancel_text || "Cancel";
 
   const fallbackReviews: Review[] = [
     { id: "r1", author: "Tyler Mather", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Fast withdrawals, excellent spreads. Been using for 2 years without any issues. Best broker I've tried.", role: "Exness · London, UK" },
@@ -94,8 +96,8 @@ const CommunityReviews = () => {
       </div>
 
       <div className="max-w-7xl mx-auto mt-6">
-        <button onClick={() => setShowForm(!showForm)} className="text-sm text-primary hover:underline">
-          {showForm ? "Cancel" : "Write a review →"}
+        <button onClick={() => setShowForm(!showForm)} className="inline-flex items-center px-5 py-2.5 text-sm font-semibold rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors">
+          {showForm ? cancelText : ctaText}
         </button>
       </div>
 
