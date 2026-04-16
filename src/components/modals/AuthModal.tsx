@@ -149,7 +149,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       password: signupPassword,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, country: selectedCountry.name },
+        data: { full_name: fullName, country: selectedCountry.code, country_name: selectedCountry.name, phone: `${selectedCountry.dialCode}${phone}` },
       },
     });
     
@@ -159,13 +159,9 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       return;
     }
 
-    if (data.user) {
-      await supabase.from("profiles").update({
-        phone,
-        country_code: selectedCountry.dialCode,
-        country: selectedCountry.name,
-      }).eq("user_id", data.user.id);
+      // Profile is created by the database trigger with all signup data
 
+    if (data.user) {
       if (signupRole !== "user") {
         const appData: Record<string, string> = {};
         if (signupRole === "signal_provider") {
