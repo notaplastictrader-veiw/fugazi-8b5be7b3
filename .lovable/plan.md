@@ -1,23 +1,61 @@
 
 
-# Make Super Admin + Fix Dashboard Layout
+# Unified Approval Queue + Admin Notifications
 
-## Step 1: Assign super_admin role
-Insert into `user_roles` table for user `01b83db4-13b6-485d-9662-f62fcb0478dc` with role `super_admin`.
+## কী করবো
 
-## Step 2: Fix Dashboard Layout Issues
+### 1. ApprovalQueueAdmin.tsx — Complete Rewrite
+একটা unified page যেখানে ৪টা source থেকে সব pending requests এক জায়গায় দেখাবে:
 
-**Problem**: The dashboard is wrapped in `MainLayout` which has a fixed bottom ticker (32px) and top nav (92px). The dashboard content uses `pt-24 pb-12` but the bottom ticker overlaps content. The sidebar also gets clipped.
+**Dropdown filter:** All | Applications | Profile Claims | Tier Upgrades | Content
 
-**Fix in `DashboardLayout.tsx`**:
-- Change `pb-12` to `pb-16` (64px) to account for the fixed bottom ticker bar (32px)
-- Ensure the sidebar has proper overflow handling
-- Add `overflow-auto` to the main content area so the "My Reviews" section and sidebar don't get cut off
+প্রতিটা item দেখাবে:
+- **কে** — নাম, ইমেইল, ফোন (profiles table join + application contact fields)
+- **কী ধরনের** — Application / Claim / Upgrade / Content (color-coded badge)
+- **কবে** — submission date + time in queue
+- **Status** — pending / approved / rejected
+- **Review button** → type-specific modal:
+  - Application: company name, website, role, approve (creates profile + role) / reject
+  - Claim: entity name, claimant details, docs link, approve / reject
+  - Upgrade: current tier → requested tier, approve / reject
+  - Content: existing approve/reject flow
+
+Approve/reject logic প্রতিটা type এর জন্য existing handlers থেকে নেওয়া হবে (ApplicationsAdmin, BrokerClaimsAdmin, TierUpgradesAdmin এর logic merge করবো)।
+
+### 2. Admin Notifications — Submit Time
+যখন user request submit করে, super_admin দের কে notification পাঠাবে:
+
+**BrokerClaimProfile.tsx** — claim submit এর পরে:
+```
+// Fetch super_admin user IDs, insert notification for each
+```
+
+**AuthModal.tsx** — application submit এর পরে:
+```
+// Same: notify super_admins about new application
+```
+
+Helper function তৈরি করবো `notifyAdmins(title, message, link)` — `user_roles` থেকে super_admin দের খুঁজে notifications insert করবে।
+
+### 3. AdminSidebar.tsx — Cleanup
+PEOPLE section থেকে remove:
+- ~~Applications~~ (url: /admin/applications)
+- ~~Profile Claims~~ (url: /admin/claims)  
+- ~~Tier Upgrades~~ (url: /admin/tier-upgrades)
+
+রাখবো শুধু: Users & Roles
+
+Routes App.tsx এ রাখবো (backward compatibility), কিন্তু sidebar থেকে links সরাবো।
 
 ## Files Changed
 
-| Change | Details |
-|--------|---------|
-| DB Insert | `user_roles` — super_admin for user `01b83db4-13b6-485d-9662-f62fcb0478dc` |
-| `src/components/dashboard/DashboardLayout.tsx` | Increase bottom padding, fix overflow for sidebar and content area |
+| File | Change |
+|------|--------|
+| `src/pages/admin/ApprovalQueueAdmin.tsx` | Complete rewrite — unified view from 4 tables, type-specific review modals, merged approve/reject logic |
+| `src/components/admin/AdminSidebar.tsx` | PEOPLE section থেকে 3 links remove |
+| `src/lib/notifyAdmins.ts` | New helper — fetches super_admin IDs, inserts notifications |
+| `src/pages/BrokerClaimProfile.tsx` | Claim submit এর পর `notifyAdmins()` call |
+| `src/components/modals/AuthModal.tsx` | Application submit এর পর `notifyAdmins()` call |
+
+No database migration needed.
 
