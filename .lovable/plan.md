@@ -1,40 +1,46 @@
 
 
-# Scam Alert Detail Page + Story Field
+# Scam Report Submission System
 
-## সমস্যা
-Scam alert card এ click করলে কিছু হয় না। প্রতিটি alert এর জন্য একটি detail page দরকার যেখানে full story থাকবে (client যা লিখবে)।
+## বর্তমান অবস্থা
+- Scam alerts শুধু **Admin panel** থেকে manually create করা যায়
+- Users এর কোনো public form নেই scam report submit করার জন্য
+- `complaints` table আছে কিন্তু সেটা broker-specific, scam report না
 
-## সমাধান
+## সমাধান — "Report a Scam" Flow
 
-### Step 1: Database Migration — `story` column add
-`scam_alerts` table এ `story TEXT` column add করবো। এখানে full detailed write-up রাখা যাবে। Demo alerts এ sample story text দিয়ে update করবো।
+### Flow:
+1. `/scam-alerts` page এ **"Report a Scam"** button add হবে
+2. Button click করলে একটি modal/form খুলবে (logged-in users only)
+3. User form fill করবে: Broker/Platform Name, Description, Severity, Amount Lost
+4. Submit হলে `scam_alerts` table এ `status = 'pending'` হিসেবে insert হবে
+5. Admin approval queue তে যাবে → Admin approve করলে `published` হবে এবং list এ দেখাবে
+6. User তার submitted reports dashboard এ দেখতে পারবে
 
-### Step 2: New Page — `src/pages/ScamAlertDetail.tsx`
-`/scam-alerts/:id` route এ individual scam alert detail page:
-- DB থেকে ID দিয়ে fetch
-- Fallback data থেকে match (DB empty হলে)
-- Title, severity badge, date, full story render
-- Back link to `/scam-alerts`
+### Database Changes
+কোনো schema change লাগবে না — `scam_alerts` table এ already `status`, `created_by`, `story` columns আছে। শুধু RLS policy add করতে হবে যাতে authenticated users insert করতে পারে।
 
-### Step 3: Route Add — `src/App.tsx`
+### New RLS Policy (Migration)
+```sql
+-- Users can insert their own scam reports
+CREATE POLICY "Users can insert own scam_alerts"
+ON public.scam_alerts FOR INSERT TO authenticated
+WITH CHECK (created_by = auth.uid());
+
+-- Users can view own pending scam_alerts
+CREATE POLICY "Users can view own scam_alerts"
+ON public.scam_alerts FOR SELECT TO authenticated
+USING (created_by = auth.uid());
 ```
-<Route path="/scam-alerts/:id" element={<ScamAlertDetail />} />
-```
 
-### Step 4: Card কে Clickable করা — `src/pages/ScamAlerts.tsx`
-প্রতিটি card কে `<Link to={/scam-alerts/${alert.id}}>` দিয়ে wrap করবো।
-
-### Step 5: Homepage Section ও Clickable — `src/components/sections/ScamAlertSection.tsx`
-Homepage এর scam alert cards ও detail page এ link করবো।
-
-## Files
+### UI Changes
 
 | File | Change |
 |------|--------|
-| SQL Migration | `ALTER TABLE scam_alerts ADD COLUMN story TEXT`; update demo rows with sample stories |
-| `src/pages/ScamAlertDetail.tsx` | New detail page |
-| `src/App.tsx` | Add `/scam-alerts/:id` route |
-| `src/pages/ScamAlerts.tsx` | Cards কে clickable Link করা |
-| `src/components/sections/ScamAlertSection.tsx` | Cards কে clickable Link করা |
+| `src/components/scam/ReportScamModal.tsx` | New — Form modal: broker name, description, amount, story |
+| `src/pages/ScamAlerts.tsx` | "Report a Scam" button add, modal integrate |
+| SQL Migration | RLS policies for user insert + view own |
+
+### Admin Side
+Already কাজ করে — `ScamAlertsAdmin.tsx` এ pending reports দেখা ও approve/reject করা যায়। `approval_queue` integration ও আছে।
 
