@@ -2,28 +2,178 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Save, Loader2 } from "lucide-react";
 
-interface Setting {
-  id: string;
+interface SettingDef {
   key: string;
-  value: any;
+  label: string;
+  description: string;
+  group: string;
+  default: any;
 }
 
-const defaultSettings: Record<string, any> = {
-  promo_ticker: ["🔥 Exness 100% Deposit Bonus", "🚀 FTMO 20% Off Challenge", "💰 Bullwaves — Start with $10"],
-  ticker_pairs: [
-    { pair: "XAU/USD", price: "2,341.50", change: "+0.82%", up: true },
-    { pair: "EUR/USD", price: "1.0847", change: "-0.12%", up: false },
-  ],
-  hero_stats: { brokers_reviewed: "200+", complaints_resolved: "15K+", active_traders: "50K+", countries: "180+" },
-  scam_alert_banner: "⚠️ Warning: TradeWave Markets — Withdrawal issues reported",
-};
+const settingsDefs: SettingDef[] = [
+  // 📊 Tickers
+  {
+    key: "promo_ticker",
+    label: "Promo Ticker",
+    description: "Homepage এর একদম উপরে scrolling promo bar। Array of text strings — প্রতিটা string একটা promo message।",
+    group: "📊 Tickers",
+    default: ["🔥 Exness 100% Deposit Bonus", "🚀 FTMO 20% Off Challenge", "💰 Bullwaves — Start with $10"],
+  },
+  {
+    key: "ticker_pairs",
+    label: "Ticker Pairs (Price Bar)",
+    description: "Top ও Bottom ticker bar এ currency pair prices দেখায়। প্রতিটা item এ pair, price, change, up (true/false) দিতে হবে।",
+    group: "📊 Tickers",
+    default: [
+      { pair: "XAU/USD", price: "2,341.50", change: "+0.82%", up: true },
+      { pair: "EUR/USD", price: "1.0847", change: "-0.12%", up: false },
+      { pair: "BTC/USD", price: "67,450", change: "+2.15%", up: true },
+      { pair: "GBP/USD", price: "1.2715", change: "+0.05%", up: true },
+    ],
+  },
+  // 🏠 Homepage Sections
+  {
+    key: "hero_section",
+    label: "Hero Section",
+    description: "Homepage এর main banner — headline, subheadline, search placeholders, rotating eyebrow messages, এবং bottom stats। eyebrow_items এ text/highlight/suffix দিয়ে animated text তৈরি হয়।",
+    group: "🏠 Homepage Sections",
+    default: {
+      headline: "Not A Fugazi Trader",
+      subheadline: "Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof.",
+      search_placeholders: ["Search brokers...", "Find signals...", "Compare prop firms..."],
+      eyebrow_items: [
+        { text: "Trusted by", highlight: "50,000+", suffix: "traders worldwide" },
+        { text: "Over", highlight: "200+", suffix: "brokers reviewed" },
+      ],
+      stats: [
+        { value: "200+", label: "Brokers Reviewed" },
+        { value: "15K+", label: "Complaints Resolved" },
+        { value: "50K+", label: "Active Traders" },
+        { value: "180+", label: "Countries" },
+      ],
+    },
+  },
+  {
+    key: "broker_trust_hub",
+    label: "Broker Trust Hub",
+    description: "Broker listing section — section title, কতটা broker দেখাবে, এবং prop firm categories list।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "Broker Trust Hub",
+      broker_count: 6,
+      prop_firm_categories: ["Funded Accounts", "Challenge-Based", "Instant Funding"],
+    },
+  },
+  {
+    key: "scam_alert_section",
+    label: "Scam Watch Section",
+    description: "Scam alerts section — title, কতটা alert দেখাবে, এবং CTA button এর text।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "Scam Watch",
+      display_count: 4,
+      cta_text: "View All Scam Alerts",
+    },
+  },
+  {
+    key: "signal_channel",
+    label: "Signal Channel CTA",
+    description: "Signal channel promotion section — title, description, primary ও secondary CTA text, এবং stats।",
+    group: "🏠 Homepage Sections",
+    default: {
+      title: "Join Our Signal Channel",
+      description: "Get real-time trading signals with verified track records.",
+      cta_primary: "Join Free Channel",
+      cta_secondary: "Apply for Premium",
+      stats: [
+        { value: "~78%", label: "Win Rate" },
+        { value: "1:3", label: "Avg R:R" },
+        { value: "50+", label: "Monthly Signals" },
+      ],
+    },
+  },
+  {
+    key: "signal_hub",
+    label: "Signal Hub",
+    description: "Signal groups listing section — title, কতটা group দেখাবে, এবং 'View All' button text।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "Signal Hub",
+      display_count: 6,
+      cta_text: "View All Signal Groups",
+    },
+  },
+  {
+    key: "forecast_section",
+    label: "Forecast Section",
+    description: "Market forecast section — title এবং categories list।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "Market Forecasts",
+      categories: ["Forex", "Crypto", "Commodities"],
+    },
+  },
+  {
+    key: "how_it_works",
+    label: "How It Works",
+    description: "Step-by-step guide section — title, CTA button text, এবং steps array (প্রতিটায় title ও description)।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "How It Works",
+      cta_text: "Get Started",
+      steps: [
+        { title: "Search & Compare", description: "Browse 200+ broker reviews with real user ratings" },
+        { title: "Read Real Reviews", description: "Check verified complaints and withdrawal proofs" },
+        { title: "Trade with Confidence", description: "Choose a trusted broker and start trading" },
+      ],
+    },
+  },
+  {
+    key: "community_reviews",
+    label: "Community Reviews",
+    description: "Reviews carousel section — title এবং কতটা review দেখাবে।",
+    group: "🏠 Homepage Sections",
+    default: {
+      section_title: "Community Reviews",
+      display_count: 6,
+    },
+  },
+  {
+    key: "broker_join_section",
+    label: "For Brokers (CTA)",
+    description: "Broker sign-up CTA section — title, description, benefits list, এবং CTA button text।",
+    group: "🏠 Homepage Sections",
+    default: {
+      title: "Are You a Broker?",
+      description: "Claim your profile, respond to reviews, and reach 50K+ traders.",
+      benefits: ["Claim & verify your profile", "Respond to user complaints", "Get featured placement", "Access analytics dashboard"],
+      cta_text: "Claim Your Profile",
+    },
+  },
+  // ⚙️ Legacy
+  {
+    key: "hero_stats",
+    label: "Hero Stats (Legacy)",
+    description: "পুরনো hero stats key — এখন hero_section এর stats ব্যবহার হয়। Backward compatibility এর জন্য রাখা।",
+    group: "⚙️ Legacy",
+    default: { brokers_reviewed: "200+", complaints_resolved: "15K+", active_traders: "50K+", countries: "180+" },
+  },
+  {
+    key: "scam_alert_banner",
+    label: "Scam Alert Banner (Legacy)",
+    description: "পুরনো single-line scam banner text। এখন scam_alert_section ব্যবহার হয়।",
+    group: "⚙️ Legacy",
+    default: "⚠️ Warning: TradeWave Markets — Withdrawal issues reported",
+  },
+];
 
 const SiteSettingsAdmin = () => {
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,13 +181,12 @@ const SiteSettingsAdmin = () => {
       const { data } = await supabase.from("site_settings").select("*");
       const map: Record<string, string> = {};
       if (data) {
-        data.forEach((s: Setting) => {
+        data.forEach((s: { key: string; value: any }) => {
           map[s.key] = JSON.stringify(s.value, null, 2);
         });
       }
-      // Fill defaults for missing keys
-      Object.keys(defaultSettings).forEach(key => {
-        if (!map[key]) map[key] = JSON.stringify(defaultSettings[key], null, 2);
+      settingsDefs.forEach(def => {
+        if (!map[def.key]) map[def.key] = JSON.stringify(def.default, null, 2);
       });
       setSettings(map);
       setLoading(false);
@@ -48,6 +197,7 @@ const SiteSettingsAdmin = () => {
   const handleSave = async (key: string) => {
     try {
       const value = JSON.parse(settings[key]);
+      setSavingKey(key);
       const { data: existing } = await supabase.from("site_settings").select("id").eq("key", key).maybeSingle();
       if (existing) {
         await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
@@ -56,32 +206,51 @@ const SiteSettingsAdmin = () => {
       }
       toast.success(`${key} saved`);
     } catch {
-      toast.error("Invalid JSON");
+      toast.error("Invalid JSON — সঠিক JSON format দিন");
+    } finally {
+      setSavingKey(null);
     }
   };
 
-  if (loading) return <div className="text-muted-foreground">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 text-primary animate-spin" /></div>;
+
+  const groups = [...new Set(settingsDefs.map(d => d.group))];
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-6">Site Settings</h2>
-      <div className="space-y-4">
-        {Object.keys(settings).map(key => (
-          <Card key={key} className="bg-card border-border">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-mono text-primary">{key}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Textarea
-                className="font-mono text-xs min-h-[120px]"
-                value={settings[key]}
-                onChange={e => setSettings({ ...settings, [key]: e.target.value })}
-              />
-              <Button size="sm" onClick={() => handleSave(key)}>Save</Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <h2 className="text-2xl font-bold text-foreground mb-2 font-['Barlow_Condensed'] uppercase tracking-wide">Site Settings</h2>
+      <p className="text-sm text-muted-foreground mb-6">Homepage এর প্রতিটা section এর content এখান থেকে control করুন। JSON format এ data edit করে Save করুন।</p>
+
+      {groups.map(group => (
+        <div key={group} className="mb-8">
+          <h3 className="text-lg font-bold text-foreground mb-4 font-['Barlow_Condensed'] uppercase tracking-wide border-b border-border pb-2">
+            {group}
+          </h3>
+          <div className="space-y-4">
+            {settingsDefs.filter(d => d.group === group).map(def => (
+              <Card key={def.key} className="bg-card border-border">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-mono text-primary">{def.key}</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground mt-1">
+                    <span className="font-semibold text-foreground">{def.label}</span> — {def.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Textarea
+                    className="font-mono text-xs min-h-[120px]"
+                    value={settings[def.key] || ""}
+                    onChange={e => setSettings({ ...settings, [def.key]: e.target.value })}
+                  />
+                  <Button size="sm" onClick={() => handleSave(def.key)} disabled={savingKey === def.key}>
+                    {savingKey === def.key ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Save className="w-3 h-3 mr-1" />}
+                    Save
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
