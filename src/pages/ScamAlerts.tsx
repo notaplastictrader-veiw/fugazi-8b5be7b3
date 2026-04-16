@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { AlertTriangle, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ReportScamModal from "@/components/scam/ReportScamModal";
+import AuthModal from "@/components/modals/AuthModal";
+import { AlertTriangle, Search, Plus } from "lucide-react";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; created_at: string;
@@ -16,8 +20,11 @@ const fallbackAlerts: ScamAlert[] = [
 ];
 
 const ScamAlerts = () => {
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState<ScamAlert[]>(fallbackAlerts);
   const [search, setSearch] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -44,11 +51,19 @@ const ScamAlerts = () => {
           </h1>
           <p className="text-sm text-muted-foreground mb-8 max-w-2xl">All verified scam alerts issued by our team and community. Stay safe.</p>
 
-          <div className="relative max-w-md mb-8">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
+            </div>
+            <Button onClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-2">
+              <Plus className="w-4 h-4" /> Report a Scam
+            </Button>
           </div>
+
+
 
           <div className="space-y-4">
             {filtered.map(alert => {
@@ -75,6 +90,8 @@ const ScamAlerts = () => {
           {filtered.length === 0 && <p className="text-center text-muted-foreground py-12">No scam alerts found.</p>}
         </div>
       </section>
+      <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </MainLayout>
   );
 };
