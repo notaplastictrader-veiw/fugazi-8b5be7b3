@@ -90,6 +90,8 @@ const ScamAlerts = () => {
           {filtered.length === 0 && <p className="text-center text-muted-foreground py-12">No scam alerts found.</p>}
         </div>
       </section>
+      <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </MainLayout>
   );
 };
