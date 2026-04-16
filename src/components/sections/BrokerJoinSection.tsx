@@ -52,7 +52,7 @@ const BrokerJoinSection = () => {
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           {title} <span className="text-accent">List With Us.</span>
         </h2>
-        <p className="text-sm text-muted-foreground mb-10 max-w-2xl">Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.</p>
+        <p className="text-sm text-muted-foreground mb-10 max-w-2xl">{cms.subtitle || "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform."}</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div>

@@ -74,6 +74,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
     settingsKey: "scam_alert_section",
     fields: [
       { key: "section_title", label: "Section Title", type: "text" },
+      { key: "subtitle", label: "Subtitle", type: "textarea" },
       { key: "display_count", label: "Alerts to Display", type: "number" },
       { key: "cta_text", label: "CTA Button Text", type: "text" },
     ],
@@ -86,13 +87,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
       { key: "description", label: "Description", type: "textarea" },
       { key: "cta_primary", label: "Primary CTA Text", type: "text" },
       { key: "cta_secondary", label: "Secondary CTA Text", type: "text" },
-      {
-        key: "stats", label: "Stats", type: "object-list",
-        objectFields: [
-          { key: "value", label: "Value", type: "text" },
-          { key: "label", label: "Label", type: "text" },
-        ],
-      },
+      { key: "features_list", label: "Feature Bullet Points", type: "list" },
     ],
   },
   "signal-hub": {
@@ -100,6 +95,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
     settingsKey: "signal_hub",
     fields: [
       { key: "section_title", label: "Section Title", type: "text" },
+      { key: "subtitle", label: "Subtitle", type: "textarea" },
       { key: "display_count", label: "Groups to Display", type: "number" },
       { key: "cta_text", label: "View All Text", type: "text" },
     ],
@@ -109,6 +105,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
     settingsKey: "forecast_section",
     fields: [
       { key: "section_title", label: "Section Title", type: "text" },
+      { key: "subtitle", label: "Subtitle", type: "textarea" },
       { key: "categories", label: "Categories", type: "list" },
     ],
   },
@@ -140,6 +137,7 @@ const sectionConfigs: Record<string, SectionConfig> = {
     settingsKey: "broker_join_section",
     fields: [
       { key: "title", label: "Title", type: "text" },
+      { key: "subtitle", label: "Subtitle", type: "textarea" },
       { key: "description", label: "Description", type: "textarea" },
       { key: "benefits", label: "Benefits List", type: "list" },
       { key: "cta_text", label: "CTA Button Text", type: "text" },
@@ -242,7 +240,7 @@ const SectionEditor = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      await logAuditAction(user.id, "update", "site_settings", config.settingsKey, null, valueToSave);
+      await logAuditAction(user.id, "update", "site_settings", existing?.id || null, null, valueToSave);
       toast.success("Section content saved successfully");
     }
     setSaving(false);

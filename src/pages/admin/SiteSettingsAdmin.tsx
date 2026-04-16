@@ -98,6 +98,7 @@ const settingsDefs: SettingDef[] = [
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Active Scam",
+      subtitle: "Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.",
       display_count: 10,
       cta_text: "View All Scam Alerts →",
     },
@@ -112,6 +113,12 @@ const settingsDefs: SettingDef[] = [
       description: "We don't talk about signals. We post them. Entry. Stop. Target. Done. No charity. No hand-holding. No fake screenshots of wins. We publish our track record publicly — every trade, every loss, every win. If you can't handle a loss, this channel isn't for you. If you're built different — you already know what to do.",
       cta_primary: "Join Free Telegram →",
       cta_secondary: "Apply for Access →",
+      features_list: [
+        "Around 78% win rate — tracked and published publicly every month",
+        "Full transparency — losses posted same as wins",
+        "No credit card needed for free tier",
+        "Multiple payment options available. DM us for details.",
+      ],
     },
   },
   {
@@ -121,6 +128,7 @@ const settingsDefs: SettingDef[] = [
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Verified Signal",
+      subtitle: "Every Telegram group listed, reviewed and rated by real traders.",
       display_count: 50,
       cta_text: "View All Groups →",
     },
@@ -132,6 +140,7 @@ const settingsDefs: SettingDef[] = [
     group: "🏠 Homepage Sections",
     default: {
       section_title: "Market",
+      subtitle: "Daily analysis. No paid promotions. No broker bias.",
     },
   },
   {
@@ -167,6 +176,7 @@ const settingsDefs: SettingDef[] = [
     group: "🏠 Homepage Sections",
     default: {
       title: "For Brokers & Signal Providers —",
+      subtitle: "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.",
       description: "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.",
       benefits: [
         "Verified badge on your profile",

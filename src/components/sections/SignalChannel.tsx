@@ -11,6 +11,12 @@ const SignalChannel = () => {
   const description = cms.description || "We don't talk about signals. We post them. Entry. Stop. Target. Done. No charity. No hand-holding. No fake screenshots of wins. We publish our track record publicly — every trade, every loss, every win. If you can't handle a loss, this channel isn't for you. If you're built different — you already know what to do.";
   const ctaPrimary = cms.cta_primary || "Join Free Telegram →";
   const ctaSecondary = cms.cta_secondary || "Apply for Access →";
+  const featuresList = (cms.features_list as string[]) || [
+    "Around 78% win rate — tracked and published publicly every month",
+    "Full transparency — losses posted same as wins",
+    "No credit card needed for free tier",
+    "Multiple payment options available. DM us for details.",
+  ];
 
   return (
     <section className="py-20 px-4">
@@ -26,10 +32,9 @@ const SignalChannel = () => {
               {description}
             </p>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li>→ Around 78% win rate — tracked and published publicly every month</li>
-              <li>→ Full transparency — losses posted same as wins</li>
-              <li>→ No credit card needed for free tier</li>
-              <li>→ Multiple payment options available. DM us for details.</li>
+              {featuresList.map((item, i) => (
+                <li key={i}>→ {item}</li>
+              ))}
             </ul>
           </div>
 

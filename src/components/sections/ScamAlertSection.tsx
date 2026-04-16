@@ -25,6 +25,7 @@ const ScamAlertSection = () => {
   const cms = useSiteSettings<Record<string, any>>("scam_alert_section", {});
 
   const sectionTitle = cms.section_title || "Active Scam";
+  const subtitle = cms.subtitle || "Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.";
   const ctaText = cms.cta_text || "View All Scam Alerts →";
   const displayCount = cms.display_count || 10;
 
@@ -84,7 +85,7 @@ const ScamAlertSection = () => {
               <AlertTriangle className="w-5 h-5 text-destructive" />
               <h3 className="text-sm font-mono text-foreground">SCAM SCORE ENGINE</h3>
             </div>
-            <p className="text-xs text-muted-foreground mb-6">Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.</p>
+            <p className="text-xs text-muted-foreground mb-6">{subtitle}</p>
             <div className="space-y-5">
               {defaultScamScoreFactors.map((f, i) => {
                 const barColor = f.color === "danger" ? "bg-destructive" : f.color === "accent" ? "bg-accent" : "bg-primary";

@@ -22,6 +22,7 @@ const defaultTabs = [
 const ForecastSection = () => {
   const cms = useSiteSettings<Record<string, any>>("forecast_section", {});
   const sectionTitle = cms.section_title || "Market";
+  const subtitle = cms.subtitle || "Daily analysis. No paid promotions. No broker bias.";
   const tabs = defaultTabs;
   const [activeTab, setActiveTab] = useState("forex");
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
@@ -52,7 +53,7 @@ const ForecastSection = () => {
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           {sectionTitle} <span className="text-accent">Forecasts</span>
         </h2>
-        <p className="text-sm text-muted-foreground mb-8">Daily analysis. No paid promotions. No broker bias.</p>
+        <p className="text-sm text-muted-foreground mb-8">{subtitle}</p>
 
         <div className="flex flex-wrap gap-2 mb-8">
           {tabs.map((tab) => (
