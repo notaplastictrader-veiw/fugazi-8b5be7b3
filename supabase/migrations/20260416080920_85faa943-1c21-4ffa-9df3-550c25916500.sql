@@ -1,0 +1,6 @@
+ALTER TABLE public.profiles 
+  ADD COLUMN IF NOT EXISTS social_facebook text,
+  ADD COLUMN IF NOT EXISTS social_instagram text,
+  ADD COLUMN IF NOT EXISTS social_youtube text,
+  ADD COLUMN IF NOT EXISTS social_tiktok text,
+  ADD COLUMN IF NOT EXISTS social_linkedin text;
