@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigate } from "react-router-dom";
-import { notifyAdmins } from "@/lib/notifyAdmins";
+
 
 interface AuthModalProps {
   open: boolean;
