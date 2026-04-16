@@ -26,6 +26,14 @@ interface CsvRow {
 
 const roles = ["super_admin", "content_ops", "moderator", "user", "broker", "signal_provider"];
 
+const formatDate = (d: string) => {
+  const date = new Date(d);
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yy = String(date.getFullYear()).slice(-2);
+  return `${dd}-${mm}-${yy}`;
+};
+
 const UsersAdmin = () => {
   const [items, setItems] = useState<UserRole[]>([]);
   const [profiles, setProfiles] = useState<Record<string, ProfileInfo>>({});
@@ -91,8 +99,8 @@ const UsersAdmin = () => {
       phone: profiles[r.user_id]?.phone || "—",
       role: r.role.replace("_", " "),
       signup_date: authUsers[r.user_id]?.created_at
-        ? new Date(authUsers[r.user_id].created_at).toLocaleDateString()
-        : new Date(r.created_at).toLocaleDateString(),
+        ? formatDate(authUsers[r.user_id].created_at)
+        : formatDate(r.created_at),
     }));
     exportToCSV(exportData, [
       { key: "user_id", label: "User ID" },
@@ -205,7 +213,7 @@ const UsersAdmin = () => {
           <TableBody>
             {filteredItems.map(r => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium">{profiles[r.user_id]?.full_name || "—"}</TableCell>
+                <TableCell className="font-medium uppercase">{profiles[r.user_id]?.full_name || "—"}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-mono text-muted-foreground">{r.user_id.slice(0, 8)}…</span>
@@ -219,8 +227,8 @@ const UsersAdmin = () => {
                 <TableCell className="capitalize">{r.role.replace("_", " ")}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {authUsers[r.user_id]?.created_at
-                    ? new Date(authUsers[r.user_id].created_at).toLocaleDateString()
-                    : new Date(r.created_at).toLocaleDateString()}
+                    ? formatDate(authUsers[r.user_id].created_at)
+                    : formatDate(r.created_at)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => handleDelete(r.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>

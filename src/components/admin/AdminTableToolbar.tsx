@@ -15,11 +15,11 @@ const AdminTableToolbar = ({ fromDate, toDate, onFromChange, onToChange, onExpor
   return (
     <div className="flex flex-wrap items-center gap-3 mb-4">
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground whitespace-nowrap">From:</span>
+        <span className="text-base font-semibold uppercase text-muted-foreground whitespace-nowrap">From:</span>
         <Input type="date" value={fromDate} onChange={e => onFromChange(e.target.value)} className="w-40" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground whitespace-nowrap">To:</span>
+        <span className="text-base font-semibold uppercase text-muted-foreground whitespace-nowrap">To:</span>
         <Input type="date" value={toDate} onChange={e => onToChange(e.target.value)} className="w-40" />
       </div>
       <Button variant="outline" size="sm" onClick={onExport}>
