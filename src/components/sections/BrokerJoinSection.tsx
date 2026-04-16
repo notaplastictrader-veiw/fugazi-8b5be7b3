@@ -92,9 +92,9 @@ const BrokerJoinSection = () => {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-2.5 text-xs font-semibold rounded-lg transition-all ${
+                <Link to={tier.link} className={`block w-full py-2.5 text-xs font-semibold rounded-lg transition-all text-center ${
                   tier.ctaStyle === "highlight" ? "bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-lg shadow-accent/20" : "border border-border text-foreground hover:border-primary/40"
-                }`}>{tier.cta}</button>
+                }`}>{tier.cta}</Link>
                 {"note" in tier && tier.note && <p className="text-[10px] text-muted-foreground mt-2 text-center">{tier.note}</p>}
               </div>
             ))}
