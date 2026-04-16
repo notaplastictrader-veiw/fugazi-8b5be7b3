@@ -1,55 +1,57 @@
 
 
-# Plan: Remove Global Settings + Add Full Review CRUD to Content Management
+# Plan: Make Broker Trust Hub Fully Editable from CMS
 
-## What's Changing
+## Problem
+The Broker Trust Hub has many hardcoded texts that can't be edited from admin:
+- Broker subtitle: "Every broker scored by real user data — complaints, withdrawal speed, regulation strength."
+- Broker filter tabs: All, Forex, Crypto, Binary, ECN, Prop Firms, Scam Watch
+- Prop Firms title: "Top Verified" (hardcoded separately from broker title)
+- Prop Firms subtitle: "Funded trading accounts reviewed by real traders..."
+- Prop firm display count: hardcoded to 6 (`.slice(0, 6)`)
+- No separate broker_count vs prop_firm_count
 
-### 1. Remove "Global Settings" page (duplicate)
-The **Homepage Sections** page (SectionEditor) already provides proper form-based editing for every CMS key (hero, tickers, scam alerts, etc.). The **Global Settings** page shows the exact same data as raw JSON textareas — it's a duplicate.
+## Changes
 
-**Changes:**
-- Remove `Global Settings` link from `AdminSidebar.tsx` (line 47)
-- Move the 2 ticker keys (`promo_ticker`, `ticker_pairs`) into SectionEditor so they're also editable via the Homepage Sections UI — currently SectionEditor has `promo-ticker` but not `ticker_pairs`
-- Delete `SiteSettingsAdmin.tsx` (or keep as unused — your call)
-- Remove the route for `/admin/settings` from App.tsx
-
-### 2. Add full Review CRUD to ReviewsAdmin
-Currently ReviewsAdmin only shows a table with Approve/Reject buttons. Missing: ability to **create**, **edit**, and **delete** reviews from admin.
-
-**Add to `ReviewsAdmin.tsx`:**
-- **Add Review** button → opens a modal/form with fields: Author, Rating (1-5), Content, Role, Status
-- **Edit** button per row → opens same form pre-filled
-- **Delete** button per row → confirmation then deletes
-- Search/filter by author name
-- View full content (currently truncated)
-
-### 3. Add Ticker Pairs to SectionEditor
-Add a `ticker-pairs` section config to SectionEditor so price ticker data is also editable from the Homepage Sections page (not just raw JSON).
-
-```
-"ticker-pairs": {
-  title: "Ticker Pairs (Price Bar)",
-  settingsKey: "ticker_pairs",
-  fields: [
-    { key: "items", type: "object-list", objectFields: [
-      { key: "pair", label: "Pair", type: "text" },
-      { key: "price", label: "Price", type: "text" },
-      { key: "change", label: "Change", type: "text" },
-      { key: "up", label: "Up (true/false)", type: "text" },
-    ]}
-  ]
+### 1. Update DB `site_settings.broker_trust_hub` value
+Add missing fields to the JSON:
+```json
+{
+  "section_title": "Top Verified",
+  "broker_subtitle": "Every broker scored by real user data — complaints, withdrawal speed, regulation strength.",
+  "broker_count": 50,
+  "broker_filters": ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"],
+  "prop_section_title": "Top Verified",
+  "prop_subtitle": "Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.",
+  "prop_firm_count": 6,
+  "prop_firm_categories": ["All Prop Firms", "Instant Funding", "1-Step Clg", "2-Step Clg", "Dis% Offers", "No Time Limit"]
 }
 ```
 
-Also add it to `SiteContentAdmin.tsx` sections list.
+### 2. Update `BrokerTrustHub.tsx`
+Read new CMS fields with fallbacks:
+- `cms.broker_subtitle` for broker description
+- `cms.broker_filters` for filter tabs
+- `cms.prop_section_title` for prop firms heading
+- `cms.prop_subtitle` for prop firms description
+- `cms.prop_firm_count` for prop firms limit
 
-## Files Changed: 4
-- `src/components/admin/AdminSidebar.tsx` — remove Global Settings link
-- `src/pages/admin/SectionEditor.tsx` — add ticker-pairs config
-- `src/pages/admin/SiteContentAdmin.tsx` — add Ticker Pairs card
-- `src/pages/admin/ReviewsAdmin.tsx` — add Create, Edit, Delete functionality
-- `src/App.tsx` — remove `/admin/settings` route
+### 3. Update `SectionEditor.tsx` broker-trust-hub config
+Add form fields for all new keys:
+- `broker_subtitle` (textarea)
+- `broker_filters` (list)
+- `prop_section_title` (text)
+- `prop_subtitle` (textarea)
+- `prop_firm_count` (number)
 
-## No DB changes needed
-Reviews table already has all required columns. Site settings table stays the same.
+### 4. Update `SiteSettingsAdmin.tsx` default
+Update the `broker_trust_hub` default to include all new fields.
+
+## Files: 3
+- `src/components/sections/BrokerTrustHub.tsx` — read new CMS fields
+- `src/pages/admin/SectionEditor.tsx` — add form fields for new keys
+- `src/pages/admin/SiteSettingsAdmin.tsx` — update default JSON
+
+## DB: 1 update
+- Update `site_settings` row where key = `broker_trust_hub` with full data
 
