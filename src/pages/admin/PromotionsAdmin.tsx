@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import { Badge } from "@/components/ui/badge";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Promotion {
   id: string; title: string; description: string; promo_type: string;
@@ -203,7 +204,7 @@ const PromotionsAdmin = () => {
               <div><Label>Link URL</Label><Input value={form.link_url} onChange={e => setForm({ ...form, link_url: e.target.value })} /></div>
             </div>
 
-            <div><Label>Image URL</Label><Input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} /></div>
+            <ImageUpload value={form.image_url} onChange={url => setForm({ ...form, image_url: url })} bucket="media" folder="promotions" maxSizeMB={5} label="Promotion Banner" accept="image/png,image/jpeg,image/webp,image/gif" />
 
             <div>
               <Label>How to Claim (one step per line)</Label>

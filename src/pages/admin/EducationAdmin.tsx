@@ -14,12 +14,14 @@ import { Plus, Pencil, Trash2, BookOpen, Lock, Unlock, ChevronUp, ChevronDown, X
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Section { id: string; title: string; content: string }
 interface Article {
   id: string; slug: string; title: string; track: string; read_time: number;
   is_locked: boolean; course_id: string | null; sections: Section[];
   key_takeaway: string; display_order: number; status: string;
+  hero_image_url: string;
 }
 interface Course { id: string; title: string; slug: string }
 
@@ -30,6 +32,7 @@ const empty: Omit<Article, "id"> = {
   slug: "", title: "", track: "beginner", read_time: 5, is_locked: false,
   course_id: null, sections: [newSection()], key_takeaway: "",
   display_order: 0, status: "published",
+  hero_image_url: "",
 };
 
 const EducationAdmin = () => {
@@ -65,6 +68,7 @@ const EducationAdmin = () => {
       sections: Array.isArray(a.sections) && a.sections.length ? a.sections : [newSection()],
       key_takeaway: a.key_takeaway || "", display_order: a.display_order || 0,
       status: a.status,
+      hero_image_url: (a as any).hero_image_url || "",
     });
     setModalOpen(true);
   };
@@ -255,6 +259,8 @@ const EducationAdmin = () => {
               <Textarea rows={2} value={form.key_takeaway}
                 onChange={e => setForm({ ...form, key_takeaway: e.target.value })} />
             </div>
+
+            <ImageUpload value={form.hero_image_url} onChange={url => setForm({ ...form, hero_image_url: url })} bucket="media" folder="education" maxSizeMB={5} label="Hero Image" accept="image/png,image/jpeg,image/webp" />
 
             <div>
               <div className="flex items-center justify-between mb-2">

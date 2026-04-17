@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
@@ -259,8 +260,9 @@ const BrokersAdmin = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Min Deposit</Label><Input value={form.min_deposit} onChange={e => setForm({...form, min_deposit: e.target.value})} /></div>
-              <div><Label>Logo URL</Label><Input value={form.logo_url || ""} onChange={e => setForm({...form, logo_url: e.target.value})} /></div>
+              <div></div>
             </div>
+            <ImageUpload value={form.logo_url || ""} onChange={url => setForm({...form, logo_url: url})} bucket="logos" folder="brokers" maxSizeMB={2} label="Broker Logo" />
 
             <div><Label>Tags (comma-separated)</Label><Input value={Array.isArray(form.tags) ? form.tags.join(", ") : form.tags} onChange={e => setForm({...form, tags: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})} /></div>
             <div><Label>Regulation (comma-separated)</Label><Input value={Array.isArray(form.regulation) ? form.regulation.join(", ") : form.regulation} onChange={e => setForm({...form, regulation: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})} /></div>

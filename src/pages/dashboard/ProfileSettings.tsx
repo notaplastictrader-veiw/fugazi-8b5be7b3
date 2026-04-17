@@ -15,6 +15,7 @@ import ReputationBadge from "@/components/profile/ReputationBadge";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Link } from "react-router-dom";
 import { ExternalLink, Shield } from "lucide-react";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 const ProfileSettings = () => {
   const { user } = useAuth();
@@ -45,6 +46,7 @@ const ProfileSettings = () => {
   const [showRealName, setShowRealName] = useState(true);
   const [showCountry, setShowCountry] = useState(true);
   const [showComplaints, setShowComplaints] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -79,6 +81,7 @@ const ProfileSettings = () => {
       setShowRealName(profile.show_real_name ?? true);
       setShowCountry(profile.show_country ?? true);
       setShowComplaints(profile.show_complaints ?? true);
+      setAvatarUrl(profile.avatar_url || "");
     }
   }, [profile]);
 
@@ -94,6 +97,7 @@ const ProfileSettings = () => {
         show_real_name: showRealName,
         show_country: showCountry,
         show_complaints: showComplaints,
+        avatar_url: avatarUrl || null,
       };
 
       if (isRegularUser) {
@@ -196,6 +200,17 @@ const ProfileSettings = () => {
         {/* Basic Info — visible to all */}
         <div className="glass-card rounded-xl p-6 space-y-4">
           <h2 className="text-sm font-semibold text-foreground">Basic Information</h2>
+          {user && (
+            <ImageUpload
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+              bucket="avatars"
+              folder={user.id}
+              maxSizeMB={2}
+              label="Profile Photo"
+              accept="image/png,image/jpeg,image/webp"
+            />
+          )}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" value={user?.email || ""} disabled className="mt-1 opacity-60" />
