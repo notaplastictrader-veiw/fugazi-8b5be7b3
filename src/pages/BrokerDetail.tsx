@@ -67,14 +67,14 @@ const getPlaceholderReview = (broker: Broker) => ({
     { label: "Deposit Methods", value: "Bank, Card, Crypto, E-wallets" },
     { label: "Customer Support", value: "24/5 Live Chat, Email" },
   ],
-  pros: [
+  pros: broker.pros && broker.pros.length > 0 ? broker.pros : [
     "Regulated by tier-1 authorities",
     "Competitive spreads and low fees",
     "Fast deposit and withdrawal processing",
     "Multiple trading platforms available",
     "Educational resources for beginners",
   ],
-  cons: [
+  cons: broker.cons && broker.cons.length > 0 ? broker.cons : [
     "Limited cryptocurrency selection",
     "Inactivity fees may apply",
     "Some account types have higher minimum deposits",
