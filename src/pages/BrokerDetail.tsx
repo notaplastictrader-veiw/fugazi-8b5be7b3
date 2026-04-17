@@ -119,7 +119,7 @@ const BrokerDetail = () => {
     setLoading(true);
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
-      setBroker(b as Broker);
+      setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
         supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status").eq("broker_id", b.id).maybeSingle(),
