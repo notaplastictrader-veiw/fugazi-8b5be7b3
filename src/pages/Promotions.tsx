@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Gift, ExternalLink, Clock, Star, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fallbackPromos, promoTypes, PromotionDetail } from "@/data/promotionsData";
+import { supabase } from "@/integrations/supabase/client";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
