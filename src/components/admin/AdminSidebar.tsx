@@ -4,7 +4,7 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, BarChart3, Briefcase, UserCog, UserPlus
+  Globe, BarChart3, Briefcase, UserCog, UserPlus, Home, ArrowLeft
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -199,10 +199,29 @@ export function AdminSidebar() {
           );
         })}
 
-        {/* Logout */}
-        <SidebarGroup>
+        {/* Back to Site + Previous Page + Logout */}
+        <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={() => navigate(-1)}
+                    className={`flex items-center w-full ${hoverClasses}`}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {!collapsed && <span className="text-sm">Previous Page</span>}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/" className={hoverClasses} activeClassName="">
+                    <Home className="mr-2 h-4 w-4" />
+                    {!collapsed && <span className="text-sm">Back to Site</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <button
