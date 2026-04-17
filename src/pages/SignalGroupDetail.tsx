@@ -133,9 +133,18 @@ const SignalGroupDetail = () => {
                     {group.win_rate}%
                   </div>
                 </div>
-                <Button size="sm" className="font-display font-bold">
-                  Join Group
+                <Button size="sm" className="font-display font-bold" asChild={!!group.telegram_url}>
+                  {group.telegram_url ? (
+                    <a href={group.telegram_url} target="_blank" rel="noopener noreferrer">Join on Telegram</a>
+                  ) : (
+                    <span>Join Group</span>
+                  )}
                 </Button>
+                {group.discord_url && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={group.discord_url} target="_blank" rel="noopener noreferrer">Discord</a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
