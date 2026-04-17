@@ -1,19 +1,45 @@
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { educationArticles, getArticleBySlug, getNextArticle } from "@/data/educationArticles";
+import { educationArticles as staticArticles, getArticleBySlug, getNextArticle } from "@/data/educationArticles";
 import { ChevronRight, Clock, User, ArrowRight, Lock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotFound from "./NotFound";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const trackLabels: Record<string, string> = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
 
 const EducationArticle = () => {
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? getArticleBySlug(slug) : null;
-  const nextArticle = slug ? getNextArticle(slug) : null;
+  const [article, setArticle] = useState<any>(slug ? getArticleBySlug(slug) : null);
+  const [educationArticles, setEducationArticles] = useState<any[]>(staticArticles);
+  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("");
+
+  useEffect(() => {
+    if (!slug) { setLoading(false); return; }
+    (async () => {
+      const { data: all } = await supabase.from("education_articles").select("*").eq("status", "published").order("display_order");
+      if (all && all.length) {
+        const mapped = all.map(a => ({
+          id: a.id, slug: a.slug, title: a.title, track: a.track,
+          readTime: a.read_time, isLocked: a.is_locked,
+          sections: (a.sections as any) || [], keyTakeaway: a.key_takeaway,
+        }));
+        setEducationArticles(mapped);
+        const found = mapped.find(a => a.slug === slug);
+        if (found) setArticle(found);
+      }
+      setLoading(false);
+    })();
+  }, [slug]);
+
+  const idx = educationArticles.findIndex(a => a.slug === slug);
+  const current = idx >= 0 ? educationArticles[idx] : null;
+  const sameTrack = current ? educationArticles.filter(a => a.track === current.track) : [];
+  const trackIdx = sameTrack.findIndex(a => a.slug === slug);
+  const nextArticle = trackIdx >= 0 && trackIdx < sameTrack.length - 1 ? sameTrack[trackIdx + 1] : (slug ? getNextArticle(slug) : null);
 
   useEffect(() => {
     if (article?.sections.length) setActiveSection(article.sections[0].id);

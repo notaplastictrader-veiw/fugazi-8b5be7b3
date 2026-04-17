@@ -6,7 +6,7 @@ import { Trophy, Target } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import PredictionCard from "@/components/sports/PredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
-import { bettingSites } from "@/data/bettingSites";
+import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import type { Prediction } from "@/components/sports/PredictionCard";
 
 const fallbackPredictions: Prediction[] = [
@@ -26,17 +26,25 @@ const filterLabels: Record<string, string> = {
 
 const Sports = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [bettingSites, setBettingSites] = useState<any[]>(staticBettingSites);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("sports_predictions")
-        .select("*")
-        .eq("status", "published")
-        .order("match_date", { ascending: false });
+      const [{ data }, { data: bs }] = await Promise.all([
+        supabase.from("sports_predictions").select("*").eq("status", "published").order("match_date", { ascending: false }),
+        supabase.from("betting_sites").select("*").eq("status", "published").order("display_order"),
+      ]);
       setPredictions(data && data.length > 0 ? data : fallbackPredictions);
+      if (bs && bs.length) {
+        setBettingSites(bs.map(b => ({
+          id: b.id, name: b.name, slug: b.slug, logo: b.logo, rating: Number(b.rating),
+          bonus: b.bonus, sports: b.sports || [], features: b.features || [],
+          min_deposit: b.min_deposit, withdrawal_speed: b.withdrawal_speed,
+          license: b.license, url: b.url, warning: b.warning || undefined,
+        })));
+      }
       setLoading(false);
     };
     load();
