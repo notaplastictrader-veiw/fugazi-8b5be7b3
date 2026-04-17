@@ -323,7 +323,7 @@ const BrokerDetail = () => {
                   <Scale className="w-5 h-5 text-primary" /> Our Verdict
                 </h2>
                 <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed">{review.verdict}</p>
+                  <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
                 </div>
               </section>
 
@@ -380,18 +380,17 @@ const BrokerDetail = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-t border-border/50">
-                          <td className="px-4 py-2.5 text-foreground">Standard</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.min_deposit}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.avg_spread}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.leverage}</td>
-                        </tr>
-                        <tr className="border-t border-border/50">
-                          <td className="px-4 py-2.5 text-foreground">ECN/Raw</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">$200+</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">0.0 pips</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.leverage}</td>
-                        </tr>
+                        {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
+                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, commission: "—" },
+                          { name: "ECN/Raw", min_deposit: "$200+", spread: "0.0 pips", commission: "$3.5/lot" },
+                        ]).map((at, i) => (
+                          <tr key={i} className="border-t border-border/50">
+                            <td className="px-4 py-2.5 text-foreground">{at.name}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || broker.leverage}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -404,7 +403,7 @@ const BrokerDetail = () => {
                   <Globe className="w-5 h-5 text-primary" /> Platforms Available
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {["MetaTrader 4", "MetaTrader 5", "Web Trader"].map(p => (
+                  {(broker.platforms && broker.platforms.length > 0 ? broker.platforms : ["MetaTrader 4", "MetaTrader 5", "Web Trader"]).map(p => (
                     <div key={p} className="glass-card rounded-xl p-4 text-center">
                       <div className="text-sm font-display font-bold text-foreground">{p}</div>
                       <div className="text-xs text-muted-foreground mt-1">Desktop, Mobile, Web</div>
@@ -429,12 +428,14 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
-                        { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
-                        { method: "Crypto (USDT)", min: "$10", processing: "10-30 min", fee: "Network fee" },
-                        { method: "E-wallets", min: "$1", processing: "Instant", fee: "Free" },
-                      ].map((m, i) => (
+                      {(broker.payment_methods && broker.payment_methods.length > 0
+                        ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
+                        : [
+                          { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
+                          { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
+                          { method: "Crypto (USDT)", min: "$10", processing: "10-30 min", fee: "Network fee" },
+                          { method: "E-wallets", min: "$1", processing: "Instant", fee: "Free" },
+                        ]).map((m, i) => (
                         <tr key={m.method} className={i % 2 === 0 ? "" : "bg-muted/10"}>
                           <td className="px-4 py-2.5 text-foreground">{m.method}</td>
                           <td className="px-4 py-2.5 text-muted-foreground">{m.min}</td>
