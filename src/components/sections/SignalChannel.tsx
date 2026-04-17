@@ -8,6 +8,7 @@ const SignalChannel = () => {
   const cms = useSiteSettings<Record<string, any>>("signal_channel", {});
 
   const title = cms.title || "Gold & Forex Signals You Can Actually";
+  const accentText = cms.accent_text || "Trust.";
   const description = cms.description || "We don't talk about signals. We post them. Entry. Stop. Target. Done. No charity. No hand-holding. No fake screenshots of wins. We publish our track record publicly — every trade, every loss, every win. If you can't handle a loss, this channel isn't for you. If you're built different — you already know what to do.";
   const featuresList = (cms.features_list as string[]) || [
     "Around 78% win rate — tracked and published publicly every month",
@@ -42,7 +43,7 @@ const SignalChannel = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// OUR SIGNAL CHANNEL</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-3">
-          {title} <span className="text-primary">Trust.</span>
+          {title} <span className="text-primary">{accentText}</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10">

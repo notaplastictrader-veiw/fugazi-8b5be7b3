@@ -19,6 +19,7 @@ const CommunityReviews = () => {
   const cms = useSiteSettings<Record<string, any>>("community_reviews", {});
 
   const sectionTitle = cms.section_title || "What Traders";
+  const accentText = cms.accent_text || "Say";
   const displayCount = cms.display_count || 50;
   const ctaText = cms.cta_text || "Write a review →";
   const cancelText = cms.cancel_text || "Cancel";
@@ -60,7 +61,7 @@ const CommunityReviews = () => {
       <div className="max-w-7xl mx-auto mb-8">
         <span className="section-tag">// COMMUNITY REVIEWS</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3">
-          {sectionTitle} <span className="text-primary">Say</span>
+          {sectionTitle} <span className="text-primary">{accentText}</span>
         </h2>
       </div>
 

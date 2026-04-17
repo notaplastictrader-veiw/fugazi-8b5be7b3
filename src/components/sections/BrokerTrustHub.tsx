@@ -189,12 +189,16 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
 const BrokerTrustHub = () => {
   const cms = useSiteSettings<Record<string, any>>("broker_trust_hub", {});
   const sectionTitleText = cms.section_title || "Top Verified";
+  const brokerAccent = cms.broker_accent || "Brokers";
   const brokerSubtitle = cms.broker_subtitle || "Every broker scored by real user data — complaints, withdrawal speed, regulation strength.";
   const brokerCount = cms.broker_count || 50;
+  const brokerViewAllText = cms.broker_view_all_text || "View All Brokers →";
   const brokerFiltersList = (cms.broker_filters?.length ? cms.broker_filters : brokerFilters) as string[];
   const propSectionTitle = cms.prop_section_title || "Top Verified";
+  const propAccent = cms.prop_accent || "Prop Firms";
   const propSubtitle = cms.prop_subtitle || "Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.";
   const propFirmCount = cms.prop_firm_count || 6;
+  const propViewAllText = cms.prop_view_all_text || "View All Prop Firms →";
   const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Clg", "2-Step Clg", "Dis% Offers", "No Time Limit"]) as string[];
   const [brokerFilter, setBrokerFilter] = useState("All");
   const [visible, setVisible] = useState(false);
@@ -239,7 +243,7 @@ const BrokerTrustHub = () => {
         {/* Brokers Section */}
         <span className="section-tag">// TRUST HUB</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          {sectionTitleText} <span className="text-primary">Brokers</span>
+          {sectionTitleText} <span className="text-primary">{brokerAccent}</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-8">{brokerSubtitle}</p>
 
@@ -257,14 +261,14 @@ const BrokerTrustHub = () => {
         </div>
 
         <div className="mt-6">
-          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">View All Brokers →</a>
+          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</a>
         </div>
 
         {/* Prop Firms Section */}
         <div className="mt-20">
           <span className="section-tag">// PROP FIRMS</span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-            {propSectionTitle} <span className="text-accent">Prop Firms</span>
+            {propSectionTitle} <span className="text-accent">{propAccent}</span>
           </h2>
           <p className="text-sm text-muted-foreground mb-4">{propSubtitle}</p>
           <div className="flex flex-wrap gap-2 mb-8">
@@ -279,7 +283,7 @@ const BrokerTrustHub = () => {
           </div>
 
           <div className="mt-6">
-            <a href="/prop-firms" className="text-sm text-accent hover:underline font-medium">View All Prop Firms →</a>
+            <a href="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</a>
           </div>
         </div>
       </div>
