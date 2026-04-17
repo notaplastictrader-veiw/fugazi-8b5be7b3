@@ -191,6 +191,66 @@ export type Database = {
         }
         Relationships: []
       }
+      betting_sites: {
+        Row: {
+          bonus: string | null
+          created_at: string
+          display_order: number | null
+          features: string[] | null
+          id: string
+          license: string | null
+          logo: string | null
+          min_deposit: string | null
+          name: string
+          rating: number | null
+          slug: string
+          sports: string[] | null
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+          url: string | null
+          warning: string | null
+          withdrawal_speed: string | null
+        }
+        Insert: {
+          bonus?: string | null
+          created_at?: string
+          display_order?: number | null
+          features?: string[] | null
+          id?: string
+          license?: string | null
+          logo?: string | null
+          min_deposit?: string | null
+          name: string
+          rating?: number | null
+          slug: string
+          sports?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          url?: string | null
+          warning?: string | null
+          withdrawal_speed?: string | null
+        }
+        Update: {
+          bonus?: string | null
+          created_at?: string
+          display_order?: number | null
+          features?: string[] | null
+          id?: string
+          license?: string | null
+          logo?: string | null
+          min_deposit?: string | null
+          name?: string
+          rating?: number | null
+          slug?: string
+          sports?: string[] | null
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          url?: string | null
+          warning?: string | null
+          withdrawal_speed?: string | null
+        }
+        Relationships: []
+      }
       broker_profiles: {
         Row: {
           account_manager_contact: string | null
@@ -249,67 +309,100 @@ export type Database = {
       }
       brokers: {
         Row: {
+          account_types: Json | null
           avg_spread: string | null
           badge: string | null
           complaints: number | null
+          cons: string[] | null
           created_at: string
           created_by: string | null
+          description: string | null
+          founded_year: number | null
+          headquarters: string | null
           id: string
           leverage: string | null
           logo_url: string | null
           min_deposit: string | null
           name: string
+          payment_methods: string[] | null
+          platforms: string[] | null
+          pros: string[] | null
           regulation: string[] | null
           review_count: number | null
           score: number | null
           slug: string
           stars: number | null
           status: Database["public"]["Enums"]["content_status"]
+          support_email: string | null
+          support_phone: string | null
           tags: string[] | null
           type: string
           updated_at: string
+          website_url: string | null
         }
         Insert: {
+          account_types?: Json | null
           avg_spread?: string | null
           badge?: string | null
           complaints?: number | null
+          cons?: string[] | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          founded_year?: number | null
+          headquarters?: string | null
           id?: string
           leverage?: string | null
           logo_url?: string | null
           min_deposit?: string | null
           name: string
+          payment_methods?: string[] | null
+          platforms?: string[] | null
+          pros?: string[] | null
           regulation?: string[] | null
           review_count?: number | null
           score?: number | null
           slug: string
           stars?: number | null
           status?: Database["public"]["Enums"]["content_status"]
+          support_email?: string | null
+          support_phone?: string | null
           tags?: string[] | null
           type?: string
           updated_at?: string
+          website_url?: string | null
         }
         Update: {
+          account_types?: Json | null
           avg_spread?: string | null
           badge?: string | null
           complaints?: number | null
+          cons?: string[] | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          founded_year?: number | null
+          headquarters?: string | null
           id?: string
           leverage?: string | null
           logo_url?: string | null
           min_deposit?: string | null
           name?: string
+          payment_methods?: string[] | null
+          platforms?: string[] | null
+          pros?: string[] | null
           regulation?: string[] | null
           review_count?: number | null
           score?: number | null
           slug?: string
           stars?: number | null
           status?: Database["public"]["Enums"]["content_status"]
+          support_email?: string | null
+          support_phone?: string | null
           tags?: string[] | null
           type?: string
           updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }
@@ -401,6 +494,116 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          includes: string[] | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          note: string | null
+          original_price: number | null
+          price: number
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          includes?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          note?: string | null
+          original_price?: number | null
+          price?: number
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          includes?: string[] | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          note?: string | null
+          original_price?: number | null
+          price?: number
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      education_articles: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_locked: boolean | null
+          key_takeaway: string | null
+          read_time: number | null
+          sections: Json
+          slug: string
+          status: Database["public"]["Enums"]["content_status"]
+          title: string
+          track: string
+          updated_at: string
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_locked?: boolean | null
+          key_takeaway?: string | null
+          read_time?: number | null
+          sections?: Json
+          slug: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title: string
+          track?: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_locked?: boolean | null
+          key_takeaway?: string | null
+          read_time?: number | null
+          sections?: Json
+          slug?: string
+          status?: Database["public"]["Enums"]["content_status"]
+          title?: string
+          track?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_articles_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
@@ -922,13 +1125,19 @@ export type Database = {
       signal_groups: {
         Row: {
           avg_rr: string | null
+          categories: string[] | null
           created_at: string
           created_by: string | null
+          description: string | null
+          discord_url: string | null
           id: string
           members: string | null
           monthly_signals: string | null
           name: string
+          pricing_tiers: Json | null
+          sample_signals: Json | null
           status: Database["public"]["Enums"]["content_status"]
+          telegram_url: string | null
           track_record: string | null
           updated_at: string
           verified: boolean | null
@@ -936,13 +1145,19 @@ export type Database = {
         }
         Insert: {
           avg_rr?: string | null
+          categories?: string[] | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          discord_url?: string | null
           id?: string
           members?: string | null
           monthly_signals?: string | null
           name: string
+          pricing_tiers?: Json | null
+          sample_signals?: Json | null
           status?: Database["public"]["Enums"]["content_status"]
+          telegram_url?: string | null
           track_record?: string | null
           updated_at?: string
           verified?: boolean | null
@@ -950,13 +1165,19 @@ export type Database = {
         }
         Update: {
           avg_rr?: string | null
+          categories?: string[] | null
           created_at?: string
           created_by?: string | null
+          description?: string | null
+          discord_url?: string | null
           id?: string
           members?: string | null
           monthly_signals?: string | null
           name?: string
+          pricing_tiers?: Json | null
+          sample_signals?: Json | null
           status?: Database["public"]["Enums"]["content_status"]
+          telegram_url?: string | null
           track_record?: string | null
           updated_at?: string
           verified?: boolean | null
