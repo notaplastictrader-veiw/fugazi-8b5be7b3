@@ -1,6 +1,6 @@
 import {
   CheckCircle, MessageSquare, AlertTriangle, Lightbulb,
-  Gift, LogOut, Activity, BarChart3, Flag
+  Gift, LogOut, Activity, BarChart3, Flag, Home, ArrowLeft
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -86,9 +86,28 @@ export function ModeratorSidebar() {
         {renderSection("BROWSE", browseItems)}
         {renderSection("MY ACTIVITY", activityItems)}
 
-        <SidebarGroup>
+        <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={() => navigate(-1)}
+                    className={`flex items-center w-full ${hoverClasses}`}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {!collapsed && <span className="text-sm">Previous Page</span>}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/" className={hoverClasses} activeClassName="">
+                    <Home className="mr-2 h-4 w-4" />
+                    {!collapsed && <span className="text-sm">Back to Site</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <button
