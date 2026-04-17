@@ -35,7 +35,13 @@ const HeroSection = () => {
 
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
   const eyebrowItems = (cms.eyebrow_items?.length ? cms.eyebrow_items : defaultEyebrowItems) as typeof defaultEyebrowItems;
-  const chipGroups = defaultChipGroups; // chip groups stay hardcoded (complex nested)
+  // chip_groups now editable from CMS — supports both array-of-strings and newline-text from textarea
+  const chipGroups = (Array.isArray(cms.chip_groups) && cms.chip_groups.length > 0
+    ? cms.chip_groups.map((g: any) => ({
+        label: g.label || "",
+        items: Array.isArray(g.items) ? g.items : (typeof g.items === "string" ? g.items.split("\n").map((s: string) => s.trim()).filter(Boolean) : []),
+      }))
+    : defaultChipGroups) as typeof defaultChipGroups;
   const stats = (cms.stats?.length ? cms.stats : defaultStats) as typeof defaultStats;
 
   const [eyebrowIndex, setEyebrowIndex] = useState(0);

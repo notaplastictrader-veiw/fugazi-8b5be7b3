@@ -25,9 +25,13 @@ const ScamAlertSection = () => {
   const cms = useSiteSettings<Record<string, any>>("scam_alert_section", {});
 
   const sectionTitle = cms.section_title || "Active Scam";
+  const accentText = cms.accent_text || "Alerts";
+  const liveAlertsLabel = cms.live_alerts_label || "LIVE ALERTS";
+  const engineLabel = cms.engine_label || "SCAM SCORE ENGINE";
   const subtitle = cms.subtitle || "Our proprietary algorithm analyzes multiple risk factors to determine broker legitimacy.";
   const ctaText = cms.cta_text || "View All Scam Alerts →";
   const displayCount = cms.display_count || 10;
+  const scoreFactors = (Array.isArray(cms.score_factors) && cms.score_factors.length > 0 ? cms.score_factors : defaultScamScoreFactors) as typeof defaultScamScoreFactors;
 
   const fallbackAlerts: ScamAlert[] = [
     { id: "sa1", title: "TradeWave Markets", description: "Withdrawal refused after profit — $12,400 unresolved.", severity: "high", created_at: new Date(Date.now() - 3 * 86400000).toISOString() },
@@ -49,12 +53,12 @@ const ScamAlertSection = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// SCAM WATCH</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-10">
-          {sectionTitle} <span className="text-destructive">Alerts</span>
+          {sectionTitle} <span className="text-destructive">{accentText}</span>
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <h3 className="text-sm font-mono text-muted-foreground mb-4">LIVE ALERTS</h3>
+            <h3 className="text-sm font-mono text-muted-foreground mb-4">{liveAlertsLabel}</h3>
             {alerts.map((alert) => {
               const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
               return (
@@ -83,11 +87,11 @@ const ScamAlertSection = () => {
           <div className="glass-card rounded-xl p-6">
             <div className="flex items-center gap-2 mb-6">
               <AlertTriangle className="w-5 h-5 text-destructive" />
-              <h3 className="text-sm font-mono text-foreground">SCAM SCORE ENGINE</h3>
+              <h3 className="text-sm font-mono text-foreground">{engineLabel}</h3>
             </div>
             <p className="text-xs text-muted-foreground mb-6">{subtitle}</p>
             <div className="space-y-5">
-              {defaultScamScoreFactors.map((f, i) => {
+              {scoreFactors.map((f: any, i: number) => {
                 const barColor = f.color === "danger" ? "bg-destructive" : f.color === "accent" ? "bg-accent" : "bg-primary";
                 const textColor = f.color === "danger" ? "text-destructive" : f.color === "accent" ? "text-accent" : "text-primary";
                 return (

@@ -42,11 +42,14 @@ const BrokerJoinSection = () => {
   const cms = useSiteSettings<Record<string, any>>("broker_join_section", {});
 
   const title = cms.title || "For Brokers & Signal Providers —";
+  const accentText = cms.accent_text || "List With Us.";
   const description = cms.description || "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
   const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
   const ctaText = cms.cta_text || "Promote Your Broker →";
+  const ctaLink = cms.cta_link || "/advertise";
   const subtitle = cms.subtitle || "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.";
   const claimText = cms.claim_text || "Already listed? Claim your profile →";
+  const claimLink = cms.claim_link || "/brokers";
   const footerNote = cms.footer_note || "All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.";
 
   const tiers = (Array.isArray(cms.tiers) && cms.tiers.length > 0 ? cms.tiers : defaultTiers) as typeof defaultTiers;
@@ -56,7 +59,7 @@ const BrokerJoinSection = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FOR BROKERS</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          {title} <span className="text-accent">List With Us.</span>
+          {title} <span className="text-accent">{accentText}</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-10 max-w-2xl">{subtitle}</p>
 
@@ -76,11 +79,11 @@ const BrokerJoinSection = () => {
               })}
             </div>
             <div className="mt-8 space-y-3">
-              <a href="/advertise" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
+              <a href={ctaLink} className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity">
                 {ctaText}
               </a>
               <div>
-                <a href="/brokers" className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors">
+                <a href={claimLink} className="text-xs font-mono text-muted-foreground hover:text-primary transition-colors">
                   {claimText}
                 </a>
               </div>

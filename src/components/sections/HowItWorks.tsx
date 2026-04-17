@@ -8,13 +8,20 @@ const defaultSteps = [
   { icon: "Award", number: "04", title: "Join & earn trust", description: "Become part of the community. Your voice helps others trade safely." },
 ];
 
-const iconMap: Record<string, any> = { Search, BookOpen, MessageSquare, Award };
+import { Shield, Zap, TrendingUp, AlertTriangle, CheckCircle, Star, Users, BarChart3, Bell, Rocket, Crown, Lock } from "lucide-react";
+
+const iconMap: Record<string, any> = {
+  Search, BookOpen, MessageSquare, Award, Shield, Zap, TrendingUp,
+  AlertTriangle, CheckCircle, Star, Users, BarChart3, Bell, Rocket, Crown, Lock,
+};
 
 const HowItWorks = () => {
   const cms = useSiteSettings<Record<string, any>>("how_it_works", {});
 
   const sectionTitle = cms.section_title || "Built Different. Built For";
+  const accentText = cms.accent_text || "Traders.";
   const ctaText = cms.cta_text || "";
+  const ctaLink = cms.cta_link || "/signup";
   const steps = (cms.steps?.length ? cms.steps : defaultSteps) as typeof defaultSteps;
 
   return (
@@ -22,7 +29,7 @@ const HowItWorks = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// HOW IT WORKS</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-10">
-          {sectionTitle} <span className="text-primary">Traders.</span>
+          {sectionTitle} <span className="text-primary">{accentText}</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -48,7 +55,7 @@ const HowItWorks = () => {
 
         {ctaText && (
           <div className="mt-8 text-center">
-            <a href="/signup" className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
+            <a href={ctaLink} className="inline-flex items-center px-6 py-3 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">
               {ctaText}
             </a>
           </div>

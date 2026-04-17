@@ -20,6 +20,7 @@ const SignalHub = () => {
   const cms = useSiteSettings<Record<string, any>>("signal_hub", {});
 
   const sectionTitle = cms.section_title || "Verified Signal";
+  const accentText = cms.accent_text || "Groups";
   const subtitle = cms.subtitle || "Every Telegram group listed, reviewed and rated by real traders.";
   const ctaText = cms.cta_text || "View All Groups →";
   const displayCount = cms.display_count || 50;
@@ -51,7 +52,7 @@ const SignalHub = () => {
           <div>
             <span className="section-tag">// SIGNAL HUB</span>
             <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3">
-              {sectionTitle} <span className="text-primary">Groups</span>
+              {sectionTitle} <span className="text-primary">{accentText}</span>
             </h2>
           </div>
           <Link to="/signals" className="text-sm font-semibold text-primary hover:underline">
