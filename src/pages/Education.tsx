@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { BookOpen, TrendingUp, Zap, ChevronRight, Bell, Lock, ShoppingBag, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { educationArticles, courses } from "@/data/educationArticles";
+import { educationArticles as staticArticles, courses as staticCourses } from "@/data/educationArticles";
 import CoursePurchaseModal from "@/components/modals/CoursePurchaseModal";
 import type { Course } from "@/data/educationArticles";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Track {
   id: string;
@@ -30,9 +31,35 @@ const typeBadgeColors: Record<string, string> = {
 const Education = () => {
   const [activeTrack, setActiveTrack] = useState("beginner");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [articles, setArticles] = useState<any[]>(staticArticles);
+  const [courses, setCourses] = useState<Course[]>(staticCourses);
   const { user } = useAuth();
 
-  const filteredLessons = educationArticles.filter(a => a.track === activeTrack);
+  useEffect(() => {
+    (async () => {
+      const [{ data: arts }, { data: cs }] = await Promise.all([
+        supabase.from("education_articles").select("*").eq("status", "published").order("display_order"),
+        supabase.from("courses").select("*").eq("status", "published").order("display_order"),
+      ]);
+      if (arts && arts.length) {
+        setArticles(arts.map(a => ({
+          id: a.id, slug: a.slug, title: a.title, track: a.track,
+          readTime: a.read_time, isLocked: a.is_locked,
+          sections: (a.sections as any) || [], keyTakeaway: a.key_takeaway,
+        })));
+      }
+      if (cs && cs.length) {
+        setCourses(cs.map(c => ({
+          id: c.id, slug: c.slug, title: c.title, type: c.type as any,
+          price: Number(c.price), originalPrice: c.original_price ? Number(c.original_price) : undefined,
+          description: c.description || "", includes: (c.includes || []).join(", "),
+          note: c.note || "", isActive: c.is_active, isFeatured: c.is_featured,
+        })));
+      }
+    })();
+  }, []);
+
+  const filteredLessons = articles.filter(a => a.track === activeTrack);
 
   return (
     <MainLayout>
