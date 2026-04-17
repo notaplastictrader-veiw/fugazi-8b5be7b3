@@ -1,38 +1,83 @@
 
 
-## Investigation
-User says **Promotions** and **Sports** tabs CRUD-এ data empty দেখাচ্ছে। Network logs confirm: `promotions` table এবং `sports_predictions` table দুটোই DB-তে empty (`Response Body: []`)। কিন্তু frontend-এ static fallback data show হচ্ছে (`fallbackPromos` from `promotionsData.ts`, hardcoded predictions in `Sports.tsx`)।
+## Goal
+1. **Image uploads everywhere** — broker logos, betting site logos, course thumbnails, education hero images, promotion banners, news images, signal group logos, scam alert evidence, **user profile avatars** — সব URL input এর পাশে file upload button থাকবে।
+2. **Frontend reviews seed** — `src/data/reviews.ts`-এ থাকা hardcoded reviews DB-র `reviews` table-এ seed করা।
 
-## Root Cause
-আগের phases-এ Education + Betting Sites-এর জন্য static data DB-তে seed করা হয়েছিল, কিন্তু Promotions আর Sports Predictions seed করা হয়নি। তাই admin tab-এ গিয়ে list খালি, যদিও frontend-এ fallback data দেখা যাচ্ছে।
+## Investigation Plan
+
+I need to verify a few things before writing the plan:
+1. Existing `src/data/reviews.ts` content + count
+2. Existing storage buckets (currently zero — need to create)
+3. Which admin pages have image fields and what column names they use
 
 ## Plan
 
-### 1. Seed Promotions data
-`src/data/promotionsData.ts`-এ থাকা **`fallbackPromos`** array (~6-8 promotions: Exness 100% bonus, FTMO discount, XM no-deposit, IC Markets cashback, etc.) DB-র `promotions` table-এ INSERT করব with all fields:
-- title, description, promo_type, bonus_amount, expiry_date, link_url, image_url, is_featured, status='published'
+### 1. Storage Setup (1 migration)
+Create **3 public buckets** (using SQL migration):
+- `logos` — broker logos, betting site logos, signal group logos (public read, admin write, 2MB limit)
+- `media` — promotion banners, course thumbs, education hero, news images, scam evidence (public read, admin write, 5MB limit)  
+- `avatars` — user profile pictures (public read, owner write, 2MB limit)
 
-Note: `broker_id` nullable রাখব (FK reference পরে wire করা যাবে)।
+RLS policies on `storage.objects`:
+- Public SELECT on all 3 buckets
+- `logos` + `media`: only `super_admin` INSERT/UPDATE/DELETE
+- `avatars`: authenticated users can manage files where path starts with their `auth.uid()`
 
-### 2. Seed Sports Predictions data
-`src/data/bettingSites.ts` বা separate predictions data check করে DB-র `sports_predictions` table-এ INSERT:
-- title, sport, team_a, team_b, match_date, prediction, confidence, analyst_note, status='published'
+### 2. Reusable ImageUpload Component (1 new file)
+Create `src/components/admin/ImageUpload.tsx`:
+- Drag-or-click zone
+- Shows current image preview if URL exists
+- Uploads to specified bucket via `supabase.storage.from(bucket).upload()`
+- Returns public URL via `getPublicUrl()`
+- Replace/Remove buttons
+- File validation (type, size)
+- Calls `onChange(url)` to update parent form state
 
-যদি static predictions না থাকে, **5-6 realistic sample predictions** seed করব (football matches: Real Madrid vs Barcelona, Man City vs Liverpool; cricket: India vs Pakistan; basketball: Lakers vs Warriors)।
+Props: `value`, `onChange`, `bucket`, `folder`, `maxSizeMB`, `label`
 
-### 3. Wire frontend to DB (with fallback)
-- **`Promotions.tsx`** — currently uses `fallbackPromos` directly. Add `useEffect` to fetch from `promotions` table; if empty, use static fallback.
-- **`Sports.tsx`** — already fetches `betting_sites` from DB; add similar fetch for `sports_predictions` with static fallback.
-- **`PromoTicker.tsx`** — already reads from `site_settings`, leave as is.
+### 3. Wire ImageUpload into Admin Pages (8 files)
+Replace plain URL `<input>` with `<ImageUpload />` in:
+- `BrokersAdmin.tsx` → `logo_url` (bucket: `logos/brokers`)
+- `BettingSitesAdmin.tsx` → `logo` (bucket: `logos/betting`)
+- `SignalsAdmin.tsx` → add new logo field if needed (bucket: `logos/signals`)
+- `PromotionsAdmin.tsx` → `image_url` (bucket: `media/promotions`)
+- `NewsAdmin.tsx` → `image_url` (bucket: `media/news`)
+- `CoursesAdmin.tsx` → add `thumbnail_url` column + upload
+- `EducationAdmin.tsx` → add `hero_image_url` column + upload
+- `ScamAlertsAdmin.tsx` → keep URL input, add upload option for evidence
 
-### 4. Files Changed (~3-4)
-- 1 new migration: `seed_promotions_and_sports.sql`
-- `src/pages/Promotions.tsx` — add DB fetch with fallback
-- `src/pages/Sports.tsx` — add predictions DB fetch with fallback
-- (Admin pages already CRUD-ready, no change needed)
+Keep URL textbox as fallback (user can paste OR upload).
+
+### 4. Profile Avatar Upload (1 file)
+Update `src/pages/dashboard/ProfileSettings.tsx`:
+- Add ImageUpload component for `avatar_url` field
+- Bucket: `avatars`, folder: user's `auth.uid()`
+- Updates `profiles.avatar_url` on save
+
+### 5. Schema additions (same migration)
+- `courses` table: add `thumbnail_url text default ''`
+- `education_articles` table: add `hero_image_url text default ''`
+- `signal_groups` table: add `logo_url text default ''`
+
+### 6. Seed Reviews from frontend data
+Use `supabase--read_query` first to confirm `reviews` table has zero or few rows, then INSERT (~10-15 reviews from `src/data/reviews.ts`):
+- author, content, rating, role, broker_id (NULL since no FK match), status='published'
+- All marked `published` so they show on frontend immediately
+
+## Files Changed (~12)
+- 1 migration: storage buckets + RLS + 3 schema columns
+- 1 data insert: seed reviews
+- 1 NEW: `src/components/admin/ImageUpload.tsx`
+- 8 admin page updates: `BrokersAdmin`, `BettingSitesAdmin`, `SignalsAdmin`, `PromotionsAdmin`, `NewsAdmin`, `CoursesAdmin`, `EducationAdmin`, `ScamAlertsAdmin`
+- 1 profile update: `ProfileSettings.tsx`
 
 ## Out of Scope
-- New fields/columns (existing schema is sufficient)
-- Image upload (URL input থাকবে)
-- Broker linking dropdown in admin (already exists in PromotionsAdmin)
+- Image cropping/resizing UI (browser handles file selection only)
+- Multi-image gallery uploads (single image per field for now)
+- CDN/optimization (Supabase Storage public URLs used directly)
+- WebP conversion
+
+## Approach
+Migration first (buckets + columns) → ImageUpload component → wire into admins one by one → ProfileSettings → seed reviews last.
 
