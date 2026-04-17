@@ -1,28 +1,41 @@
 
 
-## Problem
-Admin panel-এ গেলে user-এর front-end-এ ফেরত আসার কোনো way নেই। AdminSidebar এবং ModeratorSidebar-এ "Back to Site" / "Return to Site" link missing. ProviderSidebar-এ আছে, কিন্তু admin/moderator sidebar-এ নাই।
+## "Track Your Progress" Section — Investigation Result
 
-## Investigation Needed
-দেখি admin sidebar আর moderator sidebar-এ ঠিক কী আছে।
+### Current State (Education.tsx, lines 111-117)
+এটা একটা **purely decorative static block**। শুধু একটা CheckCircle icon, heading "Track Your Progress", আর তিনটা promise লেখা:
+- "save your progress"
+- "bookmark lessons"  
+- "get notified when new content drops"
 
-## Plan
+### Reality Check — কোনটা actually কাজ করে?
 
-### 1. AdminSidebar.tsx-এ "Back to Site" link add করা
-ProviderSidebar-এর pattern follow করে — bottom-এ একটা SidebarGroup with `mt-auto` যেখানে Home icon সহ "Back to Site" link থাকবে যেটা `/` route-এ navigate করবে। Logout button-এর উপরে place হবে।
+| Promise | Status | Note |
+|---------|--------|------|
+| Save your progress | ❌ **Not built** | কোনো `education_progress` table নেই, কোনো "mark as complete" button নেই |
+| Bookmark lessons | ❌ **Not built** | Bookmark শুধু brokers-এর জন্য আছে (`Watchlist.tsx`), lessons-এর জন্য না |
+| Get notified | ❌ **Not built** | Education-specific notification subscription নেই |
+| Sign up button/CTA | ❌ **Missing** | Section-এ কোনো clickable button-ই নেই — শুধু text |
 
-### 2. ModeratorSidebar.tsx-এ same "Back to Site" link add করা
-Same pattern, same placement।
+### Verdict
+এই section টা **ঠিকমতো কাজ করানো হয়নি**। এটা একটা "coming soon" placeholder যেখানে user-কে false promise দেওয়া হচ্ছে কিন্তু backend-এ কিচ্ছু implement করা নেই। এমনকি একটা signup CTA button-ও নেই — user click করার মতো কিছুই পাবে না।
 
-### 3. Optional — "Previous Page" button
-Browser back navigation-এর জন্য `navigate(-1)` দিয়ে একটা ArrowLeft icon সহ button add করা যায়। কিন্তু sidebar-এ এটা confusing হতে পারে কারণ admin pages-এর মধ্যে navigation history থাকে। 
+### Two Options to Fix
 
-**Recommendation**: শুধু "Back to Site" রাখি (reliable & clear)। Previous page browser-এর native back button দিয়েই handle করা যায়।
+**Option A — Make it real (full feature, ~30 min)**
+1. New table `education_progress` (user_id, lesson_slug, completed_at, bookmarked_at)
+2. RLS policies — users can only see/edit their own rows
+3. "Mark as complete" + "Bookmark" toggle buttons on each lesson card
+4. New dashboard page `/dashboard/learning` showing progress + bookmarks
+5. Section becomes contextual: shows progress bar if logged in, signup CTA if not
 
-## Files: 2
-- `src/components/admin/AdminSidebar.tsx` — bottom group-এ "Back to Site" link add
-- `src/components/admin/ModeratorSidebar.tsx` — same
+**Option B — Honest placeholder (5 min)**
+1. Add a real "Sign Up Free" button linking to `/signup`
+2. Hide section entirely if user is already logged in
+3. Keep promises but only the achievable ones (e.g., "Get notified when new courses drop" — possible via existing notifications table)
 
-## DB Changes
-None — pure UI fix। DB-তে কিছু store করার দরকার নেই।
+### My Recommendation
+**Option B first** (quick honest fix), then Option A later as a proper feature when education hub gets more lessons. Right now there are only ~15 lessons across 3 tracks — progress tracking is overkill।
+
+কোন option চাও? নাকি একদম remove করে দিই section টা?
 
