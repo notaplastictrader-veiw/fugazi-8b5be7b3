@@ -75,7 +75,7 @@ const SignalGroupDetail = () => {
         .eq("status", "published")
         .maybeSingle();
       if (g) {
-        setGroup(g as SignalGroup);
+        setGroup(g as unknown as SignalGroup);
       } else {
         // Fallback for demo data
         const fallback = fallbackGroups.find(fg => fg.id === id);
