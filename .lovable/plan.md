@@ -1,85 +1,38 @@
 
 
-## Goal
-Content Management menu-র **প্রতিটা tab** (Brokers, Betting Sites, Signal Groups, Forecasts, Promotions, News, Calendar, Sports, Education, Courses, Scam Alerts) — সব frontend page-এ যা যা field দেখা যায় সব admin থেকে add/edit/remove করা যাবে।
+## Investigation
+User says **Promotions** and **Sports** tabs CRUD-এ data empty দেখাচ্ছে। Network logs confirm: `promotions` table এবং `sports_predictions` table দুটোই DB-তে empty (`Response Body: []`)। কিন্তু frontend-এ static fallback data show হচ্ছে (`fallbackPromos` from `promotionsData.ts`, hardcoded predictions in `Sports.tsx`)।
 
-## Investigation Summary
-
-বর্তমান অবস্থা প্রতিটা admin tab-এর:
-
-| Tab | Status | Missing |
-|-----|--------|---------|
-| Brokers | ✅ Working (CRUD) | Some frontend fields hardcoded (description, pros/cons, payment methods, platforms) |
-| Betting Sites | ⚠️ Read-only list | Full CRUD modal missing — frontend uses static `bettingSites.ts` |
-| Signal Groups | ✅ Working | Telegram link, description, pricing tiers missing from DB |
-| Forecasts | ✅ Working | OK |
-| Promotions | ✅ Working | OK |
-| News | ✅ Working | OK |
-| Calendar | ✅ Working | OK |
-| Sports | ✅ Working | OK |
-| **Education** | ❌ **Disabled buttons** | No DB table, fully hardcoded |
-| **Courses** | ❌ **Likely missing/disabled** | No DB table |
-| Scam Alerts | ✅ Working | OK |
+## Root Cause
+আগের phases-এ Education + Betting Sites-এর জন্য static data DB-তে seed করা হয়েছিল, কিন্তু Promotions আর Sports Predictions seed করা হয়নি। তাই admin tab-এ গিয়ে list খালি, যদিও frontend-এ fallback data দেখা যাচ্ছে।
 
 ## Plan
 
-### Phase 1: Education + Courses (CRITICAL — fully broken)
-**New tables:**
-- `education_articles` — id, title, slug, track, read_time, is_locked, course_id, sections (jsonb), key_takeaway, display_order, status, timestamps
-- `courses` — id, title, slug, type, price, original_price, description, includes (text[]), note, is_active, is_featured, display_order, timestamps
-- RLS: public SELECT on published; super_admin full access
-- Seed with existing `educationArticles.ts` + `coursesData.ts`
+### 1. Seed Promotions data
+`src/data/promotionsData.ts`-এ থাকা **`fallbackPromos`** array (~6-8 promotions: Exness 100% bonus, FTMO discount, XM no-deposit, IC Markets cashback, etc.) DB-র `promotions` table-এ INSERT করব with all fields:
+- title, description, promo_type, bonus_amount, expiry_date, link_url, image_url, is_featured, status='published'
 
-**Admin rewrites:**
-- `EducationAdmin.tsx` → full CRUD modal (title, slug auto-gen, track dropdown, read_time, is_locked toggle, course_id link, **nested sections editor** for add/remove/reorder content blocks, key_takeaway)
-- New `CoursesAdmin.tsx` → CRUD modal (title, slug, type [course/ebook/bundle], price, original_price, description, includes list, note, switches)
-- Add `/admin/courses` route + sidebar link
+Note: `broker_id` nullable রাখব (FK reference পরে wire করা যাবে)।
 
-**Frontend wiring:**
-- `Education.tsx` → fetch from DB with static fallback
-- `EducationArticle.tsx` → fetch by slug from DB
+### 2. Seed Sports Predictions data
+`src/data/bettingSites.ts` বা separate predictions data check করে DB-র `sports_predictions` table-এ INSERT:
+- title, sport, team_a, team_b, match_date, prediction, confidence, analyst_note, status='published'
 
-### Phase 2: Betting Sites (read-only → full CRUD)
-**Migration:** New `betting_sites` table — id, name, slug, logo, rating, bonus, sports (text[]), features (text[]), min_deposit, withdrawal_speed, license, url, warning, status, display_order. Seed from `bettingSites.ts`.
+যদি static predictions না থাকে, **5-6 realistic sample predictions** seed করব (football matches: Real Madrid vs Barcelona, Man City vs Liverpool; cricket: India vs Pakistan; basketball: Lakers vs Warriors)।
 
-**Admin:** Rewrite `BettingSitesAdmin.tsx` with CRUD modal for all fields (sports/features as multi-select tag input).
+### 3. Wire frontend to DB (with fallback)
+- **`Promotions.tsx`** — currently uses `fallbackPromos` directly. Add `useEffect` to fetch from `promotions` table; if empty, use static fallback.
+- **`Sports.tsx`** — already fetches `betting_sites` from DB; add similar fetch for `sports_predictions` with static fallback.
+- **`PromoTicker.tsx`** — already reads from `site_settings`, leave as is.
 
-**Frontend:** `Sports.tsx` fetches from DB with static fallback.
-
-### Phase 3: Brokers — Add Missing Fields
-**Migration:** Add columns to `brokers` table:
-- `description` (text), `founded_year` (int), `headquarters` (text)
-- `pros` (text[]), `cons` (text[])
-- `payment_methods` (text[]), `platforms` (text[])
-- `account_types` (jsonb — array of `{name, min_deposit, spread, commission}`)
-- `website_url`, `support_email`, `support_phone`
-
-**Admin:** Extend `BrokersAdmin.tsx` modal with new fields (multi-line list inputs + nested account_types editor).
-
-**Frontend:** `BrokerDetail.tsx` displays all new fields.
-
-### Phase 4: Signal Groups — Add Missing Fields  
-**Migration:** Add columns to `signal_groups`:
-- `description` (text), `telegram_url` (text), `discord_url` (text)
-- `pricing_tiers` (jsonb — array of `{name, price, period, features[]}`)
-- `sample_signals` (jsonb), `categories` (text[])
-
-**Admin:** Extend `SignalsAdmin.tsx` modal.
-
-**Frontend:** `SignalGroupDetail.tsx` displays all new fields.
-
-## Files Changed (~18)
-- 4 new migrations (education+courses tables, betting_sites table, brokers extra cols, signal_groups extra cols)
-- 4 admin rewrites/extensions: `EducationAdmin.tsx`, `CoursesAdmin.tsx` (NEW), `BettingSitesAdmin.tsx`, `BrokersAdmin.tsx`, `SignalsAdmin.tsx`
-- 1 sidebar update: `AdminSidebar.tsx` (add Courses link if missing)
-- 1 routes update: `App.tsx`
-- Frontend updates: `Education.tsx`, `EducationArticle.tsx`, `Sports.tsx`, `BrokerDetail.tsx`, `SignalGroupDetail.tsx`
+### 4. Files Changed (~3-4)
+- 1 new migration: `seed_promotions_and_sports.sql`
+- `src/pages/Promotions.tsx` — add DB fetch with fallback
+- `src/pages/Sports.tsx` — add predictions DB fetch with fallback
+- (Admin pages already CRUD-ready, no change needed)
 
 ## Out of Scope
-- Image upload to Supabase Storage (will use URL inputs for now)
-- Rich text WYSIWYG editor (textareas with markdown support)
-- Course payment integration
-
-## Approach
-Phase 1 → 2 → 3 → 4, sequentially. Each phase is independently testable. All changes keep static fallbacks so site never breaks if DB empty.
+- New fields/columns (existing schema is sufficient)
+- Image upload (URL input থাকবে)
+- Broker linking dropdown in admin (already exists in PromotionsAdmin)
 
