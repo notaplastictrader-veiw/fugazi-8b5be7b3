@@ -13,6 +13,7 @@ import { Plus, Pencil, Trash2, Star, Shield, AlertTriangle } from "lucide-react"
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Site {
   id: string; slug: string; name: string; logo: string; rating: number;
@@ -188,9 +189,10 @@ const BettingSitesAdmin = () => {
               <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Logo (emoji or URL)</Label><Input value={form.logo} onChange={e => setForm({ ...form, logo: e.target.value })} /></div>
               <div><Label>Rating (0-10)</Label><Input type="number" min={0} max={10} step={0.1} value={form.rating} onChange={e => setForm({ ...form, rating: +e.target.value })} /></div>
+              <div></div>
             </div>
+            <ImageUpload value={form.logo} onChange={url => setForm({ ...form, logo: url })} bucket="logos" folder="betting" maxSizeMB={2} label="Site Logo (image or emoji URL)" />
             <div><Label>Welcome Bonus</Label><Input value={form.bonus} onChange={e => setForm({ ...form, bonus: e.target.value })} placeholder="Up to $30 in Bet Credits" /></div>
             <div><Label>License</Label><Input value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} placeholder="UK Gambling Commission" /></div>
             <div className="grid grid-cols-2 gap-3">

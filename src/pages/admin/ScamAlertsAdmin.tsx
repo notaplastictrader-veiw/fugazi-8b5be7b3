@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 const formatDate = (d: string) => {
   const date = new Date(d);
   return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
@@ -21,9 +22,10 @@ const formatDate = (d: string) => {
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; status: string; created_at: string;
+  story?: string;
 }
 
-const empty = { title: "", description: "", severity: "medium", status: "draft" };
+const empty = { title: "", description: "", severity: "medium", status: "draft", story: "" };
 
 const ScamAlertsAdmin = () => {
   const { user } = useAuth();
@@ -53,7 +55,7 @@ const ScamAlertsAdmin = () => {
   useEffect(() => { fetchData(); }, []);
 
   const openCreate = () => { setEditing(null); setForm(empty); setModalOpen(true); };
-  const openEdit = (s: ScamAlert) => { setEditing(s); setForm(s); setModalOpen(true); };
+  const openEdit = (s: ScamAlert) => { setEditing(s); setForm({ ...empty, ...s, story: s.story || "" }); setModalOpen(true); };
 
   const handleSave = async () => {
     const payload = { ...form, status: form.status as "draft" | "pending" | "published" | "rejected" };
@@ -121,6 +123,7 @@ const ScamAlertsAdmin = () => {
           <div className="space-y-3">
             <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
             <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
+            <ImageUpload value={form.story || ""} onChange={url => setForm({...form, story: url})} bucket="media" folder="scams" maxSizeMB={5} label="Evidence Image (optional)" accept="image/png,image/jpeg,image/webp" />
             <div><Label>Severity</Label>
               <Select value={form.severity} onValueChange={v => setForm({...form, severity: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

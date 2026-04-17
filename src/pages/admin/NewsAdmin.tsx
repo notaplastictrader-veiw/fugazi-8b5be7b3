@@ -12,6 +12,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface NewsArticle {
   id: string; title: string; slug: string; excerpt: string; content: string;
@@ -130,7 +131,7 @@ const NewsAdmin = () => {
               <div><Label>Author</Label><Input value={form.author} onChange={e => setForm({...form, author: e.target.value})} /></div>
             </div>
             <div><Label>Source URL</Label><Input value={form.source_url} onChange={e => setForm({...form, source_url: e.target.value})} /></div>
-            <div><Label>Image URL</Label><Input value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})} /></div>
+            <ImageUpload value={form.image_url} onChange={url => setForm({...form, image_url: url})} bucket="media" folder="news" maxSizeMB={5} label="Article Image" accept="image/png,image/jpeg,image/webp,image/gif" />
             <div><Label>Status</Label>
               <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

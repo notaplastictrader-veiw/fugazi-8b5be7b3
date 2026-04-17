@@ -512,6 +512,7 @@ export type Database = {
           price: number
           slug: string
           status: Database["public"]["Enums"]["content_status"]
+          thumbnail_url: string | null
           title: string
           type: string
           updated_at: string
@@ -529,6 +530,7 @@ export type Database = {
           price?: number
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
+          thumbnail_url?: string | null
           title: string
           type?: string
           updated_at?: string
@@ -546,6 +548,7 @@ export type Database = {
           price?: number
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
+          thumbnail_url?: string | null
           title?: string
           type?: string
           updated_at?: string
@@ -557,6 +560,7 @@ export type Database = {
           course_id: string | null
           created_at: string
           display_order: number | null
+          hero_image_url: string | null
           id: string
           is_locked: boolean | null
           key_takeaway: string | null
@@ -572,6 +576,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           display_order?: number | null
+          hero_image_url?: string | null
           id?: string
           is_locked?: boolean | null
           key_takeaway?: string | null
@@ -587,6 +592,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           display_order?: number | null
+          hero_image_url?: string | null
           id?: string
           is_locked?: boolean | null
           key_takeaway?: string | null
@@ -1131,6 +1137,7 @@ export type Database = {
           description: string | null
           discord_url: string | null
           id: string
+          logo_url: string | null
           members: string | null
           monthly_signals: string | null
           name: string
@@ -1151,6 +1158,7 @@ export type Database = {
           description?: string | null
           discord_url?: string | null
           id?: string
+          logo_url?: string | null
           members?: string | null
           monthly_signals?: string | null
           name: string
@@ -1171,6 +1179,7 @@ export type Database = {
           description?: string | null
           discord_url?: string | null
           id?: string
+          logo_url?: string | null
           members?: string | null
           monthly_signals?: string | null
           name?: string

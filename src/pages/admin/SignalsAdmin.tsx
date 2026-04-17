@@ -13,6 +13,7 @@ import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface PricingTier { name: string; price: string; period: string; features: string[]; }
 
@@ -31,6 +32,7 @@ interface Signal {
   discord_url: string;
   pricing_tiers: PricingTier[];
   categories: string[];
+  logo_url: string;
 }
 
 const empty = {
@@ -39,6 +41,7 @@ const empty = {
   description: "", telegram_url: "", discord_url: "",
   pricing_tiers: [] as PricingTier[],
   categories: [] as string[],
+  logo_url: "",
 };
 
 const SignalsAdmin = () => {
@@ -65,6 +68,7 @@ const SignalsAdmin = () => {
       discord_url: s.discord_url || "",
       pricing_tiers: Array.isArray(s.pricing_tiers) ? s.pricing_tiers : [],
       categories: s.categories || [],
+      logo_url: s.logo_url || "",
     });
     setModalOpen(true);
   };
@@ -150,6 +154,7 @@ const SignalsAdmin = () => {
           <DialogHeader><DialogTitle>{editing ? "Edit Signal" : "Add Signal"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+            <ImageUpload value={form.logo_url} onChange={url => setForm({...form, logo_url: url})} bucket="logos" folder="signals" maxSizeMB={2} label="Signal Group Logo" />
             <div><Label>Description</Label>
               <Textarea rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Short description shown on detail page" />
             </div>

@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2, DollarSign, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { logAuditAction } from "@/lib/approvalQueue";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface Course {
   id: string; slug: string; title: string; type: string;
@@ -21,6 +22,7 @@ interface Course {
   description: string; includes: string[]; note: string;
   is_active: boolean; is_featured: boolean;
   display_order: number; status: string;
+  thumbnail_url: string;
 }
 
 const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -29,6 +31,7 @@ const empty = {
   slug: "", title: "", type: "course", price: 0, original_price: null as number | null,
   description: "", includes: [] as string[], note: "",
   is_active: true, is_featured: false, display_order: 0, status: "published",
+  thumbnail_url: "",
 };
 
 const CoursesAdmin = () => {
@@ -60,6 +63,7 @@ const CoursesAdmin = () => {
       includes: c.includes || [], note: c.note || "",
       is_active: c.is_active, is_featured: c.is_featured,
       display_order: c.display_order || 0, status: c.status,
+      thumbnail_url: (c as any).thumbnail_url || "",
     });
     setIncludesText((c.includes || []).join("\n"));
     setModalOpen(true);
@@ -215,6 +219,7 @@ const CoursesAdmin = () => {
                 placeholder="PDF workbook&#10;Video links&#10;Quiz at end of each module" />
             </div>
             <div><Label>Note</Label><Input value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="Instant access after purchase" /></div>
+            <ImageUpload value={form.thumbnail_url} onChange={url => setForm({ ...form, thumbnail_url: url })} bucket="media" folder="courses" maxSizeMB={5} label="Course Thumbnail" accept="image/png,image/jpeg,image/webp" />
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: +e.target.value })} /></div>
               <div>
