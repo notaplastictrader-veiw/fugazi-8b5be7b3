@@ -16,6 +16,7 @@ import {
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
 
+interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
 interface Broker {
   id: string;
   name: string;
@@ -31,6 +32,17 @@ interface Broker {
   review_count: number;
   complaints: number;
   badge: string;
+  description?: string;
+  founded_year?: number | null;
+  headquarters?: string;
+  pros?: string[];
+  cons?: string[];
+  payment_methods?: string[];
+  platforms?: string[];
+  account_types?: AccountType[];
+  website_url?: string;
+  support_email?: string;
+  support_phone?: string;
 }
 
 interface Review {
