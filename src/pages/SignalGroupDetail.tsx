@@ -11,6 +11,7 @@ import {
   Clock, Target, Shield, Star, MessageSquare
 } from "lucide-react";
 
+interface PricingTier { name: string; price: string; period: string; features: string[]; }
 interface SignalGroup {
   id: string;
   name: string;
@@ -20,6 +21,11 @@ interface SignalGroup {
   track_record: string;
   members: string;
   verified: boolean;
+  description?: string;
+  telegram_url?: string;
+  discord_url?: string;
+  pricing_tiers?: PricingTier[];
+  categories?: string[];
 }
 
 const fallbackGroups: SignalGroup[] = [
