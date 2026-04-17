@@ -11,6 +11,7 @@ import {
   Clock, Target, Shield, Star, MessageSquare
 } from "lucide-react";
 
+interface PricingTier { name: string; price: string; period: string; features: string[]; }
 interface SignalGroup {
   id: string;
   name: string;
@@ -20,6 +21,11 @@ interface SignalGroup {
   track_record: string;
   members: string;
   verified: boolean;
+  description?: string;
+  telegram_url?: string;
+  discord_url?: string;
+  pricing_tiers?: PricingTier[];
+  categories?: string[];
 }
 
 const fallbackGroups: SignalGroup[] = [
@@ -69,7 +75,7 @@ const SignalGroupDetail = () => {
         .eq("status", "published")
         .maybeSingle();
       if (g) {
-        setGroup(g as SignalGroup);
+        setGroup(g as unknown as SignalGroup);
       } else {
         // Fallback for demo data
         const fallback = fallbackGroups.find(fg => fg.id === id);
@@ -127,9 +133,18 @@ const SignalGroupDetail = () => {
                     {group.win_rate}%
                   </div>
                 </div>
-                <Button size="sm" className="font-display font-bold">
-                  Join Group
+                <Button size="sm" className="font-display font-bold" asChild={!!group.telegram_url}>
+                  {group.telegram_url ? (
+                    <a href={group.telegram_url} target="_blank" rel="noopener noreferrer">Join on Telegram</a>
+                  ) : (
+                    <span>Join Group</span>
+                  )}
                 </Button>
+                {group.discord_url && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={group.discord_url} target="_blank" rel="noopener noreferrer">Discord</a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -144,6 +159,48 @@ const SignalGroupDetail = () => {
 
             {/* Overview */}
             <TabsContent value="overview" className="mt-6 space-y-8">
+              {group.description && (
+                <section>
+                  <h2 className="text-xl font-display font-bold text-foreground mb-3">About this Group</h2>
+                  <div className="glass-card rounded-xl p-6">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{group.description}</p>
+                  </div>
+                </section>
+              )}
+
+              {group.categories && group.categories.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-display font-bold text-foreground mb-3">Categories</h2>
+                  <div className="flex flex-wrap gap-2">
+                    {group.categories.map(c => (
+                      <span key={c} className="text-xs font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-full">{c}</span>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {group.pricing_tiers && group.pricing_tiers.length > 0 && (
+                <section>
+                  <h2 className="text-xl font-display font-bold text-foreground mb-3">Pricing Tiers</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {group.pricing_tiers.map((t, i) => (
+                      <div key={i} className="glass-card rounded-xl p-5 flex flex-col">
+                        <h3 className="text-lg font-display font-bold text-foreground">{t.name}</h3>
+                        <div className="mt-2 mb-4">
+                          <span className="text-2xl font-mono font-extrabold text-primary">{t.price}</span>
+                          {t.period && <span className="text-xs text-muted-foreground ml-1">/ {t.period}</span>}
+                        </div>
+                        <ul className="space-y-1.5 text-sm text-muted-foreground flex-1">
+                          {t.features?.map((f, j) => (
+                            <li key={j} className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />{f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
                   <Target className="w-5 h-5 text-primary" /> Key Facts

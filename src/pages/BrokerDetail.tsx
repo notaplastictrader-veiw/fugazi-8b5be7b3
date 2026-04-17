@@ -16,6 +16,7 @@ import {
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
 
+interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
 interface Broker {
   id: string;
   name: string;
@@ -31,6 +32,17 @@ interface Broker {
   review_count: number;
   complaints: number;
   badge: string;
+  description?: string;
+  founded_year?: number | null;
+  headquarters?: string;
+  pros?: string[];
+  cons?: string[];
+  payment_methods?: string[];
+  platforms?: string[];
+  account_types?: AccountType[];
+  website_url?: string;
+  support_email?: string;
+  support_phone?: string;
 }
 
 interface Review {
@@ -50,19 +62,20 @@ const getPlaceholderReview = (broker: Broker) => ({
     { label: "Avg. Spread", value: broker.avg_spread || "N/A" },
     { label: "Max Leverage", value: broker.leverage || "N/A" },
     { label: "Min. Deposit", value: broker.min_deposit || "N/A" },
-    { label: "Platforms", value: "MT4, MT5, Web Trader" },
-    { label: "Withdrawal Time", value: "Instant – 3 business days" },
-    { label: "Deposit Methods", value: "Bank, Card, Crypto, E-wallets" },
-    { label: "Customer Support", value: "24/5 Live Chat, Email" },
+    { label: "Platforms", value: broker.platforms && broker.platforms.length > 0 ? broker.platforms.join(", ") : "MT4, MT5, Web Trader" },
+    { label: "Headquarters", value: broker.headquarters || "—" },
+    { label: "Founded", value: broker.founded_year ? String(broker.founded_year) : "—" },
+    { label: "Deposit Methods", value: broker.payment_methods && broker.payment_methods.length > 0 ? broker.payment_methods.join(", ") : "Bank, Card, Crypto, E-wallets" },
+    { label: "Customer Support", value: broker.support_email || broker.support_phone ? [broker.support_email, broker.support_phone].filter(Boolean).join(" / ") : "24/5 Live Chat, Email" },
   ],
-  pros: [
+  pros: broker.pros && broker.pros.length > 0 ? broker.pros : [
     "Regulated by tier-1 authorities",
     "Competitive spreads and low fees",
     "Fast deposit and withdrawal processing",
     "Multiple trading platforms available",
     "Educational resources for beginners",
   ],
-  cons: [
+  cons: broker.cons && broker.cons.length > 0 ? broker.cons : [
     "Limited cryptocurrency selection",
     "Inactivity fees may apply",
     "Some account types have higher minimum deposits",
@@ -107,7 +120,7 @@ const BrokerDetail = () => {
     setLoading(true);
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
-      setBroker(b as Broker);
+      setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
         supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status").eq("broker_id", b.id).maybeSingle(),
@@ -310,7 +323,7 @@ const BrokerDetail = () => {
                   <Scale className="w-5 h-5 text-primary" /> Our Verdict
                 </h2>
                 <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed">{review.verdict}</p>
+                  <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
                 </div>
               </section>
 
@@ -367,18 +380,17 @@ const BrokerDetail = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-t border-border/50">
-                          <td className="px-4 py-2.5 text-foreground">Standard</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.min_deposit}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.avg_spread}</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.leverage}</td>
-                        </tr>
-                        <tr className="border-t border-border/50">
-                          <td className="px-4 py-2.5 text-foreground">ECN/Raw</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">$200+</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">0.0 pips</td>
-                          <td className="px-4 py-2.5 text-muted-foreground">{broker.leverage}</td>
-                        </tr>
+                        {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
+                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, commission: "—" },
+                          { name: "ECN/Raw", min_deposit: "$200+", spread: "0.0 pips", commission: "$3.5/lot" },
+                        ]).map((at, i) => (
+                          <tr key={i} className="border-t border-border/50">
+                            <td className="px-4 py-2.5 text-foreground">{at.name}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || broker.leverage}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -391,7 +403,7 @@ const BrokerDetail = () => {
                   <Globe className="w-5 h-5 text-primary" /> Platforms Available
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {["MetaTrader 4", "MetaTrader 5", "Web Trader"].map(p => (
+                  {(broker.platforms && broker.platforms.length > 0 ? broker.platforms : ["MetaTrader 4", "MetaTrader 5", "Web Trader"]).map(p => (
                     <div key={p} className="glass-card rounded-xl p-4 text-center">
                       <div className="text-sm font-display font-bold text-foreground">{p}</div>
                       <div className="text-xs text-muted-foreground mt-1">Desktop, Mobile, Web</div>
@@ -416,12 +428,14 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
-                        { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
-                        { method: "Crypto (USDT)", min: "$10", processing: "10-30 min", fee: "Network fee" },
-                        { method: "E-wallets", min: "$1", processing: "Instant", fee: "Free" },
-                      ].map((m, i) => (
+                      {(broker.payment_methods && broker.payment_methods.length > 0
+                        ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
+                        : [
+                          { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
+                          { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
+                          { method: "Crypto (USDT)", min: "$10", processing: "10-30 min", fee: "Network fee" },
+                          { method: "E-wallets", min: "$1", processing: "Instant", fee: "Free" },
+                        ]).map((m, i) => (
                         <tr key={m.method} className={i % 2 === 0 ? "" : "bg-muted/10"}>
                           <td className="px-4 py-2.5 text-foreground">{m.method}</td>
                           <td className="px-4 py-2.5 text-muted-foreground">{m.min}</td>
