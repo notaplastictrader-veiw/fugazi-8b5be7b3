@@ -18,7 +18,36 @@ const typeColors: Record<string, string> = {
 
 const Promotions = () => {
   const [activeFilter, setActiveFilter] = useState("all");
-  const promos = fallbackPromos;
+  const [promos, setPromos] = useState<PromotionDetail[]>(fallbackPromos);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("promotions")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+      if (data && data.length > 0) {
+        setPromos(data.map((p: any) => ({
+          id: p.id,
+          slug: p.id,
+          title: p.title,
+          description: p.description || "",
+          full_description: p.description || "",
+          promo_type: p.promo_type,
+          bonus_amount: p.bonus_amount || "",
+          expiry_date: p.expiry_date,
+          link_url: p.link_url || "#",
+          image_url: p.image_url || "",
+          is_featured: !!p.is_featured,
+          how_to_claim: [],
+          terms: [],
+          broker_name: "",
+          created_at: p.created_at,
+        })));
+      }
+    })();
+  }, []);
 
   const filtered = activeFilter === "all" ? promos : promos.filter((p) => p.promo_type === activeFilter);
   const featured = filtered.filter((p) => p.is_featured);
