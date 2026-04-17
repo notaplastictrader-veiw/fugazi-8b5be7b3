@@ -72,7 +72,7 @@ const ForecastSection = () => {
       <div className="max-w-7xl mx-auto">
         <span className="section-tag">// FORECAST ENGINE</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
-          {sectionTitle} <span className="text-accent">Forecasts</span>
+          {sectionTitle} <span className="text-accent">{accentText}</span>
         </h2>
         <p className="text-sm text-muted-foreground mb-8">{subtitle}</p>
 
