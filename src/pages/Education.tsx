@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { BookOpen, TrendingUp, Zap, ChevronRight, CheckCircle, Lock, ShoppingBag, Sparkles } from "lucide-react";
+import { BookOpen, TrendingUp, Zap, ChevronRight, Bell, Lock, ShoppingBag, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { educationArticles, courses } from "@/data/educationArticles";
 import CoursePurchaseModal from "@/components/modals/CoursePurchaseModal";
 import type { Course } from "@/data/educationArticles";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Track {
   id: string;
@@ -29,6 +30,7 @@ const typeBadgeColors: Record<string, string> = {
 const Education = () => {
   const [activeTrack, setActiveTrack] = useState("beginner");
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const { user } = useAuth();
 
   const filteredLessons = educationArticles.filter(a => a.track === activeTrack);
 
@@ -107,14 +109,19 @@ const Education = () => {
           ))}
         </div>
 
-        {/* Progress */}
-        <div className="glass-card rounded-2xl p-8 mt-12 text-center">
-          <CheckCircle className="w-10 h-10 text-primary mx-auto mb-3" />
-          <h2 className="text-xl font-display font-bold text-foreground mb-2">Track Your Progress</h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Sign up for a free account to save your progress, bookmark lessons, and get notified when new content drops.
-          </p>
-        </div>
+        {/* Get Notified — only show for logged-out users */}
+        {!user && (
+          <div className="glass-card rounded-2xl p-8 mt-12 text-center">
+            <Bell className="w-10 h-10 text-primary mx-auto mb-3" />
+            <h2 className="text-xl font-display font-bold text-foreground mb-2">Get Notified About New Lessons</h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
+              Create a free account to get notified when new courses and lessons drop. No spam — just learning updates.
+            </p>
+            <Button asChild size="sm">
+              <Link to="/signup">Sign Up Free →</Link>
+            </Button>
+          </div>
+        )}
 
         {/* Courses Section */}
         <div id="courses" className="mt-20">
