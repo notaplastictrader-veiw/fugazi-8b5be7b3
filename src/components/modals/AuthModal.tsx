@@ -274,8 +274,8 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }} onClick={onClose}>
-      <div className="bg-card border border-border rounded-2xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto p-8 relative" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-5" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+      <div className="bg-card border border-border rounded-2xl w-full max-w-[500px] max-h-[90vh] overflow-y-auto p-8 relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
 
         {/* Brand Logo */}
