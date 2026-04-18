@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
@@ -20,14 +20,32 @@ interface Promotion {
   id: string; title: string; description: string; promo_type: string;
   bonus_amount: string; expiry_date: string | null; link_url: string;
   image_url: string; is_featured: boolean; status: string;
-  slug?: string; how_to_claim?: string; terms?: string; category?: string;
+  slug?: string | null;
+  full_description?: string | null;
+  how_to_claim?: string[] | null;
+  terms?: string[] | null;
+  broker_name?: string | null;
+  referral_url?: string | null;
 }
 
-const empty = {
+// FormState keeps how_to_claim/terms as multiline strings for textarea editing.
+interface FormState {
+  title: string; description: string; promo_type: string; bonus_amount: string;
+  expiry_date: string; link_url: string; image_url: string;
+  is_featured: boolean; status: string;
+  slug: string; full_description: string; how_to_claim: string; terms: string;
+  broker_name: string; referral_url: string;
+}
+
+const empty: FormState = {
   title: "", description: "", promo_type: "bonus", bonus_amount: "",
   expiry_date: "", link_url: "", image_url: "", is_featured: false, status: "draft",
-  slug: "", how_to_claim: "", terms: "", category: "bonus",
+  slug: "", full_description: "", how_to_claim: "", terms: "",
+  broker_name: "", referral_url: "",
 };
+
+const slugify = (s: string) =>
+  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 const PromotionsAdmin = () => {
   const { user } = useAuth();
@@ -35,11 +53,11 @@ const PromotionsAdmin = () => {
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Promotion | null>(null);
-  const [form, setForm] = useState(empty);
+  const [form, setForm] = useState<FormState>(empty);
 
   const fetchData = async () => {
     const { data } = await supabase.from("promotions").select("*").order("created_at", { ascending: false });
-    if (data) setItems(data as Promotion[]);
+    if (data) setItems(data as unknown as Promotion[]);
   };
   useEffect(() => { fetchData(); }, []);
 
@@ -47,23 +65,43 @@ const PromotionsAdmin = () => {
   const openEdit = (p: Promotion) => {
     setEditing(p);
     setForm({
-      ...p,
-      expiry_date: p.expiry_date || "", link_url: p.link_url || "",
-      image_url: p.image_url || "", description: p.description || "",
-      bonus_amount: p.bonus_amount || "", slug: p.slug || "",
-      how_to_claim: p.how_to_claim || "", terms: p.terms || "",
-      category: p.category || p.promo_type || "bonus",
+      title: p.title || "",
+      description: p.description || "",
+      promo_type: p.promo_type || "bonus",
+      bonus_amount: p.bonus_amount || "",
+      expiry_date: p.expiry_date || "",
+      link_url: p.link_url || "",
+      image_url: p.image_url || "",
+      is_featured: !!p.is_featured,
+      status: p.status || "draft",
+      slug: p.slug || "",
+      full_description: p.full_description || "",
+      how_to_claim: (p.how_to_claim || []).join("\n"),
+      terms: (p.terms || []).join("\n"),
+      broker_name: p.broker_name || "",
+      referral_url: p.referral_url || "",
     });
     setModalOpen(true);
   };
 
   const handleSave = async () => {
+    const finalSlug = form.slug.trim() || slugify(form.title);
     const payload = {
-      title: form.title, description: form.description, promo_type: form.promo_type,
-      bonus_amount: form.bonus_amount, link_url: form.link_url, image_url: form.image_url,
+      title: form.title,
+      description: form.description,
+      promo_type: form.promo_type,
+      bonus_amount: form.bonus_amount,
+      link_url: form.link_url,
+      image_url: form.image_url,
       is_featured: form.is_featured,
       expiry_date: form.expiry_date || null,
       status: form.status as "draft" | "pending" | "published" | "rejected",
+      slug: finalSlug,
+      full_description: form.full_description,
+      how_to_claim: form.how_to_claim.split("\n").map(s => s.trim()).filter(Boolean),
+      terms: form.terms.split("\n").map(s => s.trim()).filter(Boolean),
+      broker_name: form.broker_name,
+      referral_url: form.referral_url,
     };
     if (editing) {
       const { error } = await supabase.from("promotions").update(payload).eq("id", editing.id);
@@ -100,7 +138,6 @@ const PromotionsAdmin = () => {
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Promotion</Button>
       </div>
 
-      {/* Quick stats */}
       <div className="grid grid-cols-4 gap-3 mb-6">
         {["draft", "pending", "published", "rejected"].map(s => (
           <div key={s} className="glass-card rounded-lg p-3 text-center">
@@ -166,49 +203,44 @@ const PromotionsAdmin = () => {
               <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="auto-from-title" /></div>
             </div>
 
-            <div><Label>Description</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Broker / Brand Name</Label><Input value={form.broker_name} onChange={e => setForm({ ...form, broker_name: e.target.value })} placeholder="e.g. Exness" /></div>
+              <div><Label>Bonus Amount</Label><Input value={form.bonus_amount} onChange={e => setForm({ ...form, bonus_amount: e.target.value })} placeholder="e.g. 100% / $30" /></div>
+            </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div><Label>Short Description (card teaser)</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
+
+            <div><Label>Full Description (detail page)</Label><Textarea value={form.full_description} onChange={e => setForm({ ...form, full_description: e.target.value })} rows={5} placeholder="Long-form explanation shown on the promo detail page." /></div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Type</Label>
                 <Select value={form.promo_type} onValueChange={v => setForm({ ...form, promo_type: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="bonus">Bonus</SelectItem>
+                    <SelectItem value="bonus">Deposit Bonus</SelectItem>
+                    <SelectItem value="no-deposit">No Deposit</SelectItem>
                     <SelectItem value="cashback">Cashback</SelectItem>
-                    <SelectItem value="no_deposit">No Deposit</SelectItem>
-                    <SelectItem value="challenge">Challenge</SelectItem>
-                    <SelectItem value="contest">Contest</SelectItem>
-                    <SelectItem value="rebate">Rebate</SelectItem>
+                    <SelectItem value="discount">Challenge Discount</SelectItem>
+                    <SelectItem value="spread">Low Spread</SelectItem>
+                    <SelectItem value="profit-split">Profit Split</SelectItem>
+                    <SelectItem value="low-deposit">Low Deposit / Trial</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Bonus Amount</Label><Input value={form.bonus_amount} onChange={e => setForm({ ...form, bonus_amount: e.target.value })} placeholder="e.g. 100%" /></div>
-              <div>
-                <Label>Category</Label>
-                <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bonus">Bonus</SelectItem>
-                    <SelectItem value="cashback">Cashback</SelectItem>
-                    <SelectItem value="no_deposit">No Deposit</SelectItem>
-                    <SelectItem value="challenge">Challenge</SelectItem>
-                    <SelectItem value="rebate">Rebate</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <div><Label>Expiry Date</Label><Input type="date" value={form.expiry_date} onChange={e => setForm({ ...form, expiry_date: e.target.value })} /></div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Expiry Date</Label><Input type="date" value={form.expiry_date} onChange={e => setForm({ ...form, expiry_date: e.target.value })} /></div>
-              <div><Label>Link URL</Label><Input value={form.link_url} onChange={e => setForm({ ...form, link_url: e.target.value })} /></div>
+              <div><Label>Read More Link (optional)</Label><Input value={form.link_url} onChange={e => setForm({ ...form, link_url: e.target.value })} placeholder="https://..." /></div>
+              <div><Label>Claim / Referral URL</Label><Input value={form.referral_url} onChange={e => setForm({ ...form, referral_url: e.target.value })} placeholder="Affiliate link used by Claim button" /></div>
             </div>
 
             <ImageUpload value={form.image_url} onChange={url => setForm({ ...form, image_url: url })} bucket="media" folder="promotions" maxSizeMB={5} label="Promotion Banner" accept="image/png,image/jpeg,image/webp,image/gif" />
 
             <div>
               <Label>How to Claim (one step per line)</Label>
-              <Textarea value={form.how_to_claim} onChange={e => setForm({ ...form, how_to_claim: e.target.value })} rows={4} placeholder={"1. Register a new account\n2. Deposit minimum $50\n3. Bonus applied automatically"} />
+              <Textarea value={form.how_to_claim} onChange={e => setForm({ ...form, how_to_claim: e.target.value })} rows={4} placeholder={"Register a new account\nDeposit minimum $50\nBonus applied automatically"} />
             </div>
 
             <div>
