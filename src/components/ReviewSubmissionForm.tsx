@@ -107,16 +107,18 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       <h3 className="text-lg font-display font-bold text-foreground mb-4">Submit a Review</h3>
 
       <div className="space-y-4">
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Choose Broker</label>
-          <select value={brokerId} onChange={(e) => setBrokerId(e.target.value)}
-            className="w-full bg-card text-foreground border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary/40">
-            <option value="" className="bg-card text-foreground">— Select a broker (optional) —</option>
-            {brokers.map((b) => (
-              <option key={b.id} value={b.id} className="bg-card text-foreground">{b.name}</option>
-            ))}
-          </select>
-        </div>
+        {!defaultBrokerId && (
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Choose Broker *</label>
+            <select required value={brokerId} onChange={(e) => setBrokerId(e.target.value)}
+              className="w-full bg-card text-foreground border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary/40">
+              <option value="" className="bg-card text-foreground">— Select a broker —</option>
+              {brokers.map((b) => (
+                <option key={b.id} value={b.id} className="bg-card text-foreground">{b.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">Name *</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={100}
