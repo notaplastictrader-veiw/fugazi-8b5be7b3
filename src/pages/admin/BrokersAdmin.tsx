@@ -15,6 +15,7 @@ import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { Switch } from "@/components/ui/switch";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
