@@ -1,61 +1,35 @@
 
 
-## Two Issues
+## Plan
 
-### Issue 1: "Failed to submit review" 
-RLS on `reviews` table requires:
-```
-WITH CHECK (user_id = auth.uid())
-```
-But `ReviewSubmissionForm.tsx` (line ~58) inserts WITHOUT `user_id`:
-```ts
-await supabase.from("reviews").insert({
-  author, content, rating, role, broker_id, status: "pending"
-  // ❌ user_id missing
-});
-```
-For authenticated users this violates RLS → fail. For anonymous users RLS denies INSERT entirely (policy is `TO authenticated`).
+### 1. Broker selection — make mandatory + auto-select
+`ReviewSubmissionForm.tsx`:
+- Add `defaultBrokerId?: string` prop. When passed, auto-select that broker and **hide** the dropdown (locked to that broker).
+- When NOT passed (e.g. `/reviews` page), show dropdown but mark **required** (`*` label, validation rejects empty).
+- Update `BrokerDetail.tsx` → pass `defaultBrokerId={broker.id}` to the form.
 
-### Issue 2: Broker replies not visible to other users
-Checking `review_replies` RLS — there IS a public SELECT policy:
-```
-Policy "Public can view review replies" — SELECT — TO public — USING (true)
-```
-So DB-side replies ARE public. The issue is **frontend**: `BrokerDetail.tsx` likely fetches replies only inside the broker dashboard, not on the public broker detail page where reviews are listed. Need to verify by reading `BrokerDetail.tsx`.
+### 2. Reactions — WhatsApp-style picker
+Refactor `ReviewReactions.tsx`:
+- Replace the 4 always-visible buttons with **single trigger**: a smiley face icon (`SmilePlus` from lucide) + total count.
+- Click trigger → opens `Popover` with full emoji palette in a grid.
+- Expanded emoji set (good + bad + neutral): ❤️ 👍 👎 😂 😮 😢 😡 🔥 🙏 🤝 ⚠️ 💯 (12 reactions)
+- Below the trigger, render small "summary chips" of reactions that already have ≥1 count (e.g. `❤️ 3  👍 5`) — clickable to toggle that reaction.
+- Active reactions (user's own) show with primary ring.
 
-## Fix Plan
+### 3. Database — extend allowed reactions
+Currently `review_reactions.reaction` is text with no constraint, but legacy code only used 4 keys (`love/care/helpful/thanks`). Switch to **emoji-as-key** storage (store the emoji char directly) — simpler, no enum migration, future-proof. No DB schema change needed since column is free-text.
 
-### Fix 1: Reviews submission
-Update `src/components/ReviewSubmissionForm.tsx`:
-- Get current `user` from `useAuth()` 
-- If logged in → include `user_id: user.id` in insert
-- If NOT logged in → show auth modal / toast "Please log in to submit a review" (since RLS blocks anon)
-- Add proper error message showing actual Supabase error for debug
+Backward compatibility: when loading, map old keys (`love`→❤️, `care`→🤗, `helpful`→👍, `thanks`→🙏) to emoji on display.
 
-Also add an **anonymous review path** option:
-- Either (a) require login (cleanest, current RLS), OR
-- (b) Add new RLS policy `TO anon WITH CHECK (user_id IS NULL)` to allow guest reviews
+### 4. Files to Touch
+- `src/components/ReviewSubmissionForm.tsx` — add `defaultBrokerId` prop, hide/require broker field
+- `src/pages/BrokerDetail.tsx` — pass `defaultBrokerId` to the form
+- `src/pages/Reviews.tsx` (if exists) — keep dropdown required
+- `src/components/reviews/ReviewReactions.tsx` — full rewrite with Popover picker + emoji palette + legacy mapping
 
-**Recommend (a)** — login required. Matches the form already collecting Name/Email anyway, and prevents spam. Show inline "Sign in to leave a review" CTA for guests.
-
-### Fix 2: Show broker replies on public broker detail page
-- Read `src/pages/BrokerDetail.tsx` to confirm where reviews are rendered
-- Update review fetch query to also fetch related `review_replies` (LEFT JOIN style):
-  ```ts
-  supabase.from("reviews")
-    .select("*, review_replies(id, content, created_at, user_id)")
-    .eq("broker_id", brokerId)
-    .eq("status", "published")
-  ```
-- Render replies under each review with a "Reply from broker" badge (use `BrokerTierBadge` if reply author owns a Verified/Featured profile)
-
-## Files to Touch
-- `src/components/ReviewSubmissionForm.tsx` — add `user_id`, login gate, better error toast
-- `src/pages/BrokerDetail.tsx` — fetch & render `review_replies` under each review on public page
-
-## Out of Scope
-- Allowing anonymous (logged-out) review submissions
-- Threaded reply conversations (single reply per review)
-- Editing/deleting own reviews from public page
-- Realtime reply updates
+### 5. Out of Scope
+- Custom emoji uploads
+- Reaction analytics in admin
+- Limiting one reaction per user (users can stack multiple emojis if they want)
+- Animated emoji picker (use simple grid)
 
