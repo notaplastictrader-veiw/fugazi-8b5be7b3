@@ -742,7 +742,7 @@ const ApprovalQueueAdmin = () => {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        {(["all", "applications", "claims", "upgrades", "content"] as RequestCategory[]).map((cat) => {
+        {(["all", "applications", "claims", "upgrades", "content", "community"] as RequestCategory[]).map((cat) => {
           const count = cat === "all" ? pendingCount : categoryPendingCounts[cat as keyof typeof categoryPendingCounts];
           const cfg = cat !== "all" ? categoryConfig[cat] : null;
           const Icon = cfg?.icon;
