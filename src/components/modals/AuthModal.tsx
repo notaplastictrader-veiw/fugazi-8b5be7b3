@@ -180,18 +180,18 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
           appData.license = license;
         }
 
-        const { error: appError } = await supabase.from("applications").insert({
-          user_id: data.user.id,
-          role: signupRole,
-          application_data: appData,
-          contact_email: signupEmail,
-          contact_phone: `${selectedCountry.dialCode}${phone}`,
-          contact_telegram: telegramLink || null,
+        const { error: appError } = await supabase.rpc("submit_application" as any, {
+          _user_id: data.user.id,
+          _role: signupRole,
+          _application_data: appData,
+          _contact_email: signupEmail,
+          _contact_phone: `${selectedCountry.dialCode}${phone}`,
+          _contact_telegram: telegramLink || null,
         });
 
         if (appError) {
-          console.error("Application insert failed:", appError);
-          toast.error("Failed to submit application. Please try again or contact support.");
+          console.error("Application submission failed:", appError);
+          toast.error(appError.message || "Failed to submit application. Please try again or contact support.");
           setLoading(false);
           return;
         }
