@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/approvalQueue";
 import BrokerTierBadge from "@/components/broker/BrokerTierBadge";
+import ScamAlertAutoCard from "@/components/admin/ScamAlertAutoCard";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
