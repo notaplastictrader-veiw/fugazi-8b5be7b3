@@ -1461,6 +1461,17 @@ export type Database = {
         Args: { code_id: string }
         Returns: undefined
       }
+      submit_application: {
+        Args: {
+          _application_data: Json
+          _contact_email: string
+          _contact_phone: string
+          _contact_telegram: string
+          _role: string
+          _user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role:
