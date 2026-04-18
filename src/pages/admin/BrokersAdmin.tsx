@@ -15,6 +15,7 @@ import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
 import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { Switch } from "@/components/ui/switch";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
@@ -52,6 +53,8 @@ interface Broker {
   website_url: string;
   support_email: string;
   support_phone: string;
+  show_on_homepage: boolean;
+  homepage_position: number | null;
 }
 
 const emptyBroker = {
@@ -63,6 +66,7 @@ const emptyBroker = {
   payment_methods: [] as string[], platforms: [] as string[],
   account_types: [] as AccountType[],
   website_url: "", support_email: "", support_phone: "",
+  show_on_homepage: false, homepage_position: null as number | null,
 };
 
 const BrokersAdmin = () => {
@@ -102,6 +106,8 @@ const BrokersAdmin = () => {
       support_email: b.support_email || "",
       support_phone: b.support_phone || "",
       founded_year: b.founded_year ?? null,
+      show_on_homepage: (b as any).show_on_homepage ?? false,
+      homepage_position: (b as any).homepage_position ?? null,
     });
     setModalOpen(true);
   };
@@ -116,6 +122,10 @@ const BrokersAdmin = () => {
       founded_year: form.founded_year ? Number(form.founded_year) : null,
       account_types: form.account_types,
       status: form.status as "draft" | "pending" | "published" | "rejected",
+      show_on_homepage: !!form.show_on_homepage,
+      homepage_position: form.show_on_homepage && form.homepage_position
+        ? Number(form.homepage_position)
+        : null,
     };
 
     if (editing) {
@@ -304,6 +314,32 @@ const BrokersAdmin = () => {
               <div><Label>Website URL</Label><Input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})} placeholder="https://" /></div>
               <div><Label>Support Email</Label><Input value={form.support_email} onChange={e => setForm({...form, support_email: e.target.value})} /></div>
               <div><Label>Support Phone</Label><Input value={form.support_phone} onChange={e => setForm({...form, support_phone: e.target.value})} /></div>
+            </div>
+
+            <div className="border border-primary/30 bg-primary/5 rounded-lg p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-foreground">Show on Homepage</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Feature this broker in the homepage Trust Hub (max 6 brokers).</p>
+                </div>
+                <Switch
+                  checked={form.show_on_homepage}
+                  onCheckedChange={(checked) => setForm({ ...form, show_on_homepage: checked })}
+                />
+              </div>
+              {form.show_on_homepage && (
+                <div>
+                  <Label>Homepage Position (1–6)</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={6}
+                    value={form.homepage_position ?? ""}
+                    onChange={(e) => setForm({ ...form, homepage_position: e.target.value ? +e.target.value : null })}
+                    placeholder="Leave empty for auto-order"
+                  />
+                </div>
+              )}
             </div>
 
             <div><Label>Status</Label>
