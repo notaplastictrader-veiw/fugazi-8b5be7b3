@@ -148,7 +148,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
       email: signupEmail,
       password: signupPassword,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: { full_name: fullName, country: selectedCountry.code, country_name: selectedCountry.name, phone: `${selectedCountry.dialCode}${phone}` },
       },
     });

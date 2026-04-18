@@ -47,6 +47,7 @@ const Advertise = lazy(() => import("./pages/Advertise"));
 const Forecasts = lazy(() => import("./pages/Forecasts"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const BrokerClaimProfile = lazy(() => import("./pages/BrokerClaimProfile"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -164,6 +165,7 @@ const AppContent = () => {
           <Route path="/join/signal" element={<Signup />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           <Route path="/brokers" element={<Brokers />} />
           <Route path="/brokers/:slug" element={<BrokerDetail />} />
