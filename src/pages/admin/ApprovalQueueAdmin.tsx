@@ -349,6 +349,9 @@ const ApprovalQueueAdmin = () => {
     if (item.category === "upgrades") {
       return `${item.profile_type} upgrade`;
     }
+    if (item.category === "community") {
+      return item.community_title || "Community submission";
+    }
     return `${item.content_type?.replace("_", " ")} content`;
   };
 
@@ -361,6 +364,10 @@ const ApprovalQueueAdmin = () => {
     }
     if (item.category === "upgrades") {
       return `${item.current_tier} → ${item.requested_tier}`;
+    }
+    if (item.category === "community") {
+      const body = item.community_body || "";
+      return body.length > 80 ? `${body.slice(0, 80)}…` : body || `${item.community_kind}`;
     }
     return item.content_type?.replace("_", " ") || "content";
   };
