@@ -180,10 +180,13 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
             Photos <span className="text-[10px] text-muted-foreground/60 italic">— Optional</span>
           </label>
           <div className="flex flex-wrap gap-2">
-            {photos.map((src, i) => (
+            {photos.map((p, i) => (
               <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border">
-                <img src={src} alt="" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => setPhotos((p) => p.filter((_, idx) => idx !== i))}
+                <img src={p.url} alt="" className={`w-full h-full object-cover ${p.uploading ? "opacity-50" : ""}`} />
+                {p.uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center text-[10px] text-foreground bg-background/40">…</div>
+                )}
+                <button type="button" onClick={() => setPhotos((ph) => ph.filter((_, idx) => idx !== i))}
                   className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5">
                   <X className="w-3 h-3 text-foreground" />
                 </button>
