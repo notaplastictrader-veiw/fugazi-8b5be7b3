@@ -31,6 +31,7 @@ const SportsDashboard = () => {
   const [upgradeContact, setUpgradeContact] = useState({ email: "", phone: "" });
 
   const tier = profile?.tier || "basic";
+  const isVerified = tier === "verified" || tier === "featured";
   const isFeatured = tier === "featured";
 
   useEffect(() => {
