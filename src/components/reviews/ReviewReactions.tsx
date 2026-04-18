@@ -49,6 +49,7 @@ const ReviewReactions = ({ reviewId, className, readOnly }: Props) => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [reviewId, user?.id]);
 
   const toggle = async (key: ReactionKey) => {
+    if (readOnly) return;
     if (!user) {
       toast({ title: "Sign in to react", variant: "destructive" });
       return;
