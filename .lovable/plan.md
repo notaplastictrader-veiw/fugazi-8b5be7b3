@@ -1,50 +1,32 @@
 
 
-## Issues to Fix
+## Issues
 
-### 1. Review photos not displayed on broker detail page
-Reviews submission accepts photo upload (per memory `community-reviews`), but `BrokerDetail.tsx` reviews list doesn't render the photos. Need to check schema — `reviews` table currently has no `photo_urls` column. Either:
-- (a) Column exists but not selected/rendered, OR
-- (b) Column missing entirely (uploads going nowhere)
+### 1. Photos missing in admin approval modal
+`ApprovalQueueAdmin.tsx` review modal shows author/content/rating/profile but doesn't render `photo_urls`. Admins can't moderate photos before approving.
 
-**Action**: Verify schema. If `photo_urls` (text[]) doesn't exist, add via migration. Update `ReviewSubmissionForm.tsx` to actually upload to `media` storage bucket and save URLs. Update `BrokerDetail.tsx` reviews render to show photo thumbnails (clickable to enlarge in dialog).
+**Fix**: Select `photo_urls` in the reviews query and render thumbnail row in the review modal (same lightbox pattern as `BrokerDetail.tsx`, or just clickable thumbnails opening in new tab).
 
-### 2. Star rating not aggregating per broker
-Currently `brokers.stars` field is static. Need it to auto-recompute as average of all `published` reviews for that broker.
+### 2. Star icons only fill 4 even when avg = 4.5
+`BrokerDetail.tsx` header renders stars with `fill={i < Math.floor(stars)}` (or similar floor logic), so 4.5 → only 4 filled stars. Need **half-star** rendering for fractional averages.
 
-**Action**: Create DB trigger `sync_broker_avg_rating()` on `reviews` (INSERT/UPDATE/DELETE) that updates `brokers.stars = AVG(rating)` AND `brokers.review_count = COUNT(*)` for the affected broker (where status='published'). Existing `sync_broker_review_count` already handles count — extend or add new trigger for avg.
+**Fix**: Replace floor logic with proper half-fill — render 5 star icons where:
+- `i + 1 <= floor(stars)` → fully filled
+- `i + 0.5 <= stars && i + 1 > stars` → half-filled (use overlay or `fill-[url(#half)]` mask, or simpler: stack a clipped filled star over an empty one with `clip-path: inset(0 50% 0 0)`)
+- otherwise → empty
 
-Backfill existing brokers with current averages.
+Apply same fix to any other place that renders the broker average (e.g. broker list cards) if they use the same util — quick grep.
 
-### 3. Reaction failing — `review_reactions_reaction_check` constraint
-DB has a CHECK constraint limiting `reaction` to old values (love/care/helpful/thanks). Our new emoji palette (❤️👍👎😂...) violates it.
+### 3. Verify "4.5 from 4★ + 5★" math
+That's correct: `(4+5)/2 = 4.5`. The display is right, just the star icons are wrong (issue #2). Will confirm with a quick DB read of the two reviews.
 
-**Action**: Migration to `DROP CONSTRAINT review_reactions_reaction_check` (no replacement — let any text emoji through; reasonable since we control the UI).
+## Files to Touch
+- `src/pages/admin/ApprovalQueueAdmin.tsx` — add `photo_urls` to review query, render thumbnails in modal
+- `src/pages/BrokerDetail.tsx` — half-star renderer in header rating row
+- (If shared) extract a small `<StarRating value={4.5} />` helper in `src/components/reviews/` and reuse in broker cards/list — only if grep shows duplicate logic
 
-## Plan
-
-### DB Migration
-1. `ALTER TABLE reviews ADD COLUMN IF NOT EXISTS photo_urls text[] DEFAULT '{}'`
-2. `ALTER TABLE review_reactions DROP CONSTRAINT IF EXISTS review_reactions_reaction_check`
-3. Create function `sync_broker_avg_rating()` + trigger on `reviews` (AFTER INSERT/UPDATE/DELETE) → recalc `brokers.stars` from AVG of published reviews. Backfill all brokers.
-
-### Frontend Changes
-- `ReviewSubmissionForm.tsx`: 
-  - Add file input (multiple, image/*, max 4 photos, max 2MB each)
-  - On submit: upload files to `media` bucket under `reviews/{user_id}/{timestamp}-{name}`
-  - Save returned public URLs to `photo_urls` column
-- `BrokerDetail.tsx` reviews list:
-  - Select `photo_urls` in query
-  - Render thumbnail row (small rounded squares) under content
-  - Click → open `Dialog` lightbox showing full image
-
-### Files to Touch
-- 1 SQL migration (3 changes above)
-- `src/components/ReviewSubmissionForm.tsx` — photo upload + insert with `photo_urls`
-- `src/pages/BrokerDetail.tsx` — render photos + lightbox
-
-### Out of Scope
-- Editing/deleting photos after submission
-- Photo moderation (admin can already reject the whole review)
-- Star rating shown on broker cards/list — `stars` field updates will propagate automatically since trigger updates the source
+## Out of Scope
+- Lightbox in admin modal (open in new tab is enough for moderation)
+- Fractional precision beyond 0.5 (rounding to nearest 0.5 is industry standard)
+- Animated star transitions
 
