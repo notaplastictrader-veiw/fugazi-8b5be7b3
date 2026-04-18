@@ -18,6 +18,7 @@ interface Broker {
   review_count: number;
   complaints: number;
   badge: string;
+  logo_url?: string | null;
 }
 
 const brokerFilters = ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"];
@@ -52,15 +53,24 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
   return (
     <div className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
       <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
-          <div className="flex items-center gap-1.5 mt-1">
-            {broker.regulation?.map((r) => (
-              <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
-            ))}
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+            {broker.logo_url ? (
+              <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
+            ) : (
+              <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              {broker.regulation?.map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           {(broker.badge === "verified" || broker.badge === "featured") && (
             <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badgeConfig.verified.className}`}>
               <Shield className="w-3 h-3" /> Verified
@@ -118,16 +128,25 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
   return (
     <div className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all group">
       <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-bold text-foreground">{firm.name}</h3>
-          <div className="flex items-center gap-1.5 mt-1">
-            {firm.regulation?.map((r) => (
-              <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
-            ))}
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0 overflow-hidden">
+            {firm.logo_url ? (
+              <img src={firm.logo_url} alt={`${firm.name} logo`} className="w-full h-full object-contain" loading="lazy" />
+            ) : (
+              <span className="text-lg font-display font-extrabold text-accent">{firm.name.charAt(0)}</span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              {firm.regulation?.map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+              ))}
+            </div>
           </div>
         </div>
         {(firm.badge === "verified" || firm.badge === "featured") && (
-          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
+          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20 shrink-0">
             <Shield className="w-3 h-3" /> Verified
           </span>
         )}

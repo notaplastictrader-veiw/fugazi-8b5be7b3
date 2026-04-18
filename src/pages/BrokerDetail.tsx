@@ -32,6 +32,7 @@ interface Broker {
   review_count: number;
   complaints: number;
   badge: string;
+  logo_url?: string | null;
   description?: string;
   founded_year?: number | null;
   headquarters?: string;
@@ -43,6 +44,15 @@ interface Broker {
   website_url?: string;
   support_email?: string;
   support_phone?: string;
+}
+
+interface ReviewReply {
+  id: string;
+  review_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Review {
@@ -107,13 +117,19 @@ const BrokerDetail = () => {
   const { user } = useAuth();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [replies, setReplies] = useState<Record<string, ReviewReply>>({});
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
+  const [claimedByUserId, setClaimedByUserId] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimForm, setClaimForm] = useState({ companyName: "", position: "", proofUrl: "", contactEmail: "" });
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
+  const [replySaving, setReplySaving] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -123,10 +139,28 @@ const BrokerDetail = () => {
       setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
         supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
-        supabase.from("broker_profiles").select("claim_status").eq("broker_id", b.id).maybeSingle(),
+        supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
       ]);
-      if (r) setReviews(r as Review[]);
-      if (bp) setClaimStatus(bp.claim_status);
+      if (r) {
+        setReviews(r as Review[]);
+        // fetch replies for these reviews
+        const reviewIds = (r as Review[]).map((rv) => rv.id);
+        if (reviewIds.length > 0) {
+          const { data: rep } = await supabase
+            .from("review_replies")
+            .select("*")
+            .in("review_id", reviewIds);
+          if (rep) {
+            const map: Record<string, ReviewReply> = {};
+            (rep as ReviewReply[]).forEach((rr) => { map[rr.review_id] = rr; });
+            setReplies(map);
+          }
+        }
+      }
+      if (bp) {
+        setClaimStatus(bp.claim_status);
+        setClaimedByUserId(bp.claimed_by);
+      }
 
       if (user) {
         const { data: pendingClaim } = await supabase
@@ -137,6 +171,14 @@ const BrokerDetail = () => {
           .eq("status", "pending")
           .maybeSingle();
         if (pendingClaim) setClaimStatus("pending");
+
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "super_admin")
+          .maybeSingle();
+        setIsSuperAdmin(!!roleRow);
       }
     } else {
       // Fallback to local data
@@ -164,6 +206,65 @@ const BrokerDetail = () => {
   };
 
   useEffect(() => { fetchData(); }, [slug, user]);
+
+  const canReply = isSuperAdmin || (!!user && claimedByUserId === user.id && claimStatus === "approved");
+
+  const handleSaveReply = async (reviewId: string) => {
+    if (!broker || !user) return;
+    const content = (replyDrafts[reviewId] || "").trim();
+    if (!content) {
+      toast({ title: "Reply cannot be empty", variant: "destructive" });
+      return;
+    }
+    setReplySaving(reviewId);
+    try {
+      const existing = replies[reviewId];
+      if (existing) {
+        const { error } = await supabase
+          .from("review_replies")
+          .update({ content })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("review_replies")
+          .insert({ review_id: reviewId, broker_id: broker.id, user_id: user.id, content });
+        if (error) throw error;
+      }
+      toast({ title: "Reply saved" });
+      setReplyOpen((s) => ({ ...s, [reviewId]: false }));
+      setReplyDrafts((s) => ({ ...s, [reviewId]: "" }));
+      // refetch replies
+      const { data: rep } = await supabase
+        .from("review_replies")
+        .select("*")
+        .eq("broker_id", broker.id);
+      if (rep) {
+        const map: Record<string, ReviewReply> = {};
+        (rep as ReviewReply[]).forEach((rr) => { map[rr.review_id] = rr; });
+        setReplies(map);
+      }
+    } catch (err: any) {
+      toast({ title: "Failed to save reply", description: err.message, variant: "destructive" });
+    }
+    setReplySaving(null);
+  };
+
+  const handleDeleteReply = async (reviewId: string) => {
+    const existing = replies[reviewId];
+    if (!existing) return;
+    const { error } = await supabase.from("review_replies").delete().eq("id", existing.id);
+    if (error) {
+      toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+      return;
+    }
+    setReplies((s) => {
+      const next = { ...s };
+      delete next[reviewId];
+      return next;
+    });
+    toast({ title: "Reply deleted" });
+  };
 
   const handleClaimClick = () => {
     if (!broker) return;
@@ -224,9 +325,13 @@ const BrokerDetail = () => {
           <div className="glass-card rounded-xl p-6 md:p-8 mb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               <div className="flex items-start gap-4">
-                {/* Logo placeholder */}
-                <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                  <span className="text-2xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                {/* Logo */}
+                <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+                  {broker.logo_url ? (
+                    <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
+                  ) : (
+                    <span className="text-2xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                  )}
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{broker.name}</h1>
@@ -274,7 +379,7 @@ const BrokerDetail = () => {
                       ))}
                     </div>
                     <span className="text-sm font-medium text-foreground">{broker.stars}</span>
-                    <span className="text-xs text-muted-foreground">({broker.review_count} reviews)</span>
+                    <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                     <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
@@ -578,25 +683,99 @@ const BrokerDetail = () => {
                 <p className="text-sm text-muted-foreground glass-card rounded-xl p-6">No reviews yet. Be the first to review this broker!</p>
               ) : (
                 <div className="space-y-4">
-                  {reviews.map((r) => (
-                    <div key={r.id} className="glass-card rounded-xl p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <span className="font-semibold text-foreground">{r.author}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{r.role}</span>
+                  {reviews.map((r) => {
+                    const reply = replies[r.id];
+                    const isEditing = !!replyOpen[r.id];
+                    return (
+                      <div key={r.id} className="glass-card rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <span className="font-semibold text-foreground">{r.author}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{r.role}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-0.5">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
-                          ))}
+                        <p className="text-sm text-muted-foreground">{r.content}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(r.created_at).toLocaleDateString()}
+                          </span>
+                          {canReply && !isEditing && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setReplyOpen((s) => ({ ...s, [r.id]: true }));
+                                setReplyDrafts((s) => ({ ...s, [r.id]: reply?.content || "" }));
+                              }}
+                            >
+                              {reply ? "Edit Reply" : "Reply"}
+                            </Button>
+                          )}
                         </div>
+
+                        {/* Existing broker reply */}
+                        {reply && !isEditing && (
+                          <div className="mt-4 ml-4 border-l-2 border-primary/40 pl-4 py-2 bg-primary/5 rounded-r-md">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Shield className="w-3.5 h-3.5 text-primary" />
+                              <span className="text-xs font-semibold text-primary">Official response from {broker.name}</span>
+                            </div>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{reply.content}</p>
+                            <span className="text-[10px] text-muted-foreground mt-1 block">
+                              {new Date(reply.updated_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Inline reply editor */}
+                        {canReply && isEditing && (
+                          <div className="mt-4 border-t border-border pt-3 space-y-2">
+                            <textarea
+                              value={replyDrafts[r.id] || ""}
+                              onChange={(e) => setReplyDrafts((s) => ({ ...s, [r.id]: e.target.value }))}
+                              placeholder={`Write an official response as ${broker.name}...`}
+                              rows={3}
+                              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                            />
+                            <div className="flex items-center gap-2 justify-end">
+                              {reply && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 text-xs text-destructive hover:text-destructive"
+                                  onClick={() => handleDeleteReply(r.id)}
+                                >
+                                  Delete
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-xs"
+                                onClick={() => setReplyOpen((s) => ({ ...s, [r.id]: false }))}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="h-8 text-xs"
+                                disabled={replySaving === r.id}
+                                onClick={() => handleSaveReply(r.id)}
+                              >
+                                {replySaving === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Reply"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{r.content}</p>
-                      <span className="text-[10px] text-muted-foreground mt-2 block">
-                        {new Date(r.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
