@@ -706,6 +706,20 @@ const BrokerDetail = () => {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground">{r.content}</p>
+                        {r.photo_urls && r.photo_urls.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {r.photo_urls.map((url, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setLightboxUrl(url)}
+                                className="w-20 h-20 rounded-lg overflow-hidden border border-border hover:border-primary/40 transition-colors"
+                              >
+                                <img src={url} alt={`Review photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
                           <span className="text-[10px] text-muted-foreground">
                             {new Date(r.created_at).toLocaleDateString()}
