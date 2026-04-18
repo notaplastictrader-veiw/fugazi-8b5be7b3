@@ -152,14 +152,16 @@ const BrokerDetail = () => {
     setLoading(true);
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
-      const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }] = await Promise.all([
+      const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }, { data: alerts }] = await Promise.all([
         supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("complaints").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
+        supabase.from("scam_alerts").select("id, title, description, severity, is_repeat_offender, show_full_report, full_report, created_at").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
       ]);
       // Override cached counts with live values
       setBroker({ ...(b as unknown as Broker), review_count: liveReviewCount || 0, complaints: liveComplaintCount || 0 });
+      setScamAlerts((alerts as ScamAlertRow[]) || []);
       if (r) {
         setReviews(r as Review[]);
         // fetch replies for these reviews
