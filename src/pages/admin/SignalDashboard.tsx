@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Radio, TrendingUp, Users, CheckCircle, Pencil, ArrowUpCircle, Lock, BarChart3 } from "lucide-react";
+import { Radio, TrendingUp, Users, CheckCircle, Pencil, ArrowUpCircle, Lock, BarChart3, Crown, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
 import BrokerTierBadge from "@/components/broker/BrokerTierBadge";
+import ContactAdminDialog from "@/components/portal/ContactAdminDialog";
 
 const HudGauge = ({ value, label, icon: Icon }: { value: string | number; label: string; icon: any }) => (
   <div className="hud-stat p-4 flex flex-col items-center gap-2 hud-scanline">
