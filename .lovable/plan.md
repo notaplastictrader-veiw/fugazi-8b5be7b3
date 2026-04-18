@@ -1,36 +1,37 @@
 
 
 ## What you're asking
-When user picks a communication method, dynamically ask for the matching contact detail (WhatsApp number / Telegram link / Email). If the user is logged in, prefill from their profile so they don't re-type.
+In the admin Reviews modal (`/admin/reviews`), the current "Avatar URL" field requires pasting a URL. You want a proper **photo upload** option so admins can upload an image file directly when creating/editing a review.
 
 ## Plan
 
-### `src/components/modals/PremiumApplicationModal.tsx`
+### `src/pages/admin/ReviewsAdmin.tsx`
+Replace the plain "Avatar URL" text input with the existing reusable `ImageUpload` component (already used elsewhere in admin):
 
-1. **Track method in state** — add `const [method, setMethod] = useState("")` and bind to the Preferred Communication Method `<select>` via `value` + `onChange`.
+- Import `ImageUpload` from `@/components/admin/ImageUpload`.
+- Swap the current `<Input>` for avatar with:
+  ```tsx
+  <ImageUpload
+    value={form.avatar}
+    onChange={(url) => setForm(f => ({ ...f, avatar: url }))}
+    label="Profile Photo"
+    bucket="review-avatars"
+  />
+  ```
+- Keep the field optional (no validation change).
+- Keep storing the resulting public URL in `reviews.avatar` (existing column — no schema change).
 
-2. **Conditional contact field** rendered right below the method dropdown:
-   - `telegram` → text input "Telegram username or t.me/ link" (placeholder `@yourhandle or https://t.me/yourhandle`)
-   - `whatsapp` → tel input "WhatsApp number with country code" (placeholder `+8801XXXXXXXXX`)
-   - `email` → email input "Email address"
-   - `phone` → tel input "Phone number with country code"
-   - All `required` when visible.
-
-3. **Prefill from logged-in user**:
-   - Pull `useAuth()` for `user`.
-   - On mount (when modal opens), query `profiles` table for `email`, `phone`, `full_name`, `country` for `user.id`.
-   - Prefill: Full Name, Country (existing fields) + the conditional contact field once method is chosen (if `email` → use `profiles.email || user.email`; if `whatsapp`/`phone` → use `profiles.phone`).
-   - Telegram has no profile field today → leave blank (user types it).
-
-4. **Logged-in hint**: small muted text under the method field "Prefilled from your profile — edit if needed" only when prefill happened.
-
-5. **No new DB schema** — uses existing `profiles` table fields (`full_name`, `email`, `phone`, `country`).
+### Storage bucket
+Create a new public Supabase storage bucket `review-avatars` with policies:
+- Public read (so avatars render on the homepage Community Reviews section)
+- Authenticated insert/update/delete (admins only — managed by RLS via `has_role('admin')`)
 
 ### Files touched
-- `src/components/modals/PremiumApplicationModal.tsx` only
+- `src/pages/admin/ReviewsAdmin.tsx` — swap avatar input for `ImageUpload`
+- New migration — create `review-avatars` storage bucket + RLS policies
 
 ### Out of scope
-- Saving the application to DB (modal stays demo-only as before)
-- Adding `telegram_handle` to the `profiles` table
-- Validating Telegram link format / WhatsApp number format beyond `type=tel`/`type=email` browser checks
+- Changing the user-side review submission form (separate component, already has photo upload)
+- Resizing / cropping the uploaded image (uses ImageUpload as-is)
+- Migrating existing avatar URLs (they continue to work — column unchanged)
 
