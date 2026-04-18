@@ -84,17 +84,44 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
                 required
                 className={inputClass}
               />
-              <select required className={inputClass} defaultValue="United Kingdom">
+              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="United Kingdom">
                 {countries.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c} className="bg-card text-foreground">{c}</option>
                 ))}
               </select>
-              <select required className={inputClass} defaultValue="">
-                <option value="" disabled>Trading Experience</option>
-                <option value="beginner">Beginner (&lt;1 year)</option>
-                <option value="intermediate">Intermediate (1–3 years)</option>
-                <option value="advanced">Advanced (3+ years)</option>
-                <option value="professional">Professional (5+ years)</option>
+              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="">
+                <option value="" disabled className="bg-card text-foreground">Trading Experience</option>
+                <option value="beginner" className="bg-card text-foreground">Beginner (&lt;1 year)</option>
+                <option value="intermediate" className="bg-card text-foreground">Intermediate (1–3 years)</option>
+                <option value="advanced" className="bg-card text-foreground">Advanced (3+ years)</option>
+                <option value="professional" className="bg-card text-foreground">Professional (5+ years)</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Which broker are you currently trading with?"
+                required
+                className={inputClass}
+              />
+              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="">
+                <option value="" disabled className="bg-card text-foreground">Investment Capacity</option>
+                <option value="under-500" className="bg-card text-foreground">Under $500</option>
+                <option value="500-2000" className="bg-card text-foreground">$500 – $2,000</option>
+                <option value="2000-10000" className="bg-card text-foreground">$2,000 – $10,000</option>
+                <option value="10000-50000" className="bg-card text-foreground">$10,000 – $50,000</option>
+                <option value="50000-plus" className="bg-card text-foreground">$50,000+</option>
+              </select>
+              <input
+                type="text"
+                placeholder="What do you do for a living? (Profession)"
+                required
+                className={inputClass}
+              />
+              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="">
+                <option value="" disabled className="bg-card text-foreground">Preferred Communication Method</option>
+                <option value="telegram" className="bg-card text-foreground">Telegram</option>
+                <option value="whatsapp" className="bg-card text-foreground">WhatsApp</option>
+                <option value="email" className="bg-card text-foreground">Email</option>
+                <option value="phone" className="bg-card text-foreground">Phone Call</option>
               </select>
               <textarea
                 placeholder="Tell us about your trading background and what you're looking for..."
