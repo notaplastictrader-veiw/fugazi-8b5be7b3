@@ -106,6 +106,8 @@ const BrokersAdmin = () => {
       support_email: b.support_email || "",
       support_phone: b.support_phone || "",
       founded_year: b.founded_year ?? null,
+      show_on_homepage: (b as any).show_on_homepage ?? false,
+      homepage_position: (b as any).homepage_position ?? null,
     });
     setModalOpen(true);
   };
