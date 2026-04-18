@@ -27,7 +27,7 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [brokerId, setBrokerId] = useState(defaultBrokerId ?? "");
   const [brokers, setBrokers] = useState<BrokerOption[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ url: string; uploading?: boolean }[]>([]);
 
   useEffect(() => {
     if (defaultBrokerId) return; // No need to fetch list if locked
@@ -38,14 +38,32 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
     fetchBrokers();
   }, [defaultBrokerId]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
-    Array.from(files).slice(0, 4 - photos.length).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => { if (reader.result) setPhotos((p) => [...p, reader.result as string]); };
-      reader.readAsDataURL(file);
-    });
+    if (!files || !user) return;
+    const remaining = 4 - photos.length;
+    const list = Array.from(files).slice(0, remaining);
+
+    for (const file of list) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error(`${file.name} is over 2MB`);
+        continue;
+      }
+      const placeholder = { url: URL.createObjectURL(file), uploading: true };
+      setPhotos((p) => [...p, placeholder]);
+      try {
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `reviews/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage.from("media").upload(path, file, { cacheControl: "3600", upsert: false });
+        if (error) throw error;
+        const { data } = supabase.storage.from("media").getPublicUrl(path);
+        setPhotos((p) => p.map((ph) => (ph.url === placeholder.url ? { url: data.publicUrl } : ph)));
+      } catch (err: any) {
+        toast.error(err.message || "Photo upload failed");
+        setPhotos((p) => p.filter((ph) => ph.url !== placeholder.url));
+      }
+    }
+    e.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
