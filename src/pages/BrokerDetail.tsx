@@ -117,13 +117,19 @@ const BrokerDetail = () => {
   const { user } = useAuth();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [replies, setReplies] = useState<Record<string, ReviewReply>>({});
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
+  const [claimedByUserId, setClaimedByUserId] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [claimForm, setClaimForm] = useState({ companyName: "", position: "", proofUrl: "", contactEmail: "" });
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
+  const [replySaving, setReplySaving] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -133,10 +139,28 @@ const BrokerDetail = () => {
       setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
         supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
-        supabase.from("broker_profiles").select("claim_status").eq("broker_id", b.id).maybeSingle(),
+        supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
       ]);
-      if (r) setReviews(r as Review[]);
-      if (bp) setClaimStatus(bp.claim_status);
+      if (r) {
+        setReviews(r as Review[]);
+        // fetch replies for these reviews
+        const reviewIds = (r as Review[]).map((rv) => rv.id);
+        if (reviewIds.length > 0) {
+          const { data: rep } = await supabase
+            .from("review_replies")
+            .select("*")
+            .in("review_id", reviewIds);
+          if (rep) {
+            const map: Record<string, ReviewReply> = {};
+            (rep as ReviewReply[]).forEach((rr) => { map[rr.review_id] = rr; });
+            setReplies(map);
+          }
+        }
+      }
+      if (bp) {
+        setClaimStatus(bp.claim_status);
+        setClaimedByUserId(bp.claimed_by);
+      }
 
       if (user) {
         const { data: pendingClaim } = await supabase
@@ -147,6 +171,14 @@ const BrokerDetail = () => {
           .eq("status", "pending")
           .maybeSingle();
         if (pendingClaim) setClaimStatus("pending");
+
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "super_admin")
+          .maybeSingle();
+        setIsSuperAdmin(!!roleRow);
       }
     } else {
       // Fallback to local data
@@ -174,6 +206,65 @@ const BrokerDetail = () => {
   };
 
   useEffect(() => { fetchData(); }, [slug, user]);
+
+  const canReply = isSuperAdmin || (!!user && claimedByUserId === user.id && claimStatus === "approved");
+
+  const handleSaveReply = async (reviewId: string) => {
+    if (!broker || !user) return;
+    const content = (replyDrafts[reviewId] || "").trim();
+    if (!content) {
+      toast({ title: "Reply cannot be empty", variant: "destructive" });
+      return;
+    }
+    setReplySaving(reviewId);
+    try {
+      const existing = replies[reviewId];
+      if (existing) {
+        const { error } = await supabase
+          .from("review_replies")
+          .update({ content })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("review_replies")
+          .insert({ review_id: reviewId, broker_id: broker.id, user_id: user.id, content });
+        if (error) throw error;
+      }
+      toast({ title: "Reply saved" });
+      setReplyOpen((s) => ({ ...s, [reviewId]: false }));
+      setReplyDrafts((s) => ({ ...s, [reviewId]: "" }));
+      // refetch replies
+      const { data: rep } = await supabase
+        .from("review_replies")
+        .select("*")
+        .eq("broker_id", broker.id);
+      if (rep) {
+        const map: Record<string, ReviewReply> = {};
+        (rep as ReviewReply[]).forEach((rr) => { map[rr.review_id] = rr; });
+        setReplies(map);
+      }
+    } catch (err: any) {
+      toast({ title: "Failed to save reply", description: err.message, variant: "destructive" });
+    }
+    setReplySaving(null);
+  };
+
+  const handleDeleteReply = async (reviewId: string) => {
+    const existing = replies[reviewId];
+    if (!existing) return;
+    const { error } = await supabase.from("review_replies").delete().eq("id", existing.id);
+    if (error) {
+      toast({ title: "Failed to delete", description: error.message, variant: "destructive" });
+      return;
+    }
+    setReplies((s) => {
+      const next = { ...s };
+      delete next[reviewId];
+      return next;
+    });
+    toast({ title: "Reply deleted" });
+  };
 
   const handleClaimClick = () => {
     if (!broker) return;
