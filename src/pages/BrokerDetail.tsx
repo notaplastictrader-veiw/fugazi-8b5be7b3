@@ -63,6 +63,7 @@ interface Review {
   rating: number;
   role: string;
   created_at: string;
+  photo_urls?: string[] | null;
 }
 
 // Placeholder full review data — will come from DB later
