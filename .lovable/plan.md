@@ -1,59 +1,48 @@
 
 
-## Issue
-User চান `/admin/approvals` page-এর Approval Queue tabs-এ একটা নতুন tab (empty box যেটা mark করা হয়েছে) — যেখানে **Community submissions** (reviews, complaints, trading ideas, submissions) এর pending items দেখা যাবে এবং সেখান থেকেই approve/reject করা যাবে।
+## Findings (verified in DB)
+- ✅ Review IS published, broker_id correctly = Bullwaves id, status='published'
+- ✅ Logo URL IS saved correctly: `https://...supabase.co/storage/v1/object/public/logos/brokers/...png`
+- ❌ **BrokerDetail header** ignores `logo_url` — only shows first letter of name as placeholder
+- ❌ Header shows `(broker.review_count)` from stale DB column (=0) instead of `reviews.length` (=1)
+- ❌ Reviews tab has no **broker reply** UI — claimed broker owners can't respond
 
-## Investigation Plan
+## Fix Plan
 
-### Step 1: Read current approval page
-- `src/pages/admin/ApprovalQueueAdmin.tsx` — current tabs (All, Applications, Claims, Upgrades, Content) এবং কিভাবে data fetch হয় বুঝতে হবে
-- `src/pages/admin/ReviewsAdmin.tsx`, `ComplaintsAdmin.tsx`, `TradingIdeasAdmin.tsx`, `SubmissionsAdmin.tsx` — কোন tables, কোন status field ব্যবহার করে তা confirm
-- `src/components/admin/AdminSidebar.tsx` — sidebar এর Community group structure
+### 1. Show real logo in BrokerDetail header
+- Add `logo_url` to the `Broker` interface
+- Replace the letter-placeholder div with `<img src={broker.logo_url} ... />` and fall back to the letter only if no logo
 
-### Step 2: Verify in DB
-- Count of `pending` items in `reviews`, `complaints`, `trading_ideas`, এবং submissions tables
-- Confirm each table has `status='pending'` rows currently
+### 2. Fix review count display
+Change `(broker.review_count) reviews` → `(reviews.length) reviews` so it reflects actual published reviews. (Optional small follow-up: a DB trigger to keep `brokers.review_count` in sync, but for now reading from the array is simplest and accurate.)
 
-## Proposed Fix
-
-### A. Add new "Community" tab in ApprovalQueueAdmin
-নতুন একটা tab button add করব tabs row-তে: **Community** (icon: `MessageSquare` বা `Users`)
-
-### B. Unified pending fetch
-`fetchPendingCommunity()` function — Promise.all দিয়ে parallel fetch:
-```ts
-const [reviews, complaints, ideas, submissions] = await Promise.all([
-  supabase.from("reviews").select("id, author, content, rating, broker_id, created_at").eq("status", "pending"),
-  supabase.from("complaints").select("id, content, broker_id, user_id, created_at").eq("status", "pending"),
-  supabase.from("trading_ideas").select("id, title, content, user_id, created_at").eq("status", "pending"),
-  // submissions table — confirm exact name from SubmissionsAdmin.tsx
-]);
+### 3. Add broker reply feature on reviews
+**DB migration** — new table:
+```sql
+review_replies (
+  id, review_id (FK), broker_id, user_id (replier),
+  content text, created_at, updated_at
+)
 ```
-সব merge করে একটা unified `CommunityItem[]` array বানাব with `kind` discriminator ("review" | "complaint" | "idea" | "submission").
+RLS:
+- Public can read replies on published reviews
+- Only `claimed_by` user of the broker (or super_admin) can insert/update/delete a reply
 
-### C. Unified row UI
-Existing approval-row pattern follow করে (badge for kind, content preview, time-in-queue, approve/reject buttons):
-- Approve → `update({ status: "published" })` on the original table
-- Reject → `update({ status: "rejected" })` on the original table
-- Toast feedback + refetch
+**UI in BrokerDetail Reviews tab**:
+- Each review card shows existing reply (if any) below in a nested "Broker Response" box
+- If current user is the claimed owner of this broker (or super admin), show a "Reply" button → inline textarea → save
 
-### D. Counts on tabs
-"Community" tab-এ ছোট badge: total pending count (already shown for other tabs in current design — follow same pattern)
+### 4. Same logo fix for BrokerTrustHub homepage card
+The card currently doesn't render `logo_url` either — add `<img>` with fallback.
 
-### E. Notifications integration
-Approve/reject এর সময় submitter user-কে in-app notification পাঠাব (using existing `notifications` table) যাতে user জানে তার submission accepted/rejected হয়েছে।
-
-## Files to Touch
-- `src/pages/admin/ApprovalQueueAdmin.tsx` — add Community tab + fetch + render logic (1 file, main change)
-- (Possibly) extract a small `CommunityApprovalRow` sub-component for clean rendering
+## Files Touched
+- `src/pages/BrokerDetail.tsx` — interface, header logo, review count, reply UI
+- `src/components/sections/BrokerTrustHub.tsx` — render logo on card
+- 1 SQL migration — `review_replies` table + RLS
 
 ## Out of Scope
-- Drag-and-drop reordering
-- Bulk approve/reject (can be a follow-up)
-- Inline edit of review/complaint content before approval
-- Removing the existing standalone Reviews/Complaints/Submissions admin pages — those stay as full-management screens; this new tab is just for **quick approval triage**
-
-## Question Before Building
-Need to confirm:
-- "Community" tab-এ কি ৪টা type একসাথে দেখাব (reviews + complaints + ideas + submissions mixed list with filter chips), নাকি Community tab এর ভিতরে আলাদা sub-tabs (Reviews | Complaints | Ideas | Submissions)?
+- DB trigger to auto-sync `brokers.review_count` (using array length is enough for now)
+- Threaded multi-reply (only one reply per review for now)
+- Editing/deleting reviews by users
+- Reply notifications (can add later)
 
