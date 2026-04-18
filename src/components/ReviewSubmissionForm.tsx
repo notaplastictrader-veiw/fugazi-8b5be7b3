@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 
 interface Props {
   onSuccess: () => void;
+  /** When provided, broker is locked to this id and the dropdown is hidden */
+  defaultBrokerId?: string;
 }
 
 interface BrokerOption {
@@ -14,7 +16,7 @@ interface BrokerOption {
   name: string;
 }
 
-const ReviewSubmissionForm = ({ onSuccess }: Props) => {
+const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
   const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,17 +25,18 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [brokerId, setBrokerId] = useState("");
+  const [brokerId, setBrokerId] = useState(defaultBrokerId ?? "");
   const [brokers, setBrokers] = useState<BrokerOption[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
+    if (defaultBrokerId) return; // No need to fetch list if locked
     const fetchBrokers = async () => {
       const { data } = await supabase.from("brokers").select("id, name").eq("status", "published").order("name");
       if (data) setBrokers(data);
     };
     fetchBrokers();
-  }, []);
+  }, [defaultBrokerId]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
