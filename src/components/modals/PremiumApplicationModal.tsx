@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Check } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PremiumApplicationModalProps {
   open: boolean;
@@ -14,8 +16,45 @@ const countries = [
 ];
 
 const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps) => {
+  const { user } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [agreed, setAgreed] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [country, setCountry] = useState("United Kingdom");
+  const [method, setMethod] = useState("");
+  const [contactValue, setContactValue] = useState("");
+  const [prefilled, setPrefilled] = useState(false);
+
+  const [profile, setProfile] = useState<{ full_name?: string | null; phone?: string | null; country?: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, phone, country")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setProfile(data ?? null);
+      if (data?.full_name) setFullName(data.full_name);
+      if (data?.country) setCountry(data.country);
+    })();
+    return () => { cancelled = true; };
+  }, [open, user]);
+
+  // Prefill contact field when method changes
+  useEffect(() => {
+    if (!method) { setContactValue(""); setPrefilled(false); return; }
+    let value = "";
+    if (method === "email") value = user?.email ?? "";
+    else if (method === "whatsapp" || method === "phone") value = profile?.phone ?? "";
+    // telegram → leave empty
+    setContactValue(value);
+    setPrefilled(Boolean(value));
+  }, [method, profile, user]);
 
   if (!open) return null;
 
@@ -31,8 +70,20 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
   const handleClose = () => {
     setSubmitted(false);
     setAgreed(false);
+    setMethod("");
+    setContactValue("");
+    setPrefilled(false);
     onClose();
   };
+
+  const contactFieldConfig: Record<string, { type: string; placeholder: string; label: string }> = {
+    telegram: { type: "text", placeholder: "@yourhandle or https://t.me/yourhandle", label: "Telegram username or link" },
+    whatsapp: { type: "tel", placeholder: "+8801XXXXXXXXX", label: "WhatsApp number (with country code)" },
+    email: { type: "email", placeholder: "you@example.com", label: "Email address" },
+    phone: { type: "tel", placeholder: "+8801XXXXXXXXX", label: "Phone number (with country code)" },
+  };
+
+  const contactField = method ? contactFieldConfig[method] : null;
 
   return (
     <div
@@ -41,7 +92,7 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
       onClick={handleClose}
     >
       <div
-        className="bg-card border border-border rounded-[20px] w-full max-w-[460px] p-9 relative"
+        className="bg-card border border-border rounded-[20px] w-full max-w-[460px] p-9 relative max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -82,9 +133,16 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
                 type="text"
                 placeholder="Full Name"
                 required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className={inputClass}
               />
-              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="United Kingdom">
+              <select
+                required
+                className={`${inputClass} bg-card text-foreground`}
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
                 {countries.map((c) => (
                   <option key={c} value={c} className="bg-card text-foreground">{c}</option>
                 ))}
@@ -116,13 +174,38 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
                 required
                 className={inputClass}
               />
-              <select required className={`${inputClass} bg-card text-foreground`} defaultValue="">
+              <select
+                required
+                className={`${inputClass} bg-card text-foreground`}
+                value={method}
+                onChange={(e) => setMethod(e.target.value)}
+              >
                 <option value="" disabled className="bg-card text-foreground">Preferred Communication Method</option>
                 <option value="telegram" className="bg-card text-foreground">Telegram</option>
                 <option value="whatsapp" className="bg-card text-foreground">WhatsApp</option>
                 <option value="email" className="bg-card text-foreground">Email</option>
                 <option value="phone" className="bg-card text-foreground">Phone Call</option>
               </select>
+
+              {contactField && (
+                <div className="space-y-1.5">
+                  <input
+                    type={contactField.type}
+                    placeholder={contactField.placeholder}
+                    required
+                    value={contactValue}
+                    onChange={(e) => { setContactValue(e.target.value); setPrefilled(false); }}
+                    className={inputClass}
+                    aria-label={contactField.label}
+                  />
+                  {prefilled && (
+                    <p className="text-[11px] text-muted-foreground px-1">
+                      Prefilled from your profile — edit if needed.
+                    </p>
+                  )}
+                </div>
+              )}
+
               <textarea
                 placeholder="Tell us about your trading background and what you're looking for..."
                 required
