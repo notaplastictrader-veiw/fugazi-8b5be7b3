@@ -141,7 +141,7 @@ const BrokerDetail = () => {
     if (b) {
       setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
-        supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
+        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
       ]);
       if (r) {
