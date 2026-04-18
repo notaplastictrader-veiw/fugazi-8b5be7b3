@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 
 interface Props {
   onSuccess: () => void;
+  /** When provided, broker is locked to this id and the dropdown is hidden */
+  defaultBrokerId?: string;
 }
 
 interface BrokerOption {
@@ -14,7 +16,7 @@ interface BrokerOption {
   name: string;
 }
 
-const ReviewSubmissionForm = ({ onSuccess }: Props) => {
+const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
   const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,17 +25,18 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [brokerId, setBrokerId] = useState("");
+  const [brokerId, setBrokerId] = useState(defaultBrokerId ?? "");
   const [brokers, setBrokers] = useState<BrokerOption[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
+    if (defaultBrokerId) return; // No need to fetch list if locked
     const fetchBrokers = async () => {
       const { data } = await supabase.from("brokers").select("id, name").eq("status", "published").order("name");
       if (data) setBrokers(data);
     };
     fetchBrokers();
-  }, []);
+  }, [defaultBrokerId]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -53,6 +56,10 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
     }
     if (!name.trim() || !content.trim() || rating === 0) {
       toast.error("Please fill in name, review, and rating.");
+      return;
+    }
+    if (!brokerId) {
+      toast.error("Please select a broker.");
       return;
     }
     if (name.length > 100 || content.length > 2000 || mt4Id.length > 50) {
@@ -100,16 +107,18 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
       <h3 className="text-lg font-display font-bold text-foreground mb-4">Submit a Review</h3>
 
       <div className="space-y-4">
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Choose Broker</label>
-          <select value={brokerId} onChange={(e) => setBrokerId(e.target.value)}
-            className="w-full bg-card text-foreground border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary/40">
-            <option value="" className="bg-card text-foreground">— Select a broker (optional) —</option>
-            {brokers.map((b) => (
-              <option key={b.id} value={b.id} className="bg-card text-foreground">{b.name}</option>
-            ))}
-          </select>
-        </div>
+        {!defaultBrokerId && (
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Choose Broker *</label>
+            <select required value={brokerId} onChange={(e) => setBrokerId(e.target.value)}
+              className="w-full bg-card text-foreground border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary/40">
+              <option value="" className="bg-card text-foreground">— Select a broker —</option>
+              {brokers.map((b) => (
+                <option key={b.id} value={b.id} className="bg-card text-foreground">{b.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="text-xs text-muted-foreground mb-1 block">Name *</label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={100}

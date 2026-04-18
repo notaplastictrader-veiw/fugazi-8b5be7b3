@@ -676,7 +676,10 @@ const BrokerDetail = () => {
 
               {showReviewForm && (
                 <div className="mb-6">
-                  <ReviewSubmissionForm onSuccess={() => { setShowReviewForm(false); fetchData(); }} />
+                  <ReviewSubmissionForm
+                    defaultBrokerId={broker?.id}
+                    onSuccess={() => { setShowReviewForm(false); fetchData(); }}
+                  />
                 </div>
               )}
 
