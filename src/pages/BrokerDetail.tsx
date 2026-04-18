@@ -683,25 +683,99 @@ const BrokerDetail = () => {
                 <p className="text-sm text-muted-foreground glass-card rounded-xl p-6">No reviews yet. Be the first to review this broker!</p>
               ) : (
                 <div className="space-y-4">
-                  {reviews.map((r) => (
-                    <div key={r.id} className="glass-card rounded-xl p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <span className="font-semibold text-foreground">{r.author}</span>
-                          <span className="text-xs text-muted-foreground ml-2">{r.role}</span>
+                  {reviews.map((r) => {
+                    const reply = replies[r.id];
+                    const isEditing = !!replyOpen[r.id];
+                    return (
+                      <div key={r.id} className="glass-card rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <span className="font-semibold text-foreground">{r.author}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{r.role}</span>
+                          </div>
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-0.5">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
-                          ))}
+                        <p className="text-sm text-muted-foreground">{r.content}</p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(r.created_at).toLocaleDateString()}
+                          </span>
+                          {canReply && !isEditing && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setReplyOpen((s) => ({ ...s, [r.id]: true }));
+                                setReplyDrafts((s) => ({ ...s, [r.id]: reply?.content || "" }));
+                              }}
+                            >
+                              {reply ? "Edit Reply" : "Reply"}
+                            </Button>
+                          )}
                         </div>
+
+                        {/* Existing broker reply */}
+                        {reply && !isEditing && (
+                          <div className="mt-4 ml-4 border-l-2 border-primary/40 pl-4 py-2 bg-primary/5 rounded-r-md">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Shield className="w-3.5 h-3.5 text-primary" />
+                              <span className="text-xs font-semibold text-primary">Official response from {broker.name}</span>
+                            </div>
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{reply.content}</p>
+                            <span className="text-[10px] text-muted-foreground mt-1 block">
+                              {new Date(reply.updated_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Inline reply editor */}
+                        {canReply && isEditing && (
+                          <div className="mt-4 border-t border-border pt-3 space-y-2">
+                            <textarea
+                              value={replyDrafts[r.id] || ""}
+                              onChange={(e) => setReplyDrafts((s) => ({ ...s, [r.id]: e.target.value }))}
+                              placeholder={`Write an official response as ${broker.name}...`}
+                              rows={3}
+                              className="w-full px-3 py-2 rounded-lg bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                            />
+                            <div className="flex items-center gap-2 justify-end">
+                              {reply && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 text-xs text-destructive hover:text-destructive"
+                                  onClick={() => handleDeleteReply(r.id)}
+                                >
+                                  Delete
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-xs"
+                                onClick={() => setReplyOpen((s) => ({ ...s, [r.id]: false }))}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="h-8 text-xs"
+                                disabled={replySaving === r.id}
+                                onClick={() => handleSaveReply(r.id)}
+                              >
+                                {replySaving === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Reply"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm text-muted-foreground">{r.content}</p>
-                      <span className="text-[10px] text-muted-foreground mt-2 block">
-                        {new Date(r.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
