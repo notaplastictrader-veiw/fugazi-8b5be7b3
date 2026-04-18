@@ -64,6 +64,11 @@ interface UnifiedItem {
   community_broker_id?: string | null;
   community_broker_name?: string;
   community_author?: string;
+  // Submitter profile (community)
+  submitter_full_name?: string | null;
+  submitter_username?: string | null;
+  submitter_avatar?: string | null;
+  submitter_country?: string | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
