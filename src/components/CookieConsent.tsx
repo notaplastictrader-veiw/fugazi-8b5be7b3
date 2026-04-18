@@ -82,8 +82,8 @@ const CookieConsent = () => {
         </div>
       )}
 
-      {/* Bottom Banner */}
-      <div className="fixed bottom-0 left-0 right-0 z-[1900] bg-card border-t border-border p-4 shadow-2xl">
+      {/* Bottom Banner — sits above the 32px fixed ticker */}
+      <div className="fixed left-0 right-0 z-[1900] bg-card border-t border-border p-4 shadow-2xl" style={{ bottom: "32px" }}>
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center gap-4">
           <p className="text-sm text-muted-foreground flex-1">
             We use cookies to enhance your experience. By continuing, you agree to our{" "}

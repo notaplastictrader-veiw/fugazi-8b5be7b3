@@ -19,7 +19,22 @@ const StatCard = ({ icon: Icon, label, value }: { icon: typeof Star; label: stri
 
 const Overview = () => {
   const { user } = useAuth();
-  const fullName = user?.user_metadata?.full_name || "User";
+
+  const { data: profile } = useQuery({
+    queryKey: ["dashboard-profile-name", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("full_name, username").eq("user_id", user!.id).maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const fullName =
+    user?.user_metadata?.full_name ||
+    profile?.full_name ||
+    profile?.username ||
+    user?.email?.split("@")[0] ||
+    "User";
 
   const { data: reviewCount = 0 } = useQuery({
     queryKey: ["dashboard-review-count", user?.id],
