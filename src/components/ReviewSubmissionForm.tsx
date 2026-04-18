@@ -15,6 +15,7 @@ interface BrokerOption {
 }
 
 const ReviewSubmissionForm = ({ onSuccess }: Props) => {
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mt4Id, setMt4Id] = useState("");
