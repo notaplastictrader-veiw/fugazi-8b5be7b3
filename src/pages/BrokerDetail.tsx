@@ -32,6 +32,7 @@ interface Broker {
   review_count: number;
   complaints: number;
   badge: string;
+  logo_url?: string | null;
   description?: string;
   founded_year?: number | null;
   headquarters?: string;
@@ -43,6 +44,15 @@ interface Broker {
   website_url?: string;
   support_email?: string;
   support_phone?: string;
+}
+
+interface ReviewReply {
+  id: string;
+  review_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Review {
