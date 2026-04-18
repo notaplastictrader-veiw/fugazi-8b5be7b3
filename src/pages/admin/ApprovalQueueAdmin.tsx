@@ -621,8 +621,10 @@ const ApprovalQueueAdmin = () => {
           status: "rejected", reviewed_by: user.id, reviewed_at: new Date().toISOString(),
           rejection_reason: rejectNote,
         }).eq("id", item.id);
-        if (item.content_type && item.content_id) {
-          await (supabase.from(item.content_type as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
+        const rejectTableMap: Record<string, string> = { scam_alert_auto: "scam_alerts" };
+        const rejTable = rejectTableMap[item.content_type || ""] || item.content_type;
+        if (rejTable && item.content_id) {
+          await (supabase.from(rejTable as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
         }
       } else if (item.category === "community" && item.community_kind) {
         const table = item.community_kind === "review" ? "reviews" : "complaints";
