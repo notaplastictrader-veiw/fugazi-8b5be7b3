@@ -15,6 +15,7 @@ import {
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
+import ReviewReactions from "@/components/reviews/ReviewReactions";
 
 interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
 interface Broker {
@@ -700,10 +701,11 @@ const BrokerDetail = () => {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground">{r.content}</p>
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
                           <span className="text-[10px] text-muted-foreground">
                             {new Date(r.created_at).toLocaleDateString()}
                           </span>
+                          <ReviewReactions reviewId={r.id} />
                           {canReply && !isEditing && (
                             <Button
                               size="sm"
