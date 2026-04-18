@@ -67,6 +67,17 @@ interface Review {
   photo_urls?: string[] | null;
 }
 
+interface ScamAlertRow {
+  id: string;
+  title: string;
+  description: string | null;
+  severity: string;
+  is_repeat_offender: boolean;
+  show_full_report: boolean;
+  full_report: string | null;
+  created_at: string;
+}
+
 // Placeholder full review data — will come from DB later
 const getPlaceholderReview = (broker: Broker) => ({
   verdict: `${broker.name} is a well-established broker with a strong regulatory framework and competitive trading conditions. ${broker.score >= 8 ? "We recommend it for both beginners and experienced traders." : broker.score >= 6 ? "Suitable for intermediate traders who understand the risks." : "Exercise caution — read the full review carefully before committing funds."}`,
