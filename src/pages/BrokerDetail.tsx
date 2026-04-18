@@ -132,6 +132,7 @@ const BrokerDetail = () => {
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
   const [replySaving, setReplySaving] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchData = async () => {
