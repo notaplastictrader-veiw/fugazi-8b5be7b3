@@ -85,6 +85,11 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       return;
     }
 
+    if (photos.some((p) => p.uploading)) {
+      toast.error("Please wait for photos to finish uploading.");
+      return;
+    }
+
     setSubmitting(true);
     const { error } = await supabase.from("reviews").insert({
       author: name.trim(),
@@ -94,6 +99,7 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       broker_id: brokerId || null,
       user_id: user.id,
       status: "pending" as const,
+      photo_urls: photos.map((p) => p.url),
     });
 
     setSubmitting(false);
