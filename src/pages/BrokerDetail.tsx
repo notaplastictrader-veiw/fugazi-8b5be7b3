@@ -15,6 +15,7 @@ import {
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
+import ReviewReactions from "@/components/reviews/ReviewReactions";
 
 interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
 interface Broker {
