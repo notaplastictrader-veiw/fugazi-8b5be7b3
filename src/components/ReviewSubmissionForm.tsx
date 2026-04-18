@@ -58,6 +58,10 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       toast.error("Please fill in name, review, and rating.");
       return;
     }
+    if (!brokerId) {
+      toast.error("Please select a broker.");
+      return;
+    }
     if (name.length > 100 || content.length > 2000 || mt4Id.length > 50) {
       toast.error("Input too long.");
       return;
