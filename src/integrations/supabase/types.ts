@@ -1644,6 +1644,10 @@ export type Database = {
     }
     Functions: {
       convert_referral: { Args: { code_text: string }; Returns: string }
+      detect_potential_scam: {
+        Args: { _broker_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean

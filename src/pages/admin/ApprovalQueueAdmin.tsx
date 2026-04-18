@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/approvalQueue";
 import BrokerTierBadge from "@/components/broker/BrokerTierBadge";
+import ScamAlertAutoCard from "@/components/admin/ScamAlertAutoCard";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -390,6 +391,7 @@ const ApprovalQueueAdmin = () => {
     if (item.category === "community") {
       return item.community_title || "Community submission";
     }
+    if (item.content_type === "scam_alert_auto") return "🚨 Auto-detected scam alert";
     return `${item.content_type?.replace("_", " ")} content`;
   };
 
@@ -546,12 +548,18 @@ const ApprovalQueueAdmin = () => {
       status: "approved", reviewed_by: user.id, reviewed_at: new Date().toISOString(),
     }).eq("id", item.id);
 
-    if (item.content_type && item.content_id) {
-      await (supabase.from(item.content_type as any) as any).update({ status: "published" }).eq("id", item.content_id);
+    // Map content_type → actual table. scam_alert_auto publishes the underlying scam_alerts row.
+    const tableMap: Record<string, string> = {
+      scam_alert_auto: "scam_alerts",
+    };
+    const targetTable = tableMap[item.content_type || ""] || item.content_type;
+
+    if (targetTable && item.content_id) {
+      await (supabase.from(targetTable as any) as any).update({ status: "published" }).eq("id", item.content_id);
     }
 
     await supabase.from("audit_log").insert({
-      user_id: user.id, action: "approve", table_name: item.content_type || "unknown", record_id: item.content_id || item.id,
+      user_id: user.id, action: "approve", table_name: targetTable || "unknown", record_id: item.content_id || item.id,
     });
   };
 
@@ -615,8 +623,10 @@ const ApprovalQueueAdmin = () => {
           status: "rejected", reviewed_by: user.id, reviewed_at: new Date().toISOString(),
           rejection_reason: rejectNote,
         }).eq("id", item.id);
-        if (item.content_type && item.content_id) {
-          await (supabase.from(item.content_type as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
+        const rejectTableMap: Record<string, string> = { scam_alert_auto: "scam_alerts" };
+        const rejTable = rejectTableMap[item.content_type || ""] || item.content_type;
+        if (rejTable && item.content_id) {
+          await (supabase.from(rejTable as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
         }
       } else if (item.category === "community" && item.community_kind) {
         const table = item.community_kind === "review" ? "reviews" : "complaints";
@@ -836,7 +846,10 @@ const ApprovalQueueAdmin = () => {
       );
     }
 
-    // Content
+    // Content (incl. auto-detected scam alerts)
+    if (item.content_type === "scam_alert_auto") {
+      return <ScamAlertAutoCard contentId={item.content_id!} reviewerNotes={item.reviewer_notes} />;
+    }
     return (
       <div className="border border-border rounded-lg p-3 bg-muted/30 text-sm font-mono space-y-1">
         <p><span className="text-muted-foreground">Content Type:</span> {item.content_type?.replace("_", " ")}</p>
