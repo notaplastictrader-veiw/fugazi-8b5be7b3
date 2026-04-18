@@ -261,7 +261,29 @@ const ApprovalQueueAdmin = () => {
       (brokerNames || []).forEach((b) => communityBrokerMap.set(b.id, b.name));
     }
 
-    (reviewsRes.data || []).forEach((r) =>
+    // Enrich with submitter profiles
+    const submitterIds = new Set<string>();
+    (reviewsRes.data || []).forEach((r) => r.user_id && submitterIds.add(r.user_id));
+    (complaintsRes.data || []).forEach((c) => c.user_id && submitterIds.add(c.user_id));
+
+    const submitterMap = new Map<string, { full_name: string | null; username: string | null; avatar_url: string | null; country: string | null }>();
+    if (submitterIds.size > 0) {
+      const { data: submitters } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, username, avatar_url, country")
+        .in("user_id", Array.from(submitterIds));
+      (submitters || []).forEach((p) =>
+        submitterMap.set(p.user_id, {
+          full_name: p.full_name,
+          username: p.username,
+          avatar_url: p.avatar_url,
+          country: p.country,
+        })
+      );
+    }
+
+    (reviewsRes.data || []).forEach((r) => {
+      const sub = r.user_id ? submitterMap.get(r.user_id) : null;
       merged.push({
         id: r.id,
         category: "community",
@@ -275,10 +297,15 @@ const ApprovalQueueAdmin = () => {
         community_broker_name: communityBrokerMap.get(r.broker_id || ""),
         community_author: r.author || "Anonymous",
         user_id: r.user_id,
-      })
-    );
+        submitter_full_name: sub?.full_name ?? null,
+        submitter_username: sub?.username ?? null,
+        submitter_avatar: sub?.avatar_url ?? null,
+        submitter_country: sub?.country ?? null,
+      });
+    });
 
-    (complaintsRes.data || []).forEach((c) =>
+    (complaintsRes.data || []).forEach((c) => {
+      const sub = c.user_id ? submitterMap.get(c.user_id) : null;
       merged.push({
         id: c.id,
         category: "community",
@@ -290,8 +317,12 @@ const ApprovalQueueAdmin = () => {
         community_broker_id: c.broker_id,
         community_broker_name: communityBrokerMap.get(c.broker_id || ""),
         user_id: c.user_id,
-      })
-    );
+        submitter_full_name: sub?.full_name ?? null,
+        submitter_username: sub?.username ?? null,
+        submitter_avatar: sub?.avatar_url ?? null,
+        submitter_country: sub?.country ?? null,
+      });
+    });
 
     // Sort: pending first, then by date desc
     merged.sort((a, b) => {
