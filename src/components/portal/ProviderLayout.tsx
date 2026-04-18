@@ -44,6 +44,6 @@ function ProviderLayout({ requiredRole }: Props) {
       </div>
     </SidebarProvider>
   );
-};
+}
 
 export default ProviderLayout;
