@@ -1,63 +1,28 @@
 
 
 ## Issue
-User profile update (avatar + other fields) frontend-এ submit হলেও DB-তে save হচ্ছে না বা reflect হচ্ছে না।
+User updated `full_name` to "MotoMan" in Profile Settings (saved to DB successfully), but the navbar UserDropdown top-right still shows "Plastic" (old name).
 
-## Investigation Needed
-1. `ProfileSettings.tsx` save handler দেখা — `update()` call ঠিক আছে কিনা, error handle করছে কিনা
-2. `profiles` RLS policies — UPDATE policy আছে কিনা check করা
-3. Console logs / network tab error দেখা
+## Root Cause
+The navbar `UserDropdown` component fetches the profile **once on mount** via `useQuery` and caches it. When the user saves changes in `ProfileSettings.tsx`, the dropdown's cached query is **not invalidated**, so it keeps showing the stale name until a hard page reload.
 
-## Root Cause Hypothesis
-Looking at the `profiles` table RLS policies provided:
+## Investigation Plan
+1. `code--view src/components/UserDropdown.tsx` — confirm it uses `useQuery(["profile", user.id])` and reads `full_name`
+2. `code--view src/pages/dashboard/ProfileSettings.tsx` save handler — check whether it calls `queryClient.invalidateQueries` after save
 
-```
-Policy Name: Users can update own profile
-Command: UPDATE
-Roles: {public}
-Using Expression: (auth.uid() = user_id)
-```
-
-**Problem**: UPDATE policy-তে `WITH CHECK` expression **missing**! Postgres-এ UPDATE policy-র জন্য `USING` (which rows can be updated) এবং `WITH CHECK` (what the new row values can be) **দুটোই** দরকার। `WITH CHECK` না থাকলে update silently fail হতে পারে অথবা rows match না করলে 0 rows affected return করে কিন্তু error throw করে না।
-
-আরো একটা সম্ভাব্য issue: যদি `ProfileSettings.tsx` save handler `error` properly handle না করে বা wrong filter (`.eq("id", ...)` vs `.eq("user_id", ...)`) ব্যবহার করে।
-
-## Plan
-
-### Step 1: Read code & verify
-- `code--view src/pages/dashboard/ProfileSettings.tsx` — save handler, filter clause, error handling
-- `code--read_console_logs` & `code--read_network_requests` — actual PATCH request response
-
-### Step 2: Fix RLS policy (migration)
-Update the `profiles` UPDATE policy to include `WITH CHECK`:
-
-```sql
-DROP POLICY "Users can update own profile" ON public.profiles;
-
-CREATE POLICY "Users can update own profile"
-  ON public.profiles
-  FOR UPDATE
-  TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+## Fix
+In `ProfileSettings.tsx` save handler, after successful update:
+```ts
+queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+queryClient.invalidateQueries({ queryKey: ["public-profile"] });
 ```
 
-Also change `TO public` → `TO authenticated` (anon shouldn't update profiles).
+This will force `UserDropdown` (and any other component caching this profile) to refetch, so the new name + avatar appear immediately everywhere without page reload.
 
-### Step 3: Fix ProfileSettings.tsx save handler
-- Ensure update uses `.eq("user_id", user.id)` (not `id`)
-- Properly catch and toast errors so user knows update failed
-- Add success toast + refetch profile after save
-- Add `updated_at` to update payload (or rely on trigger — none exists, so manual)
-
-### Step 4: Test
-After fix: change name → click save → toast shows success → reload → value persists.
-
-## Files Changed (~2)
-- 1 new migration: `fix_profiles_update_policy.sql`
-- `src/pages/dashboard/ProfileSettings.tsx` — save handler error handling + correct filter
+## Files Changed (~1)
+- `src/pages/dashboard/ProfileSettings.tsx` — add `useQueryClient` + invalidate after save
 
 ## Out of Scope
-- Adding update trigger for `updated_at` (will set manually in update payload)
-- Changing other table policies
+- Realtime profile sync via Supabase channels (overkill for this)
+- Refactoring UserDropdown to use a shared profile context
 
