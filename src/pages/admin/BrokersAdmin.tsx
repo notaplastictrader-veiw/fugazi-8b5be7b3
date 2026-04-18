@@ -316,6 +316,32 @@ const BrokersAdmin = () => {
               <div><Label>Support Phone</Label><Input value={form.support_phone} onChange={e => setForm({...form, support_phone: e.target.value})} /></div>
             </div>
 
+            <div className="border border-primary/30 bg-primary/5 rounded-lg p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-foreground">Show on Homepage</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Feature this broker in the homepage Trust Hub (max 6 brokers).</p>
+                </div>
+                <Switch
+                  checked={form.show_on_homepage}
+                  onCheckedChange={(checked) => setForm({ ...form, show_on_homepage: checked })}
+                />
+              </div>
+              {form.show_on_homepage && (
+                <div>
+                  <Label>Homepage Position (1–6)</Label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={6}
+                    value={form.homepage_position ?? ""}
+                    onChange={(e) => setForm({ ...form, homepage_position: e.target.value ? +e.target.value : null })}
+                    placeholder="Leave empty for auto-order"
+                  />
+                </div>
+              )}
+            </div>
+
             <div><Label>Status</Label>
               <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
