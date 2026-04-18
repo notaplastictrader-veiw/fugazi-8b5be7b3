@@ -85,14 +85,15 @@ const ReviewReactions = ({ reviewId, className, readOnly }: Props) => {
           <button
             key={r.key}
             onClick={() => toggle(r.key)}
-            disabled={busy === r.key}
-            title={r.label}
+            disabled={busy === r.key || readOnly}
+            title={readOnly ? `${r.label} (view only)` : r.label}
             className={cn(
               "inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs transition-colors",
               active
                 ? "bg-primary/15 border-primary/40 text-primary"
                 : "bg-secondary/50 border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
-              busy === r.key && "opacity-50",
+              (busy === r.key) && "opacity-50",
+              readOnly && "cursor-not-allowed opacity-70 hover:border-border hover:text-muted-foreground",
             )}
           >
             <span className="text-sm leading-none">{r.emoji}</span>
