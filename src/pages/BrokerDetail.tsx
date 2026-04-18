@@ -145,6 +145,7 @@ const BrokerDetail = () => {
   const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
   const [replySaving, setReplySaving] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [scamAlerts, setScamAlerts] = useState<ScamAlertRow[]>([]);
   const { toast } = useToast();
 
   const fetchData = async () => {
