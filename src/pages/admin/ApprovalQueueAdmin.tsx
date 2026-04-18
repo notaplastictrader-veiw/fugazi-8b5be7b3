@@ -580,6 +580,30 @@ const ApprovalQueueAdmin = () => {
         if (item.content_type && item.content_id) {
           await (supabase.from(item.content_type as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
         }
+      } else if (item.category === "community" && item.community_kind) {
+        const table = item.community_kind === "review" ? "reviews" : "complaints";
+        const { error } = await supabase
+          .from(table)
+          .update({ status: "rejected" })
+          .eq("id", item.id);
+        if (error) throw error;
+        await supabase.from("audit_log").insert({
+          user_id: user.id,
+          action: `reject_${item.community_kind}`,
+          table_name: table,
+          record_id: item.id,
+        });
+        if (item.user_id) {
+          await supabase.from("notifications").insert({
+            user_id: item.user_id,
+            type: "system",
+            title: `Your ${item.community_kind} was not approved`,
+            message: rejectNote
+              ? `Reason: ${rejectNote}`
+              : `Your ${item.community_kind} did not meet our guidelines.`,
+            link: "/dashboard",
+          });
+        }
       }
       toast.success("Rejected");
     } catch (err: any) {
