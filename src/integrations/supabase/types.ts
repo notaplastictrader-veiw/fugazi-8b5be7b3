@@ -876,48 +876,66 @@ export type Database = {
         Row: {
           bonus_amount: string | null
           broker_id: string | null
+          broker_name: string | null
           created_at: string
           created_by: string | null
           description: string | null
           expiry_date: string | null
+          full_description: string | null
+          how_to_claim: string[] | null
           id: string
           image_url: string | null
           is_featured: boolean | null
           link_url: string | null
           promo_type: string
+          referral_url: string | null
+          slug: string | null
           status: Database["public"]["Enums"]["content_status"]
+          terms: string[] | null
           title: string
           updated_at: string
         }
         Insert: {
           bonus_amount?: string | null
           broker_id?: string | null
+          broker_name?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           expiry_date?: string | null
+          full_description?: string | null
+          how_to_claim?: string[] | null
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
           link_url?: string | null
           promo_type?: string
+          referral_url?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          terms?: string[] | null
           title: string
           updated_at?: string
         }
         Update: {
           bonus_amount?: string | null
           broker_id?: string | null
+          broker_name?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           expiry_date?: string | null
+          full_description?: string | null
+          how_to_claim?: string[] | null
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
           link_url?: string | null
           promo_type?: string
+          referral_url?: string | null
+          slug?: string | null
           status?: Database["public"]["Enums"]["content_status"]
+          terms?: string[] | null
           title?: string
           updated_at?: string
         }
@@ -1200,8 +1218,11 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          full_report: string | null
           id: string
+          is_repeat_offender: boolean
           severity: string
+          show_full_report: boolean
           status: Database["public"]["Enums"]["content_status"]
           story: string | null
           title: string
@@ -1211,8 +1232,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          full_report?: string | null
           id?: string
+          is_repeat_offender?: boolean
           severity?: string
+          show_full_report?: boolean
           status?: Database["public"]["Enums"]["content_status"]
           story?: string | null
           title?: string
@@ -1222,8 +1246,11 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          full_report?: string | null
           id?: string
+          is_repeat_offender?: boolean
           severity?: string
+          show_full_report?: boolean
           status?: Database["public"]["Enums"]["content_status"]
           story?: string | null
           title?: string
