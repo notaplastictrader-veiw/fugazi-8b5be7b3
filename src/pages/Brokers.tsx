@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -13,11 +14,16 @@ interface Broker {
 }
 
 const filters = ["All", "Forex", "Crypto", "Binary", "ECN", "Scam Watch"];
+// Map UI label → tag/keyword we look for on each broker (tags OR type)
 const filterMap: Record<string, string> = { All: "", Forex: "forex", Crypto: "crypto", Binary: "binary", ECN: "ecn", "Scam Watch": "scam-watch" };
+// Map URL ?type= values → UI label
+const typeToLabel: Record<string, string> = { forex: "Forex", crypto: "Crypto", binary: "Binary", ecn: "ECN", "scam-watch": "Scam Watch", all: "All" };
 
 const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
-  const [filter, setFilter] = useState("All");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialFilter = typeToLabel[(searchParams.get("type") || "").toLowerCase()] || "All";
+  const [filter, setFilter] = useState(initialFilter);
   const [search, setSearch] = useState("");
   const { t } = useI18n();
 
@@ -29,8 +35,29 @@ const Brokers = () => {
     fetch();
   }, []);
 
+  // React to back/forward navigation that changes ?type=
+  useEffect(() => {
+    const t = (searchParams.get("type") || "").toLowerCase();
+    if (t && typeToLabel[t]) setFilter(typeToLabel[t]);
+    if (!t) setFilter("All");
+  }, [searchParams]);
+
+  const handleFilterClick = (f: string) => {
+    setFilter(f);
+    const next = new URLSearchParams(searchParams);
+    if (f === "All") next.delete("type");
+    else next.set("type", filterMap[f]);
+    setSearchParams(next, { replace: true });
+  };
+
+  const matchesFilter = (b: Broker) => {
+    if (filter === "All") return true;
+    const key = filterMap[filter];
+    return (b.tags?.includes(key)) || (b.type?.toLowerCase() === key);
+  };
+
   const filtered = brokers
-    .filter(b => filter === "All" || b.tags?.includes(filterMap[filter]))
+    .filter(matchesFilter)
     .filter(b => !search || b.name.toLowerCase().includes(search.toLowerCase()));
 
   const scoreColor = (s: number) => s >= 8 ? "bg-primary" : s >= 6 ? "bg-accent" : "bg-destructive";
@@ -60,7 +87,7 @@ const Brokers = () => {
             </div>
             <div className="flex flex-wrap gap-2">
               {filters.map(f => (
-                <button key={f} onClick={() => setFilter(f)}
+                <button key={f} onClick={() => handleFilterClick(f)}
                   className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${filter === f ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground border-border hover:border-primary/40"}`}>{f}</button>
               ))}
             </div>

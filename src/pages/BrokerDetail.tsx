@@ -400,10 +400,19 @@ const BrokerDetail = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" className="font-display font-bold">
-                    <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                    Open Account
-                  </Button>
+                  {broker.website_url ? (
+                    <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored">
+                      <Button size="sm" className="font-display font-bold">
+                        <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                        Open Account
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button size="sm" className="font-display font-bold" disabled title="Broker website not yet linked">
+                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
+                      Coming Soon
+                    </Button>
+                  )}
                   <Button size="sm" variant="outline" onClick={() => { setActiveTab("reviews"); setShowReviewForm(true); }}>
                     Add Review
                   </Button>
@@ -651,10 +660,19 @@ const BrokerDetail = () => {
                     ))}
                   </div>
                   <div className="mt-6 text-center">
-                    <Button className="font-display font-bold">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Open Account with {broker.name}
-                    </Button>
+                    {broker.website_url ? (
+                      <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored">
+                        <Button className="font-display font-bold">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open Account with {broker.name}
+                        </Button>
+                      </a>
+                    ) : (
+                      <Button className="font-display font-bold" disabled>
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Coming Soon
+                      </Button>
+                    )}
                   </div>
                 </div>
               </section>
