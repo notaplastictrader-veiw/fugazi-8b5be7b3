@@ -1,47 +1,50 @@
 
 
-## Issue
-Approval queue review modal shows author name (e.g. "IMRDIP") but no way to identify which actual user account submitted it — no email, no link to user profile, no user ID context.
+## Issues to Fix
 
-## Context Gathered
-- `reviews` table has `user_id` column linking to the submitter
-- `profiles` table has `full_name`, `username`, `country`, `avatar_url`, `user_id`
-- `author` field on review = display name typed in form (can differ from real account name)
-- Need to read `ApprovalQueueAdmin.tsx` to see current review modal
+### 1. Review photos not displayed on broker detail page
+Reviews submission accepts photo upload (per memory `community-reviews`), but `BrokerDetail.tsx` reviews list doesn't render the photos. Need to check schema — `reviews` table currently has no `photo_urls` column. Either:
+- (a) Column exists but not selected/rendered, OR
+- (b) Column missing entirely (uploads going nowhere)
+
+**Action**: Verify schema. If `photo_urls` (text[]) doesn't exist, add via migration. Update `ReviewSubmissionForm.tsx` to actually upload to `media` storage bucket and save URLs. Update `BrokerDetail.tsx` reviews render to show photo thumbnails (clickable to enlarge in dialog).
+
+### 2. Star rating not aggregating per broker
+Currently `brokers.stars` field is static. Need it to auto-recompute as average of all `published` reviews for that broker.
+
+**Action**: Create DB trigger `sync_broker_avg_rating()` on `reviews` (INSERT/UPDATE/DELETE) that updates `brokers.stars = AVG(rating)` AND `brokers.review_count = COUNT(*)` for the affected broker (where status='published'). Existing `sync_broker_review_count` already handles count — extend or add new trigger for avg.
+
+Backfill existing brokers with current averages.
+
+### 3. Reaction failing — `review_reactions_reaction_check` constraint
+DB has a CHECK constraint limiting `reaction` to old values (love/care/helpful/thanks). Our new emoji palette (❤️👍👎😂...) violates it.
+
+**Action**: Migration to `DROP CONSTRAINT review_reactions_reaction_check` (no replacement — let any text emoji through; reasonable since we control the UI).
 
 ## Plan
 
-### Update Approval Queue Review Modal
-File: `src/pages/admin/ApprovalQueueAdmin.tsx`
+### DB Migration
+1. `ALTER TABLE reviews ADD COLUMN IF NOT EXISTS photo_urls text[] DEFAULT '{}'`
+2. `ALTER TABLE review_reactions DROP CONSTRAINT IF EXISTS review_reactions_reaction_check`
+3. Create function `sync_broker_avg_rating()` + trigger on `reviews` (AFTER INSERT/UPDATE/DELETE) → recalc `brokers.stars` from AVG of published reviews. Backfill all brokers.
 
-When opening a `review` type item:
-1. Fetch the full review row (already does)
-2. **Additionally fetch** the submitter's profile via `reviews.user_id` → `profiles` (select `full_name`, `username`, `avatar_url`, `country`)
-3. Also fetch the auth user's email from `auth.users` via existing `admin-users` edge function (or join through profiles if email is stored)
-
-### Display in modal — add "Submitted By" block above the review card:
-```
-┌─ SUBMITTED BY ─────────────────────────┐
-│ [avatar] Real Name (@username)         │
-│ 📧 user@email.com   🌍 Country         │
-│ 🔗 View Profile →  (links /u/username) │
-└────────────────────────────────────────┘
-```
-
-If `review.author` ≠ profile name → show small note: *"Posted as: IMRDIP"* so admin sees the discrepancy.
-
-If `user_id` is null (legacy/anon review) → show *"⚠ Anonymous submission (no linked account)"*.
+### Frontend Changes
+- `ReviewSubmissionForm.tsx`: 
+  - Add file input (multiple, image/*, max 4 photos, max 2MB each)
+  - On submit: upload files to `media` bucket under `reviews/{user_id}/{timestamp}-{name}`
+  - Save returned public URLs to `photo_urls` column
+- `BrokerDetail.tsx` reviews list:
+  - Select `photo_urls` in query
+  - Render thumbnail row (small rounded squares) under content
+  - Click → open `Dialog` lightbox showing full image
 
 ### Files to Touch
-- `src/pages/admin/ApprovalQueueAdmin.tsx` — add profile fetch + render submitter block in review modal
+- 1 SQL migration (3 changes above)
+- `src/components/ReviewSubmissionForm.tsx` — photo upload + insert with `photo_urls`
+- `src/pages/BrokerDetail.tsx` — render photos + lightbox
 
 ### Out of Scope
-- Adding submitter info to other content types (broker/scam/etc.) — only review modal
-- Editing the review or banning the user from this modal
-- Email is only fetched if cheap; if it requires an edge function call per item we'll skip and just show profile name + username + country (clickable to full profile page where admin can see more)
-
-### Decision Needed
-Email lookup requires calling the `admin-users` edge function (extra round trip). Profile name + username + country come free from `profiles` table.
-
-**Recommend**: Skip email in modal (avoid extra call). Show name + @username + country + clickable "View Profile" link → admin can click through for full details including email if needed.
+- Editing/deleting photos after submission
+- Photo moderation (admin can already reject the whole review)
+- Star rating shown on broker cards/list — `stars` field updates will propagate automatically since trigger updates the source
 
