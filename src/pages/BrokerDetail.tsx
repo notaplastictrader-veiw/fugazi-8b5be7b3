@@ -325,9 +325,13 @@ const BrokerDetail = () => {
           <div className="glass-card rounded-xl p-6 md:p-8 mb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               <div className="flex items-start gap-4">
-                {/* Logo placeholder */}
-                <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                  <span className="text-2xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                {/* Logo */}
+                <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+                  {broker.logo_url ? (
+                    <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
+                  ) : (
+                    <span className="text-2xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                  )}
                 </div>
                 <div>
                   <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{broker.name}</h1>
@@ -375,7 +379,7 @@ const BrokerDetail = () => {
                       ))}
                     </div>
                     <span className="text-sm font-medium text-foreground">{broker.stars}</span>
-                    <span className="text-xs text-muted-foreground">({broker.review_count} reviews)</span>
+                    <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                     <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
