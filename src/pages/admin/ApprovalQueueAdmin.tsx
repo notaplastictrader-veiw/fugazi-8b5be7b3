@@ -386,6 +386,8 @@ const ApprovalQueueAdmin = () => {
         await approveUpgrade(item);
       } else if (item.category === "content") {
         await approveContent(item);
+      } else if (item.category === "community") {
+        await approveCommunity(item);
       }
       toast.success("Approved!");
     } catch (err: any) {
