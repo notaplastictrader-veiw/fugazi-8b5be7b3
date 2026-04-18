@@ -56,6 +56,14 @@ interface UnifiedItem {
   priority?: number | null;
   reviewer_notes?: string;
   submitted_by?: string | null;
+  // Community fields
+  community_kind?: CommunityKind;
+  community_title?: string;
+  community_body?: string;
+  community_rating?: number | null;
+  community_broker_id?: string | null;
+  community_broker_name?: string;
+  community_author?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -64,6 +72,12 @@ const categoryConfig: Record<Exclude<RequestCategory, "all">, { label: string; i
   claims: { label: "Profile Claim", icon: ShieldCheck, color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
   upgrades: { label: "Tier Upgrade", icon: ArrowUpCircle, color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
   content: { label: "Content", icon: FileText, color: "bg-teal-500/10 text-teal-400 border-teal-500/30" },
+  community: { label: "Community", icon: MessageSquare, color: "bg-pink-500/10 text-pink-400 border-pink-500/30" },
+};
+
+const communityKindConfig: Record<CommunityKind, { label: string; icon: any }> = {
+  review: { label: "Review", icon: Star },
+  complaint: { label: "Complaint", icon: AlertTriangle },
 };
 
 const statusColors: Record<string, string> = {
