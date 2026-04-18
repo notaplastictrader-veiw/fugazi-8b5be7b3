@@ -945,6 +945,19 @@ const BrokerDetail = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Photo lightbox */}
+      <Dialog open={!!lightboxUrl} onOpenChange={(open) => !open && setLightboxUrl(null)}>
+        <DialogContent className="max-w-3xl p-2 bg-background">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Review photo</DialogTitle>
+            <DialogDescription>Enlarged review photo</DialogDescription>
+          </DialogHeader>
+          {lightboxUrl && (
+            <img src={lightboxUrl} alt="Review photo" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
