@@ -53,6 +53,8 @@ interface Broker {
   website_url: string;
   support_email: string;
   support_phone: string;
+  show_on_homepage: boolean;
+  homepage_position: number | null;
 }
 
 const emptyBroker = {
@@ -64,6 +66,7 @@ const emptyBroker = {
   payment_methods: [] as string[], platforms: [] as string[],
   account_types: [] as AccountType[],
   website_url: "", support_email: "", support_phone: "",
+  show_on_homepage: false, homepage_position: null as number | null,
 };
 
 const BrokersAdmin = () => {
