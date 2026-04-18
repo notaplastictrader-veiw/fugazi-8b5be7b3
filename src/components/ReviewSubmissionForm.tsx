@@ -47,6 +47,10 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Please log in to submit a review.");
+      return;
+    }
     if (!name.trim() || !content.trim() || rating === 0) {
       toast.error("Please fill in name, review, and rating.");
       return;
@@ -63,17 +67,33 @@ const ReviewSubmissionForm = ({ onSuccess }: Props) => {
       rating,
       role: mt4Id.trim() ? `MT4/MT5: ${mt4Id.trim()}` : "Trader",
       broker_id: brokerId || null,
+      user_id: user.id,
       status: "pending" as const,
     });
 
     setSubmitting(false);
     if (error) {
-      toast.error("Failed to submit review.");
+      console.error("Review submit error:", error);
+      toast.error(error.message || "Failed to submit review.");
     } else {
       toast.success("Review submitted! It will appear after admin approval.");
       onSuccess();
     }
   };
+
+  if (!user) {
+    return (
+      <div className="glass-card rounded-xl p-6 max-w-lg text-center">
+        <LogIn className="w-8 h-8 text-primary mx-auto mb-3" />
+        <h3 className="text-lg font-display font-bold text-foreground mb-2">Sign in to leave a review</h3>
+        <p className="text-sm text-muted-foreground mb-4">Create a free account or log in to share your trading experience.</p>
+        <div className="flex items-center justify-center gap-2">
+          <Link to="/login" className="px-5 py-2 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity">Log In</Link>
+          <Link to="/signup" className="px-5 py-2 text-sm font-display font-bold border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">Sign Up</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-xl p-6 max-w-lg">
