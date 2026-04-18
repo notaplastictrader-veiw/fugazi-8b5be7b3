@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
