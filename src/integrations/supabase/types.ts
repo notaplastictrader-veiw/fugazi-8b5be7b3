@@ -1438,6 +1438,9 @@ export type Database = {
       support_messages: {
         Row: {
           admin_response: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string
           context_name: string | null
           created_at: string
           id: string
@@ -1452,6 +1455,9 @@ export type Database = {
         }
         Insert: {
           admin_response?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string
           context_name?: string | null
           created_at?: string
           id?: string
@@ -1466,6 +1472,9 @@ export type Database = {
         }
         Update: {
           admin_response?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
           context_name?: string | null
           created_at?: string
           id?: string
