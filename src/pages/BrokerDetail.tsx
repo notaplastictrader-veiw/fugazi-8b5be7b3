@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import StarRating from "@/components/reviews/StarRating";
