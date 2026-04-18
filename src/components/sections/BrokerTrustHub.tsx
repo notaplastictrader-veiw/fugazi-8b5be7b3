@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface Broker {
@@ -102,9 +103,7 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(broker.stars) ? "text-accent fill-accent" : "text-border"}`} />
-          ))}
+          <StarRating value={broker.stars} size={14} />
           <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
         </div>
         <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
@@ -192,9 +191,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(firm.stars) ? "text-accent fill-accent" : "text-border"}`} />
-          ))}
+          <StarRating value={firm.stars} size={14} />
           <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
         </div>
         <a href={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { Star, Shield, Award, ExternalLink, Search } from "lucide-react";
+import { Shield, Award, ExternalLink, Search } from "lucide-react";
+import StarRating from "@/components/reviews/StarRating";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -80,7 +81,7 @@ const PropFirms = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(broker.stars) ? "text-accent fill-accent" : "text-border"}`} />)}
+                    <StarRating value={broker.stars} size={14} />
                     <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
                   </div>
                   <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">Full review <ExternalLink className="w-3 h-3" /></a>
