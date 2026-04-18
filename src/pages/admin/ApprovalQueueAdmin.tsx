@@ -318,6 +318,10 @@ const ApprovalQueueAdmin = () => {
         item.content_type,
         (item.application_data as any)?.company_name,
         (item.application_data as any)?.platform_name,
+        item.community_title,
+        item.community_body,
+        item.community_broker_name,
+        item.community_author,
       ];
       return searchFields.some((f) => f && String(f).toLowerCase().includes(s));
     }
@@ -330,6 +334,7 @@ const ApprovalQueueAdmin = () => {
     claims: items.filter((i) => i.category === "claims" && i.status === "pending").length,
     upgrades: items.filter((i) => i.category === "upgrades" && i.status === "pending").length,
     content: items.filter((i) => i.category === "content" && i.status === "pending").length,
+    community: items.filter((i) => i.category === "community" && i.status === "pending").length,
   };
 
   // ── Get display info for each item ─────────────────────────────────
