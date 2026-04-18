@@ -121,9 +121,19 @@ const ProfileSettings = () => {
         console.error("Profile update error:", error);
         throw error;
       }
+
+      // Also update auth user metadata so navbar/dropdown reflects the new name immediately
+      const { error: metaError } = await supabase.auth.updateUser({
+        data: { full_name: fullName, avatar_url: avatarUrl || null },
+      });
+      if (metaError) {
+        console.error("Auth metadata update error:", metaError);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["public-profile"] });
       toast.success("Profile updated successfully");
     },
     onError: (err: any) => {
