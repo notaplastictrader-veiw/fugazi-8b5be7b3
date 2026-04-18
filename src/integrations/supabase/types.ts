@@ -1075,6 +1075,30 @@ export type Database = {
           },
         ]
       }
+      review_reads: {
+        Row: {
+          broker_id: string
+          id: string
+          read_at: string
+          review_id: string
+          user_id: string
+        }
+        Insert: {
+          broker_id: string
+          id?: string
+          read_at?: string
+          review_id: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string
+          id?: string
+          read_at?: string
+          review_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       review_replies: {
         Row: {
           broker_id: string

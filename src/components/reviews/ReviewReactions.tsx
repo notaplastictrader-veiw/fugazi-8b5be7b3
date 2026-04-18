@@ -16,9 +16,11 @@ const REACTIONS: { key: ReactionKey; emoji: string; label: string }[] = [
 interface Props {
   reviewId: string;
   className?: string;
+  /** When true, renders counts only — no toggling */
+  readOnly?: boolean;
 }
 
-const ReviewReactions = ({ reviewId, className }: Props) => {
+const ReviewReactions = ({ reviewId, className, readOnly }: Props) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [counts, setCounts] = useState<Record<ReactionKey, number>>({ love: 0, care: 0, helpful: 0, thanks: 0 });
@@ -47,6 +49,7 @@ const ReviewReactions = ({ reviewId, className }: Props) => {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [reviewId, user?.id]);
 
   const toggle = async (key: ReactionKey) => {
+    if (readOnly) return;
     if (!user) {
       toast({ title: "Sign in to react", variant: "destructive" });
       return;
@@ -82,14 +85,15 @@ const ReviewReactions = ({ reviewId, className }: Props) => {
           <button
             key={r.key}
             onClick={() => toggle(r.key)}
-            disabled={busy === r.key}
-            title={r.label}
+            disabled={busy === r.key || readOnly}
+            title={readOnly ? `${r.label} (view only)` : r.label}
             className={cn(
               "inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs transition-colors",
               active
                 ? "bg-primary/15 border-primary/40 text-primary"
                 : "bg-secondary/50 border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
-              busy === r.key && "opacity-50",
+              (busy === r.key) && "opacity-50",
+              readOnly && "cursor-not-allowed opacity-70 hover:border-border hover:text-muted-foreground",
             )}
           >
             <span className="text-sm leading-none">{r.emoji}</span>
