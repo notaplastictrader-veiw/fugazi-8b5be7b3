@@ -16,9 +16,11 @@ const REACTIONS: { key: ReactionKey; emoji: string; label: string }[] = [
 interface Props {
   reviewId: string;
   className?: string;
+  /** When true, renders counts only — no toggling */
+  readOnly?: boolean;
 }
 
-const ReviewReactions = ({ reviewId, className }: Props) => {
+const ReviewReactions = ({ reviewId, className, readOnly }: Props) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [counts, setCounts] = useState<Record<ReactionKey, number>>({ love: 0, care: 0, helpful: 0, thanks: 0 });
