@@ -64,6 +64,11 @@ interface UnifiedItem {
   community_broker_id?: string | null;
   community_broker_name?: string;
   community_author?: string;
+  // Submitter profile (community)
+  submitter_full_name?: string | null;
+  submitter_username?: string | null;
+  submitter_avatar?: string | null;
+  submitter_country?: string | null;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -256,7 +261,29 @@ const ApprovalQueueAdmin = () => {
       (brokerNames || []).forEach((b) => communityBrokerMap.set(b.id, b.name));
     }
 
-    (reviewsRes.data || []).forEach((r) =>
+    // Enrich with submitter profiles
+    const submitterIds = new Set<string>();
+    (reviewsRes.data || []).forEach((r) => r.user_id && submitterIds.add(r.user_id));
+    (complaintsRes.data || []).forEach((c) => c.user_id && submitterIds.add(c.user_id));
+
+    const submitterMap = new Map<string, { full_name: string | null; username: string | null; avatar_url: string | null; country: string | null }>();
+    if (submitterIds.size > 0) {
+      const { data: submitters } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, username, avatar_url, country")
+        .in("user_id", Array.from(submitterIds));
+      (submitters || []).forEach((p) =>
+        submitterMap.set(p.user_id, {
+          full_name: p.full_name,
+          username: p.username,
+          avatar_url: p.avatar_url,
+          country: p.country,
+        })
+      );
+    }
+
+    (reviewsRes.data || []).forEach((r) => {
+      const sub = r.user_id ? submitterMap.get(r.user_id) : null;
       merged.push({
         id: r.id,
         category: "community",
@@ -270,10 +297,15 @@ const ApprovalQueueAdmin = () => {
         community_broker_name: communityBrokerMap.get(r.broker_id || ""),
         community_author: r.author || "Anonymous",
         user_id: r.user_id,
-      })
-    );
+        submitter_full_name: sub?.full_name ?? null,
+        submitter_username: sub?.username ?? null,
+        submitter_avatar: sub?.avatar_url ?? null,
+        submitter_country: sub?.country ?? null,
+      });
+    });
 
-    (complaintsRes.data || []).forEach((c) =>
+    (complaintsRes.data || []).forEach((c) => {
+      const sub = c.user_id ? submitterMap.get(c.user_id) : null;
       merged.push({
         id: c.id,
         category: "community",
@@ -285,8 +317,12 @@ const ApprovalQueueAdmin = () => {
         community_broker_id: c.broker_id,
         community_broker_name: communityBrokerMap.get(c.broker_id || ""),
         user_id: c.user_id,
-      })
-    );
+        submitter_full_name: sub?.full_name ?? null,
+        submitter_username: sub?.username ?? null,
+        submitter_avatar: sub?.avatar_url ?? null,
+        submitter_country: sub?.country ?? null,
+      });
+    });
 
     // Sort: pending first, then by date desc
     merged.sort((a, b) => {
@@ -694,8 +730,72 @@ const ApprovalQueueAdmin = () => {
 
     if (item.category === "community") {
       const KindIcon = item.community_kind ? communityKindConfig[item.community_kind].icon : MessageSquare;
+      const realName = item.submitter_full_name?.trim();
+      const username = item.submitter_username;
+      const displayName = realName || username || (item.user_id ? "Unknown user" : null);
+      const authorMismatch =
+        realName && item.community_author && realName.toLowerCase() !== item.community_author.toLowerCase();
+      const initials = (realName || username || "?")
+        .split(/\s+/)
+        .map((s) => s[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+
       return (
         <div className="space-y-3">
+          {/* Submitted By block */}
+          <div className="border border-primary/30 rounded-lg p-3 bg-primary/5 space-y-2">
+            <p className="text-[10px] font-mono uppercase tracking-wider text-primary">Submitted By</p>
+            {item.user_id && displayName ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-muted border border-border overflow-hidden flex items-center justify-center shrink-0">
+                    {item.submitter_avatar ? (
+                      <img src={item.submitter_avatar} alt={displayName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs font-mono font-semibold text-foreground">{initials}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+                    {username && (
+                      <p className="text-[11px] font-mono text-muted-foreground truncate">@{username}</p>
+                    )}
+                  </div>
+                  {username && (
+                    <a
+                      href={`/u/${username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-mono text-primary hover:underline flex items-center gap-1 shrink-0"
+                    >
+                      Profile <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-[11px] font-mono text-muted-foreground flex-wrap">
+                  {item.submitter_country && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {item.submitter_country}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 truncate">
+                    <User className="w-3 h-3" /> {item.user_id.slice(0, 8)}…
+                  </span>
+                </div>
+                {authorMismatch && (
+                  <p className="text-[10px] font-mono text-amber-400">
+                    ⚠ Posted as: <span className="font-semibold">{item.community_author}</span>
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-xs font-mono text-amber-400">⚠ Anonymous submission (no linked account)</p>
+            )}
+          </div>
+
           <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-2 text-sm">
             <div className="flex items-center gap-2 flex-wrap">
               <KindIcon className="w-4 h-4 text-primary" />
