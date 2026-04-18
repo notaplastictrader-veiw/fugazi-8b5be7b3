@@ -20,7 +20,8 @@ import type { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 // ─── Types ───────────────────────────────────────────────────────────
-type RequestCategory = "all" | "applications" | "claims" | "upgrades" | "content";
+type RequestCategory = "all" | "applications" | "claims" | "upgrades" | "content" | "community";
+type CommunityKind = "review" | "complaint";
 
 interface UnifiedItem {
   id: string;
