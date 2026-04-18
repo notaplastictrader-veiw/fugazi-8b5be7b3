@@ -1,62 +1,63 @@
 
 
 ## Issue
-User signs up → super admin approves in DB → user clicks email verification link → redirected to homepage but **NOT logged in** → tries to login → "Please verify your email to complete your sign up" error.
+1. **Bullwaves review submitted but not appearing** on broker page
+2. **Bullwaves not auto-added to homepage** after upgrade
+3. **No admin control** to choose which 6 brokers show on homepage
 
-## Root Cause Investigation Needed
-Need to check:
-1. `AuthModal.tsx` signup flow — what `emailRedirectTo` is set?
-2. Is there any URL handler in `App.tsx` / `main.tsx` to process the auth callback (`access_token` in URL hash)?
-3. Is `email_confirmed_at` actually getting set after click?
+## Investigation Plan
 
-Most likely cause: `emailRedirectTo` either missing or pointing to `/` without proper session-handling. Supabase auth tokens come back in URL hash (`#access_token=...`). React Router doesn't auto-process this; Supabase JS client does it via `detectSessionInUrl: true` (default) — BUT only if the page actually loads with that hash.
-
-If `emailRedirectTo` is set to a Lovable preview URL or a path that does redirect/strip the hash before Supabase client initializes, the session is never established → `email_confirmed_at` may also stay NULL.
-
-## Plan
-
-### Step 1: Read current code (no changes)
-- `src/components/modals/AuthModal.tsx` — check `signUp` `emailRedirectTo` value
-- `src/App.tsx` & `src/main.tsx` — confirm Supabase client init order
-- Check if any redirect/Navigate strips URL hash before Supabase processes it
+### Step 1: Read code (no changes)
+- `src/pages/BrokerDetail.tsx` — how reviews are fetched/filtered for a broker
+- `src/components/ReviewSubmissionForm.tsx` — what status a new review gets
+- `src/components/sections/BrokerTrustHub.tsx` (or whichever shows brokers on homepage) — how the 6 homepage brokers are picked
+- `src/components/ReviewSubmissionForm.tsx` already known to set `status='pending'` likely
 
 ### Step 2: Verify in DB
-Query `auth.users` for the user `ishaqzaade.im@gmail.com` to confirm whether `email_confirmed_at` got set after the user clicked the verification link.
+- Query `reviews` for the bullwaves review → confirm `status` (likely `pending`)
+- Query `brokers` for bullwaves → check what determines homepage placement
+- Check `site_settings` for any existing `homepage_brokers` key
 
-### Step 3: Fix (after diagnosis)
-Likely fixes (will confirm after Step 1+2):
+## Likely Findings
+- **Review issue**: New reviews get `status='pending'` and the broker page only shows `status='published'` (per RLS). Super admin must approve in `Reviews` admin → then it appears.
+- **Homepage broker issue**: Homepage section probably hard-picks top 6 by `score` or `is_featured`. Bullwaves has `score=0`, so it never qualifies.
 
-**A. AuthModal signup — set proper redirect:**
-```ts
-await supabase.auth.signUp({
-  email, password,
-  options: {
-    emailRedirectTo: `${window.location.origin}/auth/callback`,
-    data: { full_name, ... }
-  }
-});
-```
+## Proposed Fix
 
-**B. Add `/auth/callback` route** that:
-- Lets Supabase client process the URL hash (auto via `detectSessionInUrl`)
-- Waits for session
-- Redirects to `/dashboard` (or role-based destination)
-- Shows a brief "Verifying…" spinner
+### A. Reviews flow clarification
+Two options (will ask user which):
+1. **Keep moderation** — explain that new reviews need admin approval at `/admin/reviews` (current behavior, safer)
+2. **Auto-publish** — change `ReviewSubmissionForm.tsx` to insert with `status='published'` (faster but no spam control)
 
-**C. Update Supabase URL Config**
-Site URL + Additional Redirect URLs must include the preview & published domains so the verification link actually carries the access token back. (User must approve via Cloud settings — I'll flag it.)
+### B. Homepage brokers — admin-controlled (NEW FEATURE)
+1. **DB**: Add `show_on_homepage boolean default false` and `homepage_position integer` columns to `brokers` table (migration)
+2. **Admin UI** (`src/pages/admin/BrokersAdmin.tsx`): Add two new fields in the broker edit modal:
+   - Toggle: "Show on Homepage"
+   - Number input: "Homepage Position (1–6)"
+3. **Homepage section** (`src/components/sections/BrokerTrustHub.tsx` or equivalent): Change query to:
+   ```ts
+   .eq("status", "published")
+   .eq("show_on_homepage", true)
+   .order("homepage_position", { ascending: true })
+   .limit(6)
+   ```
+4. **Fallback**: If fewer than 6 brokers have the flag, fill remaining slots with top-scored published brokers (so homepage never looks empty).
 
-### Step 4: Manual super-admin approval flow
-If user was already manually marked verified by super admin in DB but `email_confirmed_at` is still NULL, instruct on the proper way (run `UPDATE auth.users SET email_confirmed_at = now()`). Will check current DB state first.
+### C. Bullwaves visibility
+After feature ships, super admin can toggle "Show on Homepage" for Bullwaves directly from admin panel.
+
+## Files to Touch
+- 1 migration (add 2 columns to `brokers`)
+- `src/pages/admin/BrokersAdmin.tsx` — add toggle + position field
+- `src/components/sections/BrokerTrustHub.tsx` (or actual homepage broker section) — update query
+- `src/integrations/supabase/types.ts` — auto-regenerated
 
 ## Out of Scope
-- Custom branded email templates (separate request)
-- Switching to magic-link signup
-- Phone OTP
+- Auto-promotion logic based on score
+- Drag-and-drop reordering UI (simple number input only)
+- Review auto-approval (will ask user)
 
-## Files to Touch (estimate)
-- `src/components/modals/AuthModal.tsx` (1 small change)
-- New `src/pages/AuthCallback.tsx`
-- `src/App.tsx` (add 1 route)
-- Possibly 1 SQL migration if `email_confirmed_at` needs backfill for the stuck user
+## Question Before Building
+Need to confirm with user:
+- Should new user reviews be **auto-published** or **stay pending for admin approval**?
 
