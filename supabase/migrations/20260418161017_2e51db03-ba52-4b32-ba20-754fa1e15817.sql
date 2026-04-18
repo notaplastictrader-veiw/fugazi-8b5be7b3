@@ -1,0 +1,1 @@
+UPDATE public.forecasts SET category = 'gold' WHERE pair = 'XAU/USD' AND category = 'forex';

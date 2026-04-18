@@ -21,16 +21,21 @@ export const useNotifications = () => {
 
   const fetchNotifications = useCallback(async () => {
     if (!user) return;
+    // Fetch latest 20 for the dropdown
     const { data } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20);
-    if (data) {
-      setNotifications(data as unknown as Notification[]);
-      setUnreadCount(data.filter((n: any) => !n.read).length);
-    }
+    // Fetch exact unread count separately (not capped at 20)
+    const { count } = await supabase
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .eq("read", false);
+    if (data) setNotifications(data as unknown as Notification[]);
+    setUnreadCount(count || 0);
     setLoading(false);
   }, [user]);
 
