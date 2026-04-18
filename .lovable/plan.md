@@ -1,63 +1,59 @@
 
 
 ## Issue
-1. **Bullwaves review submitted but not appearing** on broker page
-2. **Bullwaves not auto-added to homepage** after upgrade
-3. **No admin control** to choose which 6 brokers show on homepage
+User চান `/admin/approvals` page-এর Approval Queue tabs-এ একটা নতুন tab (empty box যেটা mark করা হয়েছে) — যেখানে **Community submissions** (reviews, complaints, trading ideas, submissions) এর pending items দেখা যাবে এবং সেখান থেকেই approve/reject করা যাবে।
 
 ## Investigation Plan
 
-### Step 1: Read code (no changes)
-- `src/pages/BrokerDetail.tsx` — how reviews are fetched/filtered for a broker
-- `src/components/ReviewSubmissionForm.tsx` — what status a new review gets
-- `src/components/sections/BrokerTrustHub.tsx` (or whichever shows brokers on homepage) — how the 6 homepage brokers are picked
-- `src/components/ReviewSubmissionForm.tsx` already known to set `status='pending'` likely
+### Step 1: Read current approval page
+- `src/pages/admin/ApprovalQueueAdmin.tsx` — current tabs (All, Applications, Claims, Upgrades, Content) এবং কিভাবে data fetch হয় বুঝতে হবে
+- `src/pages/admin/ReviewsAdmin.tsx`, `ComplaintsAdmin.tsx`, `TradingIdeasAdmin.tsx`, `SubmissionsAdmin.tsx` — কোন tables, কোন status field ব্যবহার করে তা confirm
+- `src/components/admin/AdminSidebar.tsx` — sidebar এর Community group structure
 
 ### Step 2: Verify in DB
-- Query `reviews` for the bullwaves review → confirm `status` (likely `pending`)
-- Query `brokers` for bullwaves → check what determines homepage placement
-- Check `site_settings` for any existing `homepage_brokers` key
-
-## Likely Findings
-- **Review issue**: New reviews get `status='pending'` and the broker page only shows `status='published'` (per RLS). Super admin must approve in `Reviews` admin → then it appears.
-- **Homepage broker issue**: Homepage section probably hard-picks top 6 by `score` or `is_featured`. Bullwaves has `score=0`, so it never qualifies.
+- Count of `pending` items in `reviews`, `complaints`, `trading_ideas`, এবং submissions tables
+- Confirm each table has `status='pending'` rows currently
 
 ## Proposed Fix
 
-### A. Reviews flow clarification
-Two options (will ask user which):
-1. **Keep moderation** — explain that new reviews need admin approval at `/admin/reviews` (current behavior, safer)
-2. **Auto-publish** — change `ReviewSubmissionForm.tsx` to insert with `status='published'` (faster but no spam control)
+### A. Add new "Community" tab in ApprovalQueueAdmin
+নতুন একটা tab button add করব tabs row-তে: **Community** (icon: `MessageSquare` বা `Users`)
 
-### B. Homepage brokers — admin-controlled (NEW FEATURE)
-1. **DB**: Add `show_on_homepage boolean default false` and `homepage_position integer` columns to `brokers` table (migration)
-2. **Admin UI** (`src/pages/admin/BrokersAdmin.tsx`): Add two new fields in the broker edit modal:
-   - Toggle: "Show on Homepage"
-   - Number input: "Homepage Position (1–6)"
-3. **Homepage section** (`src/components/sections/BrokerTrustHub.tsx` or equivalent): Change query to:
-   ```ts
-   .eq("status", "published")
-   .eq("show_on_homepage", true)
-   .order("homepage_position", { ascending: true })
-   .limit(6)
-   ```
-4. **Fallback**: If fewer than 6 brokers have the flag, fill remaining slots with top-scored published brokers (so homepage never looks empty).
+### B. Unified pending fetch
+`fetchPendingCommunity()` function — Promise.all দিয়ে parallel fetch:
+```ts
+const [reviews, complaints, ideas, submissions] = await Promise.all([
+  supabase.from("reviews").select("id, author, content, rating, broker_id, created_at").eq("status", "pending"),
+  supabase.from("complaints").select("id, content, broker_id, user_id, created_at").eq("status", "pending"),
+  supabase.from("trading_ideas").select("id, title, content, user_id, created_at").eq("status", "pending"),
+  // submissions table — confirm exact name from SubmissionsAdmin.tsx
+]);
+```
+সব merge করে একটা unified `CommunityItem[]` array বানাব with `kind` discriminator ("review" | "complaint" | "idea" | "submission").
 
-### C. Bullwaves visibility
-After feature ships, super admin can toggle "Show on Homepage" for Bullwaves directly from admin panel.
+### C. Unified row UI
+Existing approval-row pattern follow করে (badge for kind, content preview, time-in-queue, approve/reject buttons):
+- Approve → `update({ status: "published" })` on the original table
+- Reject → `update({ status: "rejected" })` on the original table
+- Toast feedback + refetch
+
+### D. Counts on tabs
+"Community" tab-এ ছোট badge: total pending count (already shown for other tabs in current design — follow same pattern)
+
+### E. Notifications integration
+Approve/reject এর সময় submitter user-কে in-app notification পাঠাব (using existing `notifications` table) যাতে user জানে তার submission accepted/rejected হয়েছে।
 
 ## Files to Touch
-- 1 migration (add 2 columns to `brokers`)
-- `src/pages/admin/BrokersAdmin.tsx` — add toggle + position field
-- `src/components/sections/BrokerTrustHub.tsx` (or actual homepage broker section) — update query
-- `src/integrations/supabase/types.ts` — auto-regenerated
+- `src/pages/admin/ApprovalQueueAdmin.tsx` — add Community tab + fetch + render logic (1 file, main change)
+- (Possibly) extract a small `CommunityApprovalRow` sub-component for clean rendering
 
 ## Out of Scope
-- Auto-promotion logic based on score
-- Drag-and-drop reordering UI (simple number input only)
-- Review auto-approval (will ask user)
+- Drag-and-drop reordering
+- Bulk approve/reject (can be a follow-up)
+- Inline edit of review/complaint content before approval
+- Removing the existing standalone Reviews/Complaints/Submissions admin pages — those stay as full-management screens; this new tab is just for **quick approval triage**
 
 ## Question Before Building
-Need to confirm with user:
-- Should new user reviews be **auto-published** or **stay pending for admin approval**?
+Need to confirm:
+- "Community" tab-এ কি ৪টা type একসাথে দেখাব (reviews + complaints + ideas + submissions mixed list with filter chips), নাকি Community tab এর ভিতরে আলাদা sub-tabs (Reviews | Complaints | Ideas | Submissions)?
 
