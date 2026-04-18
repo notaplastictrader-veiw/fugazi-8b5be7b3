@@ -1,83 +1,63 @@
 
 
-## Goal
-1. **Image uploads everywhere** — broker logos, betting site logos, course thumbnails, education hero images, promotion banners, news images, signal group logos, scam alert evidence, **user profile avatars** — সব URL input এর পাশে file upload button থাকবে।
-2. **Frontend reviews seed** — `src/data/reviews.ts`-এ থাকা hardcoded reviews DB-র `reviews` table-এ seed করা।
+## Issue
+User profile update (avatar + other fields) frontend-এ submit হলেও DB-তে save হচ্ছে না বা reflect হচ্ছে না।
 
-## Investigation Plan
+## Investigation Needed
+1. `ProfileSettings.tsx` save handler দেখা — `update()` call ঠিক আছে কিনা, error handle করছে কিনা
+2. `profiles` RLS policies — UPDATE policy আছে কিনা check করা
+3. Console logs / network tab error দেখা
 
-I need to verify a few things before writing the plan:
-1. Existing `src/data/reviews.ts` content + count
-2. Existing storage buckets (currently zero — need to create)
-3. Which admin pages have image fields and what column names they use
+## Root Cause Hypothesis
+Looking at the `profiles` table RLS policies provided:
+
+```
+Policy Name: Users can update own profile
+Command: UPDATE
+Roles: {public}
+Using Expression: (auth.uid() = user_id)
+```
+
+**Problem**: UPDATE policy-তে `WITH CHECK` expression **missing**! Postgres-এ UPDATE policy-র জন্য `USING` (which rows can be updated) এবং `WITH CHECK` (what the new row values can be) **দুটোই** দরকার। `WITH CHECK` না থাকলে update silently fail হতে পারে অথবা rows match না করলে 0 rows affected return করে কিন্তু error throw করে না।
+
+আরো একটা সম্ভাব্য issue: যদি `ProfileSettings.tsx` save handler `error` properly handle না করে বা wrong filter (`.eq("id", ...)` vs `.eq("user_id", ...)`) ব্যবহার করে।
 
 ## Plan
 
-### 1. Storage Setup (1 migration)
-Create **3 public buckets** (using SQL migration):
-- `logos` — broker logos, betting site logos, signal group logos (public read, admin write, 2MB limit)
-- `media` — promotion banners, course thumbs, education hero, news images, scam evidence (public read, admin write, 5MB limit)  
-- `avatars` — user profile pictures (public read, owner write, 2MB limit)
+### Step 1: Read code & verify
+- `code--view src/pages/dashboard/ProfileSettings.tsx` — save handler, filter clause, error handling
+- `code--read_console_logs` & `code--read_network_requests` — actual PATCH request response
 
-RLS policies on `storage.objects`:
-- Public SELECT on all 3 buckets
-- `logos` + `media`: only `super_admin` INSERT/UPDATE/DELETE
-- `avatars`: authenticated users can manage files where path starts with their `auth.uid()`
+### Step 2: Fix RLS policy (migration)
+Update the `profiles` UPDATE policy to include `WITH CHECK`:
 
-### 2. Reusable ImageUpload Component (1 new file)
-Create `src/components/admin/ImageUpload.tsx`:
-- Drag-or-click zone
-- Shows current image preview if URL exists
-- Uploads to specified bucket via `supabase.storage.from(bucket).upload()`
-- Returns public URL via `getPublicUrl()`
-- Replace/Remove buttons
-- File validation (type, size)
-- Calls `onChange(url)` to update parent form state
+```sql
+DROP POLICY "Users can update own profile" ON public.profiles;
 
-Props: `value`, `onChange`, `bucket`, `folder`, `maxSizeMB`, `label`
+CREATE POLICY "Users can update own profile"
+  ON public.profiles
+  FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+```
 
-### 3. Wire ImageUpload into Admin Pages (8 files)
-Replace plain URL `<input>` with `<ImageUpload />` in:
-- `BrokersAdmin.tsx` → `logo_url` (bucket: `logos/brokers`)
-- `BettingSitesAdmin.tsx` → `logo` (bucket: `logos/betting`)
-- `SignalsAdmin.tsx` → add new logo field if needed (bucket: `logos/signals`)
-- `PromotionsAdmin.tsx` → `image_url` (bucket: `media/promotions`)
-- `NewsAdmin.tsx` → `image_url` (bucket: `media/news`)
-- `CoursesAdmin.tsx` → add `thumbnail_url` column + upload
-- `EducationAdmin.tsx` → add `hero_image_url` column + upload
-- `ScamAlertsAdmin.tsx` → keep URL input, add upload option for evidence
+Also change `TO public` → `TO authenticated` (anon shouldn't update profiles).
 
-Keep URL textbox as fallback (user can paste OR upload).
+### Step 3: Fix ProfileSettings.tsx save handler
+- Ensure update uses `.eq("user_id", user.id)` (not `id`)
+- Properly catch and toast errors so user knows update failed
+- Add success toast + refetch profile after save
+- Add `updated_at` to update payload (or rely on trigger — none exists, so manual)
 
-### 4. Profile Avatar Upload (1 file)
-Update `src/pages/dashboard/ProfileSettings.tsx`:
-- Add ImageUpload component for `avatar_url` field
-- Bucket: `avatars`, folder: user's `auth.uid()`
-- Updates `profiles.avatar_url` on save
+### Step 4: Test
+After fix: change name → click save → toast shows success → reload → value persists.
 
-### 5. Schema additions (same migration)
-- `courses` table: add `thumbnail_url text default ''`
-- `education_articles` table: add `hero_image_url text default ''`
-- `signal_groups` table: add `logo_url text default ''`
-
-### 6. Seed Reviews from frontend data
-Use `supabase--read_query` first to confirm `reviews` table has zero or few rows, then INSERT (~10-15 reviews from `src/data/reviews.ts`):
-- author, content, rating, role, broker_id (NULL since no FK match), status='published'
-- All marked `published` so they show on frontend immediately
-
-## Files Changed (~12)
-- 1 migration: storage buckets + RLS + 3 schema columns
-- 1 data insert: seed reviews
-- 1 NEW: `src/components/admin/ImageUpload.tsx`
-- 8 admin page updates: `BrokersAdmin`, `BettingSitesAdmin`, `SignalsAdmin`, `PromotionsAdmin`, `NewsAdmin`, `CoursesAdmin`, `EducationAdmin`, `ScamAlertsAdmin`
-- 1 profile update: `ProfileSettings.tsx`
+## Files Changed (~2)
+- 1 new migration: `fix_profiles_update_policy.sql`
+- `src/pages/dashboard/ProfileSettings.tsx` — save handler error handling + correct filter
 
 ## Out of Scope
-- Image cropping/resizing UI (browser handles file selection only)
-- Multi-image gallery uploads (single image per field for now)
-- CDN/optimization (Supabase Storage public URLs used directly)
-- WebP conversion
-
-## Approach
-Migration first (buckets + columns) → ImageUpload component → wire into admins one by one → ProfileSettings → seed reviews last.
+- Adding update trigger for `updated_at` (will set manually in update payload)
+- Changing other table policies
 
