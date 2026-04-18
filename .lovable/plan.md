@@ -1,32 +1,61 @@
 
 
-## Issues
+## What the user is asking
+"Be a pro user, check the site, try everything, find problems." This is an exploratory QA pass across the live preview — clicking through pages, submitting forms, testing auth flows, admin panels, mobile responsiveness, and reporting all bugs found.
 
-### 1. Photos missing in admin approval modal
-`ApprovalQueueAdmin.tsx` review modal shows author/content/rating/profile but doesn't render `photo_urls`. Admins can't moderate photos before approving.
+## My approach
+This requires the **browser automation tools** which are not available in plan mode. I need user approval to switch to default mode so I can actually drive the preview and verify behavior end-to-end.
 
-**Fix**: Select `photo_urls` in the reviews query and render thumbnail row in the review modal (same lightbox pattern as `BrokerDetail.tsx`, or just clickable thumbnails opening in new tab).
+## QA Test Plan
 
-### 2. Star icons only fill 4 even when avg = 4.5
-`BrokerDetail.tsx` header renders stars with `fill={i < Math.floor(stars)}` (or similar floor logic), so 4.5 → only 4 filled stars. Need **half-star** rendering for fractional averages.
+I'll act as a real user across these flows and report every issue (bugs, broken UI, missing data, console errors, slow loads, RLS denials, etc.) — no fixes yet, just a full bug report. After approval, you can pick which to fix.
 
-**Fix**: Replace floor logic with proper half-fill — render 5 star icons where:
-- `i + 1 <= floor(stars)` → fully filled
-- `i + 0.5 <= stars && i + 1 > stars` → half-filled (use overlay or `fill-[url(#half)]` mask, or simpler: stack a clipped filled star over an empty one with `clip-path: inset(0 50% 0 0)`)
-- otherwise → empty
+### 1. Public site walkthrough (anonymous)
+- Homepage: hero, all 9 sections render, tickers scroll, no console errors
+- Brokers list → Broker detail: stars (half-star fix), reviews, photos, lightbox, reactions, replies
+- Prop Firms, Scam Alerts, Signals, Sports, Forecasts, News, Calendar, Promotions, Compare, Education, Ideas
+- Footer links, language switcher (15 langs), 3 themes (Dark/Light/Sentinel), cookie consent
+- Global search (⌘K), Live chat button
+- Mobile viewport (375px) — nav drawer, layout, ticker overlap
 
-Apply same fix to any other place that renders the broker average (e.g. broker list cards) if they use the same util — quick grep.
+### 2. Auth flows
+- Signup (email + Google), email verification gate
+- Login, forgot password, reset password
+- Session persistence across reload
 
-### 3. Verify "4.5 from 4★ + 5★" math
-That's correct: `(4+5)/2 = 4.5`. The display is right, just the star icons are wrong (issue #2). Will confirm with a quick DB read of the two reviews.
+### 3. Logged-in user dashboard
+- Overview, My Reviews, My Complaints, Watchlist, Profile Settings, Referrals
+- Submit a review (with photo) → check it appears in admin approval queue
+- Submit a complaint, scam report
+- Edit profile, change avatar, privacy toggles
+- Notifications bell
 
-## Files to Touch
-- `src/pages/admin/ApprovalQueueAdmin.tsx` — add `photo_urls` to review query, render thumbnails in modal
-- `src/pages/BrokerDetail.tsx` — half-star renderer in header rating row
-- (If shared) extract a small `<StarRating value={4.5} />` helper in `src/components/reviews/` and reuse in broker cards/list — only if grep shows duplicate logic
+### 4. Admin panel (super_admin)
+- Dashboard, Approval Queue (review modal: photos + Submitted By block), Users, Brokers, Signals, Reviews
+- Approve/reject a review → verify it publishes & broker stars auto-update
+- Promotions, News, Calendar, Sports, Scam Alerts, Forecasts, Education, Site Settings
+- Audit log, Referral Analytics
 
-## Out of Scope
-- Lightbox in admin modal (open in new tab is enough for moderation)
-- Fractional precision beyond 0.5 (rounding to nearest 0.5 is industry standard)
-- Animated star transitions
+### 5. Edge cases
+- Network tab: failed requests, 4xx/5xx
+- Console: errors, warnings, hydration issues
+- RLS denials on insert/update
+- Broken images, missing translations, layout shift
+
+## Deliverable
+A categorized bug report:
+- 🔴 **Critical** — broken functionality, data loss, security
+- 🟡 **Major** — UX broken but workable
+- 🟢 **Minor** — polish, copy, alignment
+
+Each item: page → action → expected → actual → severity.
+
+## Note
+I won't perform destructive actions (deleting users, brokers, etc.) without confirmation. I'll only create test content under your own logged-in account where possible.
+
+## Out of scope (this pass)
+- Fixing anything (separate approval per fix)
+- Performance profiling / Lighthouse
+- Cross-browser (Safari/Firefox) — Chromium only
+- External integrations (Telegram links, payment gateways)
 
