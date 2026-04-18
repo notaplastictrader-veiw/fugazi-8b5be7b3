@@ -443,6 +443,77 @@ const BrokerDetail = () => {
             </div>
           </div>
 
+          {/* ===== ACTIVE INVESTIGATIONS ===== */}
+          {scamAlerts.length > 0 && (
+            <section id="investigations" className="mb-6 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-5 md:p-6 scroll-mt-24">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-6 h-6 text-destructive" />
+                  <h2 className="text-lg md:text-xl font-display font-extrabold uppercase tracking-wider text-destructive">
+                    Active Investigations
+                  </h2>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-destructive text-destructive-foreground">
+                    {scamAlerts.length}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  Verified user complaints under review
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {scamAlerts.map((a) => (
+                  <div key={a.id} className="rounded-lg border border-destructive/30 bg-background/40 p-4 md:p-5">
+                    <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <h3 className="text-base md:text-lg font-display font-bold text-foreground">{a.title}</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono uppercase ${
+                          a.severity === "high"
+                            ? "bg-destructive/15 text-destructive border-destructive/30"
+                            : "bg-accent/10 text-accent border-accent/20"
+                        }`}>
+                          {a.severity} severity
+                        </span>
+                        {a.is_repeat_offender && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase bg-destructive/20 text-destructive border border-destructive/50 flex items-center gap-1">
+                            <ShieldAlert className="w-3 h-3" /> Repeat Offender
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {a.description && (
+                      <p className="text-sm text-muted-foreground mb-3">{a.description}</p>
+                    )}
+
+                    {a.show_full_report && a.full_report && a.full_report.trim().length > 0 && (
+                      <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <ShieldAlert className="w-4 h-4 text-destructive" />
+                          <h4 className="text-xs font-display font-extrabold uppercase tracking-wider text-destructive">
+                            Full Investigation Report
+                          </h4>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                          {a.full_report}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-3">
+                      <Link
+                        to={`/scam-alerts/${a.id}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-destructive hover:underline"
+                      >
+                        View Full Alert <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* ===== TABS ===== */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
