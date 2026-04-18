@@ -1,35 +1,47 @@
 
 
+## Issue
+Approval queue review modal shows author name (e.g. "IMRDIP") but no way to identify which actual user account submitted it — no email, no link to user profile, no user ID context.
+
+## Context Gathered
+- `reviews` table has `user_id` column linking to the submitter
+- `profiles` table has `full_name`, `username`, `country`, `avatar_url`, `user_id`
+- `author` field on review = display name typed in form (can differ from real account name)
+- Need to read `ApprovalQueueAdmin.tsx` to see current review modal
+
 ## Plan
 
-### 1. Broker selection — make mandatory + auto-select
-`ReviewSubmissionForm.tsx`:
-- Add `defaultBrokerId?: string` prop. When passed, auto-select that broker and **hide** the dropdown (locked to that broker).
-- When NOT passed (e.g. `/reviews` page), show dropdown but mark **required** (`*` label, validation rejects empty).
-- Update `BrokerDetail.tsx` → pass `defaultBrokerId={broker.id}` to the form.
+### Update Approval Queue Review Modal
+File: `src/pages/admin/ApprovalQueueAdmin.tsx`
 
-### 2. Reactions — WhatsApp-style picker
-Refactor `ReviewReactions.tsx`:
-- Replace the 4 always-visible buttons with **single trigger**: a smiley face icon (`SmilePlus` from lucide) + total count.
-- Click trigger → opens `Popover` with full emoji palette in a grid.
-- Expanded emoji set (good + bad + neutral): ❤️ 👍 👎 😂 😮 😢 😡 🔥 🙏 🤝 ⚠️ 💯 (12 reactions)
-- Below the trigger, render small "summary chips" of reactions that already have ≥1 count (e.g. `❤️ 3  👍 5`) — clickable to toggle that reaction.
-- Active reactions (user's own) show with primary ring.
+When opening a `review` type item:
+1. Fetch the full review row (already does)
+2. **Additionally fetch** the submitter's profile via `reviews.user_id` → `profiles` (select `full_name`, `username`, `avatar_url`, `country`)
+3. Also fetch the auth user's email from `auth.users` via existing `admin-users` edge function (or join through profiles if email is stored)
 
-### 3. Database — extend allowed reactions
-Currently `review_reactions.reaction` is text with no constraint, but legacy code only used 4 keys (`love/care/helpful/thanks`). Switch to **emoji-as-key** storage (store the emoji char directly) — simpler, no enum migration, future-proof. No DB schema change needed since column is free-text.
+### Display in modal — add "Submitted By" block above the review card:
+```
+┌─ SUBMITTED BY ─────────────────────────┐
+│ [avatar] Real Name (@username)         │
+│ 📧 user@email.com   🌍 Country         │
+│ 🔗 View Profile →  (links /u/username) │
+└────────────────────────────────────────┘
+```
 
-Backward compatibility: when loading, map old keys (`love`→❤️, `care`→🤗, `helpful`→👍, `thanks`→🙏) to emoji on display.
+If `review.author` ≠ profile name → show small note: *"Posted as: IMRDIP"* so admin sees the discrepancy.
 
-### 4. Files to Touch
-- `src/components/ReviewSubmissionForm.tsx` — add `defaultBrokerId` prop, hide/require broker field
-- `src/pages/BrokerDetail.tsx` — pass `defaultBrokerId` to the form
-- `src/pages/Reviews.tsx` (if exists) — keep dropdown required
-- `src/components/reviews/ReviewReactions.tsx` — full rewrite with Popover picker + emoji palette + legacy mapping
+If `user_id` is null (legacy/anon review) → show *"⚠ Anonymous submission (no linked account)"*.
 
-### 5. Out of Scope
-- Custom emoji uploads
-- Reaction analytics in admin
-- Limiting one reaction per user (users can stack multiple emojis if they want)
-- Animated emoji picker (use simple grid)
+### Files to Touch
+- `src/pages/admin/ApprovalQueueAdmin.tsx` — add profile fetch + render submitter block in review modal
+
+### Out of Scope
+- Adding submitter info to other content types (broker/scam/etc.) — only review modal
+- Editing the review or banning the user from this modal
+- Email is only fetched if cheap; if it requires an edge function call per item we'll skip and just show profile name + username + country (clickable to full profile page where admin can see more)
+
+### Decision Needed
+Email lookup requires calling the `admin-users` edge function (extra round trip). Profile name + username + country come free from `profiles` table.
+
+**Recommend**: Skip email in modal (avoid extra call). Show name + @username + country + clickable "View Profile" link → admin can click through for full details including email if needed.
 
