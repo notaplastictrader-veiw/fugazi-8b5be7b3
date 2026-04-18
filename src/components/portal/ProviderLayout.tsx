@@ -11,7 +11,7 @@ interface Props {
   requiredRole: AppRole;
 }
 
-const ProviderLayout = ({ requiredRole }: Props) => {
+function ProviderLayout({ requiredRole }: Props) {
   const { user } = useAuth();
   const { hasRole, loading } = useUserRole();
 
