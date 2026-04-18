@@ -692,6 +692,28 @@ const ApprovalQueueAdmin = () => {
       );
     }
 
+    if (item.category === "community") {
+      const KindIcon = item.community_kind ? communityKindConfig[item.community_kind].icon : MessageSquare;
+      return (
+        <div className="space-y-3">
+          <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-2 text-sm">
+            <div className="flex items-center gap-2 flex-wrap">
+              <KindIcon className="w-4 h-4 text-primary" />
+              <span className="font-semibold capitalize">{item.community_kind}</span>
+              {item.community_broker_name && (
+                <Badge variant="outline" className="text-[10px]">{item.community_broker_name}</Badge>
+              )}
+              {item.community_kind === "review" && item.community_rating != null && (
+                <span className="text-[10px] font-mono text-amber-400">★ {item.community_rating}/5</span>
+              )}
+            </div>
+            <p className="text-xs font-mono text-muted-foreground">By {item.community_author || "User"}</p>
+            <p className="text-sm whitespace-pre-wrap">{item.community_body || "(no content)"}</p>
+          </div>
+        </div>
+      );
+    }
+
     // Content
     return (
       <div className="border border-border rounded-lg p-3 bg-muted/30 text-sm font-mono space-y-1">
