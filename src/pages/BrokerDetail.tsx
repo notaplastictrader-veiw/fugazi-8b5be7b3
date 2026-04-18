@@ -392,6 +392,14 @@ const BrokerDetail = () => {
                         <Shield className="w-3 h-3" /> Claim This Profile
                       </button>
                     )}
+                    {scamAlerts.length > 0 && (
+                      <a
+                        href="#investigations"
+                        className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border rounded-full text-destructive bg-destructive/10 border-destructive/30 hover:bg-destructive/20 transition-colors animate-pulse"
+                      >
+                        <ShieldAlert className="w-3 h-3" /> Under Investigation
+                      </a>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <StarRating value={broker.stars} size={16} />
