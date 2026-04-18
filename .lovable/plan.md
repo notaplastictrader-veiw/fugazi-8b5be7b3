@@ -1,80 +1,62 @@
 
 
 ## Issue
-Broker signup fails with "Failed to submit application" because:
+User signs up → super admin approves in DB → user clicks email verification link → redirected to homepage but **NOT logged in** → tries to login → "Please verify your email to complete your sign up" error.
 
-1. Email confirmation is **required** → after `supabase.auth.signUp()` the user has NO session (their JWT isn't issued until they click the confirmation email).
-2. AuthModal immediately tries to `INSERT` into `applications` with `user_id = data.user.id`.
-3. RLS policy "Users can insert own applications" requires `user_id = auth.uid()` → fails because `auth.uid()` is NULL (no session).
-4. Fallback policy "Anon can insert applications for existing users" requires `EXISTS (SELECT 1 FROM auth.users WHERE id = user_id)` → also fails because the **anon role has no SELECT permission on `auth.users`**.
+## Root Cause Investigation Needed
+Need to check:
+1. `AuthModal.tsx` signup flow — what `emailRedirectTo` is set?
+2. Is there any URL handler in `App.tsx` / `main.tsx` to process the auth callback (`access_token` in URL hash)?
+3. Is `email_confirmed_at` actually getting set after click?
 
-Result: insert is blocked by RLS, frontend shows the generic toast.
+Most likely cause: `emailRedirectTo` either missing or pointing to `/` without proper session-handling. Supabase auth tokens come back in URL hash (`#access_token=...`). React Router doesn't auto-process this; Supabase JS client does it via `detectSessionInUrl: true` (default) — BUT only if the page actually loads with that hash.
 
-Confirmed in DB: latest user `ishaqzaade.im@gmail.com` exists in `auth.users` with `email_confirmed_at = NULL`, but `applications` table has 0 rows.
+If `emailRedirectTo` is set to a Lovable preview URL or a path that does redirect/strip the hash before Supabase client initializes, the session is never established → `email_confirmed_at` may also stay NULL.
 
-## Fix — SECURITY DEFINER RPC
-Create a Postgres function that the anon client can call after signup. Function runs as table owner, bypasses RLS, but safely validates that the supplied `user_id` actually exists in `auth.users` and that no application already exists for them.
+## Plan
 
-```sql
-CREATE OR REPLACE FUNCTION public.submit_application(
-  _user_id uuid,
-  _role text,
-  _application_data jsonb,
-  _contact_email text,
-  _contact_phone text,
-  _contact_telegram text
-) RETURNS uuid
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
-AS $$
-DECLARE
-  new_id uuid;
-BEGIN
-  -- Validate user exists
-  IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = _user_id) THEN
-    RAISE EXCEPTION 'User not found';
-  END IF;
-  -- Whitelist roles
-  IF _role NOT IN ('signal_provider','broker','betting_site') THEN
-    RAISE EXCEPTION 'Invalid role';
-  END IF;
-  -- Prevent duplicates
-  IF EXISTS (SELECT 1 FROM public.applications WHERE user_id = _user_id AND role = _role) THEN
-    RAISE EXCEPTION 'Application already submitted';
-  END IF;
+### Step 1: Read current code (no changes)
+- `src/components/modals/AuthModal.tsx` — check `signUp` `emailRedirectTo` value
+- `src/App.tsx` & `src/main.tsx` — confirm Supabase client init order
+- Check if any redirect/Navigate strips URL hash before Supabase processes it
 
-  INSERT INTO public.applications(user_id, role, application_data, contact_email, contact_phone, contact_telegram, status)
-  VALUES (_user_id, _role, _application_data, _contact_email, _contact_phone, _contact_telegram, 'pending')
-  RETURNING id INTO new_id;
+### Step 2: Verify in DB
+Query `auth.users` for the user `ishaqzaade.im@gmail.com` to confirm whether `email_confirmed_at` got set after the user clicked the verification link.
 
-  RETURN new_id;
-END;
-$$;
+### Step 3: Fix (after diagnosis)
+Likely fixes (will confirm after Step 1+2):
 
-GRANT EXECUTE ON FUNCTION public.submit_application(uuid,text,jsonb,text,text,text) TO anon, authenticated;
-```
-
-Then drop the unsafe "Anon can insert applications for existing users" policy (no longer needed and was broken anyway).
-
-## Frontend change — `src/components/modals/AuthModal.tsx`
-Replace the `.from("applications").insert(...)` call with:
+**A. AuthModal signup — set proper redirect:**
 ```ts
-const { error: appError } = await supabase.rpc("submit_application", {
-  _user_id: data.user.id,
-  _role: signupRole,
-  _application_data: appData,
-  _contact_email: signupEmail,
-  _contact_phone: `${selectedCountry.dialCode}${phone}`,
-  _contact_telegram: telegramLink || null,
+await supabase.auth.signUp({
+  email, password,
+  options: {
+    emailRedirectTo: `${window.location.origin}/auth/callback`,
+    data: { full_name, ... }
+  }
 });
 ```
-Also surface the actual error message in the toast so future failures are debuggable: `toast.error(appError.message || "Failed to submit application…")`.
 
-## Files Changed
-- 1 new migration (RPC + drop unsafe policy)
-- `src/components/modals/AuthModal.tsx` (1 small block)
+**B. Add `/auth/callback` route** that:
+- Lets Supabase client process the URL hash (auto via `detectSessionInUrl`)
+- Waits for session
+- Redirects to `/dashboard` (or role-based destination)
+- Shows a brief "Verifying…" spinner
+
+**C. Update Supabase URL Config**
+Site URL + Additional Redirect URLs must include the preview & published domains so the verification link actually carries the access token back. (User must approve via Cloud settings — I'll flag it.)
+
+### Step 4: Manual super-admin approval flow
+If user was already manually marked verified by super admin in DB but `email_confirmed_at` is still NULL, instruct on the proper way (run `UPDATE auth.users SET email_confirmed_at = now()`). Will check current DB state first.
 
 ## Out of Scope
-- Disabling email confirmation (security regression)
-- Refactoring the whole apply-as-X flow into an edge function
-- Re-attaching the missing `handle_new_user` trigger (separate audit item)
+- Custom branded email templates (separate request)
+- Switching to magic-link signup
+- Phone OTP
+
+## Files to Touch (estimate)
+- `src/components/modals/AuthModal.tsx` (1 small change)
+- New `src/pages/AuthCallback.tsx`
+- `src/App.tsx` (add 1 route)
+- Possibly 1 SQL migration if `email_confirmed_at` needs backfill for the stuck user
 
