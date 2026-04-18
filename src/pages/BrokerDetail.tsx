@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import StarRating from "@/components/reviews/StarRating";
@@ -65,6 +65,17 @@ interface Review {
   role: string;
   created_at: string;
   photo_urls?: string[] | null;
+}
+
+interface ScamAlertRow {
+  id: string;
+  title: string;
+  description: string | null;
+  severity: string;
+  is_repeat_offender: boolean;
+  show_full_report: boolean;
+  full_report: string | null;
+  created_at: string;
 }
 
 // Placeholder full review data — will come from DB later
@@ -134,20 +145,23 @@ const BrokerDetail = () => {
   const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
   const [replySaving, setReplySaving] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [scamAlerts, setScamAlerts] = useState<ScamAlertRow[]>([]);
   const { toast } = useToast();
 
   const fetchData = async () => {
     setLoading(true);
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
-      const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }] = await Promise.all([
+      const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }, { data: alerts }] = await Promise.all([
         supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("complaints").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
+        supabase.from("scam_alerts").select("id, title, description, severity, is_repeat_offender, show_full_report, full_report, created_at").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
       ]);
       // Override cached counts with live values
       setBroker({ ...(b as unknown as Broker), review_count: liveReviewCount || 0, complaints: liveComplaintCount || 0 });
+      setScamAlerts((alerts as ScamAlertRow[]) || []);
       if (r) {
         setReviews(r as Review[]);
         // fetch replies for these reviews
@@ -378,6 +392,14 @@ const BrokerDetail = () => {
                         <Shield className="w-3 h-3" /> Claim This Profile
                       </button>
                     )}
+                    {scamAlerts.length > 0 && (
+                      <a
+                        href="#investigations"
+                        className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border rounded-full text-destructive bg-destructive/10 border-destructive/30 hover:bg-destructive/20 transition-colors animate-pulse"
+                      >
+                        <ShieldAlert className="w-3 h-3" /> Under Investigation
+                      </a>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
                     <StarRating value={broker.stars} size={16} />
@@ -420,6 +442,77 @@ const BrokerDetail = () => {
               </div>
             </div>
           </div>
+
+          {/* ===== ACTIVE INVESTIGATIONS ===== */}
+          {scamAlerts.length > 0 && (
+            <section id="investigations" className="mb-6 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-5 md:p-6 scroll-mt-24">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="w-6 h-6 text-destructive" />
+                  <h2 className="text-lg md:text-xl font-display font-extrabold uppercase tracking-wider text-destructive">
+                    Active Investigations
+                  </h2>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-destructive text-destructive-foreground">
+                    {scamAlerts.length}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground italic">
+                  Verified user complaints under review
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {scamAlerts.map((a) => (
+                  <div key={a.id} className="rounded-lg border border-destructive/30 bg-background/40 p-4 md:p-5">
+                    <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <h3 className="text-base md:text-lg font-display font-bold text-foreground">{a.title}</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono uppercase ${
+                          a.severity === "high"
+                            ? "bg-destructive/15 text-destructive border-destructive/30"
+                            : "bg-accent/10 text-accent border-accent/20"
+                        }`}>
+                          {a.severity} severity
+                        </span>
+                        {a.is_repeat_offender && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase bg-destructive/20 text-destructive border border-destructive/50 flex items-center gap-1">
+                            <ShieldAlert className="w-3 h-3" /> Repeat Offender
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {a.description && (
+                      <p className="text-sm text-muted-foreground mb-3">{a.description}</p>
+                    )}
+
+                    {a.show_full_report && a.full_report && a.full_report.trim().length > 0 && (
+                      <div className="mt-3 rounded-lg border border-destructive/30 bg-destructive/10 p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <ShieldAlert className="w-4 h-4 text-destructive" />
+                          <h4 className="text-xs font-display font-extrabold uppercase tracking-wider text-destructive">
+                            Full Investigation Report
+                          </h4>
+                        </div>
+                        <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">
+                          {a.full_report}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-3">
+                      <Link
+                        to={`/scam-alerts/${a.id}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-destructive hover:underline"
+                      >
+                        View Full Alert <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* ===== TABS ===== */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
