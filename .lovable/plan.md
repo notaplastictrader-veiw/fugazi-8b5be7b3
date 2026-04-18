@@ -1,43 +1,36 @@
 
 
 ## What you're asking
-Improve the "Apply for Premium Access" modal:
-1. Fix the **Trading Experience** dropdown — text is invisible on dark theme (white-on-white).
-2. Add **Preferred Communication Method** field.
-3. Add 3 qualifying questions: current broker, investment capacity, profession.
+When user picks a communication method, dynamically ask for the matching contact detail (WhatsApp number / Telegram link / Email). If the user is logged in, prefill from their profile so they don't re-type.
 
 ## Plan
 
 ### `src/components/modals/PremiumApplicationModal.tsx`
-Add the following fields to the form (in this order, after existing description textarea):
 
-1. **Current Broker** — text input ("Which broker are you currently trading with?")
-2. **Investment Capacity** — select dropdown
-   - Under $500
-   - $500 – $2,000
-   - $2,000 – $10,000
-   - $10,000 – $50,000
-   - $50,000+
-3. **Profession / What you do for a living** — text input
-4. **Preferred Communication Method** — select dropdown
-   - Telegram
-   - WhatsApp
-   - Email
-   - Phone Call
+1. **Track method in state** — add `const [method, setMethod] = useState("")` and bind to the Preferred Communication Method `<select>` via `value` + `onChange`.
 
-### Dropdown visibility fix
-Current `inputClass` uses `bg-[rgba(255,255,255,0.04)]` which inherits the page's near-white default `<option>` styling on dark theme. Fix by:
-- Adding explicit `bg-card text-foreground` to the `<select>` elements (overrides browser default option list background on most browsers)
-- Adding `className="bg-card text-foreground"` to each `<option>` so the dropdown list items also render with proper contrast in dark theme
+2. **Conditional contact field** rendered right below the method dropdown:
+   - `telegram` → text input "Telegram username or t.me/ link" (placeholder `@yourhandle or https://t.me/yourhandle`)
+   - `whatsapp` → tel input "WhatsApp number with country code" (placeholder `+8801XXXXXXXXX`)
+   - `email` → email input "Email address"
+   - `phone` → tel input "Phone number with country code"
+   - All `required` when visible.
 
-### Submit handler
-Keep the local-only submit (no DB persistence — modal is currently demo only, matching existing behavior). All new fields will be `required` except they'll just collect into the form state and show the success screen.
+3. **Prefill from logged-in user**:
+   - Pull `useAuth()` for `user`.
+   - On mount (when modal opens), query `profiles` table for `email`, `phone`, `full_name`, `country` for `user.id`.
+   - Prefill: Full Name, Country (existing fields) + the conditional contact field once method is chosen (if `email` → use `profiles.email || user.email`; if `whatsapp`/`phone` → use `profiles.phone`).
+   - Telegram has no profile field today → leave blank (user types it).
+
+4. **Logged-in hint**: small muted text under the method field "Prefilled from your profile — edit if needed" only when prefill happened.
+
+5. **No new DB schema** — uses existing `profiles` table fields (`full_name`, `email`, `phone`, `country`).
 
 ### Files touched
-- `src/components/modals/PremiumApplicationModal.tsx` — only file changed
+- `src/components/modals/PremiumApplicationModal.tsx` only
 
 ### Out of scope
-- Persisting applications to a Supabase table (current modal is fire-and-forget)
-- Email/Telegram notification on submit
-- Validation library (zod) — sticks with native `required` for consistency with existing form
+- Saving the application to DB (modal stays demo-only as before)
+- Adding `telegram_handle` to the `profiles` table
+- Validating Telegram link format / WhatsApp number format beyond `type=tel`/`type=email` browser checks
 
