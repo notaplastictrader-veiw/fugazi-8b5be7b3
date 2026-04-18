@@ -7,10 +7,11 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import ReportScamModal from "@/components/scam/ReportScamModal";
 import AuthModal from "@/components/modals/AuthModal";
-import { AlertTriangle, Search, Plus } from "lucide-react";
+import { AlertTriangle, Search, Plus, ShieldAlert } from "lucide-react";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; created_at: string;
+  is_repeat_offender?: boolean;
 }
 
 const fallbackAlerts: ScamAlert[] = [
@@ -74,7 +75,14 @@ const ScamAlerts = () => {
                     <div className="mt-1"><AlertTriangle className="w-5 h-5 text-destructive" /></div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-base font-bold text-foreground">{alert.title}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-base font-bold text-foreground">{alert.title}</h3>
+                          {alert.is_repeat_offender && (
+                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-destructive/15 text-destructive border border-destructive/40 flex items-center gap-1">
+                              <ShieldAlert className="w-2.5 h-2.5" /> Repeat
+                            </span>
+                          )}
+                        </div>
                         <span className="text-[10px] font-mono text-muted-foreground">{daysAgo}d ago</span>
                       </div>
                       <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
