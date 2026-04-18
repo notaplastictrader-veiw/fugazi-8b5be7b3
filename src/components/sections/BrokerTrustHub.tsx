@@ -216,8 +216,35 @@ const BrokerTrustHub = () => {
 
   useEffect(() => {
     const fetchBrokers = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").order("score", { ascending: false }).limit(brokerCount);
-      if (data && data.length > 0) setBrokers(data as Broker[]);
+      // 1) Admin-curated homepage brokers first
+      const { data: curated } = await supabase
+        .from("brokers")
+        .select("*")
+        .eq("status", "published")
+        .eq("show_on_homepage", true)
+        .order("homepage_position", { ascending: true, nullsFirst: false })
+        .limit(brokerCount);
+
+      let result: Broker[] = (curated as Broker[]) || [];
+
+      // 2) Fallback: top-scored published brokers fill remaining slots
+      if (result.length < brokerCount) {
+        const remaining = brokerCount - result.length;
+        const excludeIds = result.map((b) => b.id);
+        let fillerQuery = supabase
+          .from("brokers")
+          .select("*")
+          .eq("status", "published")
+          .order("score", { ascending: false })
+          .limit(remaining);
+        if (excludeIds.length > 0) {
+          fillerQuery = fillerQuery.not("id", "in", `(${excludeIds.join(",")})`);
+        }
+        const { data: fillers } = await fillerQuery;
+        if (fillers) result = [...result, ...(fillers as Broker[])];
+      }
+
+      if (result.length > 0) setBrokers(result);
       else setBrokers(fallbackBrokers);
     };
     fetchBrokers();
