@@ -319,6 +319,7 @@ export type Database = {
           description: string | null
           founded_year: number | null
           headquarters: string | null
+          homepage_position: number | null
           id: string
           leverage: string | null
           logo_url: string | null
@@ -330,6 +331,7 @@ export type Database = {
           regulation: string[] | null
           review_count: number | null
           score: number | null
+          show_on_homepage: boolean
           slug: string
           stars: number | null
           status: Database["public"]["Enums"]["content_status"]
@@ -351,6 +353,7 @@ export type Database = {
           description?: string | null
           founded_year?: number | null
           headquarters?: string | null
+          homepage_position?: number | null
           id?: string
           leverage?: string | null
           logo_url?: string | null
@@ -362,6 +365,7 @@ export type Database = {
           regulation?: string[] | null
           review_count?: number | null
           score?: number | null
+          show_on_homepage?: boolean
           slug: string
           stars?: number | null
           status?: Database["public"]["Enums"]["content_status"]
@@ -383,6 +387,7 @@ export type Database = {
           description?: string | null
           founded_year?: number | null
           headquarters?: string | null
+          homepage_position?: number | null
           id?: string
           leverage?: string | null
           logo_url?: string | null
@@ -394,6 +399,7 @@ export type Database = {
           regulation?: string[] | null
           review_count?: number | null
           score?: number | null
+          show_on_homepage?: boolean
           slug?: string
           stars?: number | null
           status?: Database["public"]["Enums"]["content_status"]
