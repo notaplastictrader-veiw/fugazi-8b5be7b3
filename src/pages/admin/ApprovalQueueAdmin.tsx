@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Check, X, Clock, Search, Filter, UserPlus, ShieldCheck, ArrowUpCircle,
   FileText, Building2, Radio, Dices, User, Phone, MapPin, Mail, Briefcase,
-  ExternalLink, CheckCircle, XCircle,
+  ExternalLink, CheckCircle, XCircle, MessageSquare, Star, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/approvalQueue";
