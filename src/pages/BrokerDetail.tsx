@@ -16,6 +16,7 @@ import {
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
+import StarRating from "@/components/reviews/StarRating";
 
 interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
 interface Broker {
@@ -376,11 +377,7 @@ const BrokerDetail = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-2">
-                    <div className="flex items-center gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-4 h-4 ${i < Math.floor(broker.stars) ? "text-accent fill-accent" : "text-border"}`} />
-                      ))}
-                    </div>
+                    <StarRating value={broker.stars} size={16} />
                     <span className="text-sm font-medium text-foreground">{broker.stars}</span>
                     <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
                   </div>
