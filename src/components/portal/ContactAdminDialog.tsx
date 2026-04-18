@@ -31,27 +31,15 @@ const ContactAdminDialog = ({ senderRole = "broker", contextName }: ContactAdmin
     if (!user) { toast.error("You must be signed in"); return; }
     setSending(true);
     try {
-      const { data: admins, error: adminErr } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "super_admin" as any);
-      if (adminErr) throw adminErr;
-      if (!admins || admins.length === 0) {
-        toast.error("No admins available right now");
-        setSending(false);
-        return;
-      }
-      const fromLabel = contextName ? `${contextName} (${senderRole})` : senderRole;
-      const rows = admins.map((a: any) => ({
-        user_id: a.user_id,
-        type: "support",
-        title: `[Priority] ${subject}`,
-        message: `From ${fromLabel}: ${message}`,
-        link: "/admin/users",
-      }));
-      const { error } = await supabase.from("notifications").insert(rows);
+      const { error } = await supabase.from("support_messages").insert({
+        user_id: user.id,
+        sender_role: senderRole,
+        context_name: contextName ?? null,
+        subject: subject.trim(),
+        message: message.trim(),
+      });
       if (error) throw error;
-      toast.success("Message sent to admin team");
+      toast.success("Message received. Our team will reach out within 24 hours.");
       setOpen(false);
       setSubject(""); setMessage("");
     } catch (err: any) {
@@ -72,7 +60,7 @@ const ContactAdminDialog = ({ senderRole = "broker", contextName }: ContactAdmin
           <DialogTitle className="font-['Barlow_Condensed'] uppercase tracking-wide">Priority Support</DialogTitle>
         </DialogHeader>
         <p className="text-xs text-muted-foreground font-mono mb-2">
-          Your message goes directly to the NAFT admin team. Available on all tiers.
+          Your message goes directly to the NAFT admin team. We'll reach out within 24 hours.
         </p>
         <div className="space-y-3">
           <div>

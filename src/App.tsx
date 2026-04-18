@@ -96,6 +96,7 @@ const UserDashboardsList = lazy(() => import("./pages/admin/UserDashboardsList")
 const BrokerClaimsAdmin = lazy(() => import("./pages/admin/BrokerClaimsAdmin"));
 const TierUpgradesAdmin = lazy(() => import("./pages/admin/TierUpgradesAdmin"));
 const ApplicationsAdmin = lazy(() => import("./pages/admin/ApplicationsAdmin"));
+const SupportMessagesAdmin = lazy(() => import("./pages/admin/SupportMessagesAdmin"));
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
@@ -235,6 +236,7 @@ const AppContent = () => {
             <Route path="claims" element={<BrokerClaimsAdmin />} />
             <Route path="tier-upgrades" element={<TierUpgradesAdmin />} />
             <Route path="applications" element={<ApplicationsAdmin />} />
+            <Route path="support" element={<SupportMessagesAdmin />} />
           </Route>
 
           {/* Provider Portals */}

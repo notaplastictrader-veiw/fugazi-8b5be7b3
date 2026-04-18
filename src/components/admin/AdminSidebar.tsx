@@ -71,7 +71,7 @@ const sections: SidebarSection[] = [
       { title: "Complaints", url: "/admin/complaints", icon: AlertTriangle },
       { title: "Trading Ideas", url: "/admin/trading-ideas", icon: Lightbulb },
       { title: "Submissions", url: "/admin/submissions", icon: Mail },
-      
+      { title: "Priority Support", url: "/admin/support", icon: Headphones },
     ],
   },
   {
