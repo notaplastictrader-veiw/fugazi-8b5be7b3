@@ -15,6 +15,9 @@ interface SupportMessage {
   user_id: string;
   sender_role: string;
   context_name: string | null;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
   subject: string;
   message: string;
   status: "open" | "in_progress" | "resolved";
@@ -177,6 +180,9 @@ const SupportMessagesAdmin = () => {
                       )}
                     </div>
                     <h3 className="font-medium truncate">{m.subject}</h3>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5 truncate">
+                      by {m.contact_name} • {m.contact_email}
+                    </p>
                     <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{m.message}</p>
                   </div>
                   <span className="text-[11px] text-muted-foreground font-mono whitespace-nowrap">
@@ -207,6 +213,19 @@ const SupportMessagesAdmin = () => {
                     {formatDistanceToNow(new Date(selected.created_at), { addSuffix: true })}
                   </span>
                 </div>
+                <div className="border rounded-md p-3 bg-muted/20 space-y-1">
+                  <div className="text-[10px] font-mono uppercase text-muted-foreground tracking-wide">Contact</div>
+                  <div className="text-sm font-medium">{selected.contact_name}</div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-mono">
+                    <a href={`mailto:${selected.contact_email}`} className="text-primary hover:underline break-all">
+                      {selected.contact_email}
+                    </a>
+                    <a href={`tel:${selected.contact_phone}`} className="text-primary hover:underline">
+                      {selected.contact_phone}
+                    </a>
+                  </div>
+                </div>
+
                 <div className="bg-muted/30 rounded-md p-4 text-sm whitespace-pre-wrap">
                   {selected.message}
                 </div>
