@@ -18,19 +18,19 @@ const menuByRole: Record<string, { title: string; url: string; icon: any }[]> = 
   broker: [
     { title: "Dashboard", url: "/portal/broker", icon: LayoutDashboard },
     { title: "My Listing", url: "/portal/broker/listing", icon: Building2 },
-    { title: "Upgrade Tier", url: "/portal/broker/upgrade", icon: ArrowUpCircle },
+    { title: "Subscription", url: "/portal/broker/upgrade", icon: ArrowUpCircle },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
   ],
   signal_provider: [
     { title: "Dashboard", url: "/portal/signal", icon: LayoutDashboard },
     { title: "My Channel", url: "/portal/signal/channel", icon: Radio },
-    { title: "Upgrade Tier", url: "/portal/signal/upgrade", icon: ArrowUpCircle },
+    { title: "Subscription", url: "/portal/signal/upgrade", icon: ArrowUpCircle },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
   ],
   betting_site: [
     { title: "Dashboard", url: "/portal/betting", icon: LayoutDashboard },
     { title: "My Profile", url: "/portal/betting/profile", icon: Trophy },
-    { title: "Upgrade Tier", url: "/portal/betting/upgrade", icon: ArrowUpCircle },
+    { title: "Subscription", url: "/portal/betting/upgrade", icon: ArrowUpCircle },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
   ],
 };

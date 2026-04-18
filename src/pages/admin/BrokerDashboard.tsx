@@ -58,11 +58,13 @@ const BrokerDashboard = () => {
   const tier = profile?.tier || "basic";
   const isVerified = tier === "verified" || tier === "featured";
   const isFeatured = tier === "featured";
-  const ownsApproved = !!user && !!profile && profile.claimed_by === user.id && profile.claim_status === "approved";
-  const canEdit = ownsApproved && isVerified;
-  const canReply = ownsApproved && isVerified;
-  const canReact = ownsApproved && isVerified;
-  const canTrackReads = ownsApproved && isVerified;
+  // Gating is derived purely from `tier` — admin sets the tier so it implies trust.
+  // Booleans (is_verified/is_featured) and claim_status are no longer used to lock UI.
+  const owns = !!user && !!profile && profile.claimed_by === user.id;
+  const canEdit = owns && isVerified;
+  const canReply = owns && isVerified;
+  const canReact = owns && isVerified;
+  const canTrackReads = owns && isVerified;
 
   const unreadCount = useMemo(
     () => reviews.filter((r) => !reads.has(r.id) && !replies[r.id]).length,
