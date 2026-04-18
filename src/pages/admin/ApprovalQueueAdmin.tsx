@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Check, X, Clock, Search, Filter, UserPlus, ShieldCheck, ArrowUpCircle,
   FileText, Building2, Radio, Dices, User, Phone, MapPin, Mail, Briefcase,
-  ExternalLink, CheckCircle, XCircle,
+  ExternalLink, CheckCircle, XCircle, MessageSquare, Star, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { logAuditAction } from "@/lib/approvalQueue";
@@ -20,7 +20,8 @@ import type { Database } from "@/integrations/supabase/types";
 type AppRole = Database["public"]["Enums"]["app_role"];
 
 // ─── Types ───────────────────────────────────────────────────────────
-type RequestCategory = "all" | "applications" | "claims" | "upgrades" | "content";
+type RequestCategory = "all" | "applications" | "claims" | "upgrades" | "content" | "community";
+type CommunityKind = "review" | "complaint";
 
 interface UnifiedItem {
   id: string;
@@ -55,6 +56,14 @@ interface UnifiedItem {
   priority?: number | null;
   reviewer_notes?: string;
   submitted_by?: string | null;
+  // Community fields
+  community_kind?: CommunityKind;
+  community_title?: string;
+  community_body?: string;
+  community_rating?: number | null;
+  community_broker_id?: string | null;
+  community_broker_name?: string;
+  community_author?: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -63,6 +72,12 @@ const categoryConfig: Record<Exclude<RequestCategory, "all">, { label: string; i
   claims: { label: "Profile Claim", icon: ShieldCheck, color: "bg-purple-500/10 text-purple-400 border-purple-500/30" },
   upgrades: { label: "Tier Upgrade", icon: ArrowUpCircle, color: "bg-amber-500/10 text-amber-400 border-amber-500/30" },
   content: { label: "Content", icon: FileText, color: "bg-teal-500/10 text-teal-400 border-teal-500/30" },
+  community: { label: "Community", icon: MessageSquare, color: "bg-pink-500/10 text-pink-400 border-pink-500/30" },
+};
+
+const communityKindConfig: Record<CommunityKind, { label: string; icon: any }> = {
+  review: { label: "Review", icon: Star },
+  complaint: { label: "Complaint", icon: AlertTriangle },
 };
 
 const statusColors: Record<string, string> = {
@@ -222,6 +237,57 @@ const ApprovalQueueAdmin = () => {
       })
     );
 
+    // 5. Community submissions (reviews + complaints)
+    const [reviewsRes, complaintsRes] = await Promise.all([
+      supabase.from("reviews").select("*").order("created_at", { ascending: false }),
+      supabase.from("complaints").select("*").order("created_at", { ascending: false }),
+    ]);
+
+    const communityBrokerIds = new Set<string>();
+    (reviewsRes.data || []).forEach((r) => r.broker_id && communityBrokerIds.add(r.broker_id));
+    (complaintsRes.data || []).forEach((c) => c.broker_id && communityBrokerIds.add(c.broker_id));
+
+    const communityBrokerMap = new Map<string, string>();
+    if (communityBrokerIds.size > 0) {
+      const { data: brokerNames } = await supabase
+        .from("brokers")
+        .select("id, name")
+        .in("id", Array.from(communityBrokerIds));
+      (brokerNames || []).forEach((b) => communityBrokerMap.set(b.id, b.name));
+    }
+
+    (reviewsRes.data || []).forEach((r) =>
+      merged.push({
+        id: r.id,
+        category: "community",
+        status: r.status,
+        created_at: r.created_at,
+        community_kind: "review",
+        community_title: `${r.author || "Anonymous"} reviewed ${communityBrokerMap.get(r.broker_id || "") || "broker"}`,
+        community_body: r.content || "",
+        community_rating: r.rating,
+        community_broker_id: r.broker_id,
+        community_broker_name: communityBrokerMap.get(r.broker_id || ""),
+        community_author: r.author || "Anonymous",
+        user_id: r.user_id,
+      })
+    );
+
+    (complaintsRes.data || []).forEach((c) =>
+      merged.push({
+        id: c.id,
+        category: "community",
+        status: c.status,
+        created_at: c.created_at,
+        community_kind: "complaint",
+        community_title: `Complaint against ${communityBrokerMap.get(c.broker_id || "") || "broker"}`,
+        community_body: c.content || "",
+        community_broker_id: c.broker_id,
+        community_broker_name: communityBrokerMap.get(c.broker_id || ""),
+        user_id: c.user_id,
+      })
+    );
+
     // Sort: pending first, then by date desc
     merged.sort((a, b) => {
       if (a.status === "pending" && b.status !== "pending") return -1;
@@ -252,6 +318,10 @@ const ApprovalQueueAdmin = () => {
         item.content_type,
         (item.application_data as any)?.company_name,
         (item.application_data as any)?.platform_name,
+        item.community_title,
+        item.community_body,
+        item.community_broker_name,
+        item.community_author,
       ];
       return searchFields.some((f) => f && String(f).toLowerCase().includes(s));
     }
@@ -264,6 +334,7 @@ const ApprovalQueueAdmin = () => {
     claims: items.filter((i) => i.category === "claims" && i.status === "pending").length,
     upgrades: items.filter((i) => i.category === "upgrades" && i.status === "pending").length,
     content: items.filter((i) => i.category === "content" && i.status === "pending").length,
+    community: items.filter((i) => i.category === "community" && i.status === "pending").length,
   };
 
   // ── Get display info for each item ─────────────────────────────────
@@ -278,6 +349,9 @@ const ApprovalQueueAdmin = () => {
     if (item.category === "upgrades") {
       return `${item.profile_type} upgrade`;
     }
+    if (item.category === "community") {
+      return item.community_title || "Community submission";
+    }
     return `${item.content_type?.replace("_", " ")} content`;
   };
 
@@ -290,6 +364,10 @@ const ApprovalQueueAdmin = () => {
     }
     if (item.category === "upgrades") {
       return `${item.current_tier} → ${item.requested_tier}`;
+    }
+    if (item.category === "community") {
+      const body = item.community_body || "";
+      return body.length > 80 ? `${body.slice(0, 80)}…` : body || `${item.community_kind}`;
     }
     return item.content_type?.replace("_", " ") || "content";
   };
@@ -308,6 +386,8 @@ const ApprovalQueueAdmin = () => {
         await approveUpgrade(item);
       } else if (item.category === "content") {
         await approveContent(item);
+      } else if (item.category === "community") {
+        await approveCommunity(item);
       }
       toast.success("Approved!");
     } catch (err: any) {
@@ -437,6 +517,37 @@ const ApprovalQueueAdmin = () => {
     });
   };
 
+  const approveCommunity = async (item: UnifiedItem) => {
+    if (!user || !item.community_kind) return;
+    const table = item.community_kind === "review" ? "reviews" : "complaints";
+
+    const { error } = await supabase
+      .from(table)
+      .update({ status: "published" })
+      .eq("id", item.id);
+    if (error) throw error;
+
+    await supabase.from("audit_log").insert({
+      user_id: user.id,
+      action: `approve_${item.community_kind}`,
+      table_name: table,
+      record_id: item.id,
+    });
+
+    if (item.user_id) {
+      const link = item.community_broker_id ? `/brokers/${item.community_broker_id}` : "/dashboard";
+      await supabase.from("notifications").insert({
+        user_id: item.user_id,
+        type: "system",
+        title: `Your ${item.community_kind} was approved`,
+        message: item.community_broker_name
+          ? `Your ${item.community_kind} for ${item.community_broker_name} is now live.`
+          : `Your ${item.community_kind} has been published.`,
+        link,
+      });
+    }
+  };
+
   // ── Reject handler ─────────────────────────────────────────────────
   const handleReject = async (item: UnifiedItem) => {
     if (!user) return;
@@ -468,6 +579,30 @@ const ApprovalQueueAdmin = () => {
         }).eq("id", item.id);
         if (item.content_type && item.content_id) {
           await (supabase.from(item.content_type as any) as any).update({ status: "rejected" }).eq("id", item.content_id);
+        }
+      } else if (item.category === "community" && item.community_kind) {
+        const table = item.community_kind === "review" ? "reviews" : "complaints";
+        const { error } = await supabase
+          .from(table)
+          .update({ status: "rejected" })
+          .eq("id", item.id);
+        if (error) throw error;
+        await supabase.from("audit_log").insert({
+          user_id: user.id,
+          action: `reject_${item.community_kind}`,
+          table_name: table,
+          record_id: item.id,
+        });
+        if (item.user_id) {
+          await supabase.from("notifications").insert({
+            user_id: item.user_id,
+            type: "system",
+            title: `Your ${item.community_kind} was not approved`,
+            message: rejectNote
+              ? `Reason: ${rejectNote}`
+              : `Your ${item.community_kind} did not meet our guidelines.`,
+            link: "/dashboard",
+          });
         }
       }
       toast.success("Rejected");
@@ -557,6 +692,28 @@ const ApprovalQueueAdmin = () => {
       );
     }
 
+    if (item.category === "community") {
+      const KindIcon = item.community_kind ? communityKindConfig[item.community_kind].icon : MessageSquare;
+      return (
+        <div className="space-y-3">
+          <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-2 text-sm">
+            <div className="flex items-center gap-2 flex-wrap">
+              <KindIcon className="w-4 h-4 text-primary" />
+              <span className="font-semibold capitalize">{item.community_kind}</span>
+              {item.community_broker_name && (
+                <Badge variant="outline" className="text-[10px]">{item.community_broker_name}</Badge>
+              )}
+              {item.community_kind === "review" && item.community_rating != null && (
+                <span className="text-[10px] font-mono text-amber-400">★ {item.community_rating}/5</span>
+              )}
+            </div>
+            <p className="text-xs font-mono text-muted-foreground">By {item.community_author || "User"}</p>
+            <p className="text-sm whitespace-pre-wrap">{item.community_body || "(no content)"}</p>
+          </div>
+        </div>
+      );
+    }
+
     // Content
     return (
       <div className="border border-border rounded-lg p-3 bg-muted/30 text-sm font-mono space-y-1">
@@ -585,7 +742,7 @@ const ApprovalQueueAdmin = () => {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        {(["all", "applications", "claims", "upgrades", "content"] as RequestCategory[]).map((cat) => {
+        {(["all", "applications", "claims", "upgrades", "content", "community"] as RequestCategory[]).map((cat) => {
           const count = cat === "all" ? pendingCount : categoryPendingCounts[cat as keyof typeof categoryPendingCounts];
           const cfg = cat !== "all" ? categoryConfig[cat] : null;
           const Icon = cfg?.icon;
