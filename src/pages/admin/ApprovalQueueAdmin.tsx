@@ -390,6 +390,7 @@ const ApprovalQueueAdmin = () => {
     if (item.category === "community") {
       return item.community_title || "Community submission";
     }
+    if (item.content_type === "scam_alert_auto") return "🚨 Auto-detected scam alert";
     return `${item.content_type?.replace("_", " ")} content`;
   };
 
@@ -844,7 +845,10 @@ const ApprovalQueueAdmin = () => {
       );
     }
 
-    // Content
+    // Content (incl. auto-detected scam alerts)
+    if (item.content_type === "scam_alert_auto") {
+      return <ScamAlertAutoCard contentId={item.content_id!} reviewerNotes={item.reviewer_notes} />;
+    }
     return (
       <div className="border border-border rounded-lg p-3 bg-muted/30 text-sm font-mono space-y-1">
         <p><span className="text-muted-foreground">Content Type:</span> {item.content_type?.replace("_", " ")}</p>
