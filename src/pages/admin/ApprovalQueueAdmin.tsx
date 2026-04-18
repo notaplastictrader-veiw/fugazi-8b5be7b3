@@ -237,6 +237,57 @@ const ApprovalQueueAdmin = () => {
       })
     );
 
+    // 5. Community submissions (reviews + complaints)
+    const [reviewsRes, complaintsRes] = await Promise.all([
+      supabase.from("reviews").select("*").order("created_at", { ascending: false }),
+      supabase.from("complaints").select("*").order("created_at", { ascending: false }),
+    ]);
+
+    const communityBrokerIds = new Set<string>();
+    (reviewsRes.data || []).forEach((r) => r.broker_id && communityBrokerIds.add(r.broker_id));
+    (complaintsRes.data || []).forEach((c) => c.broker_id && communityBrokerIds.add(c.broker_id));
+
+    const communityBrokerMap = new Map<string, string>();
+    if (communityBrokerIds.size > 0) {
+      const { data: brokerNames } = await supabase
+        .from("brokers")
+        .select("id, name")
+        .in("id", Array.from(communityBrokerIds));
+      (brokerNames || []).forEach((b) => communityBrokerMap.set(b.id, b.name));
+    }
+
+    (reviewsRes.data || []).forEach((r) =>
+      merged.push({
+        id: r.id,
+        category: "community",
+        status: r.status,
+        created_at: r.created_at,
+        community_kind: "review",
+        community_title: `${r.author || "Anonymous"} reviewed ${communityBrokerMap.get(r.broker_id || "") || "broker"}`,
+        community_body: r.content || "",
+        community_rating: r.rating,
+        community_broker_id: r.broker_id,
+        community_broker_name: communityBrokerMap.get(r.broker_id || ""),
+        community_author: r.author || "Anonymous",
+        user_id: r.user_id,
+      })
+    );
+
+    (complaintsRes.data || []).forEach((c) =>
+      merged.push({
+        id: c.id,
+        category: "community",
+        status: c.status,
+        created_at: c.created_at,
+        community_kind: "complaint",
+        community_title: `Complaint against ${communityBrokerMap.get(c.broker_id || "") || "broker"}`,
+        community_body: c.content || "",
+        community_broker_id: c.broker_id,
+        community_broker_name: communityBrokerMap.get(c.broker_id || ""),
+        user_id: c.user_id,
+      })
+    );
+
     // Sort: pending first, then by date desc
     merged.sort((a, b) => {
       if (a.status === "pending" && b.status !== "pending") return -1;
