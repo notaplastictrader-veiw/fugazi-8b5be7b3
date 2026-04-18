@@ -78,9 +78,9 @@ const PremiumApplicationModal = ({ open, onClose }: PremiumApplicationModalProps
 
   const contactFieldConfig: Record<string, { type: string; placeholder: string; label: string }> = {
     telegram: { type: "text", placeholder: "@yourhandle or https://t.me/yourhandle", label: "Telegram username or link" },
-    whatsapp: { type: "tel", placeholder: "+8801XXXXXXXXX", label: "WhatsApp number (with country code)" },
+    whatsapp: { type: "tel", placeholder: "e.g. +44 7700 900123", label: "WhatsApp number (with country code)" },
     email: { type: "email", placeholder: "you@example.com", label: "Email address" },
-    phone: { type: "tel", placeholder: "+8801XXXXXXXXX", label: "Phone number (with country code)" },
+    phone: { type: "tel", placeholder: "e.g. +44 7700 900123", label: "Phone number (with country code)" },
   };
 
   const contactField = method ? contactFieldConfig[method] : null;
