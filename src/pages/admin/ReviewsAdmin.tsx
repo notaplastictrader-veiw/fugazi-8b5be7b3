@@ -202,10 +202,13 @@ const ReviewsAdmin = () => {
               <Label>Content</Label>
               <Textarea value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))} className="min-h-[100px]" />
             </div>
-            <div>
-              <Label>Avatar URL</Label>
-              <Input value={form.avatar} onChange={e => setForm(f => ({ ...f, avatar: e.target.value }))} placeholder="https://..." />
-            </div>
+            <ImageUpload
+              value={form.avatar}
+              onChange={(url) => setForm(f => ({ ...f, avatar: url }))}
+              label="Profile Photo"
+              bucket="avatars"
+              folder="reviews"
+            />
             <div>
               <Label>Status</Label>
               <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
