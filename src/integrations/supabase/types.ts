@@ -1152,6 +1152,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          photo_urls: string[]
           rating: number | null
           role: string | null
           status: Database["public"]["Enums"]["content_status"]
@@ -1164,6 +1165,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          photo_urls?: string[]
           rating?: number | null
           role?: string | null
           status?: Database["public"]["Enums"]["content_status"]
@@ -1176,6 +1178,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          photo_urls?: string[]
           rating?: number | null
           role?: string | null
           status?: Database["public"]["Enums"]["content_status"]

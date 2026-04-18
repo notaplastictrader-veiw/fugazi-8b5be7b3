@@ -27,7 +27,7 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [brokerId, setBrokerId] = useState(defaultBrokerId ?? "");
   const [brokers, setBrokers] = useState<BrokerOption[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ url: string; uploading?: boolean }[]>([]);
 
   useEffect(() => {
     if (defaultBrokerId) return; // No need to fetch list if locked
@@ -38,14 +38,32 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
     fetchBrokers();
   }, [defaultBrokerId]);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files) return;
-    Array.from(files).slice(0, 4 - photos.length).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => { if (reader.result) setPhotos((p) => [...p, reader.result as string]); };
-      reader.readAsDataURL(file);
-    });
+    if (!files || !user) return;
+    const remaining = 4 - photos.length;
+    const list = Array.from(files).slice(0, remaining);
+
+    for (const file of list) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error(`${file.name} is over 2MB`);
+        continue;
+      }
+      const placeholder = { url: URL.createObjectURL(file), uploading: true };
+      setPhotos((p) => [...p, placeholder]);
+      try {
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `reviews/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage.from("media").upload(path, file, { cacheControl: "3600", upsert: false });
+        if (error) throw error;
+        const { data } = supabase.storage.from("media").getPublicUrl(path);
+        setPhotos((p) => p.map((ph) => (ph.url === placeholder.url ? { url: data.publicUrl } : ph)));
+      } catch (err: any) {
+        toast.error(err.message || "Photo upload failed");
+        setPhotos((p) => p.filter((ph) => ph.url !== placeholder.url));
+      }
+    }
+    e.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,6 +85,11 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       return;
     }
 
+    if (photos.some((p) => p.uploading)) {
+      toast.error("Please wait for photos to finish uploading.");
+      return;
+    }
+
     setSubmitting(true);
     const { error } = await supabase.from("reviews").insert({
       author: name.trim(),
@@ -76,6 +99,7 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
       broker_id: brokerId || null,
       user_id: user.id,
       status: "pending" as const,
+      photo_urls: photos.map((p) => p.url),
     });
 
     setSubmitting(false);
@@ -156,10 +180,13 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
             Photos <span className="text-[10px] text-muted-foreground/60 italic">— Optional</span>
           </label>
           <div className="flex flex-wrap gap-2">
-            {photos.map((src, i) => (
+            {photos.map((p, i) => (
               <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border">
-                <img src={src} alt="" className="w-full h-full object-cover" />
-                <button type="button" onClick={() => setPhotos((p) => p.filter((_, idx) => idx !== i))}
+                <img src={p.url} alt="" className={`w-full h-full object-cover ${p.uploading ? "opacity-50" : ""}`} />
+                {p.uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center text-[10px] text-foreground bg-background/40">…</div>
+                )}
+                <button type="button" onClick={() => setPhotos((ph) => ph.filter((_, idx) => idx !== i))}
                   className="absolute top-0.5 right-0.5 bg-background/80 rounded-full p-0.5">
                   <X className="w-3 h-3 text-foreground" />
                 </button>

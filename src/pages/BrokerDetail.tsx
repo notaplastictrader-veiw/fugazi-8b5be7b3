@@ -63,6 +63,7 @@ interface Review {
   rating: number;
   role: string;
   created_at: string;
+  photo_urls?: string[] | null;
 }
 
 // Placeholder full review data — will come from DB later
@@ -131,6 +132,7 @@ const BrokerDetail = () => {
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [replyOpen, setReplyOpen] = useState<Record<string, boolean>>({});
   const [replySaving, setReplySaving] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -139,7 +141,7 @@ const BrokerDetail = () => {
     if (b) {
       setBroker(b as unknown as Broker);
       const [{ data: r }, { data: bp }] = await Promise.all([
-        supabase.from("reviews").select("*").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
+        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
       ]);
       if (r) {
@@ -704,6 +706,20 @@ const BrokerDetail = () => {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground">{r.content}</p>
+                        {r.photo_urls && r.photo_urls.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {r.photo_urls.map((url, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setLightboxUrl(url)}
+                                className="w-20 h-20 rounded-lg overflow-hidden border border-border hover:border-primary/40 transition-colors"
+                              >
+                                <img src={url} alt={`Review photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                              </button>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
                           <span className="text-[10px] text-muted-foreground">
                             {new Date(r.created_at).toLocaleDateString()}
@@ -927,6 +943,19 @@ const BrokerDetail = () => {
               {claimLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Submitting...</> : "Submit Claim for Review"}
             </Button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Photo lightbox */}
+      <Dialog open={!!lightboxUrl} onOpenChange={(open) => !open && setLightboxUrl(null)}>
+        <DialogContent className="max-w-3xl p-2 bg-background">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Review photo</DialogTitle>
+            <DialogDescription>Enlarged review photo</DialogDescription>
+          </DialogHeader>
+          {lightboxUrl && (
+            <img src={lightboxUrl} alt="Review photo" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
+          )}
         </DialogContent>
       </Dialog>
     </MainLayout>
