@@ -122,6 +122,10 @@ const BrokersAdmin = () => {
       founded_year: form.founded_year ? Number(form.founded_year) : null,
       account_types: form.account_types,
       status: form.status as "draft" | "pending" | "published" | "rejected",
+      show_on_homepage: !!form.show_on_homepage,
+      homepage_position: form.show_on_homepage && form.homepage_position
+        ? Number(form.homepage_position)
+        : null,
     };
 
     if (editing) {
