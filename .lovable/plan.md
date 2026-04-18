@@ -1,63 +1,61 @@
 
 
-## Root Cause
+## Two Issues
 
-The RLS policy on `review_replies` (and `review_reads`) requires:
-```sql
-bp.claim_status = 'approved'
+### Issue 1: "Failed to submit review" 
+RLS on `reviews` table requires:
 ```
+WITH CHECK (user_id = auth.uid())
+```
+But `ReviewSubmissionForm.tsx` (line ~58) inserts WITHOUT `user_id`:
+```ts
+await supabase.from("reviews").insert({
+  author, content, rating, role, broker_id, status: "pending"
+  // ❌ user_id missing
+});
+```
+For authenticated users this violates RLS → fail. For anonymous users RLS denies INSERT entirely (policy is `TO authenticated`).
 
-But your broker profile has:
-- `tier = 'featured'` ✅
-- `claim_status = 'claimed'` ❌ (should be `'approved'`)
-
-So even though tier is Featured, the reply INSERT fails because RLS checks `claim_status='approved'` — which it isn't.
-
-This is a data inconsistency: when a super admin upgraded the tier to Featured, `claim_status` was never bumped from `claimed` → `approved`.
+### Issue 2: Broker replies not visible to other users
+Checking `review_replies` RLS — there IS a public SELECT policy:
+```
+Policy "Public can view review replies" — SELECT — TO public — USING (true)
+```
+So DB-side replies ARE public. The issue is **frontend**: `BrokerDetail.tsx` likely fetches replies only inside the broker dashboard, not on the public broker detail page where reviews are listed. Need to verify by reading `BrokerDetail.tsx`.
 
 ## Fix Plan
 
-### 1. SQL migration — sync `claim_status` with `tier`
-Two parts:
+### Fix 1: Reviews submission
+Update `src/components/ReviewSubmissionForm.tsx`:
+- Get current `user` from `useAuth()` 
+- If logged in → include `user_id: user.id` in insert
+- If NOT logged in → show auth modal / toast "Please log in to submit a review" (since RLS blocks anon)
+- Add proper error message showing actual Supabase error for debug
 
-**(a) Backfill existing rows** on all 3 profile tables:
-```sql
-UPDATE broker_profiles  SET claim_status='approved' WHERE tier IN ('verified','featured') AND claim_status<>'approved';
-UPDATE signal_profiles  SET claim_status='approved' WHERE tier IN ('verified','featured') AND claim_status<>'approved';
-UPDATE betting_profiles SET claim_status='approved' WHERE tier IN ('verified','featured') AND claim_status<>'approved';
-```
+Also add an **anonymous review path** option:
+- Either (a) require login (cleanest, current RLS), OR
+- (b) Add new RLS policy `TO anon WITH CHECK (user_id IS NULL)` to allow guest reviews
 
-**(b) Extend the existing `sync_tier_flags()` trigger** to also auto-set `claim_status='approved'` whenever `tier` becomes `verified` or `featured`. Keeps future upgrades consistent automatically.
+**Recommend (a)** — login required. Matches the form already collecting Name/Email anyway, and prevents spam. Show inline "Sign in to leave a review" CTA for guests.
 
-### 2. Loosen RLS check (defensive)
-Update the 3 RLS policies on `review_replies` (INSERT/UPDATE/DELETE) and 2 on `review_reads` to use `tier IN ('verified','featured')` as the source of truth instead of `claim_status='approved'`. This way tier is the single authority — matches the gating logic we just put in the UI.
-
-```sql
--- Example new INSERT policy
-CREATE POLICY "Broker owner can insert reply" ON review_replies
-FOR INSERT TO authenticated
-WITH CHECK (
-  user_id = auth.uid() AND EXISTS (
-    SELECT 1 FROM broker_profiles bp
-    WHERE bp.broker_id = review_replies.broker_id
-      AND bp.claimed_by = auth.uid()
-      AND bp.tier IN ('verified','featured')
-  )
-);
-```
-
-Apply same pattern to UPDATE, DELETE on `review_replies` and INSERT, SELECT on `review_reads`.
+### Fix 2: Show broker replies on public broker detail page
+- Read `src/pages/BrokerDetail.tsx` to confirm where reviews are rendered
+- Update review fetch query to also fetch related `review_replies` (LEFT JOIN style):
+  ```ts
+  supabase.from("reviews")
+    .select("*, review_replies(id, content, created_at, user_id)")
+    .eq("broker_id", brokerId)
+    .eq("status", "published")
+  ```
+- Render replies under each review with a "Reply from broker" badge (use `BrokerTierBadge` if reply author owns a Verified/Featured profile)
 
 ## Files to Touch
-- 1 SQL migration:
-  - Backfill `claim_status` on the 3 profile tables
-  - Update `sync_tier_flags()` trigger to also sync `claim_status`
-  - DROP + CREATE 5 RLS policies (3 on `review_replies`, 2 on `review_reads`) using `tier` check
-
-No frontend changes needed — UI gating already uses `tier`.
+- `src/components/ReviewSubmissionForm.tsx` — add `user_id`, login gate, better error toast
+- `src/pages/BrokerDetail.tsx` — fetch & render `review_replies` under each review on public page
 
 ## Out of Scope
-- Changing `tier_upgrades` workflow (admin still approves there)
-- Renaming `claim_status` field
-- Adding an admin UI to manually override claim_status
+- Allowing anonymous (logged-out) review submissions
+- Threaded reply conversations (single reply per review)
+- Editing/deleting own reviews from public page
+- Realtime reply updates
 
