@@ -64,6 +64,7 @@ interface UnifiedItem {
   community_broker_id?: string | null;
   community_broker_name?: string;
   community_author?: string;
+  community_photo_urls?: string[];
   // Submitter profile (community)
   submitter_full_name?: string | null;
   submitter_username?: string | null;
@@ -296,6 +297,7 @@ const ApprovalQueueAdmin = () => {
         community_broker_id: r.broker_id,
         community_broker_name: communityBrokerMap.get(r.broker_id || ""),
         community_author: r.author || "Anonymous",
+        community_photo_urls: (r as any).photo_urls || [],
         user_id: r.user_id,
         submitter_full_name: sub?.full_name ?? null,
         submitter_username: sub?.username ?? null,
@@ -809,6 +811,26 @@ const ApprovalQueueAdmin = () => {
             </div>
             <p className="text-xs font-mono text-muted-foreground">By {item.community_author || "User"}</p>
             <p className="text-sm whitespace-pre-wrap">{item.community_body || "(no content)"}</p>
+            {item.community_photo_urls && item.community_photo_urls.length > 0 && (
+              <div className="pt-2">
+                <p className="text-[10px] font-mono text-muted-foreground mb-1.5 uppercase tracking-wide">
+                  Attached photos ({item.community_photo_urls.length})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {item.community_photo_urls.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-20 h-20 rounded-md overflow-hidden border border-border hover:border-primary/40 transition-colors"
+                    >
+                      <img src={url} alt={`Review photo ${i + 1}`} className="w-full h-full object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       );
