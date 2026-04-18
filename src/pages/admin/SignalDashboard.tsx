@@ -109,19 +109,49 @@ const SignalDashboard = () => {
           <h2 className="text-2xl font-bold text-foreground font-['Barlow_Condensed'] uppercase tracking-wide">My Signal Dashboard</h2>
           <BrokerTierBadge tier={tier} size="md" />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <ContactAdminDialog senderRole="signal_provider" contextName={group?.name} />
           {tier !== "featured" && (
             <Button size="sm" variant="outline" className="border-amber-500/30 text-amber-400 hover:border-amber-500/60 font-mono text-xs" onClick={() => setUpgradeOpen(true)}>
               <ArrowUpCircle className="w-3 h-3 mr-1" /> UPGRADE
             </Button>
           )}
-          {isVerified && (
+          {isVerified ? (
             <Button size="sm" variant="outline" className="border-primary/30 hover:border-primary/60 font-mono text-xs" onClick={() => setEditOpen(true)}>
               <Pencil className="w-3 h-3 mr-1" /> EDIT GROUP
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" disabled className="font-mono text-xs border-amber-500/20 text-amber-400/70 cursor-not-allowed">
+              <Lock className="w-3 h-3 mr-1" /> EDIT (LOCKED)
             </Button>
           )}
         </div>
       </div>
+
+      {isVerified && !isFeatured && (
+        <div className="hud-card p-3 mb-6 border-blue-500/20 bg-blue-500/5">
+          <div className="flex items-center gap-3 flex-wrap">
+            <Shield className="w-4 h-4 text-blue-400" />
+            <p className="text-xs text-muted-foreground font-mono flex-1">
+              <span className="text-blue-400 font-semibold">VERIFIED PROVIDER</span> — Edit & broadcast tools unlocked. Upgrade to Featured for homepage placement.
+            </p>
+            <Button size="sm" variant="outline" className="font-mono text-xs border-amber-500/30 text-amber-400" onClick={() => setUpgradeOpen(true)}>
+              <Crown className="w-3 h-3 mr-1" /> GO FEATURED
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {isFeatured && (
+        <div className="hud-card p-3 mb-6 border-amber-500/30 bg-amber-500/5">
+          <div className="flex items-center gap-3">
+            <Crown className="w-4 h-4 text-amber-400" />
+            <p className="text-xs font-mono text-muted-foreground">
+              <span className="text-amber-400 font-semibold">FEATURED PROVIDER</span> — Featured in search & homepage placement.
+            </p>
+          </div>
+        </div>
+      )}
 
       {tier === "basic" && (
         <div className="hud-card p-4 mb-6 border-amber-500/20 bg-amber-500/5">
