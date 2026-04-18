@@ -517,6 +517,37 @@ const ApprovalQueueAdmin = () => {
     });
   };
 
+  const approveCommunity = async (item: UnifiedItem) => {
+    if (!user || !item.community_kind) return;
+    const table = item.community_kind === "review" ? "reviews" : "complaints";
+
+    const { error } = await supabase
+      .from(table)
+      .update({ status: "published" })
+      .eq("id", item.id);
+    if (error) throw error;
+
+    await supabase.from("audit_log").insert({
+      user_id: user.id,
+      action: `approve_${item.community_kind}`,
+      table_name: table,
+      record_id: item.id,
+    });
+
+    if (item.user_id) {
+      const link = item.community_broker_id ? `/brokers/${item.community_broker_id}` : "/dashboard";
+      await supabase.from("notifications").insert({
+        user_id: item.user_id,
+        type: "system",
+        title: `Your ${item.community_kind} was approved`,
+        message: item.community_broker_name
+          ? `Your ${item.community_kind} for ${item.community_broker_name} is now live.`
+          : `Your ${item.community_kind} has been published.`,
+        link,
+      });
+    }
+  };
+
   // ── Reject handler ─────────────────────────────────────────────────
   const handleReject = async (item: UnifiedItem) => {
     if (!user) return;
