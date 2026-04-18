@@ -100,6 +100,8 @@ const SupportMessagesAdmin = lazy(() => import("./pages/admin/SupportMessagesAdm
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
+const PortalSubscription = lazy(() => import("./pages/portal/Subscription"));
+const PortalMyListing = lazy(() => import("./pages/portal/MyListing"));
 
 const queryClient = new QueryClient();
 
@@ -242,18 +244,18 @@ const AppContent = () => {
           {/* Provider Portals */}
           <Route path="/portal/broker" element={<ProviderLayout requiredRole="broker" />}>
             <Route index element={<BrokerDashboard />} />
-            <Route path="listing" element={<BrokerDashboard />} />
-            <Route path="upgrade" element={<BrokerDashboard />} />
+            <Route path="listing" element={<PortalMyListing portalType="broker" />} />
+            <Route path="upgrade" element={<PortalSubscription portalType="broker" />} />
           </Route>
           <Route path="/portal/signal" element={<ProviderLayout requiredRole="signal_provider" />}>
             <Route index element={<SignalDashboard />} />
-            <Route path="channel" element={<SignalDashboard />} />
-            <Route path="upgrade" element={<SignalDashboard />} />
+            <Route path="channel" element={<PortalMyListing portalType="signal" />} />
+            <Route path="upgrade" element={<PortalSubscription portalType="signal" />} />
           </Route>
           <Route path="/portal/betting" element={<ProviderLayout requiredRole="betting_site" />}>
             <Route index element={<SportsDashboard />} />
-            <Route path="profile" element={<SportsDashboard />} />
-            <Route path="upgrade" element={<SportsDashboard />} />
+            <Route path="profile" element={<PortalMyListing portalType="betting" />} />
+            <Route path="upgrade" element={<PortalSubscription portalType="betting" />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
