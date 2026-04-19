@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
 import PlatformReviewForm from "@/components/PlatformReviewForm";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Review {
   id: string;
@@ -11,6 +12,7 @@ interface Review {
   rating: number;
   content: string;
   role: string;
+  photo_urls?: string[];
 }
 
 const CommunityReviews = () => {
