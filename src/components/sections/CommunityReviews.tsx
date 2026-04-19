@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
 import PlatformReviewForm from "@/components/PlatformReviewForm";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface Review {
   id: string;
@@ -11,11 +12,13 @@ interface Review {
   rating: number;
   content: string;
   role: string;
+  photo_urls?: string[];
 }
 
 const CommunityReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const cms = useSiteSettings<Record<string, any>>("community_reviews", {});
   const scrollerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef({
@@ -26,8 +29,8 @@ const CommunityReviews = () => {
     resumeAt: 0,
   });
 
-  const sectionTitle = cms.section_title || "What Traders";
-  const accentText = cms.accent_text || "Say";
+  const sectionTitle = cms.section_title || "What Traders Say";
+  const accentText = cms.accent_text || "About Us";
   const displayCount = cms.display_count || 50;
   const ctaText = cms.cta_text || "Write a review →";
   const cancelText = cms.cancel_text || "Cancel";
@@ -156,6 +159,25 @@ const CommunityReviews = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-3 line-clamp-2 whitespace-normal">{review.content}</p>
+              {review.photo_urls && review.photo_urls.length > 0 && (
+                <div className="flex gap-1.5 mb-3">
+                  {review.photo_urls.slice(0, 4).map((url, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setLightbox(url); }}
+                      className="w-12 h-12 rounded-md overflow-hidden border border-border hover:border-primary transition-colors flex-shrink-0"
+                    >
+                      <img src={url} alt={`Review photo ${idx + 1}`} draggable={false} className="w-full h-full object-cover pointer-events-none" />
+                    </button>
+                  ))}
+                  {review.photo_urls.length > 4 && (
+                    <div className="w-12 h-12 rounded-md border border-border bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
+                      +{review.photo_urls.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex items-center gap-0.5">{renderStars(review.rating)}</div>
             </div>
           );
@@ -173,6 +195,14 @@ const CommunityReviews = () => {
           <PlatformReviewForm onSuccess={() => setShowForm(false)} />
         </div>
       )}
+
+      <Dialog open={!!lightbox} onOpenChange={(o) => !o && setLightbox(null)}>
+        <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
+          {lightbox && (
+            <img src={lightbox} alt="Review photo" className="w-full h-auto max-h-[85vh] object-contain rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
