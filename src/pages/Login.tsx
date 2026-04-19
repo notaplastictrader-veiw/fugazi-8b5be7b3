@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff, User, Building2, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User, Building2, ShieldCheck, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 
 type LoginTab = "user" | "broker" | "admin";
@@ -99,6 +99,9 @@ const Login = () => {
   return (
     <div className={`min-h-screen flex items-center justify-center px-4 ${isHud ? "bg-[hsl(var(--sidebar-background))]" : "bg-background"}`}>
       <div className="w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+        </Link>
         {/* Tab Selector */}
         <div className="flex gap-1 mb-4 p-1 bg-secondary/30 rounded-xl border border-border">
           {(Object.keys(TAB_CONFIG) as LoginTab[]).map((tab) => {

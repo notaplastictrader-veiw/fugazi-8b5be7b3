@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown, User, Phone } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown, User, Phone, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { countries, Country } from "@/data/countries";
 
@@ -129,6 +129,9 @@ const Signup = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+        </Link>
         <div className="glass-card rounded-2xl p-8 border border-border">
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-4">
