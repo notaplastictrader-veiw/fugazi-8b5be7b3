@@ -2,6 +2,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { organizationSchema, websiteSchema } from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
+import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
 import SignalChannel from "@/components/sections/SignalChannel";
@@ -22,6 +23,7 @@ const Index = () => {
       <JsonLd data={organizationSchema} />
       <JsonLd data={websiteSchema} />
       <HeroSection />
+      <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
       <ScamAlertSection />
       <SignalChannel />

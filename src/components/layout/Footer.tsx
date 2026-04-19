@@ -3,6 +3,7 @@ import { Linkedin, Youtube, Send, Facebook, Instagram } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import NewsletterSponsorFooter from "@/components/sponsored/NewsletterSponsorFooter";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -160,6 +161,8 @@ const Footer = () => {
             </div>
           ))}
         </div>
+
+        <NewsletterSponsorFooter />
 
         {/* Risk Warning */}
         <div className="mt-12 pt-8 border-t border-border">
