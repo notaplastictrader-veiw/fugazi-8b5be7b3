@@ -146,6 +146,46 @@ const ReviewsAdmin = () => {
     fetchData();
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const visibleIds = filtered.map(r => r.id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) visibleIds.forEach(id => next.delete(id));
+      else visibleIds.forEach(id => next.add(id));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("reviews").delete().in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Deleted ${ids.length} review${ids.length > 1 ? "s" : ""}`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+    fetchData();
+  };
+
+  const handleBulkStatus = async (status: "published" | "rejected" | "pending") => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("reviews").update({ status: status as any }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} review${ids.length > 1 ? "s" : ""} → ${status}`);
+    setSelectedIds(new Set());
+    fetchData();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
