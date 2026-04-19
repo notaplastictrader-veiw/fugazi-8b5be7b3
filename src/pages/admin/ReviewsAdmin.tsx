@@ -49,6 +49,8 @@ const ReviewsAdmin = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewItem, setViewItem] = useState<Review | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
   const fetchData = async () => {
