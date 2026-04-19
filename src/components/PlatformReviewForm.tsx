@@ -108,7 +108,7 @@ const PlatformReviewForm = ({ onSuccess }: Props) => {
       "/admin/reviews"
     );
 
-    toast.success("Thanks! Your review will appear after approval.");
+    toast.success("Thanks for your review!");
     onSuccess();
   };
 
@@ -129,7 +129,7 @@ const PlatformReviewForm = ({ onSuccess }: Props) => {
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-xl p-6 max-w-lg">
       <h3 className="text-lg font-display font-bold text-foreground mb-1">Review NAFT</h3>
-      <p className="text-xs text-muted-foreground mb-4">Share your experience with the platform. Approved reviews appear on the homepage.</p>
+      <p className="text-xs text-muted-foreground mb-4">Share your experience with the platform.</p>
 
       <div className="space-y-4">
         <div>
@@ -190,7 +190,6 @@ const PlatformReviewForm = ({ onSuccess }: Props) => {
           className="px-6 py-2.5 text-sm font-display font-bold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50">
           {submitting ? "Submitting..." : "Submit Review"}
         </button>
-        <p className="text-[10px] text-muted-foreground">All reviews require admin approval before appearing on the homepage.</p>
       </div>
     </form>
   );
