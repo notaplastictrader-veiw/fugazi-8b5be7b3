@@ -1,38 +1,27 @@
 
 
-## What you're asking
-On the Signup page (`/signup`), there's no way to go back to the homepage or the previous page. User wants a "Back" / "Home" option on the signup form.
+## Issue
+Heading reads "What Traders About Us" — missing the word "Say". Should be "What Traders Say About Us".
 
-Same likely applies to Login + ForgotPassword for consistency.
+## Root cause
+In `src/components/sections/CommunityReviews.tsx`:
+- `sectionTitle` defaults to `"What Traders Say"`
+- `accentText` defaults to `"About Us"`
+- Rendered as: `{sectionTitle} {accentText}` → "What Traders Say About Us"
 
-## Plan
+But the CMS (`site_settings.community_reviews`) likely has `section_title` overridden to `"What Traders"` (without "Say"), so the live output becomes "What Traders About Us".
 
-### Add a back link to auth pages
-On `src/pages/Signup.tsx` (and matching `Login.tsx`, `ForgotPassword.tsx`, `ResetPassword.tsx` for consistency), add a small back control above the glass-card:
+## Fix
+Update the `community_reviews` row in `site_settings` so:
+- `section_title` = `"What Traders Say"`
+- `accent_text` = `"About Us"`
 
-- **"← Back to Home"** link, top-left, subtle muted styling
-- Uses `react-router-dom` `Link` to `/` (always reliable)
-- Optional: also a smaller "Go back" using `navigate(-1)` if there's history — but a single "Back to Home" link is cleaner and won't break if user landed directly
-
-### Layout
-```
-[← Back to Home]            ← new, top-left, muted text
-   ┌─────────────────┐
-   │  Not A Fugazi…  │
-   │   Join Free     │
-   │   ...form...    │
-   └─────────────────┘
-```
-
-Placed inside the centering wrapper but above the glass-card, with `mb-4` spacing. On mobile it stays left-aligned within the same max-width container.
+This is a one-line DB update via migration — no code change needed since the component already renders correctly when defaults are used.
 
 ### Files touched
-- `src/pages/Signup.tsx` — add back link
-- `src/pages/Login.tsx` — add back link
-- `src/pages/ForgotPassword.tsx` — add back link
-- `src/pages/ResetPassword.tsx` — add back link
+- New migration: `UPDATE site_settings SET value = jsonb_set(jsonb_set(value, '{section_title}', '"What Traders Say"'), '{accent_text}', '"About Us"') WHERE key = 'community_reviews';`
 
 ### Out of scope
-- Adding a full navbar to auth pages (would clutter the focused form)
-- Browser-history-aware smart back button (sticking with simple "Back to Home")
+- Changing the component fallback (already correct)
+- Editing other CMS sections
 
