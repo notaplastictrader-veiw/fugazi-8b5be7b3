@@ -1,48 +1,38 @@
 
 
-## Issues found
-1. **Photo upload silently fails** — `PlatformReviewForm` uploads to the `media` bucket, but its RLS policy only allows `super_admin` to insert. Regular users get a permission error → photo never appears in the form, never saved with the review.
-2. **"Approved reviews appear on the homepage" copy** — needs to be removed/softened.
-3. **Ticker too slow + not draggable** — currently `60s linear infinite` CSS animation that users can't interact with.
+## What you're asking
+Three things on the homepage Community Reviews:
+
+1. **Photos uploaded with reviews are not displaying** — only the avatar + text shows, not the gallery.
+2. **Detect & alert when same user submits multiple reviews** — show admin a warning in the Reviews admin panel ("This user has X previous reviews"), and let admin see what their previous ones were.
+3. **Section heading rename** — "What Traders Say" → "What Traders Say About Us" (since this section is now exclusively platform reviews).
 
 ## Plan
 
-### 1. Fix photo upload (RLS migration)
-Add a storage policy so authenticated users can upload to `media/reviews/{their_user_id}/...`:
-```sql
--- INSERT: users can upload to media/reviews/<own uid>/
--- DELETE: users can remove their own files
--- (Public read already exists)
-```
-Folder check: `(storage.foldername(name))[1] = 'reviews' AND (storage.foldername(name))[2] = auth.uid()::text`
+### 1. Show photos in homepage review cards (`CommunityReviews.tsx`)
+- Each review row already has `photo_urls: string[]` from DB.
+- Render a small horizontal photo strip below the review content (max 4 thumbnails, ~48px square, rounded, border).
+- Click a thumbnail → open a lightweight lightbox (full-size image in a Dialog).
+- Skip rendering if `photo_urls` is empty.
 
-### 2. Remove approval copy in `PlatformReviewForm.tsx`
-- Subtitle: "Share your experience with the platform. Approved reviews appear on the homepage." → **"Share your experience with the platform."**
-- Footer hint: "All reviews require admin approval before appearing on the homepage." → **remove**
-- Success toast: "Thanks! Your review will appear after approval." → **"Thanks for your review!"**
+### 2. Detect repeat submissions in admin (`ReviewsAdmin.tsx`)
+- Compute per-user counts client-side: group `items` by `user_id` (skip nulls).
+- In the **table row**, when a review's user has >1 total reviews, append a small badge next to the "User submitted" pill: `↻ 2nd` / `↻ 3rd` etc.
+- In the **View modal**, when viewing a user-submitted review, add a "Previous reviews from this user" collapsible section showing:
+  - Date, rating, status, first 80 chars of content
+  - Link/button to switch the View modal to that previous review
+- This requires no schema change — just smarter client-side grouping by `user_id`.
 
-### 3. Make ticker faster + draggable in `CommunityReviews.tsx` + `index.css`
-Replace the pure-CSS infinite animation with a JS-driven scroll that:
-- Auto-scrolls **right → left** at a faster speed (~0.6 px/frame ≈ 36 px/sec, vs current ~30s/cycle equivalent).
-- Pauses on **hover**.
-- Supports **mouse drag** and **touch swipe** (pointer events) — user can grab and move freely.
-- Loops seamlessly by resetting scroll position when reaching the duplicated end.
-
-Implementation approach:
-- Use a `ref` on the scroll container with `overflow-x: auto` (hidden scrollbar via CSS).
-- `requestAnimationFrame` loop increments `scrollLeft`; when `scrollLeft >= contentWidth/2`, reset to `0` (since items are duplicated).
-- Pointer handlers: `pointerdown` → start dragging, pause auto-scroll; `pointermove` → adjust `scrollLeft` by delta; `pointerup/leave` → resume auto-scroll after short delay.
-- Add `cursor: grab` / `active:cursor-grabbing` styling.
-- Remove the `.ticker-track-slow` keyframe usage (keep CSS class for layout: flex + gap, no animation).
+### 3. Rename homepage heading
+- In `CommunityReviews.tsx` change the section title from "What Traders Say" → **"What Traders Say About Us"**.
+- Update the eyebrow/description if needed to match the platform-only positioning.
 
 ### Files touched
-- New migration — add user INSERT/DELETE policies on `storage.objects` for `media/reviews/<uid>/...`
-- `src/components/PlatformReviewForm.tsx` — copy tweaks
-- `src/components/sections/CommunityReviews.tsx` — drag-scroll logic
-- `src/index.css` — remove animation from `.ticker-track-slow`, add grab cursor
+- `src/components/sections/CommunityReviews.tsx` — render photo strip + lightbox, rename heading
+- `src/pages/admin/ReviewsAdmin.tsx` — repeat-submission badge in table + previous-reviews list in View modal
 
 ### Out of scope
-- Changing review moderation flow (admin approval still required server-side via `status='pending'` — we just don't tell the user upfront)
-- Touch momentum / inertia scrolling (basic drag only)
-- Mobile-specific speed tuning
+- Blocking duplicate submissions (admin can still approve/reject each one)
+- Rate-limiting how often a user can submit
+- Comparing review content for similarity / spam detection
 
