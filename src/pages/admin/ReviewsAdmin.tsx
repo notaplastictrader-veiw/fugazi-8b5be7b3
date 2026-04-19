@@ -10,6 +10,7 @@ import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
@@ -48,6 +49,8 @@ const ReviewsAdmin = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewItem, setViewItem] = useState<Review | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
   const fetchData = async () => {
@@ -143,6 +146,46 @@ const ReviewsAdmin = () => {
     fetchData();
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const visibleIds = filtered.map(r => r.id);
+    const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedIds.has(id));
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) visibleIds.forEach(id => next.delete(id));
+      else visibleIds.forEach(id => next.add(id));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("reviews").delete().in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Deleted ${ids.length} review${ids.length > 1 ? "s" : ""}`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+    fetchData();
+  };
+
+  const handleBulkStatus = async (status: "published" | "rejected" | "pending") => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("reviews").update({ status: status as any }).in("id", ids);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Updated ${ids.length} review${ids.length > 1 ? "s" : ""} → ${status}`);
+    setSelectedIds(new Set());
+    fetchData();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -170,10 +213,39 @@ const ReviewsAdmin = () => {
 
       <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-2 mb-3 p-3 rounded-lg border border-primary/40 bg-primary/5">
+          <span className="text-sm font-semibold text-foreground">
+            {selectedIds.size} selected
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleBulkStatus("published")}>
+              <Check className="w-3.5 h-3.5 mr-1" /> Approve
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleBulkStatus("rejected")}>
+              <X className="w-3.5 h-3.5 mr-1" /> Reject
+            </Button>
+            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={filtered.length > 0 && filtered.every(r => selectedIds.has(r.id))}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Rating</TableHead>
               <TableHead>Content</TableHead>
@@ -185,7 +257,14 @@ const ReviewsAdmin = () => {
           </TableHeader>
           <TableBody>
             {filtered.map(r => (
-              <TableRow key={r.id}>
+              <TableRow key={r.id} data-state={selectedIds.has(r.id) ? "selected" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.has(r.id)}
+                    onCheckedChange={() => toggleSelect(r.id)}
+                    aria-label={`Select review by ${r.author}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{r.author}</TableCell>
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[250px] truncate">{r.content}</TableCell>
@@ -221,7 +300,7 @@ const ReviewsAdmin = () => {
                 </TableCell>
               </TableRow>
             ))}
-            {filtered.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No reviews</TableCell></TableRow>}
+            {filtered.length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">No reviews</TableCell></TableRow>}
           </TableBody>
         </Table>
       </div>
@@ -353,6 +432,22 @@ const ReviewsAdmin = () => {
           <DialogFooter>
             <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
             <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation */}
+      <Dialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete {selectedIds.size} Reviews</DialogTitle>
+            <DialogDescription>
+              You are about to permanently delete <strong>{selectedIds.size}</strong> review{selectedIds.size > 1 ? "s" : ""}. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+            <Button variant="destructive" onClick={handleBulkDelete}>Delete {selectedIds.size}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
