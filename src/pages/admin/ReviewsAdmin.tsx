@@ -56,6 +56,24 @@ const ReviewsAdmin = () => {
   };
   useEffect(() => { fetchData(); }, []);
 
+  const userReviewMap = useMemo(() => {
+    const map = new Map<string, Review[]>();
+    items.forEach(r => {
+      if (!r.user_id) return;
+      const arr = map.get(r.user_id) || [];
+      arr.push(r);
+      map.set(r.user_id, arr);
+    });
+    // Sort each user's reviews oldest → newest so index = submission order (0 = 1st)
+    map.forEach(arr => arr.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()));
+    return map;
+  }, [items]);
+
+  const ordinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+
   const filtered = useMemo(() => {
     let list = filterByDateRange(items, "created_at", fromDate, toDate);
     if (search.trim()) {
