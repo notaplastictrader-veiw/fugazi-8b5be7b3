@@ -18,6 +18,7 @@ interface Review {
 const CommunityReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const cms = useSiteSettings<Record<string, any>>("community_reviews", {});
   const scrollerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef({
@@ -28,8 +29,8 @@ const CommunityReviews = () => {
     resumeAt: 0,
   });
 
-  const sectionTitle = cms.section_title || "What Traders";
-  const accentText = cms.accent_text || "Say";
+  const sectionTitle = cms.section_title || "What Traders Say";
+  const accentText = cms.accent_text || "About Us";
   const displayCount = cms.display_count || 50;
   const ctaText = cms.cta_text || "Write a review →";
   const cancelText = cms.cancel_text || "Cancel";
