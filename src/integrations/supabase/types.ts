@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_enquiries: {
+        Row: {
+          admin_notes: string | null
+          assigned_to: string | null
+          company: string
+          company_age: string | null
+          company_url: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          placement_slug: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          company: string
+          company_age?: string | null
+          company_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          placement_slug?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          company?: string
+          company_age?: string | null
+          company_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          placement_slug?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ad_placements: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number
+          icon: string
+          id: string
+          internal_price_note: string | null
+          is_active: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          internal_price_note?: string | null
+          is_active?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          icon?: string
+          id?: string
+          internal_price_note?: string | null
+          is_active?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           application_data: Json

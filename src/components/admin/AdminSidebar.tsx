@@ -4,7 +4,7 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, BarChart3, Briefcase, UserCog, UserPlus, Home, ArrowLeft, Headphones
+  Globe, BarChart3, Briefcase, UserCog, UserPlus, Home, ArrowLeft, Headphones, Megaphone, Inbox
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -93,6 +93,14 @@ const sections: SidebarSection[] = [
     icon: UserCog,
     items: [
       { title: "Users & Roles", url: "/admin/users", icon: Users },
+    ],
+  },
+  {
+    label: "ADVERTISE",
+    icon: Megaphone,
+    items: [
+      { title: "Placements", url: "/admin/advertise/placements", icon: Megaphone },
+      { title: "Enquiries", url: "/admin/advertise/enquiries", icon: Inbox },
     ],
   },
   {
