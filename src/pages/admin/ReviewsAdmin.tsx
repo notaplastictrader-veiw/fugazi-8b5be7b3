@@ -41,6 +41,7 @@ const ReviewsAdmin = () => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [search, setSearch] = useState("");
+  const [onlyUserPending, setOnlyUserPending] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -61,8 +62,11 @@ const ReviewsAdmin = () => {
       const q = search.toLowerCase();
       list = list.filter(r => r.author?.toLowerCase().includes(q) || r.content?.toLowerCase().includes(q));
     }
+    if (onlyUserPending) {
+      list = list.filter(r => r.user_id && r.status === "pending");
+    }
     return list;
-  }, [items, fromDate, toDate, search]);
+  }, [items, fromDate, toDate, search, onlyUserPending]);
 
   const handleExport = () => {
     exportToCSV(filtered.map(r => ({
@@ -128,11 +132,22 @@ const ReviewsAdmin = () => {
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Review</Button>
       </div>
 
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by author or content..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 text-sm" />
         </div>
+        <button
+          type="button"
+          onClick={() => setOnlyUserPending(v => !v)}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+            onlyUserPending
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-transparent text-muted-foreground border-border hover:border-primary/40"
+          }`}
+        >
+          User submissions (pending)
+        </button>
       </div>
 
       <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
@@ -144,7 +159,7 @@ const ReviewsAdmin = () => {
               <TableHead>Author</TableHead>
               <TableHead>Rating</TableHead>
               <TableHead>Content</TableHead>
-              <TableHead>Role</TableHead>
+              <TableHead>Source</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -156,7 +171,15 @@ const ReviewsAdmin = () => {
                 <TableCell className="font-medium">{r.author}</TableCell>
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[250px] truncate">{r.content}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">{r.role}</TableCell>
+                <TableCell>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                    r.user_id
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {r.user_id ? "User submitted" : "Admin created"}
+                  </span>
+                </TableCell>
                 <TableCell><StatusBadge status={r.status} /></TableCell>
                 <TableCell className="text-sm font-semibold text-foreground">{formatDate(r.created_at)}</TableCell>
                 <TableCell className="text-right space-x-1">

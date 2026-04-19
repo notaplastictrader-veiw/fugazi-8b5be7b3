@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
-import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
+import PlatformReviewForm from "@/components/PlatformReviewForm";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface Review {
@@ -104,7 +104,7 @@ const CommunityReviews = () => {
 
       {showForm && (
         <div className="max-w-7xl mx-auto mt-6">
-          <ReviewSubmissionForm onSuccess={() => setShowForm(false)} />
+          <PlatformReviewForm onSuccess={() => setShowForm(false)} />
         </div>
       )}
     </section>
