@@ -1,37 +1,51 @@
 
 
 ## What you're asking
-In the admin Reviews modal (`/admin/reviews`), the current "Avatar URL" field requires pasting a URL. You want a proper **photo upload** option so admins can upload an image file directly when creating/editing a review.
+Currently the homepage "Community Reviews" section only shows reviews that admins manually create from the admin panel. You want users to be able to **submit their own review about NAFT (the platform itself)** from the public site, and once approved, those reviews automatically appear in the "What Traders Say" section on the homepage.
+
+Already exists: `ReviewSubmissionForm.tsx` and `Write a review →` button on the homepage. Need to verify it submits **platform reviews** (no broker_id), not broker-specific reviews.
 
 ## Plan
 
-### `src/pages/admin/ReviewsAdmin.tsx`
-Replace the plain "Avatar URL" text input with the existing reusable `ImageUpload` component (already used elsewhere in admin):
+### 1. Verify / wire up the existing "Write a review" button
+- Check `CommunityReviews.tsx` — confirm the "Write a review →" button opens a modal containing `ReviewSubmissionForm`.
+- If it currently requires a `broker_id`, add a "platform review" mode that submits with `broker_id = null`.
 
-- Import `ImageUpload` from `@/components/admin/ImageUpload`.
-- Swap the current `<Input>` for avatar with:
-  ```tsx
-  <ImageUpload
-    value={form.avatar}
-    onChange={(url) => setForm(f => ({ ...f, avatar: url }))}
-    label="Profile Photo"
-    bucket="review-avatars"
-  />
-  ```
-- Keep the field optional (no validation change).
-- Keep storing the resulting public URL in `reviews.avatar` (existing column — no schema change).
+### 2. Public review submission flow (`ReviewSubmissionForm.tsx`)
+- **Auth gate**: must be logged in (uses existing `AuthModal` if not).
+- **Prefill** from `profiles`: `full_name` → author, `avatar_url` → avatar, `experience_level` → role.
+- Fields: Rating (1–5 stars), Content (textarea), optional photo upload to `avatars/reviews/`.
+- Insert into `reviews` table with:
+  - `user_id` = current user
+  - `broker_id` = `null` (platform review)
+  - `status` = `'pending'` (admin must approve)
+- Show success toast: "Thanks! Your review will appear after approval."
 
-### Storage bucket
-Create a new public Supabase storage bucket `review-avatars` with policies:
-- Public read (so avatars render on the homepage Community Reviews section)
-- Authenticated insert/update/delete (admins only — managed by RLS via `has_role('admin')`)
+### 3. Homepage display (`CommunityReviews.tsx`)
+- Already fetches from `reviews` table where `status='published'`.
+- Confirm it shows reviews regardless of `broker_id` (so platform reviews appear).
+- Order by `created_at DESC` so newest approved reviews appear first.
+
+### 4. Admin moderation (`ReviewsAdmin.tsx`)
+- Already supports approve/reject — no changes needed.
+- Add a small "Source" column showing "User submitted" vs "Admin created" (based on whether `user_id` is set).
+- Add a filter chip to view only pending user-submitted reviews.
+
+### 5. Notifications (optional, light touch)
+- On user submission → notify admins via existing `notifyAdmins` helper so they see it in the approval queue.
+- On admin approval → send notification to the user: "Your review is now live."
 
 ### Files touched
-- `src/pages/admin/ReviewsAdmin.tsx` — swap avatar input for `ImageUpload`
-- New migration — create `review-avatars` storage bucket + RLS policies
+- `src/components/sections/CommunityReviews.tsx` — wire "Write a review" button to open modal
+- `src/components/ReviewSubmissionForm.tsx` — verify platform-review mode (broker_id=null), add prefill
+- `src/pages/admin/ReviewsAdmin.tsx` — add Source column + pending filter
+
+### Database
+- No schema changes — `reviews` table already has `user_id` (nullable) and `broker_id` (nullable).
+- RLS already allows: authenticated users to insert own reviews, public to view published.
 
 ### Out of scope
-- Changing the user-side review submission form (separate component, already has photo upload)
-- Resizing / cropping the uploaded image (uses ImageUpload as-is)
-- Migrating existing avatar URLs (they continue to work — column unchanged)
+- Editing/deleting own reviews from a user dashboard (separate feature)
+- Spam/profanity filtering beyond admin approval
+- Replies/comments on platform reviews
 
