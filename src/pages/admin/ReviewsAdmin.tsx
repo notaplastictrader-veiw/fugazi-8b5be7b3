@@ -213,10 +213,39 @@ const ReviewsAdmin = () => {
 
       <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-2 mb-3 p-3 rounded-lg border border-primary/40 bg-primary/5">
+          <span className="text-sm font-semibold text-foreground">
+            {selectedIds.size} selected
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => handleBulkStatus("published")}>
+              <Check className="w-3.5 h-3.5 mr-1" /> Approve
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => handleBulkStatus("rejected")}>
+              <X className="w-3.5 h-3.5 mr-1" /> Reject
+            </Button>
+            <Button size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={filtered.length > 0 && filtered.every(r => selectedIds.has(r.id))}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Rating</TableHead>
               <TableHead>Content</TableHead>
@@ -228,7 +257,14 @@ const ReviewsAdmin = () => {
           </TableHeader>
           <TableBody>
             {filtered.map(r => (
-              <TableRow key={r.id}>
+              <TableRow key={r.id} data-state={selectedIds.has(r.id) ? "selected" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.has(r.id)}
+                    onCheckedChange={() => toggleSelect(r.id)}
+                    aria-label={`Select review by ${r.author}`}
+                  />
+                </TableCell>
                 <TableCell className="font-medium">{r.author}</TableCell>
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[250px] truncate">{r.content}</TableCell>
