@@ -159,6 +159,25 @@ const CommunityReviews = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-3 line-clamp-2 whitespace-normal">{review.content}</p>
+              {review.photo_urls && review.photo_urls.length > 0 && (
+                <div className="flex gap-1.5 mb-3">
+                  {review.photo_urls.slice(0, 4).map((url, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setLightbox(url); }}
+                      className="w-12 h-12 rounded-md overflow-hidden border border-border hover:border-primary transition-colors flex-shrink-0"
+                    >
+                      <img src={url} alt={`Review photo ${idx + 1}`} draggable={false} className="w-full h-full object-cover pointer-events-none" />
+                    </button>
+                  ))}
+                  {review.photo_urls.length > 4 && (
+                    <div className="w-12 h-12 rounded-md border border-border bg-muted flex items-center justify-center text-[10px] font-semibold text-muted-foreground">
+                      +{review.photo_urls.length - 4}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex items-center gap-0.5">{renderStars(review.rating)}</div>
             </div>
           );
