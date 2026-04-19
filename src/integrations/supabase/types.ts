@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          display_order: number
+          end_date: string
+          headline: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          placement_slug: string
+          sponsor_logo_url: string | null
+          sponsor_name: string
+          start_date: string
+          subtext: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number
+          end_date?: string
+          headline?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          placement_slug: string
+          sponsor_logo_url?: string | null
+          sponsor_name: string
+          start_date?: string
+          subtext?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number
+          end_date?: string
+          headline?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          placement_slug?: string
+          sponsor_logo_url?: string | null
+          sponsor_name?: string
+          start_date?: string
+          subtext?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ad_enquiries: {
         Row: {
           admin_notes: string | null
