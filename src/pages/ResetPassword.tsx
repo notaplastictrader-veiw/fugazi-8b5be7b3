@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -58,6 +58,9 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
+        </Link>
         <div className="glass-card rounded-2xl p-8 border border-border">
           <h1 className="text-2xl font-display font-extrabold text-foreground mb-2">Set New Password</h1>
           <p className="text-sm text-muted-foreground mb-6">Enter your new password below.</p>
