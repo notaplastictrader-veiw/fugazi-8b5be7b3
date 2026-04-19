@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 
 interface Broker {
   id: string;
@@ -300,6 +301,7 @@ const BrokerTrustHub = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SponsoredBrokerCard />
           {filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
         </div>
 

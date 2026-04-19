@@ -99,6 +99,7 @@ const ApplicationsAdmin = lazy(() => import("./pages/admin/ApplicationsAdmin"));
 const SupportMessagesAdmin = lazy(() => import("./pages/admin/SupportMessagesAdmin"));
 const AdvertisePlacementsAdmin = lazy(() => import("./pages/admin/AdvertisePlacementsAdmin"));
 const AdvertiseEnquiriesAdmin = lazy(() => import("./pages/admin/AdvertiseEnquiriesAdmin"));
+const AdvertiseCampaignsAdmin = lazy(() => import("./pages/admin/AdvertiseCampaignsAdmin"));
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
@@ -243,6 +244,7 @@ const AppContent = () => {
             <Route path="support" element={<SupportMessagesAdmin />} />
             <Route path="advertise/placements" element={<AdvertisePlacementsAdmin />} />
             <Route path="advertise/enquiries" element={<AdvertiseEnquiriesAdmin />} />
+            <Route path="advertise/campaigns" element={<AdvertiseCampaignsAdmin />} />
           </Route>
 
           {/* Provider Portals */}

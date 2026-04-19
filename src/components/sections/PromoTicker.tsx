@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useSponsoredTickerItems } from "@/components/sponsored/SponsoredTickerItems";
 
 const fallbackItems = [
   "🔥 Exness 100% Deposit Bonus",
@@ -13,6 +14,7 @@ const fallbackItems = [
 
 const PromoTicker = () => {
   const [promoItems, setPromoItems] = useState(fallbackItems);
+  const sponsored = useSponsoredTickerItems("sitewide-banner");
 
   useEffect(() => {
     const fetch = async () => {
@@ -26,7 +28,9 @@ const PromoTicker = () => {
     fetch();
   }, []);
 
-  const items = [...promoItems, ...promoItems, ...promoItems];
+  const sponsoredLabels = sponsored.map((s) => `⭐ ${s.label}`);
+  const merged = [...sponsoredLabels, ...promoItems];
+  const items = [...merged, ...merged, ...merged];
   return (
     <div className="relative z-[200] bg-secondary/80 backdrop-blur-sm border-b border-border overflow-hidden h-[34px] flex items-center">
       <div className="flex-shrink-0 px-3">

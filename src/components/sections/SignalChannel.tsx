@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Zap } from "lucide-react";
 import PremiumApplicationModal from "@/components/modals/PremiumApplicationModal";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import SponsoredBy from "@/components/sponsored/SponsoredBy";
 
 const SignalChannel = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -41,7 +42,10 @@ const SignalChannel = () => {
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
-        <span className="section-tag">// OUR SIGNAL CHANNEL</span>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+          <span className="section-tag">// OUR SIGNAL CHANNEL</span>
+          <SponsoredBy placement="signal-channel-sponsor" />
+        </div>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-3">
           {title} <span className="text-primary">{accentText}</span>
         </h2>
