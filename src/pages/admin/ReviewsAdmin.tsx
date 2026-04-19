@@ -190,13 +190,25 @@ const ReviewsAdmin = () => {
                 <TableCell>{"⭐".repeat(r.rating)}</TableCell>
                 <TableCell className="max-w-[250px] truncate">{r.content}</TableCell>
                 <TableCell>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    r.user_id
-                      ? "bg-primary/15 text-primary"
-                      : "bg-muted text-muted-foreground"
-                  }`}>
-                    {r.user_id ? "User submitted" : "Admin created"}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      r.user_id
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {r.user_id ? "User submitted" : "Admin created"}
+                    </span>
+                    {r.user_id && (() => {
+                      const userReviews = userReviewMap.get(r.user_id) || [];
+                      if (userReviews.length <= 1) return null;
+                      const idx = userReviews.findIndex(u => u.id === r.id);
+                      return (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30" title={`This user has submitted ${userReviews.length} reviews`}>
+                          ↻ {ordinal(idx + 1)} of {userReviews.length}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </TableCell>
                 <TableCell><StatusBadge status={r.status} /></TableCell>
                 <TableCell className="text-sm font-semibold text-foreground">{formatDate(r.created_at)}</TableCell>
