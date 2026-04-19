@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Star } from "lucide-react";
 import PlatformReviewForm from "@/components/PlatformReviewForm";
@@ -17,6 +17,14 @@ const CommunityReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
   const cms = useSiteSettings<Record<string, any>>("community_reviews", {});
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const stateRef = useRef({
+    paused: false,
+    dragging: false,
+    startX: 0,
+    startScroll: 0,
+    resumeAt: 0,
+  });
 
   const sectionTitle = cms.section_title || "What Traders";
   const accentText = cms.accent_text || "Say";
@@ -44,6 +52,57 @@ const CommunityReviews = () => {
     fetch();
   }, [displayCount]);
 
+  // Auto-scroll loop with pause-on-hover and drag support
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el || reviews.length === 0) return;
+
+    let rafId = 0;
+    const SPEED = 0.6; // px per frame ≈ 36px/s
+
+    const tick = () => {
+      const s = stateRef.current;
+      if (!s.paused && !s.dragging && (s.resumeAt === 0 || performance.now() >= s.resumeAt)) {
+        const half = el.scrollWidth / 2;
+        let next = el.scrollLeft + SPEED;
+        if (next >= half) next -= half;
+        el.scrollLeft = next;
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [reviews]);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    stateRef.current.dragging = true;
+    stateRef.current.startX = e.clientX;
+    stateRef.current.startScroll = el.scrollLeft;
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("dragging");
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    const s = stateRef.current;
+    if (!el || !s.dragging) return;
+    const dx = e.clientX - s.startX;
+    el.scrollLeft = s.startScroll - dx;
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    if (stateRef.current.dragging) {
+      stateRef.current.dragging = false;
+      stateRef.current.resumeAt = performance.now() + 800;
+      try { el.releasePointerCapture(e.pointerId); } catch {}
+      el.classList.remove("dragging");
+    }
+  };
+
   const items = [...reviews, ...reviews];
 
   const renderStars = (rating: number) => {
@@ -65,35 +124,42 @@ const CommunityReviews = () => {
         </h2>
       </div>
 
-      <div className="overflow-hidden">
-        <div className="ticker-track-slow">
-          {items.map((review, i) => {
-            const isComplaint = review.rating <= 2;
-            const initials = review.author?.split(" ").map(w => w[0]).join("").slice(0, 2) || "??";
-            const isAnonymous = !review.author || review.author.toLowerCase() === "anonymous";
-            return (
-              <div key={i} className="flex-shrink-0 w-[340px] glass-card rounded-xl p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  {review.avatar ? (
-                    <img src={review.avatar} alt={review.author} className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                      isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
-                    }`}>
-                      {isAnonymous ? "?" : initials}
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">{isAnonymous ? "Anonymous Trader" : review.author}</div>
-                    <div className="text-[10px] text-muted-foreground">{review.role}</div>
+      <div
+        ref={scrollerRef}
+        className="reviews-scroller px-4"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onMouseEnter={() => { stateRef.current.paused = true; }}
+        onMouseLeave={() => { stateRef.current.paused = false; }}
+      >
+        {items.map((review, i) => {
+          const isComplaint = review.rating <= 2;
+          const initials = review.author?.split(" ").map(w => w[0]).join("").slice(0, 2) || "??";
+          const isAnonymous = !review.author || review.author.toLowerCase() === "anonymous";
+          return (
+            <div key={i} className="w-[340px] glass-card rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-3">
+                {review.avatar ? (
+                  <img src={review.avatar} alt={review.author} draggable={false} className="w-10 h-10 rounded-full object-cover pointer-events-none" />
+                ) : (
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+                    isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                  }`}>
+                    {isAnonymous ? "?" : initials}
                   </div>
+                )}
+                <div>
+                  <div className="text-sm font-semibold text-foreground">{isAnonymous ? "Anonymous Trader" : review.author}</div>
+                  <div className="text-[10px] text-muted-foreground">{review.role}</div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{review.content}</p>
-                <div className="flex items-center gap-0.5">{renderStars(review.rating)}</div>
               </div>
-            );
-          })}
-        </div>
+              <p className="text-sm text-muted-foreground mb-3 line-clamp-2 whitespace-normal">{review.content}</p>
+              <div className="flex items-center gap-0.5">{renderStars(review.rating)}</div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="max-w-7xl mx-auto mt-6">

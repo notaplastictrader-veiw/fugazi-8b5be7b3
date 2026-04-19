@@ -286,13 +286,22 @@ body::before {
   transition: width 0.6s ease;
 }
 
-/* Slow ticker for community reviews — right to left */
-.ticker-track-slow {
+/* Community reviews ticker — JS-driven scroll, draggable */
+.reviews-scroller {
   display: flex;
   gap: 24px;
-  white-space: nowrap;
-  animation: scrollTicker 60s linear infinite;
+  overflow-x: auto;
+  scroll-behavior: auto;
+  cursor: grab;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
 }
+.reviews-scroller::-webkit-scrollbar { display: none; }
+.reviews-scroller.dragging { cursor: grabbing; }
+.reviews-scroller > * { flex-shrink: 0; }
 
 /* ═══════════════ HUD Admin Dashboard System ═══════════════ */
 
