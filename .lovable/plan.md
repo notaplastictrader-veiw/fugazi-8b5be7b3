@@ -1,51 +1,48 @@
 
 
-## What you're asking
-Currently the homepage "Community Reviews" section only shows reviews that admins manually create from the admin panel. You want users to be able to **submit their own review about NAFT (the platform itself)** from the public site, and once approved, those reviews automatically appear in the "What Traders Say" section on the homepage.
-
-Already exists: `ReviewSubmissionForm.tsx` and `Write a review →` button on the homepage. Need to verify it submits **platform reviews** (no broker_id), not broker-specific reviews.
+## Issues found
+1. **Photo upload silently fails** — `PlatformReviewForm` uploads to the `media` bucket, but its RLS policy only allows `super_admin` to insert. Regular users get a permission error → photo never appears in the form, never saved with the review.
+2. **"Approved reviews appear on the homepage" copy** — needs to be removed/softened.
+3. **Ticker too slow + not draggable** — currently `60s linear infinite` CSS animation that users can't interact with.
 
 ## Plan
 
-### 1. Verify / wire up the existing "Write a review" button
-- Check `CommunityReviews.tsx` — confirm the "Write a review →" button opens a modal containing `ReviewSubmissionForm`.
-- If it currently requires a `broker_id`, add a "platform review" mode that submits with `broker_id = null`.
+### 1. Fix photo upload (RLS migration)
+Add a storage policy so authenticated users can upload to `media/reviews/{their_user_id}/...`:
+```sql
+-- INSERT: users can upload to media/reviews/<own uid>/
+-- DELETE: users can remove their own files
+-- (Public read already exists)
+```
+Folder check: `(storage.foldername(name))[1] = 'reviews' AND (storage.foldername(name))[2] = auth.uid()::text`
 
-### 2. Public review submission flow (`ReviewSubmissionForm.tsx`)
-- **Auth gate**: must be logged in (uses existing `AuthModal` if not).
-- **Prefill** from `profiles`: `full_name` → author, `avatar_url` → avatar, `experience_level` → role.
-- Fields: Rating (1–5 stars), Content (textarea), optional photo upload to `avatars/reviews/`.
-- Insert into `reviews` table with:
-  - `user_id` = current user
-  - `broker_id` = `null` (platform review)
-  - `status` = `'pending'` (admin must approve)
-- Show success toast: "Thanks! Your review will appear after approval."
+### 2. Remove approval copy in `PlatformReviewForm.tsx`
+- Subtitle: "Share your experience with the platform. Approved reviews appear on the homepage." → **"Share your experience with the platform."**
+- Footer hint: "All reviews require admin approval before appearing on the homepage." → **remove**
+- Success toast: "Thanks! Your review will appear after approval." → **"Thanks for your review!"**
 
-### 3. Homepage display (`CommunityReviews.tsx`)
-- Already fetches from `reviews` table where `status='published'`.
-- Confirm it shows reviews regardless of `broker_id` (so platform reviews appear).
-- Order by `created_at DESC` so newest approved reviews appear first.
+### 3. Make ticker faster + draggable in `CommunityReviews.tsx` + `index.css`
+Replace the pure-CSS infinite animation with a JS-driven scroll that:
+- Auto-scrolls **right → left** at a faster speed (~0.6 px/frame ≈ 36 px/sec, vs current ~30s/cycle equivalent).
+- Pauses on **hover**.
+- Supports **mouse drag** and **touch swipe** (pointer events) — user can grab and move freely.
+- Loops seamlessly by resetting scroll position when reaching the duplicated end.
 
-### 4. Admin moderation (`ReviewsAdmin.tsx`)
-- Already supports approve/reject — no changes needed.
-- Add a small "Source" column showing "User submitted" vs "Admin created" (based on whether `user_id` is set).
-- Add a filter chip to view only pending user-submitted reviews.
-
-### 5. Notifications (optional, light touch)
-- On user submission → notify admins via existing `notifyAdmins` helper so they see it in the approval queue.
-- On admin approval → send notification to the user: "Your review is now live."
+Implementation approach:
+- Use a `ref` on the scroll container with `overflow-x: auto` (hidden scrollbar via CSS).
+- `requestAnimationFrame` loop increments `scrollLeft`; when `scrollLeft >= contentWidth/2`, reset to `0` (since items are duplicated).
+- Pointer handlers: `pointerdown` → start dragging, pause auto-scroll; `pointermove` → adjust `scrollLeft` by delta; `pointerup/leave` → resume auto-scroll after short delay.
+- Add `cursor: grab` / `active:cursor-grabbing` styling.
+- Remove the `.ticker-track-slow` keyframe usage (keep CSS class for layout: flex + gap, no animation).
 
 ### Files touched
-- `src/components/sections/CommunityReviews.tsx` — wire "Write a review" button to open modal
-- `src/components/ReviewSubmissionForm.tsx` — verify platform-review mode (broker_id=null), add prefill
-- `src/pages/admin/ReviewsAdmin.tsx` — add Source column + pending filter
-
-### Database
-- No schema changes — `reviews` table already has `user_id` (nullable) and `broker_id` (nullable).
-- RLS already allows: authenticated users to insert own reviews, public to view published.
+- New migration — add user INSERT/DELETE policies on `storage.objects` for `media/reviews/<uid>/...`
+- `src/components/PlatformReviewForm.tsx` — copy tweaks
+- `src/components/sections/CommunityReviews.tsx` — drag-scroll logic
+- `src/index.css` — remove animation from `.ticker-track-slow`, add grab cursor
 
 ### Out of scope
-- Editing/deleting own reviews from a user dashboard (separate feature)
-- Spam/profanity filtering beyond admin approval
-- Replies/comments on platform reviews
+- Changing review moderation flow (admin approval still required server-side via `status='pending'` — we just don't tell the user upfront)
+- Touch momentum / inertia scrolling (basic drag only)
+- Mobile-specific speed tuning
 
