@@ -106,7 +106,17 @@ Deno.serve(async (req) => {
 
     let articles: NewsArticle[];
     try {
-      articles = await fetchFromFinnhub(apiKey);
+      const [forexRes, generalRes] = await Promise.allSettled([
+        fetchFromFinnhub(apiKey, "forex"),
+        fetchFromFinnhub(apiKey, "general"),
+      ]);
+      const forexArticles = forexRes.status === "fulfilled" ? forexRes.value : [];
+      const generalArticles = generalRes.status === "fulfilled" ? generalRes.value : [];
+      if (forexRes.status === "rejected") console.error("Finnhub forex failed:", forexRes.reason);
+      if (generalRes.status === "rejected") console.error("Finnhub general failed:", generalRes.reason);
+
+      articles = mergeArticles(forexArticles, generalArticles, 12);
+      if (articles.length === 0) throw new Error("Both Finnhub categories returned no articles");
     } catch (err) {
       console.error("Finnhub fetch failed:", err);
       return new Response(
