@@ -1,0 +1,1 @@
+DELETE FROM site_settings WHERE key IN ('calendar_cache','calendar_ml_cache');
