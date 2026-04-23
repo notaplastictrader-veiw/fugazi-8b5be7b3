@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Clock, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEconomicCalendar } from "@/hooks/useEconomicCalendar";
 
 interface CalendarEvent {
   id: string;
@@ -38,9 +39,10 @@ const impactStyles: Record<string, { bg: string; dot: string }> = {
 };
 
 const Calendar = () => {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dbEvents, setDbEvents] = useState<CalendarEvent[]>([]);
+  const [loadingDb, setLoadingDb] = useState(true);
   const [impactFilter, setImpactFilter] = useState("all");
+  const { events: liveEvents, loading: loadingLive } = useEconomicCalendar();
 
   useEffect(() => {
     const load = async () => {
@@ -49,13 +51,28 @@ const Calendar = () => {
         .select("*")
         .eq("status", "published")
         .order("event_date", { ascending: true });
-      setEvents(data && data.length > 0 ? data : fallbackEvents);
-      setLoading(false);
+      setDbEvents(data ?? []);
+      setLoadingDb(false);
     };
     load();
   }, []);
 
-  const filtered = impactFilter === "all" ? events : events.filter((e) => e.impact === impactFilter);
+  // Merge: DB events take priority on duplicate (same title + date)
+  const seen = new Set(dbEvents.map((e) => `${e.event_date}::${e.title.toLowerCase()}`));
+  const merged: CalendarEvent[] = [
+    ...dbEvents,
+    ...liveEvents.filter(
+      (e) => !seen.has(`${e.event_date}::${e.title.toLowerCase()}`),
+    ),
+  ];
+  const events = merged.length > 0 ? merged : fallbackEvents;
+  const loading = loadingDb && loadingLive && events.length === 0;
+
+  const sorted = [...events].sort((a, b) => {
+    if (a.event_date !== b.event_date) return a.event_date.localeCompare(b.event_date);
+    return (a.event_time ?? "").localeCompare(b.event_time ?? "");
+  });
+  const filtered = impactFilter === "all" ? sorted : sorted.filter((e) => e.impact === impactFilter);
 
   // Group by date
   const grouped = filtered.reduce<Record<string, CalendarEvent[]>>((acc, e) => {
