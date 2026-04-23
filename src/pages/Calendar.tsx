@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Clock, Globe } from "lucide-react";
+import { CalendarDays, Clock, Globe, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
+import { dedupeKey, categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
 
 const MAJORS = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
+const CATEGORIES = ["all", "central_bank", "inflation", "employment", "gdp", "manufacturing", "consumer", "housing", "other"];
 const TZ_KEY = "naft-calendar-tz";
 
 const impactStyles: Record<string, { bg: string; dot: string; border: string }> = {
@@ -40,10 +42,11 @@ const Calendar = () => {
   const [loadingDb, setLoadingDb] = useState(true);
   const [impactFilter, setImpactFilter] = useState("all");
   const [currencyFilter, setCurrencyFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
   const [timezone, setTimezone] = useState<"UTC" | "Local">("UTC");
   const [selected, setSelected] = useState<EconomicCalendarEvent | null>(null);
-  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError } = useEconomicCalendar();
+  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError, stale } = useEconomicCalendar();
 
   // Restore tz preference
   useEffect(() => {
@@ -89,13 +92,17 @@ const Calendar = () => {
     load();
   }, []);
 
-  // Merge — manual DB events win on duplicate (same date + name)
+  // Merge — manual DB events win on duplicate (normalized title-keyword signature)
   const merged = useMemo(() => {
-    const seen = new Set(dbEvents.map((e) => `${e.event_date}::${e.name.toLowerCase()}`));
-    return [
-      ...dbEvents,
-      ...liveEvents.filter((e) => !seen.has(`${e.event_date}::${e.name.toLowerCase()}`)),
-    ];
+    const seen = new Set(dbEvents.map((e) => dedupeKey(e.event_date, e.currency, e.name)));
+    const out = [...dbEvents];
+    for (const e of liveEvents) {
+      const k = dedupeKey(e.event_date, e.currency, e.name);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(e);
+    }
+    return out;
   }, [dbEvents, liveEvents]);
 
   const loading = loadingDb && loadingLive && merged.length === 0;
@@ -110,6 +117,7 @@ const Calendar = () => {
     const filtered = merged.filter((e) => {
       if (impactFilter !== "all" && e.impact !== impactFilter) return false;
       if (currencyFilter !== "all" && e.currency !== currencyFilter) return false;
+      if (categoryFilter !== "all" && categoryBucket(e.category, e.name) !== categoryFilter) return false;
       const adj = adjustForTz(e, timezone);
       if (rangeFilter === "today" && adj.date !== todayStr) return false;
       if (rangeFilter === "tomorrow" && adj.date !== tomorrow) return false;
@@ -130,7 +138,15 @@ const Calendar = () => {
       (g[k] ||= []).push(e);
     }
     return { grouped: g, dateKeys: Object.keys(g) };
-  }, [merged, impactFilter, currencyFilter, rangeFilter, timezone]);
+  }, [merged, impactFilter, currencyFilter, categoryFilter, rangeFilter, timezone]);
+
+  const filtersActive = impactFilter !== "all" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
+  const clearFilters = () => {
+    setImpactFilter("all");
+    setCurrencyFilter("all");
+    setCategoryFilter("all");
+    setRangeFilter("week");
+  };
 
   const formatDateHeader = (d: string) => {
     const date = new Date(d + "T00:00:00");
