@@ -24,6 +24,7 @@ export interface EconomicCalendarEvent {
 
 let sharedEvents: EconomicCalendarEvent[] = [];
 let lastFetchedAt = 0;
+let lastError: string | null = null;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
 
