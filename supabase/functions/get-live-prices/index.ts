@@ -44,13 +44,7 @@ function formatPrice(value: number, type: string): string {
   if (type === "crypto" && value >= 1000) {
     return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
   }
-  if (type === "index") {
-    return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  }
-  if (type === "commodity") {
-    return value.toFixed(2);
-  }
-  // forex: 4 decimals (5 for JPY pair handled by magnitude)
+  // forex: 4 decimals (2 for JPY-style >= 100)
   if (value >= 100) return value.toFixed(2);
   return value.toFixed(4);
 }
