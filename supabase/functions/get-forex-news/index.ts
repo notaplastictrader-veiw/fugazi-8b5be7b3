@@ -19,15 +19,17 @@ interface NewsArticle {
 
 const CACHE_TTL_MS = 5 * 60_000; // 5 minutes
 
-async function fetchFromFinnhub(apiKey: string): Promise<NewsArticle[]> {
-  const url = `https://finnhub.io/api/v1/news?category=forex&token=${apiKey}`;
+async function fetchFromFinnhub(
+  apiKey: string,
+  category: "forex" | "general",
+): Promise<NewsArticle[]> {
+  const url = `https://finnhub.io/api/v1/news?category=${category}&token=${apiKey}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Finnhub ${res.status}`);
+  if (!res.ok) throw new Error(`Finnhub ${category} ${res.status}`);
   const data = await res.json();
-  if (!Array.isArray(data)) throw new Error("Finnhub: unexpected response");
+  if (!Array.isArray(data)) throw new Error(`Finnhub ${category}: unexpected response`);
 
   return data
-    .slice(0, 10)
     .map((a: any) => ({
       headline: String(a.headline ?? "").trim(),
       summary: String(a.summary ?? "").trim(),
@@ -37,6 +39,22 @@ async function fetchFromFinnhub(apiKey: string): Promise<NewsArticle[]> {
       datetime: Number(a.datetime ?? 0),
     }))
     .filter((a) => a.headline && a.url);
+}
+
+function mergeArticles(
+  forex: NewsArticle[],
+  general: NewsArticle[],
+  cap: number,
+): NewsArticle[] {
+  const seen = new Set<string>();
+  const merged: NewsArticle[] = [];
+  for (const a of [...forex, ...general]) {
+    if (seen.has(a.url)) continue;
+    seen.add(a.url);
+    merged.push(a);
+    if (merged.length >= cap) break;
+  }
+  return merged;
 }
 
 Deno.serve(async (req) => {
