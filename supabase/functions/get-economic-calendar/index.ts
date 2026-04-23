@@ -1,5 +1,6 @@
-// Public edge function — returns cached economic calendar from JBlanked News API.
-// Caches in site_settings.calendar_cache for 24h (free tier = 1 req/day).
+// Public edge function — returns cached economic calendar from JBlanked News API
+// + optional ML sentiment predictions per currency.
+// Caches 12h by default in site_settings (free tier = 1 req/day).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -10,25 +11,33 @@ const corsHeaders = {
 
 interface CalendarEvent {
   id: string;
-  title: string;
-  description: string;
-  event_date: string; // YYYY-MM-DD
-  event_time: string | null; // HH:MM
+  name: string;
+  date: string; // ISO UTC
+  event_date: string; // YYYY-MM-DD (UTC)
+  event_time: string | null; // HH:MM (UTC)
   impact: "high" | "medium" | "low";
   currency: string;
   category: string;
+  description: string;
+  actual: string;
+  forecast: string;
+  previous: string;
+  // legacy aliases for existing UI
+  title: string;
   actual_value: string;
   forecast_value: string;
   previous_value: string;
+  ml_prediction?: "Bullish" | "Bearish" | "Neutral";
 }
 
-const CACHE_TTL_MS = 24 * 60 * 60_000; // 24 hours (JBlanked free tier = 1 req/day)
+const CACHE_TTL_MS = 12 * 60 * 60_000; // 12h — flip to 10*60_000 once on paid plan
+const MAJORS = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
 
 function mapImpact(imp: any): "high" | "medium" | "low" {
   const s = String(imp ?? "").toLowerCase();
   if (s === "high") return "high";
   if (s === "medium") return "medium";
-  return "low"; // "low" or "none"
+  return "low";
 }
 
 function slugify(s: string): string {
@@ -39,14 +48,11 @@ function slugify(s: string): string {
     .slice(0, 40);
 }
 
-// JBlanked Date format: "2024.02.08 15:30:00" in EST.
-// EST = UTC-5 (no DST handling — JBlanked uses fixed EST per docs).
+// JBlanked uses "2024.02.08 15:30:00" in EST (fixed UTC-5).
 function parseJBlankedDate(dateStr: string): Date | null {
   if (!dateStr) return null;
-  // "2024.02.08 15:30:00" -> "2024-02-08T15:30:00"
   const iso = dateStr.replace(/\./g, "-").replace(" ", "T");
-  // Treat as EST (UTC-5) → add 5 hours to get UTC
-  const local = new Date(iso + "Z"); // parse as UTC first
+  const local = new Date(iso + "Z");
   if (isNaN(local.getTime())) return null;
   return new Date(local.getTime() + 5 * 60 * 60_000);
 }
@@ -64,28 +70,74 @@ function normalize(raw: any[]): CalendarEvent[] {
 
     const event_date = `${yyyy}-${mm}-${dd}`;
     const event_time = hh === "00" && mi === "00" ? null : `${hh}:${mi}`;
-    const title = String(r.Name ?? "").trim();
+    const name = String(r.Name ?? "").trim();
     const currency = String(r.Currency ?? "").trim().toUpperCase();
-    if (!title) continue;
+    if (!name) continue;
 
-    const event: CalendarEvent = {
-      id: `jb-${currency}-${event_date}-${slugify(title)}`,
-      title,
-      description: String(r.Category ?? "").trim(),
+    const actual = r.Actual != null && r.Actual !== "" ? String(r.Actual) : "";
+    const forecast =
+      r.Forecast != null && r.Forecast !== "" ? String(r.Forecast) : "";
+    const previous =
+      r.Previous != null && r.Previous !== "" ? String(r.Previous) : "";
+    const description = String(r.Category ?? r.Outcome ?? "").trim();
+
+    out.push({
+      id: `jb-${currency}-${event_date.replace(/-/g, "")}-${slugify(name)}`,
+      name,
+      title: name,
+      date: d.toISOString(),
       event_date,
       event_time,
       impact: mapImpact(r.Impact),
       currency,
       category: "economic",
-      actual_value: r.Actual != null && r.Actual !== "" ? String(r.Actual) : "",
-      forecast_value:
-        r.Forecast != null && r.Forecast !== "" ? String(r.Forecast) : "",
-      previous_value:
-        r.Previous != null && r.Previous !== "" ? String(r.Previous) : "",
-    };
-    out.push(event);
+      description,
+      actual,
+      forecast,
+      previous,
+      actual_value: actual,
+      forecast_value: forecast,
+      previous_value: previous,
+    });
   }
   return out;
+}
+
+async function fetchMl(
+  apiKey: string,
+): Promise<Record<string, "Bullish" | "Bearish" | "Neutral">> {
+  const result: Record<string, "Bullish" | "Bearish" | "Neutral"> = {};
+  await Promise.all(
+    MAJORS.map(async (cur) => {
+      try {
+        const res = await fetch(
+          `https://www.jblanked.com/news/api/machine_learning/${cur}/`,
+          {
+            headers: {
+              Authorization: `Api-Key ${apiKey}`,
+              Accept: "application/json",
+            },
+          },
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        // Try common shapes
+        const pred =
+          data?.prediction ??
+          data?.Prediction ??
+          data?.signal ??
+          data?.direction ??
+          data?.outlook;
+        const s = String(pred ?? "").toLowerCase();
+        if (s.includes("bull")) result[cur] = "Bullish";
+        else if (s.includes("bear")) result[cur] = "Bearish";
+        else if (s) result[cur] = "Neutral";
+      } catch (_e) {
+        // skip silently
+      }
+    }),
+  );
+  return result;
 }
 
 Deno.serve(async (req) => {
@@ -99,14 +151,21 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // 1. Read cache
-    const { data: cacheRow } = await supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "calendar_cache")
-      .maybeSingle();
+    // 1. Read calendar cache + ml cache in parallel
+    const [calRes, mlRes] = await Promise.all([
+      supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "calendar_cache")
+        .maybeSingle(),
+      supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "calendar_ml_cache")
+        .maybeSingle(),
+    ]);
 
-    const cacheValue = cacheRow?.value as
+    const cacheValue = calRes.data?.value as
       | { events?: CalendarEvent[]; fetched_at?: string }
       | null;
     const cachedEvents = cacheValue?.events;
@@ -115,18 +174,30 @@ Deno.serve(async (req) => {
       : 0;
     const age = Date.now() - fetchedAt;
 
-    if (cachedEvents && cachedEvents.length > 0 && age < CACHE_TTL_MS) {
+    const mlValue = mlRes.data?.value as
+      | {
+          ml?: Record<string, "Bullish" | "Bearish" | "Neutral">;
+          fetched_at?: string;
+        }
+      | null;
+    const cachedMl = mlValue?.ml ?? {};
+
+    const fresh = cachedEvents && cachedEvents.length > 0 && age < CACHE_TTL_MS;
+
+    if (fresh) {
+      const enriched = (cachedEvents as CalendarEvent[]).map((e) => ({
+        ...e,
+        ml_prediction: cachedMl[e.currency],
+      }));
       return new Response(
-        JSON.stringify({ events: cachedEvents, cached: true, age_ms: age }),
+        JSON.stringify({ events: enriched, cached: true, age_ms: age }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // 2. Fetch from JBlanked Forex Factory weekly calendar
+    // 2. Fetch from JBlanked
     const apiKey = Deno.env.get("JBLANKED_API_KEY");
-    if (!apiKey) {
-      throw new Error("JBLANKED_API_KEY not configured");
-    }
+    if (!apiKey) throw new Error("JBLANKED_API_KEY not configured");
 
     let events: CalendarEvent[];
     try {
@@ -148,9 +219,13 @@ Deno.serve(async (req) => {
       if (events.length === 0) throw new Error("No events returned");
     } catch (err) {
       console.error("JBlanked fetch failed:", err);
+      const fallback = (cachedEvents ?? []).map((e) => ({
+        ...e,
+        ml_prediction: cachedMl[e.currency],
+      }));
       return new Response(
         JSON.stringify({
-          events: cachedEvents ?? [],
+          events: fallback,
           cached: false,
           error: "upstream_failed",
         }),
@@ -158,15 +233,35 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 3. Write cache
-    const newValue = { events, fetched_at: new Date().toISOString() };
-    const { error: upsertErr } = await supabase
-      .from("site_settings")
-      .upsert({ key: "calendar_cache", value: newValue }, { onConflict: "key" });
-    if (upsertErr) console.error("Cache upsert error:", upsertErr);
+    // 3. ML fan-out (best-effort)
+    let ml = cachedMl;
+    try {
+      const fresh = await fetchMl(apiKey);
+      if (Object.keys(fresh).length > 0) ml = fresh;
+    } catch (e) {
+      console.warn("ML fetch skipped:", e);
+    }
+
+    // 4. Persist caches
+    const now = new Date().toISOString();
+    await Promise.all([
+      supabase.from("site_settings").upsert(
+        { key: "calendar_cache", value: { events, fetched_at: now } },
+        { onConflict: "key" },
+      ),
+      supabase.from("site_settings").upsert(
+        { key: "calendar_ml_cache", value: { ml, fetched_at: now } },
+        { onConflict: "key" },
+      ),
+    ]);
+
+    const enriched = events.map((e) => ({
+      ...e,
+      ml_prediction: ml[e.currency],
+    }));
 
     return new Response(
-      JSON.stringify({ events, cached: false, age_ms: 0 }),
+      JSON.stringify({ events: enriched, cached: false, age_ms: 0 }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {

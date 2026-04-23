@@ -3,16 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface EconomicCalendarEvent {
   id: string;
+  name: string;
   title: string;
-  description: string;
+  date: string; // ISO UTC
   event_date: string;
   event_time: string | null;
   impact: "high" | "medium" | "low";
   currency: string;
   category: string;
+  description: string;
+  actual: string;
+  forecast: string;
+  previous: string;
+  // legacy aliases used by existing UI
   actual_value: string;
   forecast_value: string;
   previous_value: string;
+  ml_prediction?: "Bullish" | "Bearish" | "Neutral";
 }
 
 let sharedEvents: EconomicCalendarEvent[] = [];
@@ -20,13 +27,15 @@ let lastFetchedAt = 0;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
 
-const REFRESH_MS = 12 * 60 * 60_000; // 12 hours (server caches 24h)
+const REFRESH_MS = 12 * 60 * 60_000; // 12h — match server cache
 
 async function refresh() {
   if (inflight) return inflight;
   inflight = (async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("get-economic-calendar");
+      const { data, error } = await supabase.functions.invoke(
+        "get-economic-calendar",
+      );
       if (error) throw error;
       if (data?.events && Array.isArray(data.events)) {
         sharedEvents = data.events as EconomicCalendarEvent[];
