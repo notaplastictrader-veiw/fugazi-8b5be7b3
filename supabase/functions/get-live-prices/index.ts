@@ -60,20 +60,21 @@ async function fetchFromTwelveData(apiKey: string): Promise<TickerPair[]> {
   const data = await res.json();
 
   // When a single symbol is requested it returns a flat object; with multiple it's keyed.
-  const result: TickerPair[] = SYMBOLS.map((s) => {
+  // Skip symbols that error out so we only show real live data.
+  const result: TickerPair[] = SYMBOLS.flatMap((s) => {
     const entry = data?.[s.symbol] ?? (SYMBOLS.length === 1 ? data : null);
     if (!entry || entry.status === "error" || !entry.close) {
-      const fb = FALLBACK.find((f) => f.pair === s.label)!;
-      return fb;
+      console.warn(`Skipping ${s.label}: no data from upstream`);
+      return [];
     }
     const close = parseFloat(entry.close);
     const pct = parseFloat(entry.percent_change ?? "0");
-    return {
+    return [{
       pair: s.label,
       price: formatPrice(close, s.type),
       change: `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`,
       up: pct >= 0,
-    };
+    }];
   });
 
   return result;
