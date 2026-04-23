@@ -16,14 +16,14 @@ interface TickerPair {
 }
 
 // Display label -> TwelveData symbol
-const SYMBOLS: Array<{ label: string; symbol: string; type: "forex" | "crypto" | "index" | "commodity" }> = [
+const SYMBOLS: Array<{ label: string; symbol: string; type: "forex" | "crypto" }> = [
   { label: "XAU/USD", symbol: "XAU/USD", type: "forex" },
   { label: "EUR/USD", symbol: "EUR/USD", type: "forex" },
   { label: "GBP/USD", symbol: "GBP/USD", type: "forex" },
   { label: "USD/JPY", symbol: "USD/JPY", type: "forex" },
+  { label: "AUD/USD", symbol: "AUD/USD", type: "forex" },
+  { label: "USD/CAD", symbol: "USD/CAD", type: "forex" },
   { label: "BTC/USD", symbol: "BTC/USD", type: "crypto" },
-  { label: "NASDAQ", symbol: "IXIC", type: "index" },
-  { label: "OIL", symbol: "WTI/USD", type: "commodity" },
   { label: "ETH/USD", symbol: "ETH/USD", type: "crypto" },
 ];
 
@@ -32,9 +32,9 @@ const FALLBACK: TickerPair[] = [
   { pair: "EUR/USD", price: "1.0847", change: "-0.12%", up: false },
   { pair: "GBP/USD", price: "1.2634", change: "+0.25%", up: true },
   { pair: "USD/JPY", price: "157.42", change: "+0.45%", up: true },
+  { pair: "AUD/USD", price: "0.6587", change: "+0.18%", up: true },
+  { pair: "USD/CAD", price: "1.3642", change: "-0.09%", up: false },
   { pair: "BTC/USD", price: "67,842", change: "+2.14%", up: true },
-  { pair: "NASDAQ", price: "18,524", change: "-0.33%", up: false },
-  { pair: "OIL", price: "78.32", change: "+0.67%", up: true },
   { pair: "ETH/USD", price: "3,521", change: "+1.82%", up: true },
 ];
 
@@ -44,13 +44,7 @@ function formatPrice(value: number, type: string): string {
   if (type === "crypto" && value >= 1000) {
     return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
   }
-  if (type === "index") {
-    return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  }
-  if (type === "commodity") {
-    return value.toFixed(2);
-  }
-  // forex: 4 decimals (5 for JPY pair handled by magnitude)
+  // forex: 4 decimals (2 for JPY-style >= 100)
   if (value >= 100) return value.toFixed(2);
   return value.toFixed(4);
 }
@@ -66,20 +60,21 @@ async function fetchFromTwelveData(apiKey: string): Promise<TickerPair[]> {
   const data = await res.json();
 
   // When a single symbol is requested it returns a flat object; with multiple it's keyed.
-  const result: TickerPair[] = SYMBOLS.map((s) => {
+  // Skip symbols that error out so we only show real live data.
+  const result: TickerPair[] = SYMBOLS.flatMap((s) => {
     const entry = data?.[s.symbol] ?? (SYMBOLS.length === 1 ? data : null);
     if (!entry || entry.status === "error" || !entry.close) {
-      const fb = FALLBACK.find((f) => f.pair === s.label)!;
-      return fb;
+      console.warn(`Skipping ${s.label}: no data from upstream`);
+      return [];
     }
     const close = parseFloat(entry.close);
     const pct = parseFloat(entry.percent_change ?? "0");
-    return {
+    return [{
       pair: s.label,
       price: formatPrice(close, s.type),
       change: `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`,
       up: pct >= 0,
-    };
+    }];
   });
 
   return result;
