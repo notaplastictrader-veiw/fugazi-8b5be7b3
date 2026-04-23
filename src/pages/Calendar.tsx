@@ -256,7 +256,16 @@ const Calendar = () => {
         ) : dateKeys.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground min-h-[400px]">
             <CalendarDays className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p>No events match your filters.</p>
+            {liveError && merged.length === 0 ? (
+              <>
+                <p className="font-semibold text-foreground mb-1">Live calendar feed temporarily unavailable</p>
+                <p className="text-xs max-w-md mx-auto">
+                  Our data provider's daily quota is exhausted. The feed will refresh automatically within 12 hours, or an admin can publish events manually from the dashboard.
+                </p>
+              </>
+            ) : (
+              <p>No events match your filters.</p>
+            )}
           </div>
         ) : (
           <div className="space-y-8 min-h-[400px]">
