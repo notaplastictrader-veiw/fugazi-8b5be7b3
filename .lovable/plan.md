@@ -1,85 +1,97 @@
 
 
-## Calendar improvements — 4 enhancements + auto-refresh resilience
+## Sports data provider — picking a safe option
 
-You're asking for four upgrades to `/calendar`. Three of them (filters, timezone selector, click-to-open modal) are already built and live — I'll verify and polish. The fourth (smarter duplicate detection) is new. Plus you want it to "work after refresh" — I'll fix the cache-empty case so the page shows data even when the JBlanked free-tier quota is exhausted at refresh time.
+You shared 4 links pointing to Sofascore-related APIs. I checked what each actually is and weighed them against TheSportsDB (the original spec). Here's the honest read.
 
-## What's already done (verified in current code)
+## The 4 options you linked, ranked by safety
 
-1. ✅ **Click-to-open modal** — `EventDetailModal.tsx` shows full description, Actual/Forecast/Previous table, ML badge, Forex Factory link. Wired via `setSelected(e)` on row click.
-2. ✅ **Currency + category-style filters** — sticky filter bar with Impact (All/High/Med/Low), Currency (All + 8 majors), and Range (Today/Tomorrow/This Week). Updates instantly via `useMemo`.
-3. ✅ **Timezone selector** — UTC ↔ Local toggle, persisted in `localStorage` under `naft-calendar-tz`.
+### ❌ RapidAPI "Sofascore Sport API" (apisummit)
+- **Unofficial scraper** wrapping Sofascore's private endpoints
+- Sofascore has **no public API** and their ToS forbids scraping
+- Third-party reseller — could be taken down or sued at any time
+- Rate limits + paid tiers above ~50 req/day
+- **Risk:** account suspension, surprise billing, sudden API death. Not safe for production.
 
-## What's new in this plan
+### ❌ GitHub `apdmatos/sofascore-api`
+- Same story — community-built reverse-engineered client of Sofascore's internal endpoints
+- No license to use Sofascore data commercially
+- Unmaintained-style project, breaks whenever Sofascore changes their internal API
+- **Risk:** legal grey zone + breakage. Not safe.
 
-### 1. Smarter duplicate detection (title-keyword normalization)
+### ⚠️ sportsapis.dev "Free Sports API"
+- Aggregator listing site, not an API itself — links to other free APIs (most of which are TheSportsDB, API-Football's free tier, ESPN's hidden endpoints)
+- Useful as a directory, not a data source
 
-Current logic: `event_date + lowercase(name)` — misses near-duplicates like:
-- `"Non-Farm Payrolls"` vs `"NFP"` vs `"Nonfarm Payrolls (NFP)"`
-- `"CPI m/m"` vs `"CPI MoM"` vs `"Consumer Price Index MoM"`
+### ✅ TheSportsDB (already in original spec)
+- **Officially free and legal** — public API, key `1` is documented for free use
+- Covers EPL, NBA, IPL — exactly the 3 leagues spec'd
+- Stable since 2014, well-documented, no surprise pricing
+- Rate limits are generous (~30 req/min), and we cache 5 min server-side anyway
+- **This is the safe choice.**
 
-New logic in `Calendar.tsx`'s merge step:
-- Build a **normalized signature** per event: lowercase → strip parentheses → remove punctuation → collapse whitespace → drop stopwords (`the, and, of, m/m, y/y, q/q, mom, yoy, qoq`) → expand common acronyms (`nfp → nonfarm payrolls`, `cpi → consumer price index`, `gdp → gross domestic product`, `pmi → purchasing managers index`, `boe → bank of england`, `boj → bank of japan`, `ecb → european central bank`, `fomc → federal open market committee`, `rba → reserve bank of australia`, `boc → bank of canada`, `snb → swiss national bank`, `rbnz → reserve bank of new zealand`)
-- Sort the resulting words alphabetically → join → take first 5 keyword tokens
-- Final dedupe key: `${event_date}::${currency}::${signature}`
-- Manual DB events still win on collision (they're inserted first into the seen-set)
+## My recommendation: stick with TheSportsDB
 
-### 2. Add a "Category" filter row
+The Sofascore options would give slightly richer data (live in-play scores, more leagues), but the legal + stability risk is real — Sofascore actively blocks scrapers, and any third-party wrapper is one cease-and-desist away from disappearing. For a public production site like NAFT, that's not worth it.
 
-Right now there's no category filter — JBlanked returns categories like `economic`, `central_bank`, `inflation`, `employment`, `gdp`, `manufacturing`, `consumer`, `housing`. I'll add a horizontally-scrollable pill row under the currency row with: All / Central Bank / Inflation / Employment / GDP / Manufacturing / Consumer / Housing / Other. Mapped from the raw category string with a small lookup table.
+TheSportsDB delivers everything your spec asked for:
+- Upcoming fixtures (`eventsnextleague.php?id=...`)
+- Past results with final scores (`eventspastleague.php?id=...`)
+- LIVE status field (`strStatus`)
+- Team names, dates, league names
+- Free, legal, stable
 
-### 3. Refresh resilience — keep showing data after browser refresh even when API is dead
+## Plan: build the original Sports Schedule & Results system on TheSportsDB
 
-Right now the hook fetches on mount, and if JBlanked is out of credits + cache is empty, page shows "feed temporarily unavailable". On refresh nothing improves until the daily quota resets.
+Same plan I presented before — no changes needed. Recap:
 
-Fix in the edge function:
-- **Stale-while-error fallback**: persist the **last successful payload** in `site_settings.calendar_cache_last_good` (separate from the TTL cache). When the upstream JBlanked call fails AND the live cache is expired, return the last-good payload with a `stale: true` flag (up to 7 days old).
-- **Cache survives refresh** because it's in DB, not memory. So once the daily fetch succeeds, every subsequent browser refresh for the next ~24h shows that data instantly with zero API calls.
-- **Manual DB events always shown** — the page already merges `calendar_events` (from DB, admin-published) on top of API events, so even if the live feed is fully dead, manually-added events render fine.
-
-Add a small "stale data" badge in the header when `stale: true` so users know.
-
-### 4. Polish on the existing pieces (small)
-
-- **Filter bar** stays sticky; add the new Category row beneath Currency
-- **Modal**: add the event's normalized category as a small pill next to currency
-- **Timezone selector**: keep current toggle, no changes
-- **Empty state**: when filters return zero rows but the underlying feed has data, show "No events match your filters — clear filters" with a clear button
-
-## Files touched
+### Files
 
 ```text
-edit  supabase/functions/get-economic-calendar/index.ts
-        - Write last-good payload to site_settings.calendar_cache_last_good on every successful fetch
-        - On upstream failure + expired cache, return last-good with stale: true
+new   supabase/functions/get-sports-data/index.ts
+        - Fetch 6 endpoints in parallel (3 leagues × upcoming + past)
+        - Normalize to { upcoming: [...], results: [...] }
+        - 5-min cache in site_settings.sports_cache
+        - Stale-while-error fallback in site_settings.sports_cache_last_good (24h)
+        - CORS enabled, no auth required
 
-edit  src/hooks/useEconomicCalendar.ts
-        - Surface `stale: boolean` in the returned shape
+new   src/hooks/useSportsSchedule.ts
+        - Calls edge function, exposes { upcoming, results, loading, stale, lastFetched, refresh }
+        - Shared subscriber pattern (same as useEconomicCalendar)
+        - 10-min auto-refresh, only when tab visible
 
-edit  src/pages/Calendar.tsx
-        - Replace dedupe logic with normalized-keyword signature
-        - Add Category filter row in sticky bar
-        - Show "Showing cached data" badge when stale
-        - "Clear filters" button in empty state
+new   src/components/sports/SportsScheduleSection.tsx
+        - Filter tabs: All / Football / Cricket / Basketball
+        - Upcoming Matches grid (team vs team, date, time, league)
+        - Latest Results grid (scores, winner in lime, loser in red)
+        - LIVE pulse-dot badge for in-progress matches
+        - WON/LOST badge when result matches a sports_predictions row
+        - Manual refresh button + "updated X min ago"
+        - Stale data badge when serving fallback
+        - Skeleton loaders, mobile responsive, glass-card + red-glow styling
 
-edit  src/components/calendar/EventDetailModal.tsx
-        - Add category pill next to currency
+edit  src/pages/Sports.tsx
+        - Mount <SportsScheduleSection /> below the existing tabs section
 ```
 
-No DB migration needed — `site_settings` already supports arbitrary keys.
+### Leagues (TheSportsDB IDs from spec)
+- Football → EPL, ID `4328`
+- Cricket → IPL, ID `4424`
+- Basketball → NBA, ID `4387`
 
-## Technical notes
+### Prediction matching (bonus from spec)
+On load, fetch `sports_predictions` rows. For each result card, match `homeTeam`/`awayTeam` against `team_a`/`team_b` (case-insensitive includes), determine actual winner from scores, compare to prediction text → show WON (green) or LOST (red). UI overlay only, no DB writes.
 
-- **Normalized signature is pure client-side** — no edge function changes needed for dedupe; runs in the same `useMemo` that merges `dbEvents + liveEvents`
-- **Stale-while-error pattern** is the standard way to survive provider outages on a free tier; cost is one extra `site_settings` upsert per successful fetch (negligible)
-- **No 10-min cache change** — still 12h to respect JBlanked free tier; flip `CACHE_TTL_MS` later if you upgrade the plan
-- **No new secrets, no new dependencies, no breaking changes** to admin panel or homepage widget
+### Safety / risk notes
+- **No new secrets needed** — TheSportsDB key `1` is public and hardcoded
+- **Cache + stale-fallback** ensures `/sports` keeps working even if TheSportsDB is down for hours
+- **No scraping, no ToS violations, no legal risk**
+- **No new dependencies, no DB migration** — `site_settings` already exists with arbitrary key support
 
-## What you'll see when this ships
-
-- Refresh `/calendar` after the JBlanked quota resets once → page loads instantly forever after, even after browser refresh, even after quota dies again
-- Duplicate "NFP" / "Non-Farm Payrolls" / "Nonfarm Payrolls (NFP)" entries collapse into one
-- New Category filter row to slice the list by event type
-- Cleaner empty state with "Clear filters" CTA
-- Small "Showing cached data" badge appears only when serving stale fallback
+### What you'll see
+- New "Sports Schedule & Results" section on `/sports`
+- Real EPL fixtures, NBA games, IPL matches refreshing every 10 min
+- Final scores with winner highlighted lime, loser red
+- LIVE pulse-dot on in-progress matches
+- WON/LOST tag on results matching your predictions
 
