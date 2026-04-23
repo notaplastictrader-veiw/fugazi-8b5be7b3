@@ -1,39 +1,69 @@
 
 
-## Free economic calendar — options
+## Replace TradingEconomics with JBlanked News API
 
-You already have a `/calendar` page wired to a `calendar_events` Supabase table with admin CRUD (`CalendarAdmin.tsx`) and a falling-back static list. The question is what **free live data source** to use to populate it automatically (like we did for news with Finnhub).
+Your current calendar feed uses TradingEconomics' guest endpoint, which started returning **HTTP 410 (Gone)** today (see edge function logs). JBlanked is a solid replacement — better data quality, 8 major currencies, multiple sources (MQL5, Forex Factory, FxStreet), and richer fields (Outcome, Strength, Quality).
 
-## Free options compared
+## ⚠️ Critical free-tier constraint
 
-| Source | Free? | API key | Coverage | Notes |
-|---|---|---|---|---|
-| **TradingEconomics** | ✅ Guest key `guest:guest` | No signup | Limited to a few countries (US, MX, NZ, SE, TH) on guest | Easiest to start; upgrade later for full coverage |
-| **Finnhub** `/calendar/economic` | ⚠️ Premium-only on free tier | Existing key | Full global coverage | Returns 403 on free plan — not usable without paid upgrade |
-| **FMP (Financial Modeling Prep)** | ✅ 250 calls/day free | Signup required | Global | Good free tier, needs API key |
-| **Investing.com / Forex Factory** | ❌ No public API | — | — | Scraping violates ToS — skip |
-| **Manual via admin** | ✅ Already built | — | Whatever you add | Zero cost, zero automation |
+The JBlanked docs say:
 
-## Recommendation
+> Due to a huge increase in traffic, **free API usage has decreased to 1 request per day.**
 
-Two-step approach, same pattern as the news feed:
+Premium use costs 1 credit per call. So we must cache aggressively — **once-per-day refresh** on free tier. This is fine because the calendar doesn't change minute-to-minute.
 
-1. **TradingEconomics guest endpoint** as the live source — no signup, works immediately. Limited country coverage but covers major USD events. URL: `https://api.tradingeconomics.com/calendar?c=guest:guest&f=json`
-2. **Keep the admin CRUD** as the override/supplement layer. Anything you add manually in `CalendarAdmin` takes priority and shows alongside live events.
+## What JBlanked offers (3 APIs)
 
-If guest coverage feels too thin later, swap to **FMP free tier** (need to add `FMP_API_KEY` secret) for full global coverage at 250 calls/day — well within a 5-min cache budget.
+| API | What it does | Use for your site |
+|---|---|---|
+| **Calendar** | Today / This Week / Date Range events from MQL5, Forex Factory, FxStreet. 8 currencies, impact levels, Outcome/Strength/Quality fields | ✅ Replace current calendar feed |
+| **GPT** | AI sentiment analysis on news events & central-bank speeches | Optional — could enrich `/news` cards with AI sentiment badges |
+| **Backtesting** | Historical impact data + ML predictions per event | Optional — niche, more for trading bots than your review platform |
 
-## What I'd build (when you approve)
+**Recommendation:** Use **Calendar** now, skip GPT/Backtesting unless you want them later.
 
-- New edge function `get-economic-calendar` — fetches TradingEconomics guest feed, normalizes to your `calendar_events` shape, caches 15 min in `site_settings.calendar_cache`.
-- New hook `useEconomicCalendar` — same pattern as `useForexNews`.
-- Update `/calendar` page — merge live events with published DB events (DB wins on duplicate by title+date), keep existing impact filter, group by date.
-- Homepage: optional small "Today's events" widget if you want it (3 high-impact only) — let me know.
+## Plan
 
-## Question for you
+### 1. Store API key as secret
+Add `JBLANKED_API_KEY = 1xGelG27axaU2VzR3MDEpVCgmjiMlqGw` via the secrets tool. Never expose it client-side.
 
-Which source do you want to start with?
-- **A.** TradingEconomics guest (zero setup, limited countries) — recommended to start
-- **B.** FMP free tier (full global, needs API key signup)
-- **C.** Manual only — keep admin CRUD, no live feed
+### 2. Rewrite `get-economic-calendar` edge function
+- **Source:** `https://www.jblanked.com/news/api/forex-factory/calendar/week/` (Forex Factory = best-known, full week of events).
+- **Auth:** `Authorization: Api-Key <key>` header.
+- **Cache TTL:** bump from 15 min → **24 hours** to respect 1-req/day limit. Keep the existing `site_settings.calendar_cache` row.
+- **Normalize** JBlanked fields to your existing `CalendarEvent` shape:
+  - `Name` → `title`
+  - `Currency` → `currency`
+  - `Category` → `description`
+  - `Impact` ("High"/"Medium"/"Low"/"None") → `impact` (lowercase, "none"→"low")
+  - `Date` ("2024.02.08 15:30:00", **EST**) → split into `event_date` (UTC YYYY-MM-DD) + `event_time` (UTC HH:MM)
+  - `Actual` / `Forecast` / `Previous` → `actual_value` / `forecast_value` / `previous_value`
+  - Stable `id`: `jb-${currency}-${date}-${name-slug}`
+- **Failure path:** if upstream fails or quota hit, return whatever's cached (current behavior already does this).
+
+### 3. Update hook refresh interval
+`src/hooks/useEconomicCalendar.ts`: change `REFRESH_MS` from 15 min → 12 hours (we still cache 24h on the server, but a soft client-side check at 12h is harmless). No other code changes — same shape, same merging on the `/calendar` page.
+
+### 4. Clear stale cache
+Run a one-line migration to delete the broken TradingEconomics cache row so the next page-load fetches fresh from JBlanked:
+```sql
+DELETE FROM site_settings WHERE key = 'calendar_cache';
+```
+
+### 5. Admin override unchanged
+`CalendarAdmin.tsx` still works — manually-published `calendar_events` rows still take priority over live JBlanked events on duplicate (date+title), thanks to the existing merge logic on `/calendar`.
+
+## What you get
+
+- ✅ Live calendar working again (TradingEconomics is dead)
+- ✅ 8 major currencies (USD, EUR, GBP, JPY, AUD, CAD, CHF, NZD) — much better than guest TE
+- ✅ One full week of events instead of 30 days of sparse data
+- ✅ Stays free as long as we cache 24h
+- ⚠️ If you later upgrade JBlanked to a paid plan, we can drop the cache to 15 min and add Today + GPT sentiment
+
+## Optional future add-ons (not in this plan)
+
+- **GPT sentiment badges** on news cards (1 credit per news event, paid only)
+- **Backtesting impact scores** shown next to each calendar event
+- Just say the word and I'll build either when you're ready.
 
