@@ -1,19 +1,30 @@
 
 
-## Show all live forex news on homepage (remove 6-card cap)
+## Show only live Finnhub news on /news page
 
-Currently `LatestForexNews.tsx` slices the feed to 6 articles via `articles.slice(0, 6)`. You want to show **all** live articles the edge function returns (currently up to 10 from Finnhub).
+Right now `/news` merges live Finnhub articles **with** the editorial cards from the `news_articles` Supabase table (plus a hard-coded `fallbackEditorial` array of 4 fake articles when the DB is empty). You want **only live forex news** there. Editorial cards should appear only if you manually add them later via the DB — never as fallback.
 
-## Change
+## Why only 1 live card shows now
 
-**File:** `src/components/sections/LatestForexNews.tsx`
+The Finnhub edge function returns up to 10 articles, but they all share the same category `live-forex`. The current page mixes them with 4 fallback editorial cards, which dominate the grid visually. We'll strip editorial entirely so all 10 live cards show.
 
-- Remove `const display = articles.slice(0, 6);` and use `articles` directly throughout the component.
-- Keep the same 3-column responsive grid (`md:grid-cols-2 lg:grid-cols-3`) — it will simply flow to a 4th row when more cards are present.
-- Keep the "View all news →" link to `/news` for editorial articles.
-- Skeleton loader count stays at 6 (reasonable initial placeholder).
+## Changes
+
+**File:** `src/pages/News.tsx`
+
+- Remove the `EditorialArticle` interface, `fallbackEditorial` array, and the entire `supabase.from("news_articles")` fetch.
+- Remove `editorial`, `editorialLoading`, `editorialToUnified` state and helpers.
+- `allArticles` becomes just the live Finnhub articles mapped through `liveToUnified`.
+- Remove the dynamic categories built from editorial entries — keep only `["all", "live-forex"]` as filter chips (or drop filters entirely since there's just one category — we'll keep the chip row but with just those two for visual consistency).
+- Update the page subtitle to reflect live-only: "Real-time forex headlines from trusted sources, auto-refreshed every 5 minutes."
+- Loading state depends only on `liveLoading`.
+- Empty state message updates to: "No live news available right now. Check back in a few minutes."
+
+**Homepage (`LatestForexNews.tsx`):** No changes — already live-only.
+
+**Editorial in future:** When you want to add editorial cards back, you'll insert rows into the `news_articles` table directly. We can add the merge logic back at that point — for now the component is clean and live-only.
 
 ## Result
 
-Homepage "Latest Forex News" section will display **all live articles** returned by the `get-forex-news` edge function (up to 10), instead of just 6. No other pages or files affected.
+`/news` will display **all live Finnhub articles** (up to 10) in the grid, no editorial fallback, no DB query. Homepage section unchanged.
 
