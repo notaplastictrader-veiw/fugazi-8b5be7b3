@@ -89,20 +89,20 @@ const LatestForexNews = () => {
         </Link>
       </div>
 
-      {loading && articles.length === 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
+      {loading && display.length === 0 ? (
+        <div className="grid md:grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
             <Skeleton key={i} className="h-32 rounded-2xl" />
           ))}
         </div>
-      ) : articles.length === 0 ? (
+      ) : display.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground glass-card rounded-2xl">
           <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">News feed temporarily unavailable.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {articles.map((article, i) => (
+        <div className="grid md:grid-cols-3 gap-4">
+          {display.map((article, i) => (
             <NewsCard key={`${article.url}-${i}`} article={article} />
           ))}
         </div>
