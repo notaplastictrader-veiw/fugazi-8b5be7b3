@@ -151,8 +151,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // 1. Read calendar cache + ml cache in parallel
-    const [calRes, mlRes] = await Promise.all([
+    // 1. Read calendar cache + ml cache + last-good in parallel
+    const [calRes, mlRes, lastGoodRes] = await Promise.all([
       supabase
         .from("site_settings")
         .select("value")
@@ -162,6 +162,11 @@ Deno.serve(async (req) => {
         .from("site_settings")
         .select("value")
         .eq("key", "calendar_ml_cache")
+        .maybeSingle(),
+      supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "calendar_cache_last_good")
         .maybeSingle(),
     ]);
 
@@ -173,6 +178,10 @@ Deno.serve(async (req) => {
       ? new Date(cacheValue.fetched_at).getTime()
       : 0;
     const age = Date.now() - fetchedAt;
+
+    const lastGoodValue = lastGoodRes.data?.value as
+      | { events?: CalendarEvent[]; fetched_at?: string }
+      | null;
 
     const mlValue = mlRes.data?.value as
       | {
@@ -190,7 +199,7 @@ Deno.serve(async (req) => {
         ml_prediction: cachedMl[e.currency],
       }));
       return new Response(
-        JSON.stringify({ events: enriched, cached: true, age_ms: age }),
+        JSON.stringify({ events: enriched, cached: true, stale: false, age_ms: age }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -219,7 +228,17 @@ Deno.serve(async (req) => {
       if (events.length === 0) throw new Error("No events returned");
     } catch (err) {
       console.error("JBlanked fetch failed:", err);
-      const fallback = (cachedEvents ?? []).map((e) => ({
+      // Stale-while-error: prefer last-good (up to 7 days), then any cached events
+      const SEVEN_DAYS = 7 * 24 * 60 * 60_000;
+      const lastGoodAge = lastGoodValue?.fetched_at
+        ? Date.now() - new Date(lastGoodValue.fetched_at).getTime()
+        : Infinity;
+      const useLastGood =
+        lastGoodValue?.events &&
+        lastGoodValue.events.length > 0 &&
+        lastGoodAge < SEVEN_DAYS;
+      const source = useLastGood ? lastGoodValue!.events! : (cachedEvents ?? []);
+      const fallback = source.map((e) => ({
         ...e,
         ml_prediction: cachedMl[e.currency],
       }));
@@ -227,6 +246,7 @@ Deno.serve(async (req) => {
         JSON.stringify({
           events: fallback,
           cached: false,
+          stale: useLastGood,
           error: "upstream_failed",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -242,11 +262,15 @@ Deno.serve(async (req) => {
       console.warn("ML fetch skipped:", e);
     }
 
-    // 4. Persist caches
+    // 4. Persist caches (live TTL cache + last-good fallback)
     const now = new Date().toISOString();
     await Promise.all([
       supabase.from("site_settings").upsert(
         { key: "calendar_cache", value: { events, fetched_at: now } },
+        { onConflict: "key" },
+      ),
+      supabase.from("site_settings").upsert(
+        { key: "calendar_cache_last_good", value: { events, fetched_at: now } },
         { onConflict: "key" },
       ),
       supabase.from("site_settings").upsert(
@@ -261,7 +285,7 @@ Deno.serve(async (req) => {
     }));
 
     return new Response(
-      JSON.stringify({ events: enriched, cached: false, age_ms: 0 }),
+      JSON.stringify({ events: enriched, cached: false, stale: false, age_ms: 0 }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {

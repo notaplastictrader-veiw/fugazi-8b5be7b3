@@ -2,13 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Clock, Globe } from "lucide-react";
+import { CalendarDays, Clock, Globe, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
+import { dedupeKey, categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
 
 const MAJORS = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
+const CATEGORIES = ["all", "central_bank", "inflation", "employment", "gdp", "manufacturing", "consumer", "housing", "other"];
 const TZ_KEY = "naft-calendar-tz";
 
 const impactStyles: Record<string, { bg: string; dot: string; border: string }> = {
@@ -40,10 +42,11 @@ const Calendar = () => {
   const [loadingDb, setLoadingDb] = useState(true);
   const [impactFilter, setImpactFilter] = useState("all");
   const [currencyFilter, setCurrencyFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
   const [timezone, setTimezone] = useState<"UTC" | "Local">("UTC");
   const [selected, setSelected] = useState<EconomicCalendarEvent | null>(null);
-  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError } = useEconomicCalendar();
+  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError, stale } = useEconomicCalendar();
 
   // Restore tz preference
   useEffect(() => {
@@ -89,13 +92,17 @@ const Calendar = () => {
     load();
   }, []);
 
-  // Merge — manual DB events win on duplicate (same date + name)
+  // Merge — manual DB events win on duplicate (normalized title-keyword signature)
   const merged = useMemo(() => {
-    const seen = new Set(dbEvents.map((e) => `${e.event_date}::${e.name.toLowerCase()}`));
-    return [
-      ...dbEvents,
-      ...liveEvents.filter((e) => !seen.has(`${e.event_date}::${e.name.toLowerCase()}`)),
-    ];
+    const seen = new Set(dbEvents.map((e) => dedupeKey(e.event_date, e.currency, e.name)));
+    const out = [...dbEvents];
+    for (const e of liveEvents) {
+      const k = dedupeKey(e.event_date, e.currency, e.name);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(e);
+    }
+    return out;
   }, [dbEvents, liveEvents]);
 
   const loading = loadingDb && loadingLive && merged.length === 0;
@@ -110,6 +117,7 @@ const Calendar = () => {
     const filtered = merged.filter((e) => {
       if (impactFilter !== "all" && e.impact !== impactFilter) return false;
       if (currencyFilter !== "all" && e.currency !== currencyFilter) return false;
+      if (categoryFilter !== "all" && categoryBucket(e.category, e.name) !== categoryFilter) return false;
       const adj = adjustForTz(e, timezone);
       if (rangeFilter === "today" && adj.date !== todayStr) return false;
       if (rangeFilter === "tomorrow" && adj.date !== tomorrow) return false;
@@ -130,7 +138,15 @@ const Calendar = () => {
       (g[k] ||= []).push(e);
     }
     return { grouped: g, dateKeys: Object.keys(g) };
-  }, [merged, impactFilter, currencyFilter, rangeFilter, timezone]);
+  }, [merged, impactFilter, currencyFilter, categoryFilter, rangeFilter, timezone]);
+
+  const filtersActive = impactFilter !== "all" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
+  const clearFilters = () => {
+    setImpactFilter("all");
+    setCurrencyFilter("all");
+    setCategoryFilter("all");
+    setRangeFilter("week");
+  };
 
   const formatDateHeader = (d: string) => {
     const date = new Date(d + "T00:00:00");
@@ -169,6 +185,11 @@ const Calendar = () => {
             Track high-impact events and ML-powered sentiment for the 8 majors. Plan trades around the data.
           </p>
           <p className="text-xs font-mono text-muted-foreground/70">{updatedAgo}</p>
+          {stale && (
+            <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-accent/15 text-accent border border-accent/30">
+              <AlertTriangle className="w-3 h-3" /> Showing cached data — live feed unavailable
+            </div>
+          )}
         </div>
 
         {/* Sticky filter bar */}
@@ -247,6 +268,23 @@ const Calendar = () => {
               </button>
             ))}
           </div>
+
+          {/* Category filter */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-0.5">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategoryFilter(c)}
+                className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase transition-all ${
+                  categoryFilter === c
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {CATEGORY_LABELS[c]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -264,7 +302,17 @@ const Calendar = () => {
                 </p>
               </>
             ) : (
-              <p>No events match your filters.</p>
+              <>
+                <p className="mb-3">No events match your filters.</p>
+                {filtersActive && (
+                  <button
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-mono bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </>
             )}
           </div>
         ) : (

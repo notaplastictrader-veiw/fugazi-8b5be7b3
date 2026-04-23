@@ -25,6 +25,7 @@ export interface EconomicCalendarEvent {
 let sharedEvents: EconomicCalendarEvent[] = [];
 let lastFetchedAt = 0;
 let lastError: string | null = null;
+let lastStale = false;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
 
@@ -42,6 +43,7 @@ async function refresh() {
         sharedEvents = data.events as EconomicCalendarEvent[];
         lastFetchedAt = Date.now();
         lastError = data?.error ?? null;
+        lastStale = Boolean(data?.stale);
         subscribers.forEach((cb) => cb());
       }
     } catch (err) {
@@ -59,6 +61,7 @@ export function useEconomicCalendar() {
   const [events, setEvents] = useState<EconomicCalendarEvent[]>(sharedEvents);
   const [lastUpdated, setLastUpdated] = useState<number>(lastFetchedAt);
   const [error, setError] = useState<string | null>(lastError);
+  const [stale, setStale] = useState<boolean>(lastStale);
   const [loading, setLoading] = useState<boolean>(sharedEvents.length === 0);
   const intervalRef = useRef<number | null>(null);
 
@@ -67,6 +70,7 @@ export function useEconomicCalendar() {
       setEvents(sharedEvents);
       setLastUpdated(lastFetchedAt);
       setError(lastError);
+      setStale(lastStale);
       setLoading(false);
     };
     subscribers.add(sync);
@@ -87,5 +91,5 @@ export function useEconomicCalendar() {
     };
   }, []);
 
-  return { events, loading, lastUpdated, error };
+  return { events, loading, lastUpdated, error, stale };
 }
