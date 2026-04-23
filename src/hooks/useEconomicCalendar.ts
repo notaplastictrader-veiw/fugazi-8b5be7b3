@@ -58,6 +58,7 @@ async function refresh() {
 export function useEconomicCalendar() {
   const [events, setEvents] = useState<EconomicCalendarEvent[]>(sharedEvents);
   const [lastUpdated, setLastUpdated] = useState<number>(lastFetchedAt);
+  const [error, setError] = useState<string | null>(lastError);
   const [loading, setLoading] = useState<boolean>(sharedEvents.length === 0);
   const intervalRef = useRef<number | null>(null);
 
@@ -65,6 +66,7 @@ export function useEconomicCalendar() {
     const sync = () => {
       setEvents(sharedEvents);
       setLastUpdated(lastFetchedAt);
+      setError(lastError);
       setLoading(false);
     };
     subscribers.add(sync);
@@ -85,5 +87,5 @@ export function useEconomicCalendar() {
     };
   }, []);
 
-  return { events, loading, lastUpdated };
+  return { events, loading, lastUpdated, error };
 }
