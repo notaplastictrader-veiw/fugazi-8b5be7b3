@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Minus, ExternalLink, Clock } from "lucide-react";
 import type { EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
+import { categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
 
 interface Props {
   event: EconomicCalendarEvent | null;
@@ -50,6 +51,8 @@ export default function EventDetailModal({ event, open, onOpenChange, timezone }
   const ml = event.ml_prediction;
   const MlIcon = ml ? mlIcon[ml] : null;
   const ffSearchUrl = `https://www.forexfactory.com/calendar?day=${event.event_date}`;
+  const catKey = categoryBucket(event.category, event.name);
+  const catLabel = CATEGORY_LABELS[catKey] ?? "Other";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,6 +65,11 @@ export default function EventDetailModal({ event, open, onOpenChange, timezone }
             <Badge className="text-[10px] font-mono bg-secondary text-secondary-foreground">
               {event.currency}
             </Badge>
+            {catKey !== "other" && (
+              <Badge className="text-[10px] font-mono bg-primary/10 text-primary border border-primary/20">
+                {catLabel}
+              </Badge>
+            )}
             {ml && MlIcon && (
               <Badge className={`text-[10px] font-mono border inline-flex items-center gap-1 ${mlColor[ml]}`}>
                 <MlIcon className="w-3 h-3" /> ML: {ml}
