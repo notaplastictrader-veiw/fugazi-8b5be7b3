@@ -64,7 +64,6 @@ const NewsCard = ({ article }: { article: ForexNewsArticle }) => {
 
 const LatestForexNews = () => {
   const { articles, loading } = useForexNews();
-  const display = articles.slice(0, 6);
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-16">
@@ -89,20 +88,20 @@ const LatestForexNews = () => {
         </Link>
       </div>
 
-      {loading && display.length === 0 ? (
+      {loading && articles.length === 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-32 rounded-2xl" />
           ))}
         </div>
-      ) : display.length === 0 ? (
+      ) : articles.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground glass-card rounded-2xl">
           <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">News feed temporarily unavailable.</p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {display.map((article, i) => (
+          {articles.map((article, i) => (
             <NewsCard key={`${article.url}-${i}`} article={article} />
           ))}
         </div>
