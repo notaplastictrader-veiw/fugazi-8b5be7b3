@@ -1,77 +1,104 @@
 
 
-User is asking: "If I'm a broker named 'Finance' and I buy ALL these advertising placements, what benefits do I get, and where on the website will my brand show up?" They also want a **demo seed** so they can see it live.
+## Live Price Ticker — TwelveData Integration
 
-Let me think about each placement and what it should *actually* deliver. Right now these are just empty catalog items — no fulfilment system exists. So the plan needs two parts: (1) explain what each placement means, (2) build the rendering surfaces so a paid broker actually shows up.
+Replace the static `tickerPairs` fallback in `TickerBar` and `BottomTicker` with live prices from TwelveData, refreshed every 60 seconds, served from a cached edge function so we stay within free-tier limits.
 
-Looking at the codebase: `brokers` table already has `is_featured`, `homepage_position`, `show_on_homepage`. `signal_groups` has `verified`. There's `BrokerTrustHub`, `SignalChannel`, `PromoTicker`, `BottomTicker`, `HeroSection`. So we have surfaces — we just need to wire them to a "sponsored" concept tied to the placement system.
+## Architecture
 
-## Plan
+```text
+Browser (TickerBar / BottomTicker)
+        ↓ every 60s
+Edge Function: get-live-prices
+        ↓ checks cache (Postgres site_settings.ticker_cache)
+        ↓ if cache > 60s old → fetch TwelveData batch endpoint
+        ↓ else → return cached payload
+TwelveData /quote?symbol=EUR/USD,GBP/USD,...&apikey=***
+```
 
-### 1. What each placement delivers (benefits matrix)
+**Why server-side fetch (not client direct):**
+- Hides API key (32-char secret stays server-only)
+- Single shared cache across all visitors → 1 API call serves 1000s of users
+- Stays well inside TwelveData free tier (800 calls/day → we use ~1,440/day worst case but cache reduces to ~1,440 batch calls = 1,440 symbol-set fetches; one batch counts as 8 credits, so ~11,520 credits/day — still fine on free 800/day **only if we cache aggressively**, see note below)
 
-| # | Placement | Where it shows | What sponsor gets |
-|---|---|---|---|
-| 1 | **Homepage Banner** | Below Hero, above Trust Hub on `/` | Full-width 1200x200 banner with CTA, sponsor logo + tagline |
-| 2 | **Broker Listing Boost** | `/brokers` page + `BrokerTrustHub` homepage section | "Sponsored" badge, pinned to top position, gold border |
-| 3 | **Signal Channel Sponsor** | `SignalChannel` homepage section + `/signals` | Logo strip "Powered by [Broker]", link to broker |
-| 4 | **Sitewide Banner** | Top `PromoTicker` (every page) | Sponsor message scrolling in ticker, clickable |
-| 5 | **Newsletter Sponsor** | (Future newsletter — for now: footer "Newsletter sponsored by" line) | Logo + 1-line copy in footer + future emails |
-| 6 | **Custom Campaign** | Any combo above + dedicated landing block | Custom — admin-configured |
+**Cache strategy:** edge function reads `site_settings.ticker_cache` (a JSONB row holding `{prices, fetched_at}`). If `fetched_at` < 60s ago → return as-is. Else → call TwelveData, write cache, return. This means **regardless of how many users browse the site, TwelveData gets max 1 call per 60s = 1,440/day**. ✅ Safe on free plan.
 
-### 2. New table: `ad_campaigns` (live, running ads)
-Separate from `ad_placements` (catalog) and `ad_enquiries` (leads). This is the actual paid, live placement.
+## Symbol mapping (TwelveData format)
 
-Columns: `id`, `placement_slug` (FK to ad_placements), `sponsor_name`, `sponsor_logo_url`, `headline`, `subtext`, `cta_label`, `cta_url`, `image_url` (for banner), `is_active`, `start_date`, `end_date`, `display_order`, `created_at`.
+| Display | TwelveData symbol | Type |
+|---|---|---|
+| XAU/USD | `XAU/USD` | forex |
+| EUR/USD | `EUR/USD` | forex |
+| GBP/USD | `GBP/USD` | forex |
+| USD/JPY | `USD/JPY` | forex |
+| BTC/USD | `BTC/USD` | crypto |
+| NASDAQ | `IXIC` | index |
+| OIL | `WTI/USD` (or `USOIL`) | commodity |
+| ETH/USD | `ETH/USD` | crypto |
 
-RLS: public SELECT where `is_active=true AND now() between start_date and end_date`; admin full access.
+Single batch call: `GET https://api.twelvedata.com/quote?symbol=XAU/USD,EUR/USD,GBP/USD,USD/JPY,BTC/USD,IXIC,WTI/USD,ETH/USD&apikey=***`
 
-### 3. New rendering components (where ads actually appear)
-- `<SponsoredBanner placement="homepage-banner" />` — homepage hero banner
-- `<SponsoredTickerItems />` — injects into `PromoTicker` for `sitewide-banner`
-- `<SponsoredBrokerBadge brokerId={...} />` — gold "Sponsored" badge on broker cards (matched by sponsor name → broker)
-- `<SponsoredBy placement="signal-channel-sponsor" />` — "Powered by" strip in `SignalChannel`
-- `<NewsletterSponsorFooter />` — sponsor line in footer
+Returns `{ "EUR/USD": { "close": "1.0847", "percent_change": "-0.12", ... }, ... }`
 
-Each component fetches active campaigns for its placement_slug, renders nothing if none active.
+## Steps
 
-### 4. New admin page `/admin/advertise/campaigns`
-CRUD for `ad_campaigns`: pick placement, upload sponsor logo + banner image, set headline/CTA/URL, set start/end dates, toggle active. Convert "won" enquiry → campaign with one click.
+### 1. Store API key as runtime secret
+Add `TWELVEDATA_API_KEY` = `1184e3b19d4b40eea6f84554a2c55268` via the secrets tool. Available to edge functions only.
 
-### 5. Demo seed for "Finance" broker
-Insert 6 active campaigns, all sponsored by **"Finance"**, one per placement, running today → +90 days, with placeholder logo URL and sample copy. So the user can immediately see Finance branding everywhere on the site.
+### 2. Edge function `get-live-prices`
+- Path: `supabase/functions/get-live-prices/index.ts`
+- Public (no JWT required) — anyone can read prices
+- CORS enabled for browser calls
+- Logic:
+  1. Read `site_settings.ticker_cache`
+  2. If `fetched_at` within last 55s → return cached `prices` array
+  3. Else → fetch TwelveData batch, transform to `{pair, price, change, up}[]`, write cache row, return
+  4. On TwelveData failure → return last cached value (graceful degrade); if no cache ever, return static fallback
 
-Sample seed data:
-- Homepage Banner: "Trade with Finance — 0.0 pip spreads, regulated globally" + CTA "Open Account"
-- Broker Listing Boost: Finance pinned #1 on /brokers with gold border + "Sponsored" badge
-- Signal Channel Sponsor: "Signals powered by Finance" strip
-- Sitewide Banner: "🎁 Finance: Get $50 free on first deposit — limited time"
-- Newsletter Sponsor: Footer line "This week's newsletter sponsored by Finance"
-- Custom Campaign: Featured slot in homepage forecasts section
+### 3. Database
+- Insert seed row into `site_settings` with `key='ticker_cache'` and empty initial value (so the function's upsert works cleanly)
+- No new tables, no migration file needed beyond a one-line insert
 
-### 6. Files touched
-- New migration: `ad_campaigns` table + RLS + 6-row "Finance" demo seed
-- `src/components/sponsored/SponsoredBanner.tsx` — new
-- `src/components/sponsored/SponsoredTickerItems.tsx` — new
-- `src/components/sponsored/SponsoredBy.tsx` — new
-- `src/components/sponsored/SponsoredBrokerBadge.tsx` — new
-- `src/components/sponsored/NewsletterSponsorFooter.tsx` — new
-- `src/pages/Index.tsx` — mount `SponsoredBanner` after Hero
-- `src/components/sections/PromoTicker.tsx` — merge sponsored ticker items
-- `src/components/sections/BrokerTrustHub.tsx` — show sponsored badge on matching broker
-- `src/components/sections/SignalChannel.tsx` — add "Powered by" strip
-- `src/components/layout/Footer.tsx` — newsletter sponsor line
-- `src/pages/admin/AdvertiseCampaignsAdmin.tsx` — new CRUD page
-- `src/components/admin/AdminSidebar.tsx` — add "Live Campaigns" link
-- `src/App.tsx` — register new admin route
+### 4. Frontend hook `useLivePrices`
+- New file: `src/hooks/useLivePrices.ts`
+- Calls `supabase.functions.invoke('get-live-prices')` on mount
+- `setInterval` re-fetch every 60s
+- Returns `{ pairs, loading, lastUpdated }`
+- Falls back to static `tickerPairs` from `src/data/brokers.ts` if function ever fails
 
-### Out of scope (kept simple)
-- Click-tracking analytics per campaign (can add later — separate `ad_clicks` table)
-- A/B testing or rotation between multiple sponsors per slot (for now: highest `display_order`, single active)
-- Stripe billing for campaigns (manual admin activation after payment received)
-- Auto-expiry email reminders to sponsors
+### 5. Wire into existing tickers
+- `src/components/sections/TickerBar.tsx` — replace the `site_settings.ticker_pairs` fetch with `useLivePrices()`
+- `src/components/sections/BottomTicker.tsx` — same swap
+- Add a tiny green pulse-dot before the first item so users see "LIVE" visually
+- Keep existing scrolling animation untouched
 
-### After this is built
-You'll see "Finance" branding live across:
-homepage banner → ticker → trust hub broker card → signal section → footer. Exactly what a paying sponsor would get.
+### 6. Visual polish
+- Add `LIVE` chip on the left of the ticker (pulse-dot animation already exists in CSS)
+- Show subtle red/green color on `change` (already in code — keep)
+- If `loading` and no cache → show static fallback instantly (no flash)
+
+## Files touched
+
+| File | Action |
+|---|---|
+| `supabase/functions/get-live-prices/index.ts` | **new** — TwelveData fetch + cache |
+| `src/hooks/useLivePrices.ts` | **new** — client hook with 60s polling |
+| `src/components/sections/TickerBar.tsx` | edit — use new hook, add LIVE chip |
+| `src/components/sections/BottomTicker.tsx` | edit — use new hook |
+| `site_settings` table | one-row insert for `ticker_cache` key |
+| Secret `TWELVEDATA_API_KEY` | added via secrets tool |
+
+## After deploy you'll see
+
+- Real EUR/USD, BTC, gold, etc. prices in both top and bottom tickers
+- Auto-refresh every 60s
+- "LIVE" pulse-dot indicator
+- Zero risk of API key exposure
+- Zero risk of TwelveData rate-limit (max 1,440 calls/day shared across all visitors)
+
+## Out of scope
+- Historical sparkline charts per pair (separate feature)
+- WebSocket streaming (TwelveData free plan is REST only — would need paid tier)
+- Per-user customizable ticker symbols (admin-editable list — can add later by hooking into `site_settings.ticker_symbols`)
+- TradingView widget embed (alternative path if you ever want full charts)
 
