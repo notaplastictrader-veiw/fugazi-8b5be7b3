@@ -1,30 +1,45 @@
 
 
-## Show only live Finnhub news on /news page
+## Fill the news grid with broader market news
 
-Right now `/news` merges live Finnhub articles **with** the editorial cards from the `news_articles` Supabase table (plus a hard-coded `fallbackEditorial` array of 4 fake articles when the DB is empty). You want **only live forex news** there. Editorial cards should appear only if you manually add them later via the DB — never as fallback.
+Finnhub's `forex` category is currently returning only 1 article (its forex feed is sparse during low-news periods). User wants the grid filled, so we'll **supplement with Finnhub's `general` market news** when forex alone doesn't fill enough cards. Both homepage and `/news` page benefit automatically since they share the same hook.
 
-## Why only 1 live card shows now
+## Architecture
 
-The Finnhub edge function returns up to 10 articles, but they all share the same category `live-forex`. The current page mixes them with 4 fallback editorial cards, which dominate the grid visually. We'll strip editorial entirely so all 10 live cards show.
+```text
+get-forex-news edge function
+  ├─ Fetch /news?category=forex   (primary, all returned)
+  ├─ Fetch /news?category=general (fallback fill)
+  ├─ Dedupe by URL, forex first
+  ├─ Trim to 12 articles
+  └─ Cache 5 min in site_settings.forex_news_cache
+       ↓
+useForexNews hook (unchanged)
+       ↓
+LatestForexNews (homepage, shows all)
+News page (shows all)
+```
 
 ## Changes
 
-**File:** `src/pages/News.tsx`
+**1. `supabase/functions/get-forex-news/index.ts`** — fetch both feeds in parallel, merge
 
-- Remove the `EditorialArticle` interface, `fallbackEditorial` array, and the entire `supabase.from("news_articles")` fetch.
-- Remove `editorial`, `editorialLoading`, `editorialToUnified` state and helpers.
-- `allArticles` becomes just the live Finnhub articles mapped through `liveToUnified`.
-- Remove the dynamic categories built from editorial entries — keep only `["all", "live-forex"]` as filter chips (or drop filters entirely since there's just one category — we'll keep the chip row but with just those two for visual consistency).
-- Update the page subtitle to reflect live-only: "Real-time forex headlines from trusted sources, auto-refreshed every 5 minutes."
-- Loading state depends only on `liveLoading`.
-- Empty state message updates to: "No live news available right now. Check back in a few minutes."
+- Add `fetchFromFinnhub(apiKey, category)` taking a category param (`"forex"` or `"general"`).
+- In the handler, run both fetches in parallel with `Promise.allSettled`.
+- Merge results: forex articles first, then general articles, deduped by `url`.
+- Cap at 12 articles total (was 10 forex-only).
+- Cache structure unchanged — same `forex_news_cache` key, same TTL.
+- If only one category succeeds, use whatever we got (graceful degradation).
 
-**Homepage (`LatestForexNews.tsx`):** No changes — already live-only.
+**2. Frontend** — no code changes required
 
-**Editorial in future:** When you want to add editorial cards back, you'll insert rows into the `news_articles` table directly. We can add the merge logic back at that point — for now the component is clean and live-only.
+- `useForexNews` hook, `LatestForexNews` section, and `News` page all consume the merged feed transparently.
+- The homepage "Latest Forex News" badge stays — broader market news is still relevant to forex traders (Fed, oil, geopolitics all move FX).
 
 ## Result
 
-`/news` will display **all live Finnhub articles** (up to 10) in the grid, no editorial fallback, no DB query. Homepage section unchanged.
+- Homepage and `/news` will display **up to 12 cards** instead of 1.
+- Forex-specific articles always rank first; general market news fills the rest.
+- API key still server-side; same 5-min cache means no extra rate-limit risk (2 calls per refresh = ~576 calls/day, well under Finnhub free tier).
+- No editorial DB query — `/news` stays pure live feed as before.
 
