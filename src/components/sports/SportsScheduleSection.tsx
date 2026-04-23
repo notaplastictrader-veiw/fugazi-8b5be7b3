@@ -211,7 +211,7 @@ const SportsScheduleSection = () => {
         </div>
         <div className="flex items-center gap-3">
           {stale && (
-            <span className="text-[10px] font-mono uppercase px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-600 border border-yellow-500/30">
+            <span className="text-[10px] font-mono uppercase px-2 py-1 rounded-full bg-muted text-muted-foreground border border-border">
               Cached data
             </span>
           )}
