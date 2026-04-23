@@ -41,10 +41,13 @@ async function refresh() {
       if (data?.events && Array.isArray(data.events)) {
         sharedEvents = data.events as EconomicCalendarEvent[];
         lastFetchedAt = Date.now();
+        lastError = data?.error ?? null;
         subscribers.forEach((cb) => cb());
       }
     } catch (err) {
       console.warn("[useEconomicCalendar] fetch failed:", err);
+      lastError = "fetch_failed";
+      subscribers.forEach((cb) => cb());
     } finally {
       inflight = null;
     }
