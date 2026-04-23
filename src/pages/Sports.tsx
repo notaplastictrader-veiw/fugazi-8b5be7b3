@@ -6,6 +6,7 @@ import { Trophy, Target } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import PredictionCard from "@/components/sports/PredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
+import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import type { Prediction } from "@/components/sports/PredictionCard";
 
@@ -175,6 +176,8 @@ const Sports = () => {
             )}
           </>
         )}
+
+        <SportsScheduleSection />
       </section>
     </MainLayout>
   );
