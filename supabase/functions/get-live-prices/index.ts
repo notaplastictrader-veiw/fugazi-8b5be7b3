@@ -16,14 +16,14 @@ interface TickerPair {
 }
 
 // Display label -> TwelveData symbol
-const SYMBOLS: Array<{ label: string; symbol: string; type: "forex" | "crypto" | "index" | "commodity" }> = [
+const SYMBOLS: Array<{ label: string; symbol: string; type: "forex" | "crypto" }> = [
   { label: "XAU/USD", symbol: "XAU/USD", type: "forex" },
   { label: "EUR/USD", symbol: "EUR/USD", type: "forex" },
   { label: "GBP/USD", symbol: "GBP/USD", type: "forex" },
   { label: "USD/JPY", symbol: "USD/JPY", type: "forex" },
+  { label: "AUD/USD", symbol: "AUD/USD", type: "forex" },
+  { label: "USD/CAD", symbol: "USD/CAD", type: "forex" },
   { label: "BTC/USD", symbol: "BTC/USD", type: "crypto" },
-  { label: "NASDAQ", symbol: "IXIC", type: "index" },
-  { label: "OIL", symbol: "WTI/USD", type: "commodity" },
   { label: "ETH/USD", symbol: "ETH/USD", type: "crypto" },
 ];
 
@@ -32,9 +32,9 @@ const FALLBACK: TickerPair[] = [
   { pair: "EUR/USD", price: "1.0847", change: "-0.12%", up: false },
   { pair: "GBP/USD", price: "1.2634", change: "+0.25%", up: true },
   { pair: "USD/JPY", price: "157.42", change: "+0.45%", up: true },
+  { pair: "AUD/USD", price: "0.6587", change: "+0.18%", up: true },
+  { pair: "USD/CAD", price: "1.3642", change: "-0.09%", up: false },
   { pair: "BTC/USD", price: "67,842", change: "+2.14%", up: true },
-  { pair: "NASDAQ", price: "18,524", change: "-0.33%", up: false },
-  { pair: "OIL", price: "78.32", change: "+0.67%", up: true },
   { pair: "ETH/USD", price: "3,521", change: "+1.82%", up: true },
 ];
 
