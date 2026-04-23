@@ -68,7 +68,11 @@ const Calendar = () => {
   const events = merged.length > 0 ? merged : fallbackEvents;
   const loading = loadingDb && loadingLive && events.length === 0;
 
-  const filtered = impactFilter === "all" ? events : events.filter((e) => e.impact === impactFilter);
+  const sorted = [...events].sort((a, b) => {
+    if (a.event_date !== b.event_date) return a.event_date.localeCompare(b.event_date);
+    return (a.event_time ?? "").localeCompare(b.event_time ?? "");
+  });
+  const filtered = impactFilter === "all" ? sorted : sorted.filter((e) => e.impact === impactFilter);
 
   // Group by date
   const grouped = filtered.reduce<Record<string, CalendarEvent[]>>((acc, e) => {
