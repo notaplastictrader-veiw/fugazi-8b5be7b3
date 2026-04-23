@@ -1,45 +1,24 @@
 
 
-## Fill the news grid with broader market news
+## Homepage news: show only 3 cards, full feed on /news
 
-Finnhub's `forex` category is currently returning only 1 article (its forex feed is sparse during low-news periods). User wants the grid filled, so we'll **supplement with Finnhub's `general` market news** when forex alone doesn't fill enough cards. Both homepage and `/news` page benefit automatically since they share the same hook.
+User wants the homepage "Latest Forex News" section trimmed to **3 cards** (most recent/important) to keep the homepage less crowded. The `/news` page continues to show the full feed (up to 12 articles) — already working correctly.
 
-## Architecture
+## Change
 
-```text
-get-forex-news edge function
-  ├─ Fetch /news?category=forex   (primary, all returned)
-  ├─ Fetch /news?category=general (fallback fill)
-  ├─ Dedupe by URL, forex first
-  ├─ Trim to 12 articles
-  └─ Cache 5 min in site_settings.forex_news_cache
-       ↓
-useForexNews hook (unchanged)
-       ↓
-LatestForexNews (homepage, shows all)
-News page (shows all)
-```
+**File:** `src/components/sections/LatestForexNews.tsx`
 
-## Changes
+- Slice the articles array to the first 3 before rendering: `const display = articles.slice(0, 3);`
+- Use `display` in the grid map and the empty/length checks.
+- Update the skeleton loader count from 6 to 3 to match.
+- Change the grid to `md:grid-cols-3` (drop `lg:grid-cols-3` since we only have 3 cards — they'll sit in a single clean row on desktop, stack on mobile, 3-up on tablet+).
+- Keep the "View all news →" link to `/news` — that's where users go to see the full 12-article feed.
 
-**1. `supabase/functions/get-forex-news/index.ts`** — fetch both feeds in parallel, merge
-
-- Add `fetchFromFinnhub(apiKey, category)` taking a category param (`"forex"` or `"general"`).
-- In the handler, run both fetches in parallel with `Promise.allSettled`.
-- Merge results: forex articles first, then general articles, deduped by `url`.
-- Cap at 12 articles total (was 10 forex-only).
-- Cache structure unchanged — same `forex_news_cache` key, same TTL.
-- If only one category succeeds, use whatever we got (graceful degradation).
-
-**2. Frontend** — no code changes required
-
-- `useForexNews` hook, `LatestForexNews` section, and `News` page all consume the merged feed transparently.
-- The homepage "Latest Forex News" badge stays — broader market news is still relevant to forex traders (Fed, oil, geopolitics all move FX).
+**No other files affected.** The `useForexNews` hook and `/news` page stay untouched.
 
 ## Result
 
-- Homepage and `/news` will display **up to 12 cards** instead of 1.
-- Forex-specific articles always rank first; general market news fills the rest.
-- API key still server-side; same 5-min cache means no extra rate-limit risk (2 calls per refresh = ~576 calls/day, well under Finnhub free tier).
-- No editorial DB query — `/news` stays pure live feed as before.
+- Homepage: clean 3-card row of the latest live forex/market headlines.
+- `/news` page: full feed of up to 12 articles, unchanged.
+- Finnhub returns articles sorted by recency, so the top 3 are always the freshest.
 
