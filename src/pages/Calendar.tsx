@@ -43,7 +43,7 @@ const Calendar = () => {
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
   const [timezone, setTimezone] = useState<"UTC" | "Local">("UTC");
   const [selected, setSelected] = useState<EconomicCalendarEvent | null>(null);
-  const { events: liveEvents, loading: loadingLive, lastUpdated } = useEconomicCalendar();
+  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError } = useEconomicCalendar();
 
   // Restore tz preference
   useEffect(() => {
