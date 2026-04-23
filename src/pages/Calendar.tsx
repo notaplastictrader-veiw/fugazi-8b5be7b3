@@ -185,6 +185,11 @@ const Calendar = () => {
             Track high-impact events and ML-powered sentiment for the 8 majors. Plan trades around the data.
           </p>
           <p className="text-xs font-mono text-muted-foreground/70">{updatedAgo}</p>
+          {stale && (
+            <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-accent/15 text-accent border border-accent/30">
+              <AlertTriangle className="w-3 h-3" /> Showing cached data — live feed unavailable
+            </div>
+          )}
         </div>
 
         {/* Sticky filter bar */}
@@ -263,6 +268,23 @@ const Calendar = () => {
               </button>
             ))}
           </div>
+
+          {/* Category filter */}
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1 pb-0.5">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategoryFilter(c)}
+                className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-mono uppercase transition-all ${
+                  categoryFilter === c
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {CATEGORY_LABELS[c]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -280,7 +302,17 @@ const Calendar = () => {
                 </p>
               </>
             ) : (
-              <p>No events match your filters.</p>
+              <>
+                <p className="mb-3">No events match your filters.</p>
+                {filtersActive && (
+                  <button
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-mono bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </>
             )}
           </div>
         ) : (
