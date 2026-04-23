@@ -8,6 +8,7 @@ import ScamAlertSection from "@/components/sections/ScamAlertSection";
 import SignalChannel from "@/components/sections/SignalChannel";
 import SignalHub from "@/components/sections/SignalHub";
 import ForecastSection from "@/components/sections/ForecastSection";
+import HomepageCalendarWidget from "@/components/sections/HomepageCalendarWidget";
 import LatestForexNews from "@/components/sections/LatestForexNews";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CommunityReviews from "@/components/sections/CommunityReviews";
@@ -30,6 +31,7 @@ const Index = () => {
       <SignalChannel />
       <SignalHub />
       <ForecastSection />
+      <HomepageCalendarWidget />
       <LatestForexNews />
       <HowItWorks />
       <CommunityReviews />
