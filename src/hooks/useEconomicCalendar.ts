@@ -20,7 +20,7 @@ let lastFetchedAt = 0;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
 
-const REFRESH_MS = 15 * 60_000; // 15 minutes
+const REFRESH_MS = 12 * 60 * 60_000; // 12 hours (server caches 24h)
 
 async function refresh() {
   if (inflight) return inflight;

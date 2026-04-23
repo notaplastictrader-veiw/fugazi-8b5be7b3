@@ -1,5 +1,5 @@
-// Public edge function — returns cached economic calendar from TradingEconomics guest feed.
-// Caches in site_settings.calendar_cache (refreshed at most every 15 min).
+// Public edge function — returns cached economic calendar from JBlanked News API.
+// Caches in site_settings.calendar_cache for 24h (free tier = 1 req/day).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -22,43 +22,68 @@ interface CalendarEvent {
   previous_value: string;
 }
 
-const CACHE_TTL_MS = 15 * 60_000; // 15 minutes
+const CACHE_TTL_MS = 24 * 60 * 60_000; // 24 hours (JBlanked free tier = 1 req/day)
 
-function mapImportance(imp: any): "high" | "medium" | "low" {
-  const n = Number(imp);
-  if (n >= 3) return "high";
-  if (n === 2) return "medium";
-  return "low";
+function mapImpact(imp: any): "high" | "medium" | "low" {
+  const s = String(imp ?? "").toLowerCase();
+  if (s === "high") return "high";
+  if (s === "medium") return "medium";
+  return "low"; // "low" or "none"
+}
+
+function slugify(s: string): string {
+  return String(s)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+}
+
+// JBlanked Date format: "2024.02.08 15:30:00" in EST.
+// EST = UTC-5 (no DST handling — JBlanked uses fixed EST per docs).
+function parseJBlankedDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  // "2024.02.08 15:30:00" -> "2024-02-08T15:30:00"
+  const iso = dateStr.replace(/\./g, "-").replace(" ", "T");
+  // Treat as EST (UTC-5) → add 5 hours to get UTC
+  const local = new Date(iso + "Z"); // parse as UTC first
+  if (isNaN(local.getTime())) return null;
+  return new Date(local.getTime() + 5 * 60 * 60_000);
 }
 
 function normalize(raw: any[]): CalendarEvent[] {
   const out: CalendarEvent[] = [];
   for (const r of raw) {
-    const dateStr = String(r.Date ?? "").trim();
-    if (!dateStr) continue;
-    // Date format: "2026-04-23T13:30:00" (UTC)
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) continue;
+    const d = parseJBlankedDate(String(r.Date ?? ""));
+    if (!d) continue;
     const yyyy = d.getUTCFullYear();
     const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
     const dd = String(d.getUTCDate()).padStart(2, "0");
     const hh = String(d.getUTCHours()).padStart(2, "0");
     const mi = String(d.getUTCMinutes()).padStart(2, "0");
 
+    const event_date = `${yyyy}-${mm}-${dd}`;
+    const event_time = hh === "00" && mi === "00" ? null : `${hh}:${mi}`;
+    const title = String(r.Name ?? "").trim();
+    const currency = String(r.Currency ?? "").trim().toUpperCase();
+    if (!title) continue;
+
     const event: CalendarEvent = {
-      id: `te-${String(r.CalendarId ?? `${dateStr}-${r.Event}`)}`,
-      title: String(r.Event ?? "").trim(),
-      description: [r.Country, r.Category].filter(Boolean).join(" • "),
-      event_date: `${yyyy}-${mm}-${dd}`,
-      event_time: hh === "00" && mi === "00" ? null : `${hh}:${mi}`,
-      impact: mapImportance(r.Importance),
-      currency: String(r.Currency ?? "").trim(),
+      id: `jb-${currency}-${event_date}-${slugify(title)}`,
+      title,
+      description: String(r.Category ?? "").trim(),
+      event_date,
+      event_time,
+      impact: mapImpact(r.Impact),
+      currency,
       category: "economic",
-      actual_value: r.Actual != null ? String(r.Actual) : "",
-      forecast_value: r.Forecast != null ? String(r.Forecast) : "",
-      previous_value: r.Previous != null ? String(r.Previous) : "",
+      actual_value: r.Actual != null && r.Actual !== "" ? String(r.Actual) : "",
+      forecast_value:
+        r.Forecast != null && r.Forecast !== "" ? String(r.Forecast) : "",
+      previous_value:
+        r.Previous != null && r.Previous !== "" ? String(r.Previous) : "",
     };
-    if (event.title) out.push(event);
+    out.push(event);
   }
   return out;
 }
@@ -97,25 +122,32 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 2. Fetch from TradingEconomics guest endpoint (next ~30 days)
-    const today = new Date();
-    const end = new Date();
-    end.setUTCDate(end.getUTCDate() + 30);
-    const fmt = (d: Date) =>
-      `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
-    const url =
-      `https://api.tradingeconomics.com/calendar/country/all/${fmt(today)}/${fmt(end)}?c=guest:guest&f=json`;
+    // 2. Fetch from JBlanked Forex Factory weekly calendar
+    const apiKey = Deno.env.get("JBLANKED_API_KEY");
+    if (!apiKey) {
+      throw new Error("JBLANKED_API_KEY not configured");
+    }
 
     let events: CalendarEvent[];
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`TradingEconomics ${res.status}`);
+      const res = await fetch(
+        "https://www.jblanked.com/news/api/forex-factory/calendar/week/",
+        {
+          headers: {
+            Authorization: `Api-Key ${apiKey}`,
+            Accept: "application/json",
+          },
+        },
+      );
+      if (!res.ok) {
+        throw new Error(`JBlanked ${res.status}: ${await res.text()}`);
+      }
       const data = await res.json();
       if (!Array.isArray(data)) throw new Error("Unexpected response shape");
       events = normalize(data);
       if (events.length === 0) throw new Error("No events returned");
     } catch (err) {
-      console.error("TradingEconomics fetch failed:", err);
+      console.error("JBlanked fetch failed:", err);
       return new Response(
         JSON.stringify({
           events: cachedEvents ?? [],
