@@ -37,6 +37,21 @@ function adjustForTz(e: EconomicCalendarEvent, tz: "UTC" | "Local") {
   }
 }
 
+function parseNum(v?: string | null): number | null {
+  if (!v) return null;
+  const m = String(v).replace(/[%,\s]/g, "").match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : null;
+}
+
+function compareColor(actual?: string | null, forecast?: string | null): string {
+  const a = parseNum(actual);
+  const f = parseNum(forecast);
+  if (a === null || f === null) return "text-foreground";
+  if (a > f) return "text-primary";
+  if (a < f) return "text-destructive";
+  return "text-foreground";
+}
+
 const Calendar = () => {
   const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
@@ -173,7 +188,7 @@ const Calendar = () => {
         description="Live forex economic calendar with high-impact events, ML sentiment, timezone toggle, and currency filters. NFP, CPI, ECB, FOMC."
         path="/calendar"
       />
-      <section className="max-w-5xl mx-auto px-4 pt-6 pb-20">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             📅 ECONOMIC CALENDAR
@@ -316,71 +331,136 @@ const Calendar = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-8 min-h-[400px]">
+          <div className="space-y-6 min-h-[400px]">
             {dateKeys.map((date) => (
               <div key={date}>
-                <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[260px] bg-background/80 backdrop-blur-sm py-2 z-10">
-                  {formatDateHeader(date)}
-                </h3>
-                <div className="space-y-3">
-                  {grouped[date].map((e) => {
-                    const style = impactStyles[e.impact] || impactStyles.low;
-                    const adj = adjustForTz(e, timezone);
-                    return (
-                      <button
-                        key={e.id}
-                        onClick={() => setSelected(e)}
-                        className={`w-full text-left glass-card rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 hover:border-primary/30 hover:scale-[1.005] transition-all border-l-4 ${style.border}`}
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${style.dot}`} />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-foreground text-sm">{e.name}</span>
-                              <Badge className={`text-[9px] font-mono ${style.bg}`}>{e.impact.toUpperCase()}</Badge>
-                              <Badge className="text-[9px] font-mono bg-secondary text-secondary-foreground">{e.currency}</Badge>
-                              {e.ml_prediction && (
-                                <Badge className="text-[9px] font-mono bg-primary/10 text-primary">
-                                  ML: {e.ml_prediction}
-                                </Badge>
+                {/* MOBILE: stacked cards */}
+                <div className="md:hidden">
+                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[260px] bg-background/80 backdrop-blur-sm py-2 z-10">
+                    {formatDateHeader(date)}
+                  </h3>
+                  <div className="space-y-3">
+                    {grouped[date].map((e) => {
+                      const style = impactStyles[e.impact] || impactStyles.low;
+                      const adj = adjustForTz(e, timezone);
+                      return (
+                        <button
+                          key={e.id}
+                          onClick={() => setSelected(e)}
+                          className={`w-full text-left glass-card rounded-xl p-4 flex flex-col gap-3 hover:border-primary/30 transition-all border-l-4 ${style.border}`}
+                        >
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className={`w-2 h-2 rounded-full ${style.dot}`} />
+                            <span className="font-bold text-foreground text-sm flex-1">{e.name}</span>
+                            <Badge className={`text-[9px] font-mono ${style.bg}`}>{e.impact.toUpperCase()}</Badge>
+                            <Badge className="text-[9px] font-mono bg-secondary text-secondary-foreground">{e.currency}</Badge>
+                          </div>
+                          <div className="flex items-center gap-4 text-xs">
+                            {adj.time && (
+                              <span className="flex items-center gap-1 text-muted-foreground">
+                                <Clock className="w-3 h-3" /> {adj.time} {timezone === "UTC" ? "UTC" : ""}
+                              </span>
+                            )}
+                            <div className="flex gap-3 ml-auto">
+                              {e.forecast && (
+                                <span className="text-muted-foreground">
+                                  <span className="text-[10px] block opacity-60">F</span>
+                                  <span className="font-semibold text-foreground">{e.forecast}</span>
+                                </span>
+                              )}
+                              {e.previous && (
+                                <span className="text-muted-foreground">
+                                  <span className="text-[10px] block opacity-60">P</span>
+                                  <span className="font-semibold text-foreground">{e.previous}</span>
+                                </span>
+                              )}
+                              {e.actual && (
+                                <span className="text-muted-foreground">
+                                  <span className="text-[10px] block opacity-60">A</span>
+                                  <span className={`font-bold ${compareColor(e.actual, e.forecast)}`}>{e.actual}</span>
+                                </span>
                               )}
                             </div>
-                            {e.description && (
-                              <p className="text-xs text-muted-foreground mt-0.5 truncate">{e.description}</p>
-                            )}
                           </div>
-                        </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-                        <div className="flex items-center gap-4 text-xs flex-shrink-0">
-                          {adj.time && (
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <Clock className="w-3 h-3" /> {adj.time} {timezone === "UTC" ? "UTC" : ""}
-                            </span>
-                          )}
-                          <div className="flex gap-3">
-                            {e.forecast && (
-                              <span className="text-muted-foreground">
-                                <span className="text-[10px] block opacity-60">Forecast</span>
-                                <span className="font-semibold text-foreground">{e.forecast}</span>
+                {/* DESKTOP: dense table */}
+                <div className="hidden md:block glass-card rounded-xl overflow-hidden">
+                  <div className="bg-primary/10 px-4 py-2 sticky top-[260px] z-10 backdrop-blur-md border-b border-primary/20">
+                    <h3 className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
+                      {formatDateHeader(date)}
+                    </h3>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary/40">
+                      <tr className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
+                        <th className="text-left px-3 py-2 w-[90px]">Time</th>
+                        <th className="text-left px-2 py-2 w-[60px]">Cur</th>
+                        <th className="text-left px-2 py-2 w-[70px]">Impact</th>
+                        <th className="text-left px-3 py-2">Event</th>
+                        <th className="text-right px-3 py-2 w-[80px]">Actual</th>
+                        <th className="text-right px-3 py-2 w-[80px]">Forecast</th>
+                        <th className="text-right px-3 py-2 w-[80px]">Previous</th>
+                        <th className="text-right px-3 py-2 w-[90px]">ML</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {grouped[date].map((e) => {
+                        const style = impactStyles[e.impact] || impactStyles.low;
+                        const adj = adjustForTz(e, timezone);
+                        return (
+                          <tr
+                            key={e.id}
+                            onClick={() => setSelected(e)}
+                            className={`border-b border-border/40 last:border-0 even:bg-secondary/10 hover:bg-primary/5 cursor-pointer transition-colors border-l-4 ${style.border}`}
+                          >
+                            <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
+                              {adj.time ? `${adj.time}${timezone === "UTC" ? " UTC" : ""}` : "—"}
+                            </td>
+                            <td className="px-2 py-2.5">
+                              <span className="inline-block px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground text-[10px] font-mono font-semibold">
+                                {e.currency || "—"}
                               </span>
-                            )}
-                            {e.previous && (
-                              <span className="text-muted-foreground">
-                                <span className="text-[10px] block opacity-60">Previous</span>
-                                <span className="font-semibold text-foreground">{e.previous}</span>
+                            </td>
+                            <td className="px-2 py-2.5">
+                              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold ${style.bg}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                                {e.impact.toUpperCase()}
                               </span>
-                            )}
-                            {e.actual && (
-                              <span className="text-muted-foreground">
-                                <span className="text-[10px] block opacity-60">Actual</span>
-                                <span className="font-bold text-primary">{e.actual}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                            </td>
+                            <td className="px-3 py-2.5 min-w-0">
+                              <div className="font-semibold text-foreground text-xs truncate">{e.name}</div>
+                              {e.description && (
+                                <div className="text-[10px] text-muted-foreground/70 truncate mt-0.5">{e.description}</div>
+                              )}
+                            </td>
+                            <td className={`px-3 py-2.5 text-right font-mono text-xs font-bold ${compareColor(e.actual, e.forecast)}`}>
+                              {e.actual || "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-right font-mono text-xs text-foreground">
+                              {e.forecast || "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-right font-mono text-xs text-muted-foreground">
+                              {e.previous || "—"}
+                            </td>
+                            <td className="px-3 py-2.5 text-right">
+                              {e.ml_prediction ? (
+                                <Badge className="text-[9px] font-mono bg-primary/10 text-primary">
+                                  {e.ml_prediction === "Bullish" ? "↑" : e.ml_prediction === "Bearish" ? "↓" : "–"} {e.ml_prediction}
+                                </Badge>
+                              ) : (
+                                <span className="text-[10px] text-muted-foreground/40">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             ))}
