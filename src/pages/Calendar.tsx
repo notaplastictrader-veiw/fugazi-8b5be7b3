@@ -173,7 +173,7 @@ const Calendar = () => {
         description="Live forex economic calendar with high-impact events, ML sentiment, timezone toggle, and currency filters. NFP, CPI, ECB, FOMC."
         path="/calendar"
       />
-      <section className="max-w-5xl mx-auto px-4 pt-6 pb-20">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             📅 ECONOMIC CALENDAR
