@@ -37,6 +37,21 @@ function adjustForTz(e: EconomicCalendarEvent, tz: "UTC" | "Local") {
   }
 }
 
+function parseNum(v?: string | null): number | null {
+  if (!v) return null;
+  const m = String(v).replace(/[%,\s]/g, "").match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : null;
+}
+
+function compareColor(actual?: string | null, forecast?: string | null): string {
+  const a = parseNum(actual);
+  const f = parseNum(forecast);
+  if (a === null || f === null) return "text-foreground";
+  if (a > f) return "text-primary";
+  if (a < f) return "text-destructive";
+  return "text-foreground";
+}
+
 const Calendar = () => {
   const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
