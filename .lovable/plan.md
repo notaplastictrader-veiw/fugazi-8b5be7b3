@@ -1,97 +1,83 @@
 
 
-## Sports data provider — picking a safe option
+## Forex-Factory-style table view for `/calendar`
 
-You shared 4 links pointing to Sofascore-related APIs. I checked what each actually is and weighed them against TheSportsDB (the original spec). Here's the honest read.
+Your reference (Forex Factory) shows a **dense, single-table layout** grouped by date with columns: Date · Time · Currency · Impact · Event · Actual · Forecast · Previous. Mine is a card-stack with one event per row taking ~80px height — visually heavier, lower density, harder to scan.
 
-## The 4 options you linked, ranked by safety
+I'll rebuild `/calendar` as a true table that mirrors Forex Factory's information density while keeping NAFT's dark theme, glass styling, and our extras (ML prediction, click-to-modal, category filter, timezone toggle, stale-cache badge).
 
-### ❌ RapidAPI "Sofascore Sport API" (apisummit)
-- **Unofficial scraper** wrapping Sofascore's private endpoints
-- Sofascore has **no public API** and their ToS forbids scraping
-- Third-party reseller — could be taken down or sued at any time
-- Rate limits + paid tiers above ~50 req/day
-- **Risk:** account suspension, surprise billing, sudden API death. Not safe for production.
-
-### ❌ GitHub `apdmatos/sofascore-api`
-- Same story — community-built reverse-engineered client of Sofascore's internal endpoints
-- No license to use Sofascore data commercially
-- Unmaintained-style project, breaks whenever Sofascore changes their internal API
-- **Risk:** legal grey zone + breakage. Not safe.
-
-### ⚠️ sportsapis.dev "Free Sports API"
-- Aggregator listing site, not an API itself — links to other free APIs (most of which are TheSportsDB, API-Football's free tier, ESPN's hidden endpoints)
-- Useful as a directory, not a data source
-
-### ✅ TheSportsDB (already in original spec)
-- **Officially free and legal** — public API, key `1` is documented for free use
-- Covers EPL, NBA, IPL — exactly the 3 leagues spec'd
-- Stable since 2014, well-documented, no surprise pricing
-- Rate limits are generous (~30 req/min), and we cache 5 min server-side anyway
-- **This is the safe choice.**
-
-## My recommendation: stick with TheSportsDB
-
-The Sofascore options would give slightly richer data (live in-play scores, more leagues), but the legal + stability risk is real — Sofascore actively blocks scrapers, and any third-party wrapper is one cease-and-desist away from disappearing. For a public production site like NAFT, that's not worth it.
-
-TheSportsDB delivers everything your spec asked for:
-- Upcoming fixtures (`eventsnextleague.php?id=...`)
-- Past results with final scores (`eventspastleague.php?id=...`)
-- LIVE status field (`strStatus`)
-- Team names, dates, league names
-- Free, legal, stable
-
-## Plan: build the original Sports Schedule & Results system on TheSportsDB
-
-Same plan I presented before — no changes needed. Recap:
-
-### Files
+## Layout — what changes
 
 ```text
-new   supabase/functions/get-sports-data/index.ts
-        - Fetch 6 endpoints in parallel (3 leagues × upcoming + past)
-        - Normalize to { upcoming: [...], results: [...] }
-        - 5-min cache in site_settings.sports_cache
-        - Stale-while-error fallback in site_settings.sports_cache_last_good (24h)
-        - CORS enabled, no auth required
-
-new   src/hooks/useSportsSchedule.ts
-        - Calls edge function, exposes { upcoming, results, loading, stale, lastFetched, refresh }
-        - Shared subscriber pattern (same as useEconomicCalendar)
-        - 10-min auto-refresh, only when tab visible
-
-new   src/components/sports/SportsScheduleSection.tsx
-        - Filter tabs: All / Football / Cricket / Basketball
-        - Upcoming Matches grid (team vs team, date, time, league)
-        - Latest Results grid (scores, winner in lime, loser in red)
-        - LIVE pulse-dot badge for in-progress matches
-        - WON/LOST badge when result matches a sports_predictions row
-        - Manual refresh button + "updated X min ago"
-        - Stale data badge when serving fallback
-        - Skeleton loaders, mobile responsive, glass-card + red-glow styling
-
-edit  src/pages/Sports.tsx
-        - Mount <SportsScheduleSection /> below the existing tabs section
+BEFORE (now)                       AFTER (Forex-Factory style)
+┌──────────────────┐               ┌── Fri Apr 25 ─────────────────────────────┐
+│ ● NFP            │               │ Time   Cur  Imp   Event              A  F  P│
+│   HIGH USD ML:↑  │               │ 6:00am GBP  ███   Retail Sales m/m   — 0.0 -0.4│
+│   description... │               │ 8:00am CHF  ▓▓    SNB Chairman Speaks ...  │
+│   12:30 USD F P A│               │ 8:00am EUR  ░░    German ifo          85.7 86.4│
+└──────────────────┘               │12:30pm CAD  ▓▓    Core Retail m/m    0.8  0.8│
+~80px tall per event               └────────────────────────────────────────────┘
+                                   ~36px tall per event = 2x density
 ```
 
-### Leagues (TheSportsDB IDs from spec)
-- Football → EPL, ID `4328`
-- Cricket → IPL, ID `4424`
-- Basketball → NBA, ID `4387`
+### New table structure
+- **One table per date**, with a sticky date header bar (e.g. "Fri Apr 25") in primary color
+- **Compact rows** (~36px tall) instead of cards
+- **Columns:** Time · Currency · Impact · Event · Actual · Forecast · Previous · ML
+- **Impact column:** colored block (red=high, orange=medium, yellow=low) — like Forex Factory's "folder" icons but using our theme
+- **Currency column:** small mono pill (e.g. `USD`)
+- **Event column:** name + tiny description below if present (truncated)
+- **Actual / Forecast / Previous:** right-aligned numeric columns, color-coded (actual beats forecast = green, miss = red)
+- **ML column:** tiny badge (↑ Bullish / ↓ Bearish / – Neutral) only if present
+- **Row hover:** lift + primary border-left accent + cursor pointer
+- **Click row → opens existing `EventDetailModal`** (no change to modal)
 
-### Prediction matching (bonus from spec)
-On load, fetch `sports_predictions` rows. For each result card, match `homeTeam`/`awayTeam` against `team_a`/`team_b` (case-insensitive includes), determine actual winner from scores, compare to prediction text → show WON (green) or LOST (red). UI overlay only, no DB writes.
+### Visual styling (NAFT theme, not Forex Factory's blue)
+- Wrap each date's table in a `glass-card rounded-xl overflow-hidden`
+- Date header strip: `bg-primary/10 text-primary` band across the top
+- Column header row: `bg-secondary/40` with mono uppercase tiny labels
+- Zebra rows: `even:bg-secondary/20`
+- Border-left accent on `<tr>` based on impact (4px colored bar like current cards)
+- Mobile: collapse to stacked card view (current layout) below `md:` breakpoint — table only on tablet+
 
-### Safety / risk notes
-- **No new secrets needed** — TheSportsDB key `1` is public and hardcoded
-- **Cache + stale-fallback** ensures `/sports` keeps working even if TheSportsDB is down for hours
-- **No scraping, no ToS violations, no legal risk**
-- **No new dependencies, no DB migration** — `site_settings` already exists with arbitrary key support
+### Filter bar (unchanged — keeping all existing controls)
+- Range pills (Today / Tomorrow / This Week)
+- Timezone toggle (UTC / Local)
+- Impact pills (All / High / Med / Low)
+- Currency pills (All + 8 majors)
+- Category pills (All / Central Bank / Inflation / etc.)
+- Clear filters button
+- Stale-data badge
 
-### What you'll see
-- New "Sports Schedule & Results" section on `/sports`
-- Real EPL fixtures, NBA games, IPL matches refreshing every 10 min
-- Final scores with winner highlighted lime, loser red
-- LIVE pulse-dot on in-progress matches
-- WON/LOST tag on results matching your predictions
+### Other improvements
+- **Wider container:** `max-w-5xl` → `max-w-6xl` so the table breathes
+- **Date header sticks** below the filter bar when scrolling within a date group
+- **Skeleton loader** matches new table shape
+- **Empty state** unchanged
+
+## Files touched
+
+```text
+edit  src/pages/Calendar.tsx
+        - Replace card-list render block with table-per-date layout
+        - Add responsive switch: table on md+, stacked cards on mobile
+        - Add color logic for Actual vs Forecast comparison
+        - Bump container from max-w-5xl to max-w-6xl
+        - Keep all filters, hooks, modal, dedupe, timezone logic identical
+```
+
+No changes to `EventDetailModal`, `useEconomicCalendar`, `calendarDedupe`, edge function, DB, or admin panel.
+
+## Technical notes
+- Pure render-layer refactor — no data, hook, or function-signature changes
+- Table uses semantic `<table>` for accessibility + better dense layout than CSS grid
+- Mobile breakpoint (`md:`) keeps current touch-friendly cards on phones; tables only on screens ≥768px
+- Actual-vs-forecast color logic: numeric parse where possible, fallback to neutral if non-numeric
+- All existing filters, sorting, grouping, dedupe, ML badges, stale fallback continue to work
+
+## What you'll see
+- Same data, same filters, same modal — but presented at ~2x density in a clean Forex-Factory-style table
+- Each day gets its own bordered glass panel with a colored header strip
+- Rows are scannable: time → currency → impact bar → event → numbers
+- Mobile users still get the comfortable card view they have today
 
