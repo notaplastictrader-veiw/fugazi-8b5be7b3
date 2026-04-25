@@ -109,6 +109,17 @@ const Sports = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Data-driven predictions and trusted betting site reviews. Track record included.
           </p>
+          <div className="mt-5 flex justify-center">
+            <button
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono uppercase bg-secondary text-foreground border border-border hover:bg-secondary/70 hover:border-primary/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              aria-label="Refresh sports data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+              {refreshing ? "Refreshing..." : "Refresh sports data"}
+            </button>
+          </div>
         </div>
 
         {/* Stats bar — hide when betting tab active */}
