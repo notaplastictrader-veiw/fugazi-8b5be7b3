@@ -202,12 +202,13 @@ const ResultCard = ({ m, verdict }: { m: ResultMatch; verdict: "won" | "lost" | 
 const SportsScheduleSection = () => {
   const { upcoming, results, stale, lastFetched, loading, refresh } = useSportsSchedule();
   const [filter, setFilter] = useState<SportFilter>("all");
+  const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
-  const [, forceTick] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
-  // Tick every 60s so "X min ago" stays fresh
+  // Tick every second so countdowns and "X min ago" stay fresh
   useEffect(() => {
-    const id = window.setInterval(() => forceTick((n) => n + 1), 60_000);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -222,14 +223,38 @@ const SportsScheduleSection = () => {
       });
   }, []);
 
-  const filteredUpcoming = useMemo(
-    () => (filter === "all" ? upcoming : upcoming.filter((m) => m.sport === filter)).slice(0, 12),
-    [upcoming, filter],
-  );
-  const filteredResults = useMemo(
-    () => (filter === "all" ? results : results.filter((m) => m.sport === filter)).slice(0, 12),
-    [results, filter],
-  );
+  const applyFilters = <T extends UpcomingMatch>(list: T[]): T[] =>
+    list.filter((m) => {
+      if (filter !== "all" && m.sport !== filter) return false;
+      if (leagueFilter !== "all" && m.league !== leagueFilter) return false;
+      return true;
+    });
+
+  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
+  const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
+
+  // Status pill: loading | cached | fresh
+  const statusPill = (() => {
+    if (loading) {
+      return {
+        text: "Loading sports data…",
+        cls: "bg-primary/10 text-primary border-primary/30",
+        dot: "bg-primary animate-pulse",
+      };
+    }
+    if (stale) {
+      return {
+        text: `Cached · updated ${formatRelative(lastFetched)}`,
+        cls: "bg-muted text-muted-foreground border-border",
+        dot: "bg-muted-foreground",
+      };
+    }
+    return {
+      text: `Live · updated ${formatRelative(lastFetched)}`,
+      cls: "bg-primary/10 text-primary border-primary/30",
+      dot: "bg-primary animate-pulse",
+    };
+  })();
 
   return (
     <section className="mt-16 pt-12 border-t border-border/40">
@@ -246,13 +271,13 @@ const SportsScheduleSection = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {stale && (
-            <span className="text-[10px] font-mono uppercase px-2 py-1 rounded-full bg-muted text-muted-foreground border border-border">
-              Cached data
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground font-mono">
-            Updated {formatRelative(lastFetched)}
+          <span
+            className={`inline-flex items-center gap-2 text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border ${statusPill.cls}`}
+            aria-live="polite"
+            aria-label={statusPill.text}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusPill.dot}`} />
+            {statusPill.text}
           </span>
           <button
             onClick={() => refresh()}
@@ -265,12 +290,12 @@ const SportsScheduleSection = () => {
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      {/* Sport filter tabs */}
+      <div className="flex flex-wrap gap-2 mb-3">
         {FILTERS.map((f) => (
           <button
             key={f.key}
-            onClick={() => setFilter(f.key)}
+            onClick={() => { setFilter(f.key); setLeagueFilter("all"); }}
             className={`px-3 py-1.5 rounded-full text-xs font-mono uppercase transition-all ${
               filter === f.key
                 ? "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20"
@@ -280,6 +305,26 @@ const SportsScheduleSection = () => {
             {f.label}
           </button>
         ))}
+      </div>
+
+      {/* League chips */}
+      <div className="flex flex-wrap items-center gap-2 mb-8">
+        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider mr-1">League:</span>
+        {LEAGUE_CHIPS
+          .filter((c) => c.key === "all" || filter === "all" || c.sport === filter)
+          .map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setLeagueFilter(c.key)}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border transition-all ${
+                leagueFilter === c.key
+                  ? "bg-primary/15 text-primary border-primary/40 shadow-sm shadow-primary/20"
+                  : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground hover:border-primary/30"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
       </div>
 
       {loading ? (
@@ -296,7 +341,7 @@ const SportsScheduleSection = () => {
             </h3>
             {filteredUpcoming.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} />)}
+                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} now={now} />)}
               </div>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">
