@@ -50,6 +50,23 @@ function formatMatchDate(iso: string): { day: string; time: string } {
   }
 }
 
+function formatCountdown(iso: string, now: number): { label: string; tone: "live" | "soon" | "today" | "future" | "past" } {
+  const target = new Date(iso).getTime();
+  if (!Number.isFinite(target)) return { label: "TBD", tone: "future" };
+  const diff = target - now;
+  if (diff <= -2 * 60 * 60_000) return { label: "Ended", tone: "past" };
+  if (diff <= 0) return { label: "Live now", tone: "live" };
+  const sec = Math.floor(diff / 1000);
+  const days = Math.floor(sec / 86400);
+  const hours = Math.floor((sec % 86400) / 3600);
+  const minutes = Math.floor((sec % 3600) / 60);
+  const seconds = sec % 60;
+  if (days > 0) return { label: `${days}d ${hours}h`, tone: "future" };
+  if (hours > 0) return { label: `${hours}h ${minutes.toString().padStart(2, "0")}m`, tone: hours < 6 ? "today" : "future" };
+  if (minutes > 0) return { label: `${minutes}m ${seconds.toString().padStart(2, "0")}s`, tone: "soon" };
+  return { label: `${seconds}s`, tone: "soon" };
+}
+
 function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "won" | "lost" | null {
   if (result.homeScore === null || result.awayScore === null) return null;
   const home = result.homeTeam.toLowerCase();
