@@ -243,7 +243,13 @@ const Calendar = () => {
 
           {/* Impact filter */}
           <div className="flex flex-wrap gap-1.5">
-            {["all", "high", "medium", "low"].map((level) => (
+            {([
+              ["high_med", "High + Med"],
+              ["high", "High"],
+              ["medium", "Medium"],
+              ["low", "Low"],
+              ["all", "All"],
+            ] as const).map(([level, label]) => (
               <button
                 key={level}
                 onClick={() => setImpactFilter(level)}
@@ -253,7 +259,7 @@ const Calendar = () => {
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {level === "all" ? "All Impact" : level}
+                {label}
               </button>
             ))}
           </div>
