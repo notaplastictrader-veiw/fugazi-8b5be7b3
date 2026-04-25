@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
 import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
+import SportsBottomTicker from "@/components/sports/SportsBottomTicker";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
