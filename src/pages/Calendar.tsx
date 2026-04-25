@@ -55,7 +55,7 @@ function compareColor(actual?: string | null, forecast?: string | null): string 
 const Calendar = () => {
   const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
-  const [impactFilter, setImpactFilter] = useState("all");
+  const [impactFilter, setImpactFilter] = useState("high_med");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
