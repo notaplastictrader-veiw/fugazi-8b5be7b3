@@ -74,7 +74,15 @@ function normalize(raw: any[]): CalendarEvent[] {
     const currency = String(r.Currency ?? "").trim().toUpperCase();
     if (!name) continue;
 
-    const actual = r.Actual != null && r.Actual !== "" ? String(r.Actual) : "";
+    // JBlanked uses 0 as a placeholder for "not yet released" — treat as empty.
+    const rawActual = r.Actual;
+    const actualIsPlaceholder =
+      rawActual == null ||
+      rawActual === "" ||
+      rawActual === 0 ||
+      rawActual === "0" ||
+      rawActual === "0.0";
+    const actual = actualIsPlaceholder ? "" : String(rawActual);
     const forecast =
       r.Forecast != null && r.Forecast !== "" ? String(r.Forecast) : "";
     const previous =
