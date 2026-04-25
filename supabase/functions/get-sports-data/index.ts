@@ -10,7 +10,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const API_KEY = "1"; // TheSportsDB public free key
+const API_KEY = "3"; // TheSportsDB public test key (key "1" was deprecated and now returns 404)
 const BASE = `https://www.thesportsdb.com/api/v1/json/${API_KEY}`;
 
 const LEAGUES = [
