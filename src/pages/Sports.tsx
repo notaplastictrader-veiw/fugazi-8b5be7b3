@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target } from "lucide-react";
+import { Trophy, Target, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
 import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
+import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
 
 const fallbackPredictions: Prediction[] = [
@@ -30,6 +32,35 @@ const Sports = () => {
   const [bettingSites, setBettingSites] = useState<any[]>(staticBettingSites);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [refreshing, setRefreshing] = useState(false);
+  const { refresh: refreshSchedule } = useSportsSchedule();
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    toast.loading("Refreshing sports data...", { id: "sports-refresh" });
+    try {
+      const [{ data: preds }, { data: bs }] = await Promise.all([
+        supabase.from("sports_predictions").select("*").eq("status", "published").order("match_date", { ascending: false }),
+        supabase.from("betting_sites").select("*").eq("status", "published").order("display_order"),
+      ]);
+      if (preds && preds.length > 0) setPredictions(preds);
+      if (bs && bs.length) {
+        setBettingSites(bs.map(b => ({
+          id: b.id, name: b.name, slug: b.slug, logo: b.logo, rating: Number(b.rating),
+          bonus: b.bonus, sports: b.sports || [], features: b.features || [],
+          min_deposit: b.min_deposit, withdrawal_speed: b.withdrawal_speed,
+          license: b.license, url: b.url, warning: b.warning || undefined,
+        })));
+      }
+      await refreshSchedule();
+      toast.success("Sports data refreshed", { id: "sports-refresh" });
+    } catch (err: any) {
+      toast.error("Refresh failed", { id: "sports-refresh", description: err?.message ?? "Try again shortly" });
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -78,6 +109,17 @@ const Sports = () => {
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Data-driven predictions and trusted betting site reviews. Track record included.
           </p>
+          <div className="mt-5 flex justify-center">
+            <button
+              onClick={handleManualRefresh}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono uppercase bg-secondary text-foreground border border-border hover:bg-secondary/70 hover:border-primary/40 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              aria-label="Refresh sports data"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+              {refreshing ? "Refreshing..." : "Refresh sports data"}
+            </button>
+          </div>
         </div>
 
         {/* Stats bar — hide when betting tab active */}
