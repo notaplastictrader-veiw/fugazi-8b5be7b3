@@ -5,12 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
 
 type SportFilter = "all" | "Football" | "Cricket" | "Basketball";
+type LeagueFilter = "all" | "Premier League" | "IPL" | "NBA";
 
 const FILTERS: { key: SportFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "Football", label: "⚽ Football" },
   { key: "Cricket", label: "🏏 Cricket" },
   { key: "Basketball", label: "🏀 Basketball" },
+];
+
+const LEAGUE_CHIPS: { key: LeagueFilter; label: string; sport: SportFilter }[] = [
+  { key: "all", label: "All Leagues", sport: "all" },
+  { key: "Premier League", label: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL", sport: "Football" },
+  { key: "IPL", label: "🏏 IPL", sport: "Cricket" },
+  { key: "NBA", label: "🏀 NBA", sport: "Basketball" },
 ];
 
 interface PredictionRow {
