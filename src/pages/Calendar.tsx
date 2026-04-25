@@ -156,9 +156,9 @@ const Calendar = () => {
     return { grouped: g, dateKeys: Object.keys(g) };
   }, [merged, impactFilter, currencyFilter, categoryFilter, rangeFilter, timezone]);
 
-  const filtersActive = impactFilter !== "all" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
+  const filtersActive = impactFilter !== "high_med" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
   const clearFilters = () => {
-    setImpactFilter("all");
+    setImpactFilter("high_med");
     setCurrencyFilter("all");
     setCategoryFilter("all");
     setRangeFilter("week");
