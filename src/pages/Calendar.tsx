@@ -343,7 +343,7 @@ const Calendar = () => {
               <div key={date}>
                 {/* MOBILE: stacked cards */}
                 <div className="md:hidden">
-                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[260px] bg-background/80 backdrop-blur-sm py-2 z-10">
+                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[200px] bg-background/80 backdrop-blur-sm py-2 z-10">
                     {formatDateHeader(date)}
                   </h3>
                   <div className="space-y-3">
@@ -397,7 +397,7 @@ const Calendar = () => {
 
                 {/* DESKTOP: dense table */}
                 <div className="hidden md:block glass-card rounded-xl overflow-hidden">
-                  <div className="bg-primary/10 px-4 py-2 sticky top-[260px] z-10 backdrop-blur-md border-b border-primary/20">
+                  <div className="bg-primary/10 px-4 py-2 sticky top-[200px] z-10 backdrop-blur-md border-b border-primary/20">
                     <h3 className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
                       {formatDateHeader(date)}
                     </h3>
@@ -423,7 +423,7 @@ const Calendar = () => {
                           <tr
                             key={e.id}
                             onClick={() => setSelected(e)}
-                            className={`border-b border-border/40 last:border-0 even:bg-secondary/10 hover:bg-primary/5 cursor-pointer transition-colors border-l-4 ${style.border}`}
+                            className={`border-b border-border/40 last:border-0 even:bg-secondary/10 hover:bg-secondary/40 cursor-pointer transition-colors border-l-4 ${style.border}`}
                           >
                             <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
                               {adj.time ? `${adj.time}${timezone === "UTC" ? " UTC" : ""}` : "—"}
