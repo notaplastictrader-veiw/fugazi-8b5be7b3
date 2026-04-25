@@ -1,0 +1,1 @@
+DELETE FROM public.site_settings WHERE key IN ('sports_cache', 'sports_cache_last_good');
