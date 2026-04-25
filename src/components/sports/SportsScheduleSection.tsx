@@ -107,22 +107,33 @@ function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "wo
   return "lost";
 }
 
-const UpcomingCard = ({ m }: { m: UpcomingMatch }) => {
+const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
   const { day, time } = formatMatchDate(m.date);
   const isLive = m.status === "Live";
+  const countdown = formatCountdown(m.date, now);
+  const toneClass =
+    countdown.tone === "live" ? "bg-destructive/15 text-destructive border-destructive/30 animate-pulse"
+    : countdown.tone === "soon" ? "bg-destructive/10 text-destructive border-destructive/30"
+    : countdown.tone === "today" ? "bg-primary/10 text-primary border-primary/30"
+    : countdown.tone === "past" ? "bg-muted text-muted-foreground border-border"
+    : "bg-secondary text-foreground border-border";
   return (
     <div className="glass-card rounded-2xl p-5 border border-destructive/20 hover:border-destructive/40 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--destructive)/0.4)] hover:-translate-y-0.5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
+        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider truncate pr-2">
           {m.league}
         </span>
-        {isLive && (
+        {isLive ? (
           <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-destructive font-bold">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
             </span>
             LIVE
+          </span>
+        ) : (
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border tabular-nums ${toneClass}`}>
+            <Clock className="w-3 h-3" /> {countdown.label}
           </span>
         )}
       </div>
