@@ -1,6 +1,6 @@
-// TheSportsDB sports schedule + results aggregator
-// Free public API key "1" — legal, documented for free use
-// 5-min cache in site_settings.sports_cache, stale-while-error fallback (24h)
+// SofaSport (RapidAPI) sports schedule + results aggregator
+// Replaces TheSportsDB which only returned demo data on the free key.
+// 5-min TTL cache + 24h stale-while-error fallback in site_settings.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -10,19 +10,21 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const API_KEY = "3"; // TheSportsDB public test key (key "1" was deprecated and now returns 404)
-const BASE = `https://www.thesportsdb.com/api/v1/json/${API_KEY}`;
+const RAPIDAPI_HOST = "sportapi7.p.rapidapi.com";
+const BASE = `https://${RAPIDAPI_HOST}/api/v1/sport`;
 
-const LEAGUES = [
-  { id: "4328", sport: "Football", league: "Premier League" },
-  { id: "4424", sport: "Cricket", league: "IPL" },
-  { id: "4387", sport: "Basketball", league: "NBA" },
+// SofaSport sport slugs we want to surface on /sports
+const SPORTS = [
+  { slug: "football", display: "Football" },
+  { slug: "cricket", display: "Cricket" },
+  { slug: "basketball", display: "Basketball" },
 ];
 
 const CACHE_KEY = "sports_cache";
 const LAST_GOOD_KEY = "sports_cache_last_good";
 const CACHE_TTL_MS = 5 * 60_000; // 5 minutes
 const STALE_MAX_MS = 24 * 60 * 60_000; // 24 hours
+const PER_SPORT_LIMIT = 20; // cap per sport per bucket to keep payload sane
 
 interface UpcomingMatch {
   id: string;
@@ -44,91 +46,160 @@ interface Payload {
   upcoming: UpcomingMatch[];
   results: ResultMatch[];
   fetchedAt: number;
+  liveAvailable: boolean;
 }
 
-function mapStatus(strStatus: string | null | undefined): string {
-  if (!strStatus) return "Scheduled";
-  const s = strStatus.toLowerCase();
-  if (s.includes("finish") || s === "ft" || s === "aet") return "Finished";
-  if (s.includes("not started") || s === "ns" || s === "" || s === "scheduled") return "Scheduled";
-  if (s.includes("postpone") || s.includes("cancel")) return "Postponed";
-  // anything else (1H, 2H, HT, Live, Q1, Q2, etc.) → live
-  return "Live";
+function todayUtc(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
-function buildIso(dateEvent: string | null, strTime: string | null): string {
-  if (!dateEvent) return new Date().toISOString();
-  const time = strTime && /^\d{2}:\d{2}/.test(strTime) ? strTime.slice(0, 8) : "00:00:00";
-  return `${dateEvent}T${time.length === 5 ? time + ":00" : time}Z`;
-}
-
-function shortTime(strTime: string | null): string {
-  if (!strTime || !/^\d{2}:\d{2}/.test(strTime)) return "";
-  return strTime.slice(0, 5);
-}
-
-async function fetchLeague(id: string, type: "next" | "past"): Promise<any[]> {
-  const endpoint = type === "next" ? "eventsnextleague.php" : "eventspastleague.php";
-  const url = `${BASE}/${endpoint}?id=${id}`;
-  try {
-    const res = await fetch(url, { headers: { "User-Agent": "NAFT/1.0" } });
-    if (!res.ok) {
-      console.warn(`[get-sports-data] ${endpoint}?id=${id} → HTTP ${res.status}`);
-      return [];
-    }
-    const json = await res.json();
-    return Array.isArray(json?.events) ? json.events : [];
-  } catch (e) {
-    console.warn(`[get-sports-data] fetch failed for ${endpoint}?id=${id}:`, e);
-    return [];
+function mapStatus(statusType: string | undefined): string {
+  switch ((statusType || "").toLowerCase()) {
+    case "inprogress":
+      return "Live";
+    case "finished":
+      return "Finished";
+    case "postponed":
+    case "canceled":
+    case "cancelled":
+      return "Postponed";
+    case "notstarted":
+    default:
+      return "Scheduled";
   }
 }
 
-async function buildPayload(): Promise<Payload> {
-  // Fetch all 6 endpoints in parallel
-  const tasks = LEAGUES.flatMap((lg) => [
-    fetchLeague(lg.id, "next").then((events) => ({ lg, type: "next" as const, events })),
-    fetchLeague(lg.id, "past").then((events) => ({ lg, type: "past" as const, events })),
+function tsToIso(ts: number | undefined): string {
+  if (!ts || !Number.isFinite(ts)) return new Date().toISOString();
+  return new Date(ts * 1000).toISOString();
+}
+
+function tsToShortTime(ts: number | undefined): string {
+  if (!ts || !Number.isFinite(ts)) return "";
+  const d = new Date(ts * 1000);
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+interface SofaEvent {
+  id: number | string;
+  tournament?: { name?: string; uniqueTournament?: { name?: string } };
+  homeTeam?: { name?: string };
+  awayTeam?: { name?: string };
+  homeScore?: { current?: number; display?: number };
+  awayScore?: { current?: number; display?: number };
+  startTimestamp?: number;
+  status?: { type?: string; description?: string };
+}
+
+interface FetchResult {
+  events: SofaEvent[];
+  ok: boolean;
+  notSubscribed: boolean;
+}
+
+async function callSofa(
+  apiKey: string,
+  path: string,
+): Promise<FetchResult> {
+  const url = `${BASE}/${path}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "x-rapidapi-key": apiKey,
+      },
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      const notSub = res.status === 403 || /not subscribed/i.test(txt);
+      console.warn(`[get-sports-data] ${path} → HTTP ${res.status}${notSub ? " (not subscribed)" : ""}`);
+      return { events: [], ok: false, notSubscribed: notSub };
+    }
+    const json = await res.json();
+    const events: SofaEvent[] = Array.isArray(json?.events) ? json.events : [];
+    return { events, ok: true, notSubscribed: false };
+  } catch (e) {
+    console.warn(`[get-sports-data] fetch failed ${path}:`, e);
+    return { events: [], ok: false, notSubscribed: false };
+  }
+}
+
+function mapEvent(ev: SofaEvent, sportDisplay: string): UpcomingMatch {
+  const league =
+    ev.tournament?.uniqueTournament?.name ||
+    ev.tournament?.name ||
+    sportDisplay;
+  return {
+    id: String(ev.id ?? `${ev.startTimestamp}-${ev.homeTeam?.name ?? "h"}-${ev.awayTeam?.name ?? "a"}`),
+    sport: sportDisplay,
+    league,
+    homeTeam: ev.homeTeam?.name || "TBD",
+    awayTeam: ev.awayTeam?.name || "TBD",
+    date: tsToIso(ev.startTimestamp),
+    time: tsToShortTime(ev.startTimestamp),
+    status: mapStatus(ev.status?.type),
+  };
+}
+
+async function buildPayload(apiKey: string): Promise<Payload> {
+  const today = todayUtc();
+
+  // For each sport: live + scheduled today + scheduled today/inverse (yesterday's results)
+  const tasks = SPORTS.flatMap((sp) => [
+    callSofa(apiKey, `${sp.slug}/events/live`).then((r) => ({ sp, kind: "live" as const, r })),
+    callSofa(apiKey, `${sp.slug}/scheduled-events/${today}`).then((r) => ({ sp, kind: "today" as const, r })),
+    callSofa(apiKey, `${sp.slug}/scheduled-events/${today}/inverse`).then((r) => ({ sp, kind: "inverse" as const, r })),
   ]);
-  const buckets = await Promise.all(tasks);
 
+  const results = await Promise.all(tasks);
+
+  let liveAvailable = false;
   const upcoming: UpcomingMatch[] = [];
-  const results: ResultMatch[] = [];
+  const finished: ResultMatch[] = [];
 
-  for (const { lg, type, events } of buckets) {
-    for (const ev of events.slice(0, 12)) {
-      const status = mapStatus(ev.strStatus);
-      const base: UpcomingMatch = {
-        id: String(ev.idEvent),
-        sport: lg.sport,
-        league: lg.league,
-        homeTeam: ev.strHomeTeam || "TBD",
-        awayTeam: ev.strAwayTeam || "TBD",
-        date: buildIso(ev.dateEvent, ev.strTime),
-        time: shortTime(ev.strTime),
-        status,
-      };
-      if (type === "next") {
-        upcoming.push(base);
-      } else {
-        const hs = ev.intHomeScore !== null && ev.intHomeScore !== undefined && ev.intHomeScore !== ""
-          ? Number(ev.intHomeScore) : null;
-        const as = ev.intAwayScore !== null && ev.intAwayScore !== undefined && ev.intAwayScore !== ""
-          ? Number(ev.intAwayScore) : null;
-        results.push({
+  for (const { sp, kind, r } of results) {
+    if (kind === "live" && r.ok && r.events.length > 0) liveAvailable = true;
+
+    const slice = r.events.slice(0, PER_SPORT_LIMIT);
+    for (const ev of slice) {
+      const base = mapEvent(ev, sp.display);
+      const isFinished = base.status === "Finished";
+      if (isFinished) {
+        const hs = ev.homeScore?.current ?? ev.homeScore?.display;
+        const as = ev.awayScore?.current ?? ev.awayScore?.display;
+        finished.push({
           ...base,
-          status: status === "Scheduled" ? "Finished" : status,
-          homeScore: Number.isFinite(hs as number) ? (hs as number) : null,
-          awayScore: Number.isFinite(as as number) ? (as as number) : null,
+          homeScore: typeof hs === "number" ? hs : null,
+          awayScore: typeof as === "number" ? as : null,
         });
+      } else {
+        // Live + Scheduled both go into "upcoming" so users see them in one stream
+        upcoming.push(base);
       }
     }
   }
 
-  upcoming.sort((a, b) => +new Date(a.date) - +new Date(b.date));
-  results.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+  // Dedupe by id (live + today often overlap)
+  const dedupe = <T extends { id: string }>(arr: T[]) => {
+    const seen = new Set<string>();
+    return arr.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
+  };
 
-  return { upcoming, results, fetchedAt: Date.now() };
+  const upcomingDeduped = dedupe(upcoming).sort(
+    (a, b) => +new Date(a.date) - +new Date(b.date),
+  );
+  const finishedDeduped = dedupe(finished).sort(
+    (a, b) => +new Date(b.date) - +new Date(a.date),
+  );
+
+  return {
+    upcoming: upcomingDeduped,
+    results: finishedDeduped,
+    fetchedAt: Date.now(),
+    liveAvailable,
+  };
 }
 
 Deno.serve(async (req) => {
@@ -136,14 +207,30 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const apiKey = Deno.env.get("RAPIDAPI_SPORTS_KEY");
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  if (!apiKey) {
+    console.error("[get-sports-data] RAPIDAPI_SPORTS_KEY not configured");
+    return new Response(
+      JSON.stringify({
+        upcoming: [],
+        results: [],
+        fetchedAt: Date.now(),
+        stale: true,
+        liveAvailable: false,
+        error: "missing_api_key",
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   try {
-    // 1) Try TTL cache
+    // 1) TTL cache
     const { data: cached } = await admin
       .from("site_settings")
       .select("value, updated_at")
@@ -160,8 +247,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2) Fetch fresh
-    const payload = await buildPayload();
+    // 2) Fresh fetch
+    const payload = await buildPayload(apiKey);
     const hasData = payload.upcoming.length > 0 || payload.results.length > 0;
 
     if (hasData) {
@@ -179,10 +266,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 3) Upstream returned nothing → fall back to last-good
     throw new Error("upstream_empty");
   } catch (err) {
-    console.warn("[get-sports-data] live fetch failed, trying last-good:", err);
+    console.warn("[get-sports-data] live fetch failed, using last-good:", err);
     const { data: lastGood } = await admin
       .from("site_settings")
       .select("value, updated_at")
@@ -205,6 +291,7 @@ Deno.serve(async (req) => {
         results: [],
         fetchedAt: Date.now(),
         stale: true,
+        liveAvailable: false,
         error: "feed_unavailable",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 },
