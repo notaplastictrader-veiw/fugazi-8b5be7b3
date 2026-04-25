@@ -5,12 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
 
 type SportFilter = "all" | "Football" | "Cricket" | "Basketball";
+type LeagueFilter = "all" | "Premier League" | "IPL" | "NBA";
 
 const FILTERS: { key: SportFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "Football", label: "⚽ Football" },
   { key: "Cricket", label: "🏏 Cricket" },
   { key: "Basketball", label: "🏀 Basketball" },
+];
+
+const LEAGUE_CHIPS: { key: LeagueFilter; label: string; sport: SportFilter }[] = [
+  { key: "all", label: "All Leagues", sport: "all" },
+  { key: "Premier League", label: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL", sport: "Football" },
+  { key: "IPL", label: "🏏 IPL", sport: "Cricket" },
+  { key: "NBA", label: "🏀 NBA", sport: "Basketball" },
 ];
 
 interface PredictionRow {
@@ -40,6 +48,23 @@ function formatMatchDate(iso: string): { day: string; time: string } {
   } catch {
     return { day: iso, time: "" };
   }
+}
+
+function formatCountdown(iso: string, now: number): { label: string; tone: "live" | "soon" | "today" | "future" | "past" } {
+  const target = new Date(iso).getTime();
+  if (!Number.isFinite(target)) return { label: "TBD", tone: "future" };
+  const diff = target - now;
+  if (diff <= -2 * 60 * 60_000) return { label: "Ended", tone: "past" };
+  if (diff <= 0) return { label: "Live now", tone: "live" };
+  const sec = Math.floor(diff / 1000);
+  const days = Math.floor(sec / 86400);
+  const hours = Math.floor((sec % 86400) / 3600);
+  const minutes = Math.floor((sec % 3600) / 60);
+  const seconds = sec % 60;
+  if (days > 0) return { label: `${days}d ${hours}h`, tone: "future" };
+  if (hours > 0) return { label: `${hours}h ${minutes.toString().padStart(2, "0")}m`, tone: hours < 6 ? "today" : "future" };
+  if (minutes > 0) return { label: `${minutes}m ${seconds.toString().padStart(2, "0")}s`, tone: "soon" };
+  return { label: `${seconds}s`, tone: "soon" };
 }
 
 function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "won" | "lost" | null {
@@ -82,22 +107,33 @@ function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "wo
   return "lost";
 }
 
-const UpcomingCard = ({ m }: { m: UpcomingMatch }) => {
+const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
   const { day, time } = formatMatchDate(m.date);
   const isLive = m.status === "Live";
+  const countdown = formatCountdown(m.date, now);
+  const toneClass =
+    countdown.tone === "live" ? "bg-destructive/15 text-destructive border-destructive/30 animate-pulse"
+    : countdown.tone === "soon" ? "bg-destructive/10 text-destructive border-destructive/30"
+    : countdown.tone === "today" ? "bg-primary/10 text-primary border-primary/30"
+    : countdown.tone === "past" ? "bg-muted text-muted-foreground border-border"
+    : "bg-secondary text-foreground border-border";
   return (
     <div className="glass-card rounded-2xl p-5 border border-destructive/20 hover:border-destructive/40 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--destructive)/0.4)] hover:-translate-y-0.5">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
+        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider truncate pr-2">
           {m.league}
         </span>
-        {isLive && (
+        {isLive ? (
           <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-destructive font-bold">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
             </span>
             LIVE
+          </span>
+        ) : (
+          <span className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full border tabular-nums ${toneClass}`}>
+            <Clock className="w-3 h-3" /> {countdown.label}
           </span>
         )}
       </div>
@@ -166,12 +202,13 @@ const ResultCard = ({ m, verdict }: { m: ResultMatch; verdict: "won" | "lost" | 
 const SportsScheduleSection = () => {
   const { upcoming, results, stale, lastFetched, loading, refresh } = useSportsSchedule();
   const [filter, setFilter] = useState<SportFilter>("all");
+  const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
-  const [, forceTick] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
 
-  // Tick every 60s so "X min ago" stays fresh
+  // Tick every second so countdowns and "X min ago" stay fresh
   useEffect(() => {
-    const id = window.setInterval(() => forceTick((n) => n + 1), 60_000);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -186,14 +223,38 @@ const SportsScheduleSection = () => {
       });
   }, []);
 
-  const filteredUpcoming = useMemo(
-    () => (filter === "all" ? upcoming : upcoming.filter((m) => m.sport === filter)).slice(0, 12),
-    [upcoming, filter],
-  );
-  const filteredResults = useMemo(
-    () => (filter === "all" ? results : results.filter((m) => m.sport === filter)).slice(0, 12),
-    [results, filter],
-  );
+  const applyFilters = <T extends UpcomingMatch>(list: T[]): T[] =>
+    list.filter((m) => {
+      if (filter !== "all" && m.sport !== filter) return false;
+      if (leagueFilter !== "all" && m.league !== leagueFilter) return false;
+      return true;
+    });
+
+  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
+  const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
+
+  // Status pill: loading | cached | fresh
+  const statusPill = (() => {
+    if (loading) {
+      return {
+        text: "Loading sports data…",
+        cls: "bg-primary/10 text-primary border-primary/30",
+        dot: "bg-primary animate-pulse",
+      };
+    }
+    if (stale) {
+      return {
+        text: `Cached · updated ${formatRelative(lastFetched)}`,
+        cls: "bg-muted text-muted-foreground border-border",
+        dot: "bg-muted-foreground",
+      };
+    }
+    return {
+      text: `Live · updated ${formatRelative(lastFetched)}`,
+      cls: "bg-primary/10 text-primary border-primary/30",
+      dot: "bg-primary animate-pulse",
+    };
+  })();
 
   return (
     <section className="mt-16 pt-12 border-t border-border/40">
@@ -210,13 +271,13 @@ const SportsScheduleSection = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {stale && (
-            <span className="text-[10px] font-mono uppercase px-2 py-1 rounded-full bg-muted text-muted-foreground border border-border">
-              Cached data
-            </span>
-          )}
-          <span className="text-xs text-muted-foreground font-mono">
-            Updated {formatRelative(lastFetched)}
+          <span
+            className={`inline-flex items-center gap-2 text-[10px] font-mono uppercase px-2.5 py-1 rounded-full border ${statusPill.cls}`}
+            aria-live="polite"
+            aria-label={statusPill.text}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${statusPill.dot}`} />
+            {statusPill.text}
           </span>
           <button
             onClick={() => refresh()}
@@ -229,12 +290,12 @@ const SportsScheduleSection = () => {
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      {/* Sport filter tabs */}
+      <div className="flex flex-wrap gap-2 mb-3">
         {FILTERS.map((f) => (
           <button
             key={f.key}
-            onClick={() => setFilter(f.key)}
+            onClick={() => { setFilter(f.key); setLeagueFilter("all"); }}
             className={`px-3 py-1.5 rounded-full text-xs font-mono uppercase transition-all ${
               filter === f.key
                 ? "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20"
@@ -244,6 +305,26 @@ const SportsScheduleSection = () => {
             {f.label}
           </button>
         ))}
+      </div>
+
+      {/* League chips */}
+      <div className="flex flex-wrap items-center gap-2 mb-8">
+        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider mr-1">League:</span>
+        {LEAGUE_CHIPS
+          .filter((c) => c.key === "all" || filter === "all" || c.sport === filter)
+          .map((c) => (
+            <button
+              key={c.key}
+              onClick={() => setLeagueFilter(c.key)}
+              className={`px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border transition-all ${
+                leagueFilter === c.key
+                  ? "bg-primary/15 text-primary border-primary/40 shadow-sm shadow-primary/20"
+                  : "bg-secondary/60 text-muted-foreground border-border hover:text-foreground hover:border-primary/30"
+              }`}
+            >
+              {c.label}
+            </button>
+          ))}
       </div>
 
       {loading ? (
@@ -260,7 +341,7 @@ const SportsScheduleSection = () => {
             </h3>
             {filteredUpcoming.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} />)}
+                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} now={now} />)}
               </div>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">

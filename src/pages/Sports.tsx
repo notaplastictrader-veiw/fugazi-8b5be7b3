@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
 import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
+import SportsBottomTicker from "@/components/sports/SportsBottomTicker";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
@@ -98,7 +99,7 @@ const Sports = () => {
         description="Data-driven sports predictions and trusted betting site reviews. Football, cricket, basketball, tennis — with track records and verified results."
         path="/sports"
       />
-      <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
+      <section className="max-w-6xl mx-auto px-4 pt-6 pb-32">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             🏆 SPORTS HUB
@@ -221,6 +222,7 @@ const Sports = () => {
 
         <SportsScheduleSection />
       </section>
+      <SportsBottomTicker />
     </MainLayout>
   );
 };
