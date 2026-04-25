@@ -32,6 +32,35 @@ const Sports = () => {
   const [bettingSites, setBettingSites] = useState<any[]>(staticBettingSites);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [refreshing, setRefreshing] = useState(false);
+  const { refresh: refreshSchedule } = useSportsSchedule();
+
+  const handleManualRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    toast.loading("Refreshing sports data...", { id: "sports-refresh" });
+    try {
+      const [{ data: preds }, { data: bs }] = await Promise.all([
+        supabase.from("sports_predictions").select("*").eq("status", "published").order("match_date", { ascending: false }),
+        supabase.from("betting_sites").select("*").eq("status", "published").order("display_order"),
+      ]);
+      if (preds && preds.length > 0) setPredictions(preds);
+      if (bs && bs.length) {
+        setBettingSites(bs.map(b => ({
+          id: b.id, name: b.name, slug: b.slug, logo: b.logo, rating: Number(b.rating),
+          bonus: b.bonus, sports: b.sports || [], features: b.features || [],
+          min_deposit: b.min_deposit, withdrawal_speed: b.withdrawal_speed,
+          license: b.license, url: b.url, warning: b.warning || undefined,
+        })));
+      }
+      await refreshSchedule();
+      toast.success("Sports data refreshed", { id: "sports-refresh" });
+    } catch (err: any) {
+      toast.error("Refresh failed", { id: "sports-refresh", description: err?.message ?? "Try again shortly" });
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
