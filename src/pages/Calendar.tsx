@@ -130,7 +130,8 @@ const Calendar = () => {
     const weekEnd = new Date(todayUtc.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
     const filtered = merged.filter((e) => {
-      if (impactFilter !== "all" && e.impact !== impactFilter) return false;
+      if (impactFilter === "high_med" && e.impact !== "high" && e.impact !== "medium") return false;
+      if (impactFilter !== "all" && impactFilter !== "high_med" && e.impact !== impactFilter) return false;
       if (currencyFilter !== "all" && e.currency !== currencyFilter) return false;
       if (categoryFilter !== "all" && categoryBucket(e.category, e.name) !== categoryFilter) return false;
       const adj = adjustForTz(e, timezone);
