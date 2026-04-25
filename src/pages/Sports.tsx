@@ -222,6 +222,7 @@ const Sports = () => {
 
         <SportsScheduleSection />
       </section>
+      <SportsBottomTicker />
     </MainLayout>
   );
 };
