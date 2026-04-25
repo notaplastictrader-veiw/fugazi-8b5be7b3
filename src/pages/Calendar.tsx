@@ -55,7 +55,7 @@ function compareColor(actual?: string | null, forecast?: string | null): string 
 const Calendar = () => {
   const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
   const [loadingDb, setLoadingDb] = useState(true);
-  const [impactFilter, setImpactFilter] = useState("all");
+  const [impactFilter, setImpactFilter] = useState("high_med");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
@@ -130,7 +130,8 @@ const Calendar = () => {
     const weekEnd = new Date(todayUtc.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
     const filtered = merged.filter((e) => {
-      if (impactFilter !== "all" && e.impact !== impactFilter) return false;
+      if (impactFilter === "high_med" && e.impact !== "high" && e.impact !== "medium") return false;
+      if (impactFilter !== "all" && impactFilter !== "high_med" && e.impact !== impactFilter) return false;
       if (currencyFilter !== "all" && e.currency !== currencyFilter) return false;
       if (categoryFilter !== "all" && categoryBucket(e.category, e.name) !== categoryFilter) return false;
       const adj = adjustForTz(e, timezone);
@@ -155,9 +156,9 @@ const Calendar = () => {
     return { grouped: g, dateKeys: Object.keys(g) };
   }, [merged, impactFilter, currencyFilter, categoryFilter, rangeFilter, timezone]);
 
-  const filtersActive = impactFilter !== "all" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
+  const filtersActive = impactFilter !== "high_med" || currencyFilter !== "all" || categoryFilter !== "all" || rangeFilter !== "week";
   const clearFilters = () => {
-    setImpactFilter("all");
+    setImpactFilter("high_med");
     setCurrencyFilter("all");
     setCategoryFilter("all");
     setRangeFilter("week");
@@ -242,7 +243,13 @@ const Calendar = () => {
 
           {/* Impact filter */}
           <div className="flex flex-wrap gap-1.5">
-            {["all", "high", "medium", "low"].map((level) => (
+            {([
+              ["high_med", "High + Med"],
+              ["high", "High"],
+              ["medium", "Medium"],
+              ["low", "Low"],
+              ["all", "All"],
+            ] as const).map(([level, label]) => (
               <button
                 key={level}
                 onClick={() => setImpactFilter(level)}
@@ -252,7 +259,7 @@ const Calendar = () => {
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {level === "all" ? "All Impact" : level}
+                {label}
               </button>
             ))}
           </div>
@@ -336,7 +343,7 @@ const Calendar = () => {
               <div key={date}>
                 {/* MOBILE: stacked cards */}
                 <div className="md:hidden">
-                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[260px] bg-background/80 backdrop-blur-sm py-2 z-10">
+                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[200px] bg-background/80 backdrop-blur-sm py-2 z-10">
                     {formatDateHeader(date)}
                   </h3>
                   <div className="space-y-3">
@@ -390,7 +397,7 @@ const Calendar = () => {
 
                 {/* DESKTOP: dense table */}
                 <div className="hidden md:block glass-card rounded-xl overflow-hidden">
-                  <div className="bg-primary/10 px-4 py-2 sticky top-[260px] z-10 backdrop-blur-md border-b border-primary/20">
+                  <div className="bg-primary/10 px-4 py-2 sticky top-[200px] z-10 backdrop-blur-md border-b border-primary/20">
                     <h3 className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
                       {formatDateHeader(date)}
                     </h3>
@@ -416,7 +423,7 @@ const Calendar = () => {
                           <tr
                             key={e.id}
                             onClick={() => setSelected(e)}
-                            className={`border-b border-border/40 last:border-0 even:bg-secondary/10 hover:bg-primary/5 cursor-pointer transition-colors border-l-4 ${style.border}`}
+                            className={`border-b border-border/40 last:border-0 even:bg-secondary/10 hover:bg-secondary/40 cursor-pointer transition-colors border-l-4 ${style.border}`}
                           >
                             <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground whitespace-nowrap">
                               {adj.time ? `${adj.time}${timezone === "UTC" ? " UTC" : ""}` : "—"}
