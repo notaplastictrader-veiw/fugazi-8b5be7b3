@@ -360,13 +360,38 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Radio className="w-4 h-4 text-destructive" /> Upcoming Matches
               <span className="text-[10px] text-muted-foreground font-mono">({filteredUpcoming.length})</span>
+              {!showAllUpcoming && upcomingPopular.length < filteredUpcoming.length && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              )}
             </h3>
             {filteredUpcoming.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUpcoming.map((m) => (
-                  <UpcomingCard key={m.id} m={m} now={now} />
-                ))}
-              </div>
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {upcomingVisible.map((m) => (
+                    <UpcomingCard key={m.id} m={m} now={now} />
+                  ))}
+                </div>
+                {filteredUpcoming.length > upcomingVisible.length && !showAllUpcoming && (
+                  <div className="mt-5 flex justify-center">
+                    <button
+                      onClick={() => setShowAllUpcoming(true)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
+                    >
+                      View all ({filteredUpcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {showAllUpcoming && filteredUpcoming.length > POPULAR_LIMIT && (
+                  <div className="mt-5 flex justify-center">
+                    <button
+                      onClick={() => setShowAllUpcoming(false)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
+                    >
+                      Show less <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">
                 No upcoming matches for this filter.
@@ -379,13 +404,38 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Trophy className="w-4 h-4 text-primary" /> Latest Results
               <span className="text-[10px] text-muted-foreground font-mono">({filteredResults.length})</span>
+              {!showAllResults && resultsPopular.length < filteredResults.length && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              )}
             </h3>
             {filteredResults.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredResults.map((m) => (
-                  <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
-                ))}
-              </div>
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {resultsVisible.map((m) => (
+                    <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
+                  ))}
+                </div>
+                {filteredResults.length > resultsVisible.length && !showAllResults && (
+                  <div className="mt-5 flex justify-center">
+                    <button
+                      onClick={() => setShowAllResults(true)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
+                    >
+                      View all ({filteredResults.length}) <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {showAllResults && filteredResults.length > POPULAR_LIMIT && (
+                  <div className="mt-5 flex justify-center">
+                    <button
+                      onClick={() => setShowAllResults(false)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
+                    >
+                      Show less <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">
                 No recent results for this filter.
