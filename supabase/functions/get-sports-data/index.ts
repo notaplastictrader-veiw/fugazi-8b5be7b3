@@ -237,6 +237,32 @@ async function fetchFootballMatches(apiKey: string): Promise<{
 }
 
 // ============= AI PREDICTIONS =============
+function formatOdds(raw: unknown): string | null {
+  if (raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "string" || typeof raw === "number") {
+    const s = String(raw).trim();
+    return s.length ? s : null;
+  }
+  if (typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    const order = ["1", "X", "2", "1X", "12", "X2", "home", "draw", "away"];
+    const seen = new Set<string>();
+    const parts: string[] = [];
+    const push = (k: string) => {
+      const v = obj[k];
+      if (v === undefined || v === null || v === "") return;
+      const num = Number(v);
+      const formatted = Number.isFinite(num) ? num.toFixed(2) : String(v);
+      parts.push(`${k}: ${formatted}`);
+      seen.add(k);
+    };
+    for (const k of order) if (k in obj) push(k);
+    for (const k of Object.keys(obj)) if (!seen.has(k)) push(k);
+    return parts.length ? parts.join(" · ") : null;
+  }
+  return null;
+}
+
 async function fetchPredictions(apiKey: string): Promise<AIPrediction[]> {
   const today = todayIso();
   const url = `/api/v2/predictions?market=classic&iso_date=${today}&federation=UEFA`;
@@ -259,7 +285,7 @@ async function fetchPredictions(apiKey: string): Promise<AIPrediction[]> {
       date: p.start_date || p.iso_date || new Date().toISOString(),
       prediction: p.prediction || p.predicted_outcome || "—",
       market: p.market || "classic",
-      odds: p.odds ? String(p.odds) : null,
+      odds: formatOdds(p.odds),
     });
   }
   return out;
