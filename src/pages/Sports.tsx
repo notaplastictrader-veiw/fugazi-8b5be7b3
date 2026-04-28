@@ -65,7 +65,7 @@ const Sports = () => {
         supabase.from("sports_predictions").select("*").eq("status", "published").order("match_date", { ascending: false }),
         supabase.from("betting_sites").select("*").eq("status", "published").order("display_order"),
       ]);
-      setPredictions(data && data.length > 0 ? data : fallbackPredictions);
+      setPredictions(data || []);
       if (bs && bs.length) {
         setBettingSites(bs.map(b => ({
           id: b.id, name: b.name, slug: b.slug, logo: b.logo, rating: Number(b.rating),
