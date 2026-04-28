@@ -131,7 +131,7 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
 
       {p.analyst_note && (
         <p className="text-xs text-muted-foreground italic border-t border-border pt-3">
-          💡 {p.analyst_note}
+          💡 {humanizePick(p.analyst_note)}
         </p>
       )}
 
