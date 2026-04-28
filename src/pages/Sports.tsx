@@ -15,14 +15,6 @@ import { isPopularMatch } from "@/lib/popularTeams";
 
 const POPULAR_LIMIT = 4;
 
-const fallbackPredictions: Prediction[] = [
-  { id: "1", title: "Premier League — Matchday 32", sport: "football", team_a: "Arsenal", team_b: "Manchester City", match_date: "2026-04-14T20:00:00Z", prediction: "Arsenal Win", confidence: 72, analyst_note: "Arsenal's home form is dominant this season. City struggling with injuries in midfield.", result: "", is_correct: null },
-  { id: "2", title: "IPL 2026 — Match 28", sport: "cricket", team_a: "Mumbai Indians", team_b: "Chennai Super Kings", match_date: "2026-04-15T19:30:00Z", prediction: "CSK Win", confidence: 65, analyst_note: "CSK's bowling attack has been lethal at Chepauk. MI's middle order remains fragile.", result: "", is_correct: null },
-  { id: "3", title: "NBA Playoffs — Round 1", sport: "basketball", team_a: "Boston Celtics", team_b: "Miami Heat", match_date: "2026-04-16T01:00:00Z", prediction: "Celtics Win (Series 4-1)", confidence: 80, analyst_note: "Celtics depth and home-court advantage too strong for Heat.", result: "", is_correct: null },
-  { id: "4", title: "La Liga — Matchday 30", sport: "football", team_a: "Real Madrid", team_b: "Barcelona", match_date: "2026-04-13T20:00:00Z", prediction: "Draw", confidence: 55, analyst_note: "El Clásico at the Bernabéu — both teams in strong form. Defensive battle expected.", result: "2-2 Draw", is_correct: true },
-  { id: "5", title: "ATP Madrid Open — QF", sport: "tennis", team_a: "Carlos Alcaraz", team_b: "Jannik Sinner", match_date: "2026-04-17T14:00:00Z", prediction: "Alcaraz Win", confidence: 68, analyst_note: "Alcaraz on home clay. His aggressive baseline game suits Madrid's altitude.", result: "", is_correct: null },
-  { id: "6", title: "IPL 2026 — Match 25", sport: "cricket", team_a: "RCB", team_b: "KKR", match_date: "2026-04-12T15:30:00Z", prediction: "KKR Win", confidence: 60, analyst_note: "KKR's spin attack should dominate RCB's middle order in Kolkata.", result: "KKR won by 22 runs", is_correct: true },
-];
 
 const FILTER_TABS = ["all", "football", "cricket", "tennis", "betting"] as const;
 const filterLabels: Record<string, string> = {
