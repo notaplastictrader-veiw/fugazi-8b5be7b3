@@ -338,12 +338,12 @@ const Calendar = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-6 min-h-[400px]">
+          <div className="space-y-8 min-h-[400px]">
             {dateKeys.map((date) => (
               <div key={date}>
                 {/* MOBILE: stacked cards */}
                 <div className="md:hidden">
-                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 sticky top-[200px] bg-background/80 backdrop-blur-sm py-2 z-10">
+                  <h3 className="text-sm font-mono font-semibold text-primary mb-3 mt-2 py-2">
                     {formatDateHeader(date)}
                   </h3>
                   <div className="space-y-3">
@@ -397,7 +397,7 @@ const Calendar = () => {
 
                 {/* DESKTOP: dense table */}
                 <div className="hidden md:block glass-card rounded-xl overflow-hidden">
-                  <div className="bg-primary/10 px-4 py-2 sticky top-[200px] z-10 backdrop-blur-md border-b border-primary/20">
+                  <div className="bg-primary/10 px-4 py-2 border-b border-primary/20">
                     <h3 className="text-sm font-mono font-semibold text-primary uppercase tracking-wider">
                       {formatDateHeader(date)}
                     </h3>
