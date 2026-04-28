@@ -444,25 +444,6 @@ const SportsScheduleSection = () => {
               </div>
             )}
           </div>
-
-          {/* AI Football Predictions */}
-          {aiPredictions.length > 0 && (
-            <div className="mt-12">
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
-                <Brain className="w-4 h-4 text-accent" /> AI Football Predictions
-                <span className="text-[10px] text-muted-foreground font-mono">({aiPredictions.length})</span>
-                <span className="ml-2 text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/30">
-                  UEFA · Today
-                </span>
-              </h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {aiPredictions.slice(0, 12).map((p) => <AIPredictionCard key={p.id} p={p} />)}
-              </div>
-              <p className="mt-4 text-[10px] text-muted-foreground font-mono text-center">
-                Algorithmic predictions for educational use only. Not financial or betting advice.
-              </p>
-            </div>
-          )}
         </>
       )}
     </section>
