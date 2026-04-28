@@ -72,6 +72,20 @@ type MatchPhase =
 
 const LIVE_WINDOW_MS = 3 * 60 * 60_000; // 3 hours
 
+function formatMatchTime(date: Date): string {
+  const t = date.getTime();
+  if (!Number.isFinite(t)) return "TBD";
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const dayDiff = Math.round((startOfDay(date) - startOfDay(now)) / 86_400_000);
+  const time = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
+  if (dayDiff === 0) return `Today · ${time}`;
+  if (dayDiff === 1) return `Tomorrow · ${time}`;
+  if (dayDiff === -1) return `Yesterday · ${time}`;
+  const datePart = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" }).format(date);
+  return `${datePart} · ${time}`;
+}
+
 function getPhase(matchTime: Date, now: number, isPast: boolean): MatchPhase {
   if (isPast) return { kind: "past" };
   const target = matchTime.getTime();
@@ -150,6 +164,9 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
       </div>
 
       <p className="text-[10px] text-muted-foreground font-mono">{p.title}</p>
+      <p className="text-[10px] text-muted-foreground/80 font-mono flex items-center gap-1 -mt-2">
+        <Clock className="w-3 h-3" /> {formatMatchTime(matchTime)}
+      </p>
 
       <div className="flex items-center justify-center gap-4">
         <span className="text-base font-bold text-foreground text-right flex-1">{p.team_a}</span>
