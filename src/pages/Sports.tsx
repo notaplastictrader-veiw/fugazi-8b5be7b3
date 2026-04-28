@@ -126,15 +126,11 @@ const Sports = () => {
   const upcoming = filtered
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
-  const past = filtered.filter((p) => !!p.result);
 
-  // Popular-team subsets (with safe fallback to first N if filter empties)
+  // Popular-team subset for upcoming (safe fallback to first N if filter empties)
   const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
-  const pastPopularAll = past.filter((p) => isPopularMatch(p.team_a, p.team_b));
   const upcomingDefault = upcomingPopularAll.length > 0 ? upcomingPopularAll : upcoming;
-  const pastDefault = pastPopularAll.length > 0 ? pastPopularAll : past;
   const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
-  const pastVisible = showAllPast ? past : pastDefault.slice(0, POPULAR_LIMIT);
   const totalPast = predictions.filter((p) => p.is_correct !== null);
   const correct = totalPast.filter((p) => p.is_correct);
   const accuracy = totalPast.length > 0 ? Math.round((correct.length / totalPast.length) * 100) : 0;
