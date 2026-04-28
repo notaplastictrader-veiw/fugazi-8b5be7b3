@@ -243,6 +243,18 @@ const SportsScheduleSection = () => {
   const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
   const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
 
+  // Popular-team subsets (fallback to first N if filter empties)
+  const upcomingPopular = useMemo(() => {
+    const pop = filteredUpcoming.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
+    return pop.length > 0 ? pop : filteredUpcoming;
+  }, [filteredUpcoming]);
+  const resultsPopular = useMemo(() => {
+    const pop = filteredResults.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
+    return pop.length > 0 ? pop : filteredResults;
+  }, [filteredResults]);
+  const upcomingVisible = showAllUpcoming ? filteredUpcoming : upcomingPopular.slice(0, POPULAR_LIMIT);
+  const resultsVisible = showAllResults ? filteredResults : resultsPopular.slice(0, POPULAR_LIMIT);
+
   // Status pill: loading | cached | fresh
   const statusPill = (() => {
     if (loading) {
