@@ -1,30 +1,48 @@
-## Goal
+## Goals
 
-1. **Auto-calculate stats** from real data only (no fake fallback inflating numbers).
-2. **Remove the duplicate** between "Past Results" (DB predictions with results) and "Latest Results" (live API scoreline data) — keep one section.
-3. **Remove the hardcoded fallback cards** so the page shows only real info.
+1. Add a clear button under **Upcoming Predictions** that smooth-scrolls to the **Latest Results** section (in `SportsScheduleSection`).
+2. Fix the **stats bar** — it currently looks hardcoded because of how the numbers are computed.
 
-## Current duplication
+## Problem with the stats bar (verified against the database)
 
-- `Past Results` (Sports.tsx) → admin-curated `sports_predictions` rows where `result` is filled. Shows verdict (CORRECT/WRONG), pick, confidence.
-- `Latest Results` (SportsScheduleSection) → live API match results with actual scorelines. Shows scoreline + WON/LOST verdict by matching against same `sports_predictions`.
+The DB currently has **6 published predictions**:
+- 4 are upcoming (`is_correct = null`) — Alcaraz, Celtics, MI vs CSK, Arsenal vs Man City
+- 2 are settled (`is_correct = true`) — Real Madrid–Barça draw, RCB vs KKR
 
-Both list "matches that already happened" → users see overlap. **Latest Results** has richer real-time data (live scores, ticking countdown, automatic verdict matching), so it wins.
+Today the stats compute:
+```
+totalPast  = predictions.filter(p => p.is_correct !== null)  → 2
+correct    = totalPast.filter(p => p.is_correct)             → 2
+accuracy   = 100%
+```
 
-## Changes
+So "Total Picks = 2 / Correct = 2 / Accuracy = 100%" is mathematically correct, but **semantically wrong** — the label "Total Picks" reads like it should count every prediction we've ever published, not just settled ones. That mismatch is why it looks like a fake/hardcoded value.
 
-### 1. `src/pages/Sports.tsx`
-- **Delete** the entire `fallbackPredictions` array (lines 18–25).
-- Change `setPredictions(data && data.length > 0 ? data : fallbackPredictions)` → `setPredictions(data || [])`.
-- **Delete** the entire "Past Results" block (lines 283–317) and remove `showAllPast` / `pastVisible` / `pastPopularAll` / `pastDefault` state and computations.
-- Update the empty-state condition from `upcoming.length === 0 && past.length === 0` → `upcoming.length === 0` (Latest Results section below handles past matches).
-- Stats bar (Total Picks / Correct / Accuracy) stays — already auto-calculated from `predictions.filter(p => p.is_correct !== null)`. With fallback removed, it now reflects only real DB picks (so today: 0/0/0 until admin adds verified picks). That's the correct behavior the user asked for.
+## Fix
 
-### 2. No changes to `SportsScheduleSection.tsx`
-- "Latest Results" stays as the single source of truth for past matches with live scorelines and verdict matching against admin picks.
+In `src/pages/Sports.tsx`:
 
-## Result
+- Rename the metrics so they describe what's actually counted:
+  - **Total Picks** → counts all published predictions (`predictions.length`) — currently 6
+  - **Settled** → count of resolved picks (`is_correct !== null`) — currently 2
+  - **Win Rate** → `correct / settled` (only shown when settled > 0; otherwise show "—")
+- Add a 4th tile or inline subtitle "(N pending)" so users see why win-rate is based on a small sample.
+- Hide/grey-out Win Rate when `settled === 0` instead of showing "0%".
 
-- Stats auto-derive from real `sports_predictions` rows — no fake inflation.
-- One "results" section on the page (Latest Results, scoreline-rich, live-data-driven) instead of two overlapping sections.
-- Hardcoded sample cards gone; the page shows only real data from DB + live API feeds.
+This way every number traces directly to a real DB row and the bar updates as admins resolve picks.
+
+## Scroll-to-results button
+
+- Add `id="latest-results"` to the **Latest Results** `<h3>` (or its wrapper) inside `src/components/sports/SportsScheduleSection.tsx`.
+- In `src/pages/Sports.tsx`, after the Upcoming Predictions grid, add a CTA:
+  - Label: **"See latest results →"**
+  - Style: matches the existing "View all" pill (primary outline, mono uppercase).
+  - Behaviour: `document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" })`.
+- Place it next to the existing "View all (N)" button when both exist; show standalone when there are no extra upcoming items to expand.
+
+## Files touched
+
+- `src/pages/Sports.tsx` — stats labels/logic + new scroll CTA
+- `src/components/sports/SportsScheduleSection.tsx` — add `id="latest-results"` anchor
+
+No DB or edge-function changes needed.

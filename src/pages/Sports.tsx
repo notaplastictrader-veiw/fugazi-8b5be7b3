@@ -131,9 +131,15 @@ const Sports = () => {
   const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
   const upcomingDefault = upcomingPopularAll.length > 0 ? upcomingPopularAll : upcoming;
   const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
-  const totalPast = predictions.filter((p) => p.is_correct !== null);
-  const correct = totalPast.filter((p) => p.is_correct);
-  const accuracy = totalPast.length > 0 ? Math.round((correct.length / totalPast.length) * 100) : 0;
+  const totalPicks = predictions.length;
+  const settled = predictions.filter((p) => p.is_correct !== null);
+  const pending = totalPicks - settled.length;
+  const correct = settled.filter((p) => p.is_correct);
+  const winRate = settled.length > 0 ? Math.round((correct.length / settled.length) * 100) : null;
+
+  const scrollToResults = () => {
+    document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <MainLayout>
@@ -166,21 +172,39 @@ const Sports = () => {
           </div>
         </div>
 
-        {/* Stats bar — hide when betting tab active */}
+        {/* Stats bar — hide when betting tab active. All values derive from real DB rows. */}
         {!isBetting && (
-          <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-10">
             <div className="glass-card rounded-xl p-4 text-center">
-              <p className="text-2xl font-extrabold text-primary">{totalPast.length}</p>
+              <p className="text-2xl font-extrabold text-primary">{totalPicks}</p>
               <p className="text-[10px] text-muted-foreground font-mono uppercase">Total Picks</p>
             </div>
             <div className="glass-card rounded-xl p-4 text-center">
-              <p className="text-2xl font-extrabold text-primary">{correct.length}</p>
+              <p className="text-2xl font-extrabold text-foreground">{settled.length}</p>
+              <p className="text-[10px] text-muted-foreground font-mono uppercase">Settled</p>
+            </div>
+            <div className="glass-card rounded-xl p-4 text-center">
+              <p className="text-2xl font-extrabold text-foreground">{correct.length}</p>
               <p className="text-[10px] text-muted-foreground font-mono uppercase">Correct</p>
             </div>
             <div className="glass-card rounded-xl p-4 text-center">
-              <p className={`text-2xl font-extrabold ${accuracy >= 60 ? "text-primary" : "text-destructive"}`}>{accuracy}%</p>
-              <p className="text-[10px] text-muted-foreground font-mono uppercase">Accuracy</p>
+              {winRate === null ? (
+                <>
+                  <p className="text-2xl font-extrabold text-muted-foreground">—</p>
+                  <p className="text-[10px] text-muted-foreground font-mono uppercase">Win Rate</p>
+                </>
+              ) : (
+                <>
+                  <p className={`text-2xl font-extrabold ${winRate >= 60 ? "text-primary" : "text-destructive"}`}>{winRate}%</p>
+                  <p className="text-[10px] text-muted-foreground font-mono uppercase">Win Rate</p>
+                </>
+              )}
             </div>
+            {pending > 0 && (
+              <p className="col-span-2 md:col-span-4 text-center text-[10px] text-muted-foreground font-mono">
+                {pending} pick{pending === 1 ? "" : "s"} still pending — win rate updates as matches settle.
+              </p>
+            )}
           </div>
         )}
 
