@@ -269,26 +269,30 @@ const Sports = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   {upcomingVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
                 </div>
-                {upcoming.length > upcomingVisible.length && !showAllUpcoming && (
-                  <div className="mt-6 flex justify-center">
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  {upcoming.length > upcomingVisible.length && !showAllUpcoming && (
                     <button
                       onClick={() => setShowAllUpcoming(true)}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
                     >
                       View all ({upcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
                     </button>
-                  </div>
-                )}
-                {showAllUpcoming && upcomingPopularAll.length > 0 && upcoming.length > POPULAR_LIMIT && (
-                  <div className="mt-6 flex justify-center">
+                  )}
+                  {showAllUpcoming && upcomingPopularAll.length > 0 && upcoming.length > POPULAR_LIMIT && (
                     <button
                       onClick={() => setShowAllUpcoming(false)}
                       className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
                     >
                       Show less <ChevronUp className="w-3.5 h-3.5" />
                     </button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    onClick={scrollToResults}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
+                  >
+                    See latest results <Trophy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 
