@@ -21,10 +21,10 @@ const fallbackPredictions: Prediction[] = [
   { id: "6", title: "IPL 2026 — Match 25", sport: "cricket", team_a: "RCB", team_b: "KKR", match_date: "2026-04-12T15:30:00Z", prediction: "KKR Win", confidence: 60, analyst_note: "KKR's spin attack should dominate RCB's middle order in Kolkata.", result: "KKR won by 22 runs", is_correct: true },
 ];
 
-const FILTER_TABS = ["all", "football", "cricket", "basketball", "tennis", "betting"] as const;
+const FILTER_TABS = ["all", "football", "cricket", "tennis", "betting"] as const;
 const filterLabels: Record<string, string> = {
   all: "All Sports", football: "⚽ Football", cricket: "🏏 Cricket",
-  basketball: "🏀 Basketball", tennis: "🎾 Tennis", betting: "🎰 Betting Sites",
+  tennis: "🎾 Tennis", betting: "🎰 Betting Sites",
 };
 
 const Sports = () => {

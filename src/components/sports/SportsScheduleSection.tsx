@@ -1,24 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, RefreshCw, Trophy, Radio, Clock } from "lucide-react";
+import { Calendar, RefreshCw, Trophy, Radio, Clock, Brain } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
+import { useSportsSchedule, type ResultMatch, type UpcomingMatch, type AIPrediction } from "@/hooks/useSportsSchedule";
 
-type SportFilter = "all" | "Football" | "Cricket" | "Basketball";
-type LeagueFilter = "all" | "Premier League" | "IPL" | "NBA";
+type SportFilter = "all" | "Football" | "Cricket";
+type LeagueFilter = "all" | "Premier League" | "IPL";
 
 const FILTERS: { key: SportFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "Football", label: "⚽ Football" },
   { key: "Cricket", label: "🏏 Cricket" },
-  { key: "Basketball", label: "🏀 Basketball" },
 ];
 
 const LEAGUE_CHIPS: { key: LeagueFilter; label: string; sport: SportFilter }[] = [
   { key: "all", label: "All Leagues", sport: "all" },
   { key: "Premier League", label: "🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL", sport: "Football" },
   { key: "IPL", label: "🏏 IPL", sport: "Cricket" },
-  { key: "NBA", label: "🏀 NBA", sport: "Basketball" },
 ];
 
 interface PredictionRow {
@@ -199,8 +197,40 @@ const ResultCard = ({ m, verdict }: { m: ResultMatch; verdict: "won" | "lost" | 
   );
 };
 
+const AIPredictionCard = ({ p }: { p: AIPrediction }) => {
+  const { day, time } = formatMatchDate(p.date);
+  return (
+    <div className="glass-card rounded-2xl p-5 border border-accent/20 hover:border-accent/50 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--accent)/0.4)] hover:-translate-y-0.5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider truncate pr-2">
+          {p.competition}
+        </span>
+        <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30">
+          {p.federation}
+        </span>
+      </div>
+      <div className="space-y-1.5 mb-4">
+        <p className="text-base font-semibold text-foreground truncate">{p.homeTeam}</p>
+        <p className="text-[10px] text-muted-foreground font-mono">vs</p>
+        <p className="text-base font-semibold text-foreground truncate">{p.awayTeam}</p>
+      </div>
+      <div className="bg-accent/5 border border-accent/20 rounded-lg p-3 mb-3">
+        <p className="text-[10px] font-mono uppercase text-muted-foreground mb-1">AI Pick</p>
+        <p className="text-sm font-bold text-accent">{p.prediction}</p>
+        {p.odds && (
+          <p className="text-[10px] font-mono text-muted-foreground mt-1">Odds: {p.odds}</p>
+        )}
+      </div>
+      <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5"><Calendar className="w-3 h-3" />{day}</span>
+        <span className="inline-flex items-center gap-1.5"><Clock className="w-3 h-3" />{time || "TBD"}</span>
+      </div>
+    </div>
+  );
+};
+
 const SportsScheduleSection = () => {
-  const { upcoming, results, stale, lastFetched, loading, refresh } = useSportsSchedule();
+  const { upcoming, results, aiPredictions, stale, lastFetched, loading, refresh } = useSportsSchedule();
   const [filter, setFilter] = useState<SportFilter>("all");
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
@@ -267,7 +297,7 @@ const SportsScheduleSection = () => {
             Sports Schedule & <span className="text-destructive">Results</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Real fixtures and final scores from EPL, IPL, and NBA — refreshed every 10 minutes.
+            Real fixtures and final scores from cricket and football leagues — refreshed every 10 minutes.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -368,6 +398,25 @@ const SportsScheduleSection = () => {
               </div>
             )}
           </div>
+
+          {/* AI Football Predictions */}
+          {aiPredictions.length > 0 && (
+            <div className="mt-12">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
+                <Brain className="w-4 h-4 text-accent" /> AI Football Predictions
+                <span className="text-[10px] text-muted-foreground font-mono">({aiPredictions.length})</span>
+                <span className="ml-2 text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/30">
+                  UEFA · Today
+                </span>
+              </h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {aiPredictions.slice(0, 12).map((p) => <AIPredictionCard key={p.id} p={p} />)}
+              </div>
+              <p className="mt-4 text-[10px] text-muted-foreground font-mono text-center">
+                Algorithmic predictions for educational use only. Not financial or betting advice.
+              </p>
+            </div>
+          )}
         </>
       )}
     </section>
