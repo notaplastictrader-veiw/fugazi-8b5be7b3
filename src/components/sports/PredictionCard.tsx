@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, TrendingUp, AlertTriangle } from "lucide-react";
 
@@ -62,10 +63,43 @@ function humanizePick(raw: string): string {
   return raw.replace(/\b(1x|x2|12|btts|o\d(?:\.\d)?|u\d(?:\.\d)?)\b/gi, (m) => MARKET_LABELS[m.toLowerCase()] || m);
 }
 
+type MatchPhase =
+  | { kind: "past" }
+  | { kind: "live" }
+  | { kind: "awaiting" }
+  | { kind: "soon"; label: string }
+  | { kind: "future"; label: string };
+
+const LIVE_WINDOW_MS = 3 * 60 * 60_000; // 3 hours
+
+function getPhase(matchTime: Date, now: number, isPast: boolean): MatchPhase {
+  if (isPast) return { kind: "past" };
+  const target = matchTime.getTime();
+  if (!Number.isFinite(target)) return { kind: "future", label: "TBD" };
+  const diff = target - now;
+  if (diff <= -LIVE_WINDOW_MS) return { kind: "awaiting" };
+  if (diff <= 0) return { kind: "live" };
+  const sec = Math.floor(diff / 1000);
+  const days = Math.floor(sec / 86400);
+  const hours = Math.floor((sec % 86400) / 3600);
+  const minutes = Math.floor((sec % 3600) / 60);
+  const seconds = sec % 60;
+  if (diff <= 5 * 60_000) return { kind: "soon", label: `${minutes}m ${seconds.toString().padStart(2, "0")}s` };
+  if (days > 0) return { kind: "future", label: `in ${days}d ${hours}h` };
+  if (hours > 0) return { kind: "future", label: `in ${hours}h ${minutes.toString().padStart(2, "0")}m` };
+  return { kind: "future", label: `in ${minutes}m ${seconds.toString().padStart(2, "0")}s` };
+}
+
 const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
   const isPast = !!p.result;
   const matchTime = new Date(p.match_date);
-  const isLive = !isPast && matchTime <= new Date();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (isPast) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [isPast]);
+  const phase = getPhase(matchTime, now, isPast);
   const roi = getRoiPotential(p.confidence);
   const risk = getRiskLevel(p.confidence);
 
@@ -92,9 +126,24 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
               </Badge>
             )
           )}
-          {isLive && (
+          {phase.kind === "live" && (
             <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono animate-pulse">
               🔴 LIVE
+            </Badge>
+          )}
+          {phase.kind === "soon" && (
+            <Badge className="bg-accent/20 text-accent text-[10px] font-mono tabular-nums">
+              <Clock className="w-3 h-3 mr-0.5" /> STARTS IN {phase.label}
+            </Badge>
+          )}
+          {phase.kind === "future" && (
+            <Badge className="bg-secondary text-foreground border border-border text-[10px] font-mono tabular-nums">
+              <Clock className="w-3 h-3 mr-0.5" /> {phase.label}
+            </Badge>
+          )}
+          {phase.kind === "awaiting" && (
+            <Badge className="bg-muted text-muted-foreground text-[10px] font-mono">
+              Awaiting result
             </Badge>
           )}
         </div>

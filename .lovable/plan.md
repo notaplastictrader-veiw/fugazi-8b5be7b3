@@ -1,54 +1,50 @@
-## Problem
+## Issues
 
-On `/sports`, the **Upcoming Predictions** section is showing 4 cards instead of 6, and those cards (Arsenal vs Man City, Mumbai Indians vs CSK, Celtics vs Heat, Alcaraz vs Sinner) are the **seeded demo rows** in `sports_predictions` — not real data. The user wants:
-
-1. Demo/sample rows removed from the database so only real picks remain.
-2. All sport sections to show **6 cards** by default (not 4).
-3. Stats bar (Total / Settled / Correct / Win Rate) to update accordingly.
-
-## What I found
-
-DB query confirms `sports_predictions` currently holds 6 rows, all created on `2026-04-17`, all matching the screenshot — these are the original seed inserts (4 upcoming with `is_correct = NULL`, 2 settled: La Liga draw + KKR win). The live edge function `get-sports-data` already provides real fixtures + AI predictions and feeds the `SportsScheduleSection` below.
-
-`POPULAR_LIMIT` is `4` in `src/pages/Sports.tsx` and `6` in `src/components/sports/SportsScheduleSection.tsx`.
+1. **Only ~2 cards showing in Upcoming Predictions**, not 6. The "popular teams" filter narrows DB+AI predictions to a tiny subset (live AI football fixtures rarely contain whitelisted teams like Real Madrid / Arsenal), so even though `POPULAR_LIMIT = 6`, the visible list drops well below 6.
+2. **Every upcoming card shows a red "🔴 LIVE" badge** because `PredictionCard` treats any match with `match_date <= now()` as live, even when the match hasn't actually kicked off (admin-entered times can be off, AI fixtures may be hours away). The user wants a **countdown** ("in 2h 15m", "Apr 30 · 8:00 PM") for future matches and only show LIVE during the actual match window.
 
 ## Plan
 
-### 1. Remove seeded demo predictions (database migration)
+### 1. Top up "Popular" subset to always fill 6 cards (`src/pages/Sports.tsx`)
 
-Delete the 6 hardcoded rows by ID so the "Upcoming Predictions" / stats sections only reflect real picks added through the admin panel:
+Change the upcoming-default logic so popular matches are shown first, and any remaining slots are filled with the rest of the upcoming matches:
 
-```sql
-DELETE FROM public.sports_predictions
-WHERE id IN (
-  '55f0a479-4a61-45a9-a9bc-3ff6beeaf7d8', -- Alcaraz vs Sinner
-  '6764d2ea-44aa-4589-9de6-681da8794c4e', -- Celtics vs Heat
-  'd9e608ba-81a8-4170-bcd9-5bde1942c1ec', -- Mumbai vs CSK
-  'd0fd2caa-c918-485f-a83a-e114d3c8f627', -- Arsenal vs Man City
-  '9f6afde4-2b82-47ed-a602-e8476aef32e4', -- Real Madrid vs Barcelona (settled)
-  '334565b3-dc30-446b-a772-411c11c474ca'  -- RCB vs KKR (settled)
-);
+```ts
+const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
+const popularIds = new Set(upcomingPopularAll.map((p) => p.id));
+const upcomingRest = upcoming.filter((p) => !popularIds.has(p.id));
+const upcomingDefault = [...upcomingPopularAll, ...upcomingRest];
+const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
 ```
 
-After this, until an admin posts real picks via `/admin/sports`, the Upcoming Predictions section will gracefully show the existing empty state ("No upcoming predictions yet. Check the live results below.") and the live `SportsScheduleSection` below will continue to show **real fixtures and results** from Cricbuzz / football APIs.
+Result: if there are 6+ upcoming predictions total, the section always shows 6, prioritizing popular teams. The "Popular Teams" subtitle will still appear when popular picks exist.
 
-### 2. Change Upcoming Predictions card limit from 4 to 6
+### 2. Replace "always-LIVE" badge with smart countdown (`src/components/sports/PredictionCard.tsx`)
 
-In `src/pages/Sports.tsx`:
-- Change `const POPULAR_LIMIT = 4` to `const POPULAR_LIMIT = 6`.
+Update the time/status logic:
 
-This aligns it with `SportsScheduleSection` (which already uses 6) so every section consistently shows 6 cards before "View all".
+- **Past (has result):** unchanged — show "Result: …".
+- **Match in the future:** show a countdown badge instead of LIVE. Format:
+  - `> 24h` → `in Xd Yh`
+  - `1–24h` → `in Xh Ym`
+  - `< 1h` → `in Xm Ys` (auto-ticking every second)
+  - `< 5min` → orange "STARTING SOON"
+- **Match started within the last ~3 hours, no result yet:** show pulsing red `🔴 LIVE`.
+- **Match started > 3 hours ago, no result:** show muted "Awaiting result".
 
-### 3. Stats bar — no code change needed
+Add a `useEffect` + `setInterval(1000)` inside `PredictionCard` (or compute relative to a shared `Date.now()` re-render every second) so the countdown stays fresh without a full data refetch.
 
-The stats already derive from real DB rows (`predictions.length`, settled, correct, winRate). After deleting the demos, all four stat tiles will read `0` / `—` until real picks are added — which is the correct behavior the user asked for ("eta jeno auto calculate kore").
+The bottom row keeps the absolute date/time for context: `Apr 30 · 02:00 AM`.
 
-## Files Edited
+### Visual tokens
 
-- `src/pages/Sports.tsx` — `POPULAR_LIMIT` 4 → 6
-- New SQL migration — delete the 6 demo `sports_predictions` rows
+All badges use existing semantic tokens — `bg-destructive/20 text-destructive` (LIVE), `bg-accent/20 text-accent` (starting soon), `bg-secondary text-foreground border border-border` (countdown), `text-muted-foreground` (awaiting result) — no new colors.
 
-## Notes
+## Files to Edit
 
-- The `SportsScheduleSection` ("Upcoming Matches" + "Latest Results") below is fed by the real `get-sports-data` edge function and is unaffected — it will continue showing live fixtures with proper popular-team filtering at 6 per section.
-- Once an admin adds real predictions through `/admin/sports`, they'll appear in the top section and the stats will auto-update.
+- `src/pages/Sports.tsx` — replace `upcomingDefault` definition (4 lines around line 130).
+- `src/components/sports/PredictionCard.tsx` — replace status badge block + bottom time row; add 1-second tick effect.
+
+## Out of scope
+
+- The bottom `SportsScheduleSection` already has a proper countdown (`formatCountdown`) on its `UpcomingCard`, so it's untouched.
