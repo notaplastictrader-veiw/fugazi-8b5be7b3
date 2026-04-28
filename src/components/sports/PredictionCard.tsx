@@ -111,7 +111,7 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] text-muted-foreground uppercase font-mono">Our Pick</p>
-          <p className="text-sm font-bold text-primary">{p.prediction}</p>
+          <p className="text-sm font-bold text-primary">{humanizePick(p.prediction)}</p>
         </div>
         <div className="text-right">
           <p className="text-[10px] text-muted-foreground uppercase font-mono">Confidence</p>
