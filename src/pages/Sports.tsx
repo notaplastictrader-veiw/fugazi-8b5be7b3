@@ -103,6 +103,7 @@ const Sports = () => {
       analyst_note: p.odds ? `Market: ${p.market || "1X2"} · Odds ${p.odds}` : `Market: ${p.market || "1X2"}`,
       result: "",
       is_correct: null,
+      isLive: p.isLive === true,
     };
   });
 
