@@ -1,35 +1,37 @@
-## Status: Integration is live ✅
+## Goal
 
-After your RapidAPI BASIC subscriptions activated, the new sports feed is fully working:
+Remove the standalone "AI Football Predictions" section. Merge those predictions **into the existing Upcoming Matches grid** so they look exactly like your other upcoming match cards — just with a small "Our Pick" badge and odds inline. No "AI" label anywhere in the UI.
 
-- **AI Predictions**: 10 real fixtures returned (PSG vs Bayern, Southampton vs Ipswich, Northampton vs Barnsley, etc.)
-- **Results**: 60+ cricket matches from IPL, PSL, ICC tournaments (Rajasthan Royals, Bangladesh vs New Zealand, etc.)
-- **Edge function**: Status 200, no more `upstream_empty` errors, no more `last-good` fallback
-- **Cache**: Fresh data being written and served
+## What changes (UI)
 
-## One small bug to fix
+- **Delete** the bottom "AI Football Predictions" block (header + Brain icon + 3-column grid + disclaimer).
+- **Merge** football predictions into Upcoming as regular fixtures:
+  - Each prediction becomes an `UpcomingMatch` with `sport: "Football"`, `league: <competition>`.
+  - Inside the existing Upcoming card, add a subtle **"Our Pick"** row showing the predicted outcome (e.g. `1X`, `12`, `1`) and odds underneath in mono font — styled with `primary` color, same glass-card aesthetic.
+- **Dedupe**: if a prediction's home+away match an upcoming fixture already returned by Cricbuzz/Football Data, attach the pick to the existing card instead of adding a duplicate.
+- Remove the `Brain` icon import; add `Sparkles` (small, fits your minimal style) for the "Our Pick" row.
 
-The AI Predictions cards display `Odds: [object Object]` because the Football Prediction API returns odds as a **nested object** (e.g. `{ "1": 1.45, "X": 4.20, "2": 6.50 }`), but our edge function does `String(p.odds)` which flattens any object to the literal text `"[object Object]"`.
+## File: `src/components/sports/SportsScheduleSection.tsx`
 
-### Fix (one file, one function)
+1. **`UpcomingCard`** — accept two new optional props: `pick?: string | null`, `odds?: string | null`. When `pick` is set, render a small bordered row above the date footer:
+   ```
+   ✨ Our Pick                            1X
+   1: 2.55 · X: 3.54 · 2: 2.51 · ...
+   ```
+   Uses `bg-primary/5 border-primary/20`, mono font for odds, truncated with `title` tooltip for full odds.
 
-**`supabase/functions/get-sports-data/index.ts`** — replace the `odds` line in `fetchPredictions` (line 262) with a small formatter that handles both shapes:
+2. **In the main component** — build a merged list before rendering:
+   - Make a `Map<key, { pick, odds }>` from `aiPredictions`, keyed by a normalized `homeTeam|awayTeam` string.
+   - For each existing upcoming fixture, look up the key and attach `pick`/`odds` if found; remove from the map.
+   - Convert any remaining map entries (predictions with no matching fixture) into `UpcomingMatch` objects with `sport: "Football"`, `league: prediction.competition`, `status: "Scheduled"`, then prepend/append to upcoming.
+   - Sort by date ascending so soonest kickoff is first.
 
-- If `p.odds` is a string/number → keep as-is
-- If `p.odds` is an object like `{ "1": 1.45, "X": 4.2, "2": 6.5 }` → format as `"1: 1.45 · X: 4.20 · 2: 6.50"`
-- If missing → `null`
+3. **Remove** the entire "AI Football Predictions" JSX block (lines 402–419) and the `AIPredictionCard` component (lines 200–230) — both unused after merge.
 
-No other files need to change. The frontend already renders whatever string comes back.
+4. Keep the existing sport/league filters working: predicted-only fixtures will pass the `Football` filter normally.
 
-### After the fix
+## Result
 
-The AI Predictions section on `/sports` will show clean odds like:
-```
-Odds: 1: 1.45 · X: 4.20 · 2: 6.50
-```
-
-instead of `Odds: [object Object]`.
-
-## Optional cleanup (separate, not blocking)
-
-Your RapidAPI key has been pasted in chat several times. When convenient, rotate it on the RapidAPI dashboard and update the `RAPIDAPI_SPORTS_KEY` secret — the code does not need to change.
+- One unified Upcoming Matches grid. Football fixtures with predictions show a small "Our Pick · 1X" badge and odds; everything else looks identical to before.
+- No mention of "AI" in the UI — predictions are presented as your platform's own picks.
+- Cricket/Football tabs and league chips continue to work as-is.

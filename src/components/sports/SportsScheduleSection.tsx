@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, RefreshCw, Trophy, Radio, Clock, Brain } from "lucide-react";
+import { Calendar, RefreshCw, Trophy, Radio, Clock, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useSportsSchedule, type ResultMatch, type UpcomingMatch, type AIPrediction } from "@/hooks/useSportsSchedule";
+import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
@@ -105,7 +105,7 @@ function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "wo
   return "lost";
 }
 
-const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
+const UpcomingCard = ({ m, now, pick, odds }: { m: UpcomingMatch; now: number; pick?: string | null; odds?: string | null }) => {
   const { day, time } = formatMatchDate(m.date);
   const isLive = m.status === "Live";
   const countdown = formatCountdown(m.date, now);
@@ -140,6 +140,21 @@ const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
         <p className="text-[10px] text-muted-foreground font-mono">vs</p>
         <p className="text-base font-semibold text-foreground truncate">{m.awayTeam}</p>
       </div>
+      {pick && (
+        <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 mb-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-muted-foreground">
+              <Sparkles className="w-3 h-3 text-primary" /> Our Pick
+            </span>
+            <span className="text-xs font-bold text-primary tabular-nums">{pick}</span>
+          </div>
+          {odds && (
+            <p className="text-[9px] font-mono text-muted-foreground mt-1 truncate" title={odds}>
+              {odds}
+            </p>
+          )}
+        </div>
+      )}
       <div className="flex items-center justify-between pt-3 border-t border-border/40 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><Calendar className="w-3 h-3" />{day}</span>
         <span className="inline-flex items-center gap-1.5"><Clock className="w-3 h-3" />{time || m.time || "TBD"}</span>
@@ -197,37 +212,16 @@ const ResultCard = ({ m, verdict }: { m: ResultMatch; verdict: "won" | "lost" | 
   );
 };
 
-const AIPredictionCard = ({ p }: { p: AIPrediction }) => {
-  const { day, time } = formatMatchDate(p.date);
-  return (
-    <div className="glass-card rounded-2xl p-5 border border-accent/20 hover:border-accent/50 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--accent)/0.4)] hover:-translate-y-0.5">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider truncate pr-2">
-          {p.competition}
-        </span>
-        <span className="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/30">
-          {p.federation}
-        </span>
-      </div>
-      <div className="space-y-1.5 mb-4">
-        <p className="text-base font-semibold text-foreground truncate">{p.homeTeam}</p>
-        <p className="text-[10px] text-muted-foreground font-mono">vs</p>
-        <p className="text-base font-semibold text-foreground truncate">{p.awayTeam}</p>
-      </div>
-      <div className="bg-accent/5 border border-accent/20 rounded-lg p-3 mb-3">
-        <p className="text-[10px] font-mono uppercase text-muted-foreground mb-1">AI Pick</p>
-        <p className="text-sm font-bold text-accent">{p.prediction}</p>
-        {p.odds && (
-          <p className="text-[10px] font-mono text-muted-foreground mt-1">Odds: {p.odds}</p>
-        )}
-      </div>
-      <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><Calendar className="w-3 h-3" />{day}</span>
-        <span className="inline-flex items-center gap-1.5"><Clock className="w-3 h-3" />{time || "TBD"}</span>
-      </div>
-    </div>
-  );
-};
+function normalizeTeam(s: string): string {
+  return (s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "")
+    .trim();
+}
+
+function predictionKey(home: string, away: string): string {
+  return `${normalizeTeam(home)}|${normalizeTeam(away)}`;
+}
 
 const SportsScheduleSection = () => {
   const { upcoming, results, aiPredictions, stale, lastFetched, loading, refresh } = useSportsSchedule();
@@ -260,7 +254,59 @@ const SportsScheduleSection = () => {
       return true;
     });
 
-  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
+  // Merge AI football predictions into the upcoming list
+  const { mergedUpcoming, pickByMatch } = useMemo(() => {
+    const pickMap = new Map<string, { pick: string; odds: string | null }>();
+    for (const p of aiPredictions) {
+      const key = predictionKey(p.homeTeam, p.awayTeam);
+      pickMap.set(key, { pick: p.prediction, odds: p.odds });
+    }
+
+    // Attach picks to existing upcoming fixtures (and consume them from the map)
+    const attached = new Map<string, { pick: string; odds: string | null }>();
+    for (const m of upcoming) {
+      const key = predictionKey(m.homeTeam, m.awayTeam);
+      const reverseKey = predictionKey(m.awayTeam, m.homeTeam);
+      const found = pickMap.get(key) || pickMap.get(reverseKey);
+      if (found) {
+        attached.set(m.id, found);
+        pickMap.delete(key);
+        pickMap.delete(reverseKey);
+      }
+    }
+
+    // Remaining predictions become standalone upcoming football fixtures
+    const standalone: UpcomingMatch[] = aiPredictions
+      .filter((p) => pickMap.has(predictionKey(p.homeTeam, p.awayTeam)))
+      .map((p) => {
+        const id = `pred-${p.id}`;
+        attached.set(id, { pick: p.prediction, odds: p.odds });
+        let timeStr = "";
+        try {
+          timeStr = new Date(p.date).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+        } catch { /* noop */ }
+        return {
+          id,
+          sport: "Football",
+          league: p.competition || "Football",
+          homeTeam: p.homeTeam,
+          awayTeam: p.awayTeam,
+          date: p.date,
+          time: timeStr,
+          status: "Scheduled",
+        } as UpcomingMatch;
+      });
+
+    const combined = [...upcoming, ...standalone].sort((a, b) => {
+      const ta = new Date(a.date).getTime();
+      const tb = new Date(b.date).getTime();
+      return (Number.isFinite(ta) ? ta : 0) - (Number.isFinite(tb) ? tb : 0);
+    });
+
+    return { mergedUpcoming: combined, pickByMatch: attached };
+  }, [upcoming, aiPredictions]);
+
+  const filteredUpcoming = useMemo(() => applyFilters(mergedUpcoming).slice(0, 12), [mergedUpcoming, filter, leagueFilter]);
   const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
 
   // Status pill: loading | cached | fresh
@@ -371,7 +417,10 @@ const SportsScheduleSection = () => {
             </h3>
             {filteredUpcoming.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} now={now} />)}
+                {filteredUpcoming.map((m) => {
+                  const p = pickByMatch.get(m.id);
+                  return <UpcomingCard key={m.id} m={m} now={now} pick={p?.pick} odds={p?.odds} />;
+                })}
               </div>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">
@@ -398,25 +447,6 @@ const SportsScheduleSection = () => {
               </div>
             )}
           </div>
-
-          {/* AI Football Predictions */}
-          {aiPredictions.length > 0 && (
-            <div className="mt-12">
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
-                <Brain className="w-4 h-4 text-accent" /> AI Football Predictions
-                <span className="text-[10px] text-muted-foreground font-mono">({aiPredictions.length})</span>
-                <span className="ml-2 text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/30">
-                  UEFA · Today
-                </span>
-              </h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {aiPredictions.slice(0, 12).map((p) => <AIPredictionCard key={p.id} p={p} />)}
-              </div>
-              <p className="mt-4 text-[10px] text-muted-foreground font-mono text-center">
-                Algorithmic predictions for educational use only. Not financial or betting advice.
-              </p>
-            </div>
-          )}
         </>
       )}
     </section>
