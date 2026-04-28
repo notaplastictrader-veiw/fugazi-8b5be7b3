@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, RefreshCw } from "lucide-react";
+import { Trophy, Target, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
@@ -11,6 +11,9 @@ import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
+import { isPopularMatch } from "@/lib/popularTeams";
+
+const POPULAR_LIMIT = 4;
 
 const fallbackPredictions: Prediction[] = [
   { id: "1", title: "Premier League — Matchday 32", sport: "football", team_a: "Arsenal", team_b: "Manchester City", match_date: "2026-04-14T20:00:00Z", prediction: "Arsenal Win", confidence: 72, analyst_note: "Arsenal's home form is dominant this season. City struggling with injuries in midfield.", result: "", is_correct: null },
@@ -33,6 +36,8 @@ const Sports = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
+  const [showAllPast, setShowAllPast] = useState(false);
   const { refresh: refreshSchedule, aiPredictions } = useSportsSchedule();
 
   const handleManualRefresh = async () => {
@@ -130,6 +135,14 @@ const Sports = () => {
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
   const past = filtered.filter((p) => !!p.result);
+
+  // Popular-team subsets (with safe fallback to first N if filter empties)
+  const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
+  const pastPopularAll = past.filter((p) => isPopularMatch(p.team_a, p.team_b));
+  const upcomingDefault = upcomingPopularAll.length > 0 ? upcomingPopularAll : upcoming;
+  const pastDefault = pastPopularAll.length > 0 ? pastPopularAll : past;
+  const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
+  const pastVisible = showAllPast ? past : pastDefault.slice(0, POPULAR_LIMIT);
   const totalPast = predictions.filter((p) => p.is_correct !== null);
   const correct = totalPast.filter((p) => p.is_correct);
   const accuracy = totalPast.length > 0 ? Math.round((correct.length / totalPast.length) * 100) : 0;
@@ -235,10 +248,35 @@ const Sports = () => {
               <div className="mb-10">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
                   <Target className="w-5 h-5 text-primary" /> Upcoming Predictions
+                  {!showAllUpcoming && upcomingPopularAll.length > 0 && (
+                    <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
+                      · Popular Teams
+                    </span>
+                  )}
                 </h2>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {upcoming.map((p) => <PredictionCard key={p.id} prediction={p} />)}
+                  {upcomingVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
                 </div>
+                {upcoming.length > upcomingVisible.length && !showAllUpcoming && (
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowAllUpcoming(true)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
+                    >
+                      View all ({upcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {showAllUpcoming && upcomingPopularAll.length > 0 && upcoming.length > POPULAR_LIMIT && (
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowAllUpcoming(false)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
+                    >
+                      Show less <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -246,10 +284,35 @@ const Sports = () => {
               <div>
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
                   <Trophy className="w-5 h-5 text-accent" /> Past Results
+                  {!showAllPast && pastPopularAll.length > 0 && (
+                    <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
+                      · Popular Teams
+                    </span>
+                  )}
                 </h2>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {past.map((p) => <PredictionCard key={p.id} prediction={p} />)}
+                  {pastVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
                 </div>
+                {past.length > pastVisible.length && !showAllPast && (
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowAllPast(true)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 transition-all"
+                    >
+                      View all ({past.length}) <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {showAllPast && pastPopularAll.length > 0 && past.length > POPULAR_LIMIT && (
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={() => setShowAllPast(false)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
+                    >
+                      Show less <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
