@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Calendar, RefreshCw, Trophy, Radio, Clock, Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { useSportsSchedule, type ResultMatch, type UpcomingMatch, type AIPrediction } from "@/hooks/useSportsSchedule";
+import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
