@@ -15,14 +15,6 @@ import { isPopularMatch } from "@/lib/popularTeams";
 
 const POPULAR_LIMIT = 4;
 
-const fallbackPredictions: Prediction[] = [
-  { id: "1", title: "Premier League — Matchday 32", sport: "football", team_a: "Arsenal", team_b: "Manchester City", match_date: "2026-04-14T20:00:00Z", prediction: "Arsenal Win", confidence: 72, analyst_note: "Arsenal's home form is dominant this season. City struggling with injuries in midfield.", result: "", is_correct: null },
-  { id: "2", title: "IPL 2026 — Match 28", sport: "cricket", team_a: "Mumbai Indians", team_b: "Chennai Super Kings", match_date: "2026-04-15T19:30:00Z", prediction: "CSK Win", confidence: 65, analyst_note: "CSK's bowling attack has been lethal at Chepauk. MI's middle order remains fragile.", result: "", is_correct: null },
-  { id: "3", title: "NBA Playoffs — Round 1", sport: "basketball", team_a: "Boston Celtics", team_b: "Miami Heat", match_date: "2026-04-16T01:00:00Z", prediction: "Celtics Win (Series 4-1)", confidence: 80, analyst_note: "Celtics depth and home-court advantage too strong for Heat.", result: "", is_correct: null },
-  { id: "4", title: "La Liga — Matchday 30", sport: "football", team_a: "Real Madrid", team_b: "Barcelona", match_date: "2026-04-13T20:00:00Z", prediction: "Draw", confidence: 55, analyst_note: "El Clásico at the Bernabéu — both teams in strong form. Defensive battle expected.", result: "2-2 Draw", is_correct: true },
-  { id: "5", title: "ATP Madrid Open — QF", sport: "tennis", team_a: "Carlos Alcaraz", team_b: "Jannik Sinner", match_date: "2026-04-17T14:00:00Z", prediction: "Alcaraz Win", confidence: 68, analyst_note: "Alcaraz on home clay. His aggressive baseline game suits Madrid's altitude.", result: "", is_correct: null },
-  { id: "6", title: "IPL 2026 — Match 25", sport: "cricket", team_a: "RCB", team_b: "KKR", match_date: "2026-04-12T15:30:00Z", prediction: "KKR Win", confidence: 60, analyst_note: "KKR's spin attack should dominate RCB's middle order in Kolkata.", result: "KKR won by 22 runs", is_correct: true },
-];
 
 const FILTER_TABS = ["all", "football", "cricket", "tennis", "betting"] as const;
 const filterLabels: Record<string, string> = {
@@ -37,7 +29,7 @@ const Sports = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
-  const [showAllPast, setShowAllPast] = useState(false);
+  
   const { refresh: refreshSchedule, aiPredictions } = useSportsSchedule();
 
   const handleManualRefresh = async () => {
@@ -73,7 +65,7 @@ const Sports = () => {
         supabase.from("sports_predictions").select("*").eq("status", "published").order("match_date", { ascending: false }),
         supabase.from("betting_sites").select("*").eq("status", "published").order("display_order"),
       ]);
-      setPredictions(data && data.length > 0 ? data : fallbackPredictions);
+      setPredictions(data || []);
       if (bs && bs.length) {
         setBettingSites(bs.map(b => ({
           id: b.id, name: b.name, slug: b.slug, logo: b.logo, rating: Number(b.rating),
@@ -134,15 +126,11 @@ const Sports = () => {
   const upcoming = filtered
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
-  const past = filtered.filter((p) => !!p.result);
 
-  // Popular-team subsets (with safe fallback to first N if filter empties)
+  // Popular-team subset for upcoming (safe fallback to first N if filter empties)
   const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
-  const pastPopularAll = past.filter((p) => isPopularMatch(p.team_a, p.team_b));
   const upcomingDefault = upcomingPopularAll.length > 0 ? upcomingPopularAll : upcoming;
-  const pastDefault = pastPopularAll.length > 0 ? pastPopularAll : past;
   const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
-  const pastVisible = showAllPast ? past : pastDefault.slice(0, POPULAR_LIMIT);
   const totalPast = predictions.filter((p) => p.is_correct !== null);
   const correct = totalPast.filter((p) => p.is_correct);
   const accuracy = totalPast.length > 0 ? Math.round((correct.length / totalPast.length) * 100) : 0;
@@ -280,46 +268,10 @@ const Sports = () => {
               </div>
             )}
 
-            {past.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
-                  <Trophy className="w-5 h-5 text-accent" /> Past Results
-                  {!showAllPast && pastPopularAll.length > 0 && (
-                    <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
-                      · Popular Teams
-                    </span>
-                  )}
-                </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {pastVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
-                </div>
-                {past.length > pastVisible.length && !showAllPast && (
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={() => setShowAllPast(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 transition-all"
-                    >
-                      View all ({past.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllPast && pastPopularAll.length > 0 && past.length > POPULAR_LIMIT && (
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={() => setShowAllPast(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {upcoming.length === 0 && past.length === 0 && (
-              <div className="text-center py-16 text-muted-foreground">
+            {upcoming.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>No predictions available yet.</p>
+                <p className="text-sm">No upcoming predictions yet. Check the live results below.</p>
               </div>
             )}
           </>
