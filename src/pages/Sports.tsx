@@ -11,6 +11,9 @@ import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
+import { isPopularMatch } from "@/lib/popularTeams";
+
+const POPULAR_LIMIT = 4;
 
 const fallbackPredictions: Prediction[] = [
   { id: "1", title: "Premier League — Matchday 32", sport: "football", team_a: "Arsenal", team_b: "Manchester City", match_date: "2026-04-14T20:00:00Z", prediction: "Arsenal Win", confidence: 72, analyst_note: "Arsenal's home form is dominant this season. City struggling with injuries in midfield.", result: "", is_correct: null },
