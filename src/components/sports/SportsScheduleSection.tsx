@@ -204,12 +204,8 @@ function normalizeTeam(s: string): string {
     .trim();
 }
 
-function predictionKey(home: string, away: string): string {
-  return `${normalizeTeam(home)}|${normalizeTeam(away)}`;
-}
-
 const SportsScheduleSection = () => {
-  const { upcoming, results, aiPredictions, stale, lastFetched, loading, refresh } = useSportsSchedule();
+  const { upcoming, results, stale, lastFetched, loading, refresh } = useSportsSchedule();
   const [filter, setFilter] = useState<SportFilter>("all");
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
