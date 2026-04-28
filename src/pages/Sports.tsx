@@ -268,46 +268,10 @@ const Sports = () => {
               </div>
             )}
 
-            {past.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
-                  <Trophy className="w-5 h-5 text-accent" /> Past Results
-                  {!showAllPast && pastPopularAll.length > 0 && (
-                    <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
-                      · Popular Teams
-                    </span>
-                  )}
-                </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {pastVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
-                </div>
-                {past.length > pastVisible.length && !showAllPast && (
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={() => setShowAllPast(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20 transition-all"
-                    >
-                      View all ({past.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllPast && pastPopularAll.length > 0 && past.length > POPULAR_LIMIT && (
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={() => setShowAllPast(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {upcoming.length === 0 && past.length === 0 && (
-              <div className="text-center py-16 text-muted-foreground">
+            {upcoming.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>No predictions available yet.</p>
+                <p className="text-sm">No upcoming predictions yet. Check the live results below.</p>
               </div>
             )}
           </>
