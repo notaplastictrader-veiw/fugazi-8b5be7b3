@@ -127,9 +127,10 @@ const Sports = () => {
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
 
-  // Popular-team subset for upcoming (safe fallback to first N if filter empties)
+  // Popular-team subset first, then top up with the rest so we always fill POPULAR_LIMIT cards
   const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
-  const upcomingDefault = upcomingPopularAll.length > 0 ? upcomingPopularAll : upcoming;
+  const popularIds = new Set(upcomingPopularAll.map((p) => p.id));
+  const upcomingDefault = [...upcomingPopularAll, ...upcoming.filter((p) => !popularIds.has(p.id))];
   const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
   const totalPicks = predictions.length;
   const settled = predictions.filter((p) => p.is_correct !== null);
