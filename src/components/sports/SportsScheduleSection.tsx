@@ -402,6 +402,7 @@ const SportsScheduleSection = () => {
           {/* Results */}
           <div id="latest-results" className="scroll-mt-24">
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
+              <Trophy className="w-4 h-4 text-primary" /> Latest Results
               <span className="text-[10px] text-muted-foreground font-mono">({filteredResults.length})</span>
               {!showAllResults && resultsPopular.length < filteredResults.length && (
                 <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
