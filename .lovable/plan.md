@@ -1,30 +1,40 @@
-## Fix Calendar day-header overlap
+## Goal
+Rotate the leaked RapidAPI key, throttle requests to fit BASIC tier limits, and confirm `/sports` displays live SofaSport data.
 
-**Problem:** On `/calendar`, the per-day section headers ("TODAY", "TOMORROW", "THURSDAY, APR 30") visually overlap the event rows of the previous/next group. Cause: each group's header uses `sticky top-[200px]` (both mobile and desktop). When one group ends and the next begins, the next sticky header pins at `top-[200px]` while the previous group's last rows are still occupying that vertical space, producing the overlap shown in the screenshot. The `top-[200px]` value is also a guess — the filter bar above is `top-[92px]` and changes height responsively (3–4 rows of pill buttons), so the day header doesn't actually sit flush below it.
+## Context
+- BASIC tier on SofaSport allows the endpoints you tested, but recent edge logs show **HTTP 429 (rate limit)** on nearly every call. We're firing **9 parallel requests** (3 sports × 3 endpoints) per refresh, which BASIC can't sustain.
+- One endpoint also returned **403 (cricket inverse, basketball inverse)** — those specific paths likely aren't in BASIC for every sport, so we should treat 403s as "skip silently."
+- The key you pasted is now exposed in chat history → must be rotated.
 
-**Fix:** Drop sticky positioning from the per-day headers and make them clearly separated banners instead. The page already has a sticky filter bar at the top, so day headers don't need to be sticky too — losing them on scroll is fine and matches the rest of the calendar UX.
+## Steps
 
-### Changes
+### 1. Update `RAPIDAPI_SPORTS_KEY` secret
+Replace with the new key you pasted (then please **revoke that key on RapidAPI** and generate a fresh one — sharing it in chat exposes it).
 
-**File: `src/pages/Calendar.tsx`**
+### 2. Rewrite `supabase/functions/get-sports-data/index.ts` to respect BASIC limits
+- **Sequential, not parallel** fetches with a small delay between calls (≈250ms) to stay under the per-second cap.
+- **Drop the `/inverse` (yesterday results) calls** — they 403 on cricket/basketball and double our request count. Results will be derived from finished matches inside today's scheduled feed instead.
+- **Live endpoint stays**, but failures (403/429) are swallowed without polluting logs.
+- **Cache TTL bumped from 5 min → 15 min** so the function rarely re-hits the upstream (BASIC daily cap is small).
+- Request count drops from **9 → 6 per refresh** (3 live + 3 today), serialized.
 
-1. Mobile day header (line 346):
-   - Remove `sticky top-[200px] bg-background/80 backdrop-blur-sm py-2 z-10`.
-   - Add a little top spacing so groups breathe: `mt-2`.
+### 3. Clear stale cache
+Wipe the `sports_cache` row so the next page load triggers a real fetch with the new key + new shape.
 
-2. Desktop day header (line 400):
-   - Remove `sticky top-[200px] z-10 backdrop-blur-md`.
-   - Keep the `bg-primary/10 border-b border-primary/20` styling so it still reads as a banner.
-   - The `glass-card rounded-xl overflow-hidden` wrapper already isolates each group visually.
+### 4. Verify
+Call the edge function via curl, check logs are clean (no 429s), confirm `/sports` page renders today's football/cricket/basketball matches.
 
-3. Increase spacing between day groups so the boundary is unambiguous:
-   - Change the outer `<div className="space-y-6 …">` (line 341) to `space-y-8`.
+## Technical details
 
-That removes the overlap entirely and keeps the visual hierarchy intact.
+```text
+Old flow:  refresh → 9 parallel calls → 429 storm → empty payload
+New flow:  refresh → 6 sequential calls (250ms gap) → cache 15min → render
+```
 
-### Out of scope
-- No changes to data, filters, sports integration, or the previously-fixed ticker work.
+Files touched:
+- `supabase/functions/get-sports-data/index.ts` (rewrite fetch loop, drop inverse, longer TTL)
+- Migration: `DELETE FROM site_settings WHERE key IN ('sports_cache','sports_cache_last_good');`
+- Secret: `RAPIDAPI_SPORTS_KEY` → new value
 
-### Technical notes
-- Both the mobile `<h3>` and desktop banner currently rely on the same `top-[200px]` offset, which doesn't match the actual filter-bar height (`top-[92px]` + ~3–4 rows of pills ≈ 180–230px depending on viewport / wrap). Removing sticky avoids having to maintain that magic number.
-- No other component depends on these headers being sticky.
+## Security note
+The key `3fe1181c42msh...` is now in chat history. After I update the secret, **rotate it on RapidAPI dashboard** (Apps → Security → Regenerate) and resend only via the secret prompt — never paste keys in chat.
