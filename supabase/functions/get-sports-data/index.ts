@@ -23,6 +23,30 @@ const STALE_MAX_MS = 24 * 60 * 60_000;
 const REQUEST_GAP_MS = 300;
 const PER_LIST_LIMIT = 25;
 
+// Normalize various date formats from upstream APIs into a proper UTC ISO string.
+// Many feeds return strings like "2026-04-29 19:00:00" without a timezone suffix —
+// JS would parse those as local-time, causing wrong-day display in the browser.
+function toUtcIso(s: any): string {
+  if (!s) return new Date().toISOString();
+  const str = String(s).trim();
+  // Already has TZ info (Z or ±HH:MM)
+  if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(str)) {
+    const d = new Date(str);
+    return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
+  }
+  // Date-only "YYYY-MM-DD" → treat as UTC midnight
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return new Date(str + "T00:00:00Z").toISOString();
+  }
+  // "YYYY-MM-DD HH:MM[:SS]" without TZ → treat as UTC
+  const m = str.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2})?)/);
+  if (m) {
+    return new Date(`${m[1]}T${m[2]}Z`).toISOString();
+  }
+  const d = new Date(str);
+  return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
+}
+
 interface UpcomingMatch {
   id: string;
   sport: string;
