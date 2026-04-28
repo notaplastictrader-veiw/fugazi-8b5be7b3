@@ -1,40 +1,67 @@
 ## Goal
-Rotate the leaked RapidAPI key, throttle requests to fit BASIC tier limits, and confirm `/sports` displays live SofaSport data.
+Replace SofaSport entirely with three new RapidAPI feeds:
+- **Cricbuzz** → cricket (live, upcoming, recent)
+- **free-api-live-football-data** → football fixtures (popular leagues)
+- **football-prediction-api** → AI-generated football predictions (new section)
 
-## Context
-- BASIC tier on SofaSport allows the endpoints you tested, but recent edge logs show **HTTP 429 (rate limit)** on nearly every call. We're firing **9 parallel requests** (3 sports × 3 endpoints) per refresh, which BASIC can't sustain.
-- One endpoint also returned **403 (cricket inverse, basketball inverse)** — those specific paths likely aren't in BASIC for every sport, so we should treat 403s as "skip silently."
-- The key you pasted is now exposed in chat history → must be rotated.
+Drop basketball from the live schedule (no NBA endpoint provided). Keep manually-curated `sports_predictions` (DB) untouched for the existing prediction cards.
 
 ## Steps
 
-### 1. Update `RAPIDAPI_SPORTS_KEY` secret
-Replace with the new key you pasted (then please **revoke that key on RapidAPI** and generate a fresh one — sharing it in chat exposes it).
+### 1. Rewrite `supabase/functions/get-sports-data/index.ts`
+Replace the SofaSport fetch logic with three sequential calls per refresh:
 
-### 2. Rewrite `supabase/functions/get-sports-data/index.ts` to respect BASIC limits
-- **Sequential, not parallel** fetches with a small delay between calls (≈250ms) to stay under the per-second cap.
-- **Drop the `/inverse` (yesterday results) calls** — they 403 on cricket/basketball and double our request count. Results will be derived from finished matches inside today's scheduled feed instead.
-- **Live endpoint stays**, but failures (403/429) are swallowed without polluting logs.
-- **Cache TTL bumped from 5 min → 15 min** so the function rarely re-hits the upstream (BASIC daily cap is small).
-- Request count drops from **9 → 6 per refresh** (3 live + 3 today), serialized.
+- **Cricket** (`cricbuzz-cricket.p.rapidapi.com`):
+  - `/matches/v1/live` → upcoming (status = Live)
+  - `/matches/v1/upcoming` → upcoming (status = Scheduled)
+  - `/matches/v1/recent` → results (status = Finished, with scores)
+- **Football** (`free-api-live-football-data.p.rapidapi.com`):
+  - `/football-popular-leagues` → list of leagues; pick top ~5 (EPL, LaLiga, Serie A, Bundesliga, UCL) and pull their current fixtures via the matching endpoint exposed by that API. If the popular-leagues call only returns metadata, fall back to whatever fixtures endpoint the API exposes for those league IDs.
+- **Football AI Predictions** (`football-prediction-api.p.rapidapi.com`):
+  - `/api/v2/predictions?market=classic&iso_date=<today>&federation=UEFA` → list of predicted matches with home/away/predicted outcome.
 
-### 3. Clear stale cache
-Wipe the `sports_cache` row so the next page load triggers a real fetch with the new key + new shape.
+Behaviour:
+- 300ms gap between calls (BASIC tier safe).
+- Normalise everything to the existing `UpcomingMatch` / `ResultMatch` shape so the frontend doesn't break.
+- New field on payload: `aiPredictions: AIPrediction[]` for the predictions section.
+- 15-minute cache TTL, last-good fallback (existing pattern preserved).
+- 403/429 swallowed silently.
 
-### 4. Verify
-Call the edge function via curl, check logs are clean (no 429s), confirm `/sports` page renders today's football/cricket/basketball matches.
+Cricbuzz response normalisation: traverse `typeMatches[].seriesMatches[].seriesAdWrapper.matches[].matchInfo` to extract `matchId`, `team1`/`team2` names, `startDate` (epoch ms), `seriesName`, `state`, and (for `/recent`) score from `matchScore`.
+
+### 2. Update `src/hooks/useSportsSchedule.ts`
+Add `aiPredictions` to the shared state and payload interface so consumers can read AI picks.
+
+### 3. Update `src/components/sports/SportsScheduleSection.tsx`
+- Remove **Basketball** + **NBA** filter chips (no data source).
+- Add a new **"AI Football Predictions"** section below "Latest Results" listing the prediction cards (home vs away, predicted result, federation badge). Hidden if `aiPredictions` empty.
+- Update header copy: "Real fixtures and final scores from cricket and football leagues — refreshed every 10 minutes."
+
+### 4. Update `src/pages/Sports.tsx`
+Remove "🏀 Basketball" from `FILTER_TABS` (no live basketball data anymore). Tennis filter stays — it's served by the manual `sports_predictions` table only.
+
+### 5. Clear cache
+Wipe `sports_cache` + `sports_cache_last_good` in `site_settings` so the next fetch uses the new pipeline.
+
+### 6. Verify
+Call the edge function via `curl_edge_functions`, confirm payload contains cricket + football fixtures + AI predictions, check `/sports` page renders all three.
 
 ## Technical details
 
 ```text
-Old flow:  refresh → 9 parallel calls → 429 storm → empty payload
-New flow:  refresh → 6 sequential calls (250ms gap) → cache 15min → render
+Old:  SofaSport (3 sports × 2 endpoints) = 6 calls
+New:  Cricbuzz (3) + Football fixtures (1-2) + Predictions (1) = 5-6 calls
+      Sequential, 300ms gap, 15-min cache
 ```
 
 Files touched:
-- `supabase/functions/get-sports-data/index.ts` (rewrite fetch loop, drop inverse, longer TTL)
+- `supabase/functions/get-sports-data/index.ts` (full rewrite of fetch layer)
+- `src/hooks/useSportsSchedule.ts` (add `aiPredictions`)
+- `src/components/sports/SportsScheduleSection.tsx` (new section, drop basketball chip)
+- `src/pages/Sports.tsx` (drop basketball filter)
 - Migration: `DELETE FROM site_settings WHERE key IN ('sports_cache','sports_cache_last_good');`
-- Secret: `RAPIDAPI_SPORTS_KEY` → new value
+
+Secret reused: `RAPIDAPI_SPORTS_KEY` (same RapidAPI account works for all three hosts since they share the same key).
 
 ## Security note
-The key `3fe1181c42msh...` is now in chat history. After I update the secret, **rotate it on RapidAPI dashboard** (Apps → Security → Regenerate) and resend only via the secret prompt — never paste keys in chat.
+The key `3fe1181c42msh...` is exposed in chat history again. After deploy, **rotate it on the RapidAPI dashboard** and update the `RAPIDAPI_SPORTS_KEY` secret with the fresh value. Never paste keys in chat.

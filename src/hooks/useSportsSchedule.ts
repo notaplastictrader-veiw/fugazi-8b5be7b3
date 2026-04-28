@@ -17,15 +17,29 @@ export interface ResultMatch extends UpcomingMatch {
   awayScore: number | null;
 }
 
+export interface AIPrediction {
+  id: string;
+  homeTeam: string;
+  awayTeam: string;
+  competition: string;
+  federation: string;
+  date: string;
+  prediction: string;
+  market: string;
+  odds: string | null;
+}
+
 interface SportsPayload {
   upcoming: UpcomingMatch[];
   results: ResultMatch[];
+  aiPredictions?: AIPrediction[];
   stale: boolean;
   fetchedAt: number;
 }
 
 let sharedUpcoming: UpcomingMatch[] = [];
 let sharedResults: ResultMatch[] = [];
+let sharedAI: AIPrediction[] = [];
 let sharedStale = false;
 let lastFetchedAt = 0;
 let inflight: Promise<void> | null = null;
@@ -43,6 +57,7 @@ async function refresh() {
       if (payload && Array.isArray(payload.upcoming) && Array.isArray(payload.results)) {
         sharedUpcoming = payload.upcoming;
         sharedResults = payload.results;
+        sharedAI = Array.isArray(payload.aiPredictions) ? payload.aiPredictions : [];
         sharedStale = Boolean(payload.stale);
         lastFetchedAt = Date.now();
         subscribers.forEach((cb) => cb());
@@ -59,6 +74,7 @@ async function refresh() {
 export function useSportsSchedule() {
   const [upcoming, setUpcoming] = useState<UpcomingMatch[]>(sharedUpcoming);
   const [results, setResults] = useState<ResultMatch[]>(sharedResults);
+  const [aiPredictions, setAIPredictions] = useState<AIPrediction[]>(sharedAI);
   const [stale, setStale] = useState(sharedStale);
   const [lastFetched, setLastFetched] = useState(lastFetchedAt);
   const [loading, setLoading] = useState(sharedUpcoming.length === 0 && sharedResults.length === 0);
@@ -68,6 +84,7 @@ export function useSportsSchedule() {
     const sync = () => {
       setUpcoming(sharedUpcoming);
       setResults(sharedResults);
+      setAIPredictions(sharedAI);
       setStale(sharedStale);
       setLastFetched(lastFetchedAt);
       setLoading(false);
@@ -101,6 +118,7 @@ export function useSportsSchedule() {
   return {
     upcoming,
     results,
+    aiPredictions,
     stale,
     lastFetched,
     loading,
