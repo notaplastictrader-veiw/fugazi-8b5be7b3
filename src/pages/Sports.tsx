@@ -33,7 +33,7 @@ const Sports = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
-  const { refresh: refreshSchedule } = useSportsSchedule();
+  const { refresh: refreshSchedule, aiPredictions } = useSportsSchedule();
 
   const handleManualRefresh = async () => {
     if (refreshing) return;
@@ -82,10 +82,53 @@ const Sports = () => {
     load();
   }, []);
 
-  const isBetting = activeFilter === "betting";
-  const filtered = activeFilter === "all" ? predictions : predictions.filter((p) => p.sport === activeFilter);
+  // Convert live AI football predictions into the same Prediction shape as DB rows
+  const aiAsPredictions: Prediction[] = (aiPredictions || []).map((p) => {
+    // Derive confidence from the lowest implied odds in the formatted odds string ("1: 2.55 · X: 3.54 · 2: 2.51")
+    let confidence = 60;
+    if (p.odds) {
+      const nums = Array.from(p.odds.matchAll(/(\d+(?:\.\d+)?)/g)).map((m) => parseFloat(m[1])).filter((n) => n > 1);
+      if (nums.length) {
+        const best = Math.min(...nums);
+        const implied = Math.round((1 / best) * 100);
+        confidence = Math.max(50, Math.min(85, implied));
+      }
+    }
+    return {
+      id: `ai-${p.id}`,
+      title: p.competition || p.federation || "Football",
+      sport: "football",
+      team_a: p.homeTeam,
+      team_b: p.awayTeam,
+      match_date: p.date,
+      prediction: p.prediction,
+      confidence,
+      analyst_note: p.odds ? `Market: ${p.market || "1X2"} · Odds ${p.odds}` : `Market: ${p.market || "1X2"}`,
+      result: "",
+      is_correct: null,
+    };
+  });
 
-  const upcoming = filtered.filter((p) => !p.result);
+  // Dedupe vs DB predictions by normalized teams + same calendar day
+  const norm = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const dbKeys = new Set(
+    predictions
+      .filter((p) => p.sport === "football")
+      .map((p) => `${norm(p.team_a)}|${norm(p.team_b)}|${p.match_date.slice(0, 10)}`)
+  );
+  const aiUnique = aiAsPredictions.filter((p) => {
+    const k1 = `${norm(p.team_a)}|${norm(p.team_b)}|${p.match_date.slice(0, 10)}`;
+    const k2 = `${norm(p.team_b)}|${norm(p.team_a)}|${p.match_date.slice(0, 10)}`;
+    return !dbKeys.has(k1) && !dbKeys.has(k2);
+  });
+
+  const allPredictions = [...predictions, ...aiUnique];
+  const isBetting = activeFilter === "betting";
+  const filtered = activeFilter === "all" ? allPredictions : allPredictions.filter((p) => p.sport === activeFilter);
+
+  const upcoming = filtered
+    .filter((p) => !p.result)
+    .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
   const past = filtered.filter((p) => !!p.result);
   const totalPast = predictions.filter((p) => p.is_correct !== null);
   const correct = totalPast.filter((p) => p.is_correct);

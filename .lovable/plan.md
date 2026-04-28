@@ -1,37 +1,31 @@
 ## Goal
 
-Remove the standalone "AI Football Predictions" section. Merge those predictions **into the existing Upcoming Matches grid** so they look exactly like your other upcoming match cards — just with a small "Our Pick" badge and odds inline. No "AI" label anywhere in the UI.
+Move the live football AI predictions out of the "Upcoming Matches" grid (where I previously injected them with the small "Our Pick" badge) and surface them inside the rich **"Upcoming Predictions"** section on `/sports` — using the exact same `PredictionCard` style shown in your screenshot (sport badge, league/round, OUR PICK, CONFIDENCE %, risk warning, insight tip, date).
 
-## What changes (UI)
+## Changes
 
-- **Delete** the bottom "AI Football Predictions" block (header + Brain icon + 3-column grid + disclaimer).
-- **Merge** football predictions into Upcoming as regular fixtures:
-  - Each prediction becomes an `UpcomingMatch` with `sport: "Football"`, `league: <competition>`.
-  - Inside the existing Upcoming card, add a subtle **"Our Pick"** row showing the predicted outcome (e.g. `1X`, `12`, `1`) and odds underneath in mono font — styled with `primary` color, same glass-card aesthetic.
-- **Dedupe**: if a prediction's home+away match an upcoming fixture already returned by Cricbuzz/Football Data, attach the pick to the existing card instead of adding a duplicate.
-- Remove the `Brain` icon import; add `Sparkles` (small, fits your minimal style) for the "Our Pick" row.
+### 1. `src/pages/Sports.tsx`
+- Pull `aiPredictions` from the existing `useSportsSchedule()` hook (already imported).
+- Map each `AIPrediction` into the `Prediction` shape consumed by `PredictionCard`:
+  - `sport`: `"football"`
+  - `title`: `competition` (e.g. "Premier League — Matchday 32") with `federation` fallback
+  - `team_a` / `team_b`: `homeTeam` / `awayTeam`
+  - `match_date`: `date`
+  - `prediction`: `prediction` (e.g. "Home Win")
+  - `confidence`: derived from the implied probability of `odds` when available; otherwise a sensible default (e.g. 60). Capped 50–85 so risk/ROI badges render meaningfully.
+  - `analyst_note`: short auto-generated line including odds, e.g. `"Market: 1X2 · Odds ${odds}"`.
+  - `result: ""`, `is_correct: null` (these are upcoming).
+- Deduplicate against DB `predictions` by normalized `homeTeam|awayTeam|date(day)` so admin-curated picks always win over the API.
+- Merge AI picks into the `predictions` array used for filtering — so they show up under both "All Sports" and the "⚽ Football" tab inside **Upcoming Predictions**, sorted by `match_date` ascending.
 
-## File: `src/components/sports/SportsScheduleSection.tsx`
+### 2. `src/components/sports/SportsScheduleSection.tsx`
+- Remove the "Our Pick" overlay added previously to `UpcomingCard` and the standalone-injection logic (`mergedUpcoming`, `pickByMatch`, `predictionKey`).
+- Restore `UpcomingCard` to its original simple fixture style and render only `upcoming` matches in the grid.
+- Drop the now-unused `aiPredictions` import / `Sparkles` icon.
 
-1. **`UpcomingCard`** — accept two new optional props: `pick?: string | null`, `odds?: string | null`. When `pick` is set, render a small bordered row above the date footer:
-   ```
-   ✨ Our Pick                            1X
-   1: 2.55 · X: 3.54 · 2: 2.51 · ...
-   ```
-   Uses `bg-primary/5 border-primary/20`, mono font for odds, truncated with `title` tooltip for full odds.
-
-2. **In the main component** — build a merged list before rendering:
-   - Make a `Map<key, { pick, odds }>` from `aiPredictions`, keyed by a normalized `homeTeam|awayTeam` string.
-   - For each existing upcoming fixture, look up the key and attach `pick`/`odds` if found; remove from the map.
-   - Convert any remaining map entries (predictions with no matching fixture) into `UpcomingMatch` objects with `sport: "Football"`, `league: prediction.competition`, `status: "Scheduled"`, then prepend/append to upcoming.
-   - Sort by date ascending so soonest kickoff is first.
-
-3. **Remove** the entire "AI Football Predictions" JSX block (lines 402–419) and the `AIPredictionCard` component (lines 200–230) — both unused after merge.
-
-4. Keep the existing sport/league filters working: predicted-only fixtures will pass the `Football` filter normally.
+### 3. No backend changes
+- `get-sports-data` edge function already returns `aiPredictions` correctly. No edits needed there.
 
 ## Result
 
-- One unified Upcoming Matches grid. Football fixtures with predictions show a small "Our Pick · 1X" badge and odds; everything else looks identical to before.
-- No mention of "AI" in the UI — predictions are presented as your platform's own picks.
-- Cricket/Football tabs and league chips continue to work as-is.
+The football AI picks will appear as full prediction cards inside **Upcoming Predictions** — same card style as Alcaraz vs Sinner, Celtics vs Heat, etc. — with sport badge "⚽ FOOTBALL", confidence %, risk warning, odds-based insight, and date/time. The "Upcoming Matches" grid below stays clean as fixtures only.
