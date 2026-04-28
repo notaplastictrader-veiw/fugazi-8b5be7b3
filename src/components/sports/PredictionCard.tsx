@@ -36,6 +36,32 @@ const getRiskLevel = (confidence: number) => {
   return { label: "High Risk", color: "text-destructive" };
 };
 
+const MARKET_LABELS: Record<string, string> = {
+  "1": "Home Win",
+  "2": "Away Win",
+  "x": "Draw",
+  "1x": "Home or Draw",
+  "12": "Home or Away (No Draw)",
+  "x2": "Draw or Away",
+  "btts": "Both Teams to Score",
+  "btts yes": "Both Teams to Score",
+  "btts no": "No — Both Teams Won't Score",
+  "o2.5": "Over 2.5 Goals",
+  "u2.5": "Under 2.5 Goals",
+  "over 2.5": "Over 2.5 Goals",
+  "under 2.5": "Under 2.5 Goals",
+  "o1.5": "Over 1.5 Goals",
+  "u1.5": "Under 1.5 Goals",
+};
+
+function humanizePick(raw: string): string {
+  if (!raw) return raw;
+  const key = raw.trim().toLowerCase();
+  if (MARKET_LABELS[key]) return MARKET_LABELS[key];
+  // try to translate inline tokens like "Market: 12 · Odds ..."
+  return raw.replace(/\b(1x|x2|12|btts|o\d(?:\.\d)?|u\d(?:\.\d)?)\b/gi, (m) => MARKET_LABELS[m.toLowerCase()] || m);
+}
+
 const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
   const isPast = !!p.result;
   const matchTime = new Date(p.match_date);
