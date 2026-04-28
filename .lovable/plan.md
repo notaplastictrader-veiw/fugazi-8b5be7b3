@@ -1,65 +1,49 @@
-# Fix: Restore Risk Color + Fix Wrong Match Date
+## Goal
+Match times from the AI football API are unreliable (tz issues), so stop showing time/countdown on upcoming prediction cards. Only show a LIVE badge when we can confirm the match is actually live, and update settled results from a verifiable source.
 
-## Issue 1 — Risk color
-User wants the colored risk indicator back (green/yellow/red based on confidence), but keep the label as just "Risk" (no Low/Medium/High wording).
+## Changes
 
-**Fix in `src/components/sports/PredictionCard.tsx`:**
-```ts
-const getRiskLevel = (confidence: number) => {
-  if (confidence >= 75) return { label: "Risk", color: "text-primary" };       // green
-  if (confidence >= 55) return { label: "Risk", color: "text-accent" };        // yellow
-  return { label: "Risk", color: "text-destructive" };                          // red
-};
-```
-Result: badge color still signals quality at-a-glance, but no "Low/Medium/High" wording.
+### 1. `src/components/sports/PredictionCard.tsx` — strip time/countdown UI
 
-## Issue 2 — "Yesterday" shown for a match starting in 15 minutes
-**Root cause** (in `supabase/functions/get-sports-data/index.ts`, line 285):
-The football-prediction API returns `start_date` as a string like `"2026-04-29 19:00:00"` **without a timezone suffix**. JavaScript's `new Date("2026-04-29 19:00:00")` interprets this as **local browser time**, not UTC. The API's intent is UTC, so:
-- Match meant for 19:00 UTC (= 01:00 next day in BST)
-- Browser parses as 19:00 local → renders as previous day after re-conversion
-- Result: "Yesterday · 19:00" even though it's actually starting soon
+Remove all time-dependent UI from the card since we can't trust `match_date`:
 
-**Fix:** Normalize the date in the edge function to a proper UTC ISO string before returning.
+- Remove the `formatMatchTime()` line under the title (line 167-169).
+- Remove the bottom date/time row (line 204-210), keeping only the result line for past picks:
+  ```tsx
+  {isPast && (
+    <div className="flex items-center justify-end text-[10px] text-muted-foreground">
+      <span className="font-semibold text-foreground">Result: {p.result}</span>
+    </div>
+  )}
+  ```
+- Remove the "STARTS IN", "in Xh Ym", "Awaiting result" badges (lines 148-162). These all depend on `match_date`.
+- Keep the LIVE badge (lines 143-147) **only if** the source actually flags the match as live. Since we can't verify timing, only show it when the API exposes a live status flag — otherwise hide it. (For now: drop the time-based `phase.kind === "live"` trigger; we'll add it back only when the data layer provides a real `isLive` signal.)
+- Remove the `useEffect`/`useState` ticker, `getPhase()`, `formatMatchTime()`, `MatchPhase`, `LIVE_WINDOW_MS` — all dead code after the above.
+- Keep: sport badge, ROI badge, CORRECT/WRONG badge, teams, pick, confidence, risk warning, analyst note.
 
-```ts
-function toUtcIso(s: any): string {
-  if (!s) return new Date().toISOString();
-  const str = String(s).trim();
-  // Already has TZ info (Z or ±HH:MM)
-  if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(str)) {
-    const d = new Date(str);
-    return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
-  }
-  // Date-only "YYYY-MM-DD" → UTC midnight
-  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-    return new Date(str + "T00:00:00Z").toISOString();
-  }
-  // "YYYY-MM-DD HH:MM[:SS]" without TZ → treat as UTC
-  const m = str.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2})?)/);
-  if (m) {
-    return new Date(`${m[1]}T${m[2]}Z`).toISOString();
-  }
-  // Fallback: let JS parse, but force ISO output
-  const d = new Date(str);
-  return Number.isFinite(d.getTime()) ? d.toISOString() : new Date().toISOString();
-}
-```
+Net effect: upcoming cards show no date/time at all. Past cards show only the result.
 
-Then change line 285 from:
-```ts
-date: p.start_date || p.iso_date || new Date().toISOString(),
-```
-to:
-```ts
-date: toUtcIso(p.start_date || p.iso_date),
-```
+### 2. `src/hooks/useSportsSchedule.ts` — pass through `isLive` if present
 
-This guarantees the frontend always receives a proper UTC ISO string. The frontend already converts to local timezone via `Intl.DateTimeFormat`, so each user sees the correct time in their own zone.
+Add an optional `isLive?: boolean` to `AIPrediction` so future API integrations can flag it. No behavior change yet (the edge function doesn't currently emit it).
+
+### 3. `src/pages/Sports.tsx` — propagate `isLive` into `Prediction`
+
+When mapping `aiPredictions` → `aiAsPredictions`, forward `isLive` as a new optional field on the Prediction type. Update `Prediction` interface in `PredictionCard.tsx` to include `isLive?: boolean`, and gate the LIVE badge on `p.isLive === true`.
+
+### 4. Update settled results
+
+Run a SELECT against `sports_predictions` where `result <> ''` ordered by `match_date desc` to list current settled picks, then cross-check finished scores from the football-prediction RapidAPI endpoint already used by `get-sports-data` (or a public source like flashscore/api-football free tier). For any mismatched `is_correct`, queue an UPDATE migration to correct them.
+
+This is a one-time data fix done after plan approval — not a code change.
 
 ## Files
-- `src/components/sports/PredictionCard.tsx` — restore risk colors
-- `supabase/functions/get-sports-data/index.ts` — add `toUtcIso` helper, normalize date
+- `src/components/sports/PredictionCard.tsx` — strip time UI, gate LIVE on real flag
+- `src/hooks/useSportsSchedule.ts` — add optional `isLive` field
+- `src/pages/Sports.tsx` — forward `isLive` in mapping
+- DB: targeted UPDATEs to `sports_predictions.is_correct` / `result` after verification
 
 ## Notes
-- After deployment, the cached payload may still have wrong dates for ~10 minutes. Manual refresh button will update it.
+- No more "Yesterday", "Awaiting result", or wrong countdowns.
+- LIVE badge stays dormant until the data source actually marks a match live — safer than guessing.
+- Cached payload clears in ~10 min or via the existing Refresh button.

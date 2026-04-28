@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Clock, TrendingUp, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, TrendingUp, AlertTriangle } from "lucide-react";
 
 interface Prediction {
   id: string;
@@ -14,6 +13,7 @@ interface Prediction {
   analyst_note: string;
   result: string;
   is_correct: boolean | null;
+  isLive?: boolean;
 }
 
 const sportIcons: Record<string, string> = { football: "⚽", cricket: "🏏", basketball: "🏀", tennis: "🎾", mma: "🥊" };
@@ -59,61 +59,11 @@ function humanizePick(raw: string): string {
   if (!raw) return raw;
   const key = raw.trim().toLowerCase();
   if (MARKET_LABELS[key]) return MARKET_LABELS[key];
-  // try to translate inline tokens like "Market: 12 · Odds ..."
   return raw.replace(/\b(1x|x2|12|btts|o\d(?:\.\d)?|u\d(?:\.\d)?)\b/gi, (m) => MARKET_LABELS[m.toLowerCase()] || m);
-}
-
-type MatchPhase =
-  | { kind: "past" }
-  | { kind: "live" }
-  | { kind: "awaiting" }
-  | { kind: "soon"; label: string }
-  | { kind: "future"; label: string };
-
-const LIVE_WINDOW_MS = 3 * 60 * 60_000; // 3 hours
-
-function formatMatchTime(date: Date): string {
-  const t = date.getTime();
-  if (!Number.isFinite(t)) return "TBD";
-  const now = new Date();
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const dayDiff = Math.round((startOfDay(date) - startOfDay(now)) / 86_400_000);
-  const time = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false }).format(date);
-  if (dayDiff === 0) return `Today · ${time}`;
-  if (dayDiff === 1) return `Tomorrow · ${time}`;
-  if (dayDiff === -1) return `Yesterday · ${time}`;
-  const datePart = new Intl.DateTimeFormat(undefined, { weekday: "short", day: "numeric", month: "short" }).format(date);
-  return `${datePart} · ${time}`;
-}
-
-function getPhase(matchTime: Date, now: number, isPast: boolean): MatchPhase {
-  if (isPast) return { kind: "past" };
-  const target = matchTime.getTime();
-  if (!Number.isFinite(target)) return { kind: "future", label: "TBD" };
-  const diff = target - now;
-  if (diff <= -LIVE_WINDOW_MS) return { kind: "awaiting" };
-  if (diff <= 0) return { kind: "live" };
-  const sec = Math.floor(diff / 1000);
-  const days = Math.floor(sec / 86400);
-  const hours = Math.floor((sec % 86400) / 3600);
-  const minutes = Math.floor((sec % 3600) / 60);
-  const seconds = sec % 60;
-  if (diff <= 5 * 60_000) return { kind: "soon", label: `${minutes}m ${seconds.toString().padStart(2, "0")}s` };
-  if (days > 0) return { kind: "future", label: `in ${days}d ${hours}h` };
-  if (hours > 0) return { kind: "future", label: `in ${hours}h ${minutes.toString().padStart(2, "0")}m` };
-  return { kind: "future", label: `in ${minutes}m ${seconds.toString().padStart(2, "0")}s` };
 }
 
 const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
   const isPast = !!p.result;
-  const matchTime = new Date(p.match_date);
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (isPast) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
-  }, [isPast]);
-  const phase = getPhase(matchTime, now, isPast);
   const roi = getRoiPotential(p.confidence);
   const risk = getRiskLevel(p.confidence);
 
@@ -140,33 +90,15 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
               </Badge>
             )
           )}
-          {phase.kind === "live" && (
+          {!isPast && p.isLive === true && (
             <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono animate-pulse">
               🔴 LIVE
-            </Badge>
-          )}
-          {phase.kind === "soon" && (
-            <Badge className="bg-accent/20 text-accent text-[10px] font-mono tabular-nums">
-              <Clock className="w-3 h-3 mr-0.5" /> STARTS IN {phase.label}
-            </Badge>
-          )}
-          {phase.kind === "future" && (
-            <Badge className="bg-secondary text-foreground border border-border text-[10px] font-mono tabular-nums">
-              <Clock className="w-3 h-3 mr-0.5" /> {phase.label}
-            </Badge>
-          )}
-          {phase.kind === "awaiting" && (
-            <Badge className="bg-muted text-muted-foreground text-[10px] font-mono">
-              Awaiting result
             </Badge>
           )}
         </div>
       </div>
 
       <p className="text-[10px] text-muted-foreground font-mono">{p.title}</p>
-      <p className="text-[10px] text-muted-foreground/80 font-mono flex items-center gap-1 -mt-2">
-        <Clock className="w-3 h-3" /> {formatMatchTime(matchTime)}
-      </p>
 
       <div className="flex items-center justify-center gap-4">
         <span className="text-base font-bold text-foreground text-right flex-1">{p.team_a}</span>
@@ -187,7 +119,6 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
         </div>
       </div>
 
-      {/* Risk Warning */}
       {!isPast && (
         <div className={`flex items-center gap-1.5 text-[10px] font-mono ${risk.color}`}>
           <AlertTriangle className="w-3 h-3" />
@@ -201,13 +132,11 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
         </p>
       )}
 
-      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {matchTime.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {matchTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-        </span>
-        {isPast && <span className="font-semibold text-foreground">Result: {p.result}</span>}
-      </div>
+      {isPast && (
+        <div className="flex items-center justify-end text-[10px] text-muted-foreground">
+          <span className="font-semibold text-foreground">Result: {p.result}</span>
+        </div>
+      )}
     </div>
   );
 };
