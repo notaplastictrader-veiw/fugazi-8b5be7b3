@@ -1,34 +1,24 @@
-# Show Match Start Time on Prediction Cards
-
-## Problem
-On `/sports`, prediction cards currently show only a status badge (countdown, LIVE, or "Awaiting result"). When a card is in the "Awaiting result" state, users cannot see when the match was actually scheduled to start. The kickoff date/time should be visible on every card.
-
-## Goal
-Display the formatted match start date + time (e.g. `Sat, 2 May · 21:00`) on every prediction card, in the user's local timezone, alongside the existing status badge.
+# Simplify Risk Label & Confirm Time Display
 
 ## Changes
 
-### `src/components/sports/PredictionCard.tsx`
-1. Add a small helper `formatMatchTime(date)` that returns a short, localized string like:
-   - Same day: `Today · 21:00`
-   - Tomorrow: `Tomorrow · 21:00`
-   - Otherwise: `Sat, 2 May · 21:00`
-   Uses `Intl.DateTimeFormat` with the browser locale; falls back to `TBD` for invalid dates.
+### 1. Risk warning — remove Low/Medium/High
+In `src/components/sports/PredictionCard.tsx`, change the risk warning text from "Low Risk / Medium Risk / High Risk" to just **"Risk"**, with neutral muted color (no green/red/yellow).
 
-2. Render the formatted time as a subtle line directly under the title (`p.title`), using muted foreground + mono font to match existing typography:
-   ```
-   <p className="text-[10px] text-muted-foreground font-mono flex items-center gap-1">
-     <Clock className="w-3 h-3" /> {formatMatchTime(matchTime)}
-   </p>
-   ```
+New line will read:
+> ⚠ Risk — Betting involves financial risk. Never bet more than you can afford to lose.
 
-3. The existing status badge (countdown / LIVE / Awaiting result) remains unchanged in the top-right corner. So users now see both:
-   - **When** the match starts (always visible, under the title)
-   - **Current state** (badge in header)
+This avoids implying any bet is "safe" — protects against objections.
 
-## Out of scope
-- No changes to `Sports.tsx`, top-up logic, or DB.
-- No timezone selector — uses the browser locale.
+### 2. Time display — keep auto local time (browser timezone)
+Already implemented in last turn. Each visitor sees the match start time in their own local timezone (e.g. user in Dhaka sees BST, user in London sees GMT/BST). No code change needed for this.
+
+### 3. "Yesterday · Awaiting result" behavior
+This is **correct, not a bug**: the match in the screenshot was scheduled Yesterday 20:00, started >3h ago, and admin hasn't entered the result yet. So "Awaiting result" is accurate. The card properly shows:
+- When it was scheduled: `Yesterday · 20:00`
+- Current state: `Awaiting result`
+
+No change needed. Once you enter the result in `/admin/sports`, the badge will switch to "CORRECT" or "WRONG" automatically.
 
 ## Files
-- `src/components/sports/PredictionCard.tsx` (edit)
+- `src/components/sports/PredictionCard.tsx` (edit risk label only)
