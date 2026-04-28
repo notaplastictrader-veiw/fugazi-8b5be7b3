@@ -27,6 +27,7 @@ export interface AIPrediction {
   prediction: string;
   market: string;
   odds: string | null;
+  isLive?: boolean;
 }
 
 interface SportsPayload {
