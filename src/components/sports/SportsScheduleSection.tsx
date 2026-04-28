@@ -105,7 +105,7 @@ function matchPrediction(result: ResultMatch, predictions: PredictionRow[]): "wo
   return "lost";
 }
 
-const UpcomingCard = ({ m, now, pick, odds }: { m: UpcomingMatch; now: number; pick?: string | null; odds?: string | null }) => {
+const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
   const { day, time } = formatMatchDate(m.date);
   const isLive = m.status === "Live";
   const countdown = formatCountdown(m.date, now);
@@ -140,21 +140,6 @@ const UpcomingCard = ({ m, now, pick, odds }: { m: UpcomingMatch; now: number; p
         <p className="text-[10px] text-muted-foreground font-mono">vs</p>
         <p className="text-base font-semibold text-foreground truncate">{m.awayTeam}</p>
       </div>
-      {pick && (
-        <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 mb-3">
-          <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase text-muted-foreground">
-              <Sparkles className="w-3 h-3 text-primary" /> Our Pick
-            </span>
-            <span className="text-xs font-bold text-primary tabular-nums">{pick}</span>
-          </div>
-          {odds && (
-            <p className="text-[9px] font-mono text-muted-foreground mt-1 truncate" title={odds}>
-              {odds}
-            </p>
-          )}
-        </div>
-      )}
       <div className="flex items-center justify-between pt-3 border-t border-border/40 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5"><Calendar className="w-3 h-3" />{day}</span>
         <span className="inline-flex items-center gap-1.5"><Clock className="w-3 h-3" />{time || m.time || "TBD"}</span>
