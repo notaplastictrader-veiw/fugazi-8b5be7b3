@@ -1,6 +1,5 @@
-// SofaSport (RapidAPI) sports schedule + results aggregator
-// Replaces TheSportsDB which only returned demo data on the free key.
-// 5-min TTL cache + 24h stale-while-error fallback in site_settings.
+// SofaSport (RapidAPI) sports schedule + results aggregator — BASIC tier friendly.
+// Sequential calls + 250ms gap, drops /inverse to stay under rate limit. 15-min TTL.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -13,7 +12,6 @@ const corsHeaders = {
 const RAPIDAPI_HOST = "sportapi7.p.rapidapi.com";
 const BASE = `https://${RAPIDAPI_HOST}/api/v1/sport`;
 
-// SofaSport sport slugs we want to surface on /sports
 const SPORTS = [
   { slug: "football", display: "Football" },
   { slug: "cricket", display: "Cricket" },
@@ -22,9 +20,10 @@ const SPORTS = [
 
 const CACHE_KEY = "sports_cache";
 const LAST_GOOD_KEY = "sports_cache_last_good";
-const CACHE_TTL_MS = 5 * 60_000; // 5 minutes
-const STALE_MAX_MS = 24 * 60 * 60_000; // 24 hours
-const PER_SPORT_LIMIT = 20; // cap per sport per bucket to keep payload sane
+const CACHE_TTL_MS = 15 * 60_000; // 15 minutes — BASIC tier daily cap is small
+const STALE_MAX_MS = 24 * 60 * 60_000;
+const PER_SPORT_LIMIT = 25;
+const REQUEST_GAP_MS = 300; // gap between upstream calls
 
 interface UpcomingMatch {
   id: string;
@@ -49,6 +48,8 @@ interface Payload {
   liveAvailable: boolean;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -63,7 +64,6 @@ function mapStatus(statusType: string | undefined): string {
     case "canceled":
     case "cancelled":
       return "Postponed";
-    case "notstarted":
     default:
       return "Scheduled";
   }
@@ -77,9 +77,7 @@ function tsToIso(ts: number | undefined): string {
 function tsToShortTime(ts: number | undefined): string {
   if (!ts || !Number.isFinite(ts)) return "";
   const d = new Date(ts * 1000);
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const mm = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
 interface SofaEvent {
@@ -96,33 +94,29 @@ interface SofaEvent {
 interface FetchResult {
   events: SofaEvent[];
   ok: boolean;
-  notSubscribed: boolean;
 }
 
-async function callSofa(
-  apiKey: string,
-  path: string,
-): Promise<FetchResult> {
-  const url = `${BASE}/${path}`;
+async function callSofa(apiKey: string, path: string): Promise<FetchResult> {
   try {
-    const res = await fetch(url, {
+    const res = await fetch(`${BASE}/${path}`, {
       headers: {
         "x-rapidapi-host": RAPIDAPI_HOST,
         "x-rapidapi-key": apiKey,
       },
     });
     if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      const notSub = res.status === 403 || /not subscribed/i.test(txt);
-      console.warn(`[get-sports-data] ${path} → HTTP ${res.status}${notSub ? " (not subscribed)" : ""}`);
-      return { events: [], ok: false, notSubscribed: notSub };
+      // Swallow 403/429 silently — BASIC tier limitations
+      if (res.status !== 403 && res.status !== 429) {
+        console.warn(`[get-sports-data] ${path} → HTTP ${res.status}`);
+      }
+      await res.text().catch(() => "");
+      return { events: [], ok: false };
     }
     const json = await res.json();
-    const events: SofaEvent[] = Array.isArray(json?.events) ? json.events : [];
-    return { events, ok: true, notSubscribed: false };
+    return { events: Array.isArray(json?.events) ? json.events : [], ok: true };
   } catch (e) {
     console.warn(`[get-sports-data] fetch failed ${path}:`, e);
-    return { events: [], ok: false, notSubscribed: false };
+    return { events: [], ok: false };
   }
 }
 
@@ -145,28 +139,23 @@ function mapEvent(ev: SofaEvent, sportDisplay: string): UpcomingMatch {
 
 async function buildPayload(apiKey: string): Promise<Payload> {
   const today = todayUtc();
-
-  // For each sport: live + scheduled today + scheduled today/inverse (yesterday's results)
-  const tasks = SPORTS.flatMap((sp) => [
-    callSofa(apiKey, `${sp.slug}/events/live`).then((r) => ({ sp, kind: "live" as const, r })),
-    callSofa(apiKey, `${sp.slug}/scheduled-events/${today}`).then((r) => ({ sp, kind: "today" as const, r })),
-    callSofa(apiKey, `${sp.slug}/scheduled-events/${today}/inverse`).then((r) => ({ sp, kind: "inverse" as const, r })),
-  ]);
-
-  const results = await Promise.all(tasks);
-
-  let liveAvailable = false;
   const upcoming: UpcomingMatch[] = [];
   const finished: ResultMatch[] = [];
+  let liveAvailable = false;
 
-  for (const { sp, kind, r } of results) {
-    if (kind === "live" && r.ok && r.events.length > 0) liveAvailable = true;
+  // Sequential to respect BASIC tier rate limit. 6 calls total (3 sports × 2 endpoints).
+  for (const sp of SPORTS) {
+    const live = await callSofa(apiKey, `${sp.slug}/events/live`);
+    if (live.ok && live.events.length > 0) liveAvailable = true;
+    for (const ev of live.events.slice(0, PER_SPORT_LIMIT)) {
+      upcoming.push(mapEvent(ev, sp.display));
+    }
+    await sleep(REQUEST_GAP_MS);
 
-    const slice = r.events.slice(0, PER_SPORT_LIMIT);
-    for (const ev of slice) {
+    const today_ = await callSofa(apiKey, `${sp.slug}/scheduled-events/${today}`);
+    for (const ev of today_.events.slice(0, PER_SPORT_LIMIT)) {
       const base = mapEvent(ev, sp.display);
-      const isFinished = base.status === "Finished";
-      if (isFinished) {
+      if (base.status === "Finished") {
         const hs = ev.homeScore?.current ?? ev.homeScore?.display;
         const as = ev.awayScore?.current ?? ev.awayScore?.display;
         finished.push({
@@ -175,28 +164,20 @@ async function buildPayload(apiKey: string): Promise<Payload> {
           awayScore: typeof as === "number" ? as : null,
         });
       } else {
-        // Live + Scheduled both go into "upcoming" so users see them in one stream
         upcoming.push(base);
       }
     }
+    await sleep(REQUEST_GAP_MS);
   }
 
-  // Dedupe by id (live + today often overlap)
   const dedupe = <T extends { id: string }>(arr: T[]) => {
     const seen = new Set<string>();
     return arr.filter((x) => (seen.has(x.id) ? false : (seen.add(x.id), true)));
   };
 
-  const upcomingDeduped = dedupe(upcoming).sort(
-    (a, b) => +new Date(a.date) - +new Date(b.date),
-  );
-  const finishedDeduped = dedupe(finished).sort(
-    (a, b) => +new Date(b.date) - +new Date(a.date),
-  );
-
   return {
-    upcoming: upcomingDeduped,
-    results: finishedDeduped,
+    upcoming: dedupe(upcoming).sort((a, b) => +new Date(a.date) - +new Date(b.date)),
+    results: dedupe(finished).sort((a, b) => +new Date(b.date) - +new Date(a.date)),
     fetchedAt: Date.now(),
     liveAvailable,
   };
@@ -215,7 +196,6 @@ Deno.serve(async (req) => {
   });
 
   if (!apiKey) {
-    console.error("[get-sports-data] RAPIDAPI_SPORTS_KEY not configured");
     return new Response(
       JSON.stringify({
         upcoming: [],
@@ -230,7 +210,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1) TTL cache
     const { data: cached } = await admin
       .from("site_settings")
       .select("value, updated_at")
@@ -247,7 +226,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 2) Fresh fetch
     const payload = await buildPayload(apiKey);
     const hasData = payload.upcoming.length > 0 || payload.results.length > 0;
 
@@ -268,7 +246,7 @@ Deno.serve(async (req) => {
 
     throw new Error("upstream_empty");
   } catch (err) {
-    console.warn("[get-sports-data] live fetch failed, using last-good:", err);
+    console.warn("[get-sports-data] using last-good:", err);
     const { data: lastGood } = await admin
       .from("site_settings")
       .select("value, updated_at")
