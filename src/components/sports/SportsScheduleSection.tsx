@@ -417,7 +417,10 @@ const SportsScheduleSection = () => {
             </h3>
             {filteredUpcoming.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredUpcoming.map((m) => <UpcomingCard key={m.id} m={m} now={now} />)}
+                {filteredUpcoming.map((m) => {
+                  const p = pickByMatch.get(m.id);
+                  return <UpcomingCard key={m.id} m={m} now={now} pick={p?.pick} odds={p?.odds} />;
+                })}
               </div>
             ) : (
               <div className="glass-card rounded-2xl p-8 text-center text-sm text-muted-foreground">
