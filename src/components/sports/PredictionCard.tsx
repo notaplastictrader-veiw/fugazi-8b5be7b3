@@ -31,11 +31,7 @@ const getRoiPotential = (confidence: number) => {
   return { label: "LOW ROI", color: "bg-muted text-muted-foreground" };
 };
 
-const getRiskLevel = (confidence: number) => {
-  if (confidence >= 75) return { label: "Low Risk", color: "text-primary" };
-  if (confidence >= 55) return { label: "Medium Risk", color: "text-accent" };
-  return { label: "High Risk", color: "text-destructive" };
-};
+const getRiskLevel = (_confidence: number) => ({ label: "Risk", color: "text-muted-foreground" });
 
 const MARKET_LABELS: Record<string, string> = {
   "1": "Home Win",
