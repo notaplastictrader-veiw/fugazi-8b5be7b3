@@ -213,6 +213,8 @@ const SportsScheduleSection = () => {
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
   const [now, setNow] = useState(() => Date.now());
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
+  const [showAllResults, setShowAllResults] = useState(false);
 
   // Tick every second so countdowns and "X min ago" stay fresh
   useEffect(() => {
