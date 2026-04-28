@@ -282,7 +282,7 @@ async function fetchPredictions(apiKey: string): Promise<AIPrediction[]> {
       awayTeam: p.away_team || p.awayTeam || "TBD",
       competition: p.competition_name || p.competition || "—",
       federation: p.federation || "UEFA",
-      date: p.start_date || p.iso_date || new Date().toISOString(),
+      date: toUtcIso(p.start_date || p.iso_date),
       prediction: p.prediction || p.predicted_outcome || "—",
       market: p.market || "classic",
       odds: formatOdds(p.odds),
