@@ -365,20 +365,25 @@ Deno.serve(async (req) => {
     );
   }
 
-  try {
-    const { data: cached } = await admin
-      .from("site_settings")
-      .select("value, updated_at")
-      .eq("key", CACHE_KEY)
-      .maybeSingle();
+  const url = new URL(req.url);
+  const forceRefresh = url.searchParams.get("refresh") === "1";
 
-    if (cached?.value && cached.updated_at) {
-      const age = Date.now() - new Date(cached.updated_at).getTime();
-      if (age < CACHE_TTL_MS) {
-        return new Response(
-          JSON.stringify({ ...(cached.value as Payload), stale: false, cached: true }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
+  try {
+    if (!forceRefresh) {
+      const { data: cached } = await admin
+        .from("site_settings")
+        .select("value, updated_at")
+        .eq("key", CACHE_KEY)
+        .maybeSingle();
+
+      if (cached?.value && cached.updated_at) {
+        const age = Date.now() - new Date(cached.updated_at).getTime();
+        if (age < CACHE_TTL_MS) {
+          return new Response(
+            JSON.stringify({ ...(cached.value as Payload), stale: false, cached: true }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
       }
     }
 
