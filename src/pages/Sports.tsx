@@ -126,7 +126,9 @@ const Sports = () => {
   const isBetting = activeFilter === "betting";
   const filtered = activeFilter === "all" ? allPredictions : allPredictions.filter((p) => p.sport === activeFilter);
 
-  const upcoming = filtered.filter((p) => !p.result);
+  const upcoming = filtered
+    .filter((p) => !p.result)
+    .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
   const past = filtered.filter((p) => !!p.result);
   const totalPast = predictions.filter((p) => p.is_correct !== null);
   const correct = totalPast.filter((p) => p.is_correct);
