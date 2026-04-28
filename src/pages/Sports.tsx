@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, RefreshCw } from "lucide-react";
+import { Trophy, Target, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
