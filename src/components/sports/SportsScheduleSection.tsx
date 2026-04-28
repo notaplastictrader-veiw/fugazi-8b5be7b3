@@ -254,7 +254,59 @@ const SportsScheduleSection = () => {
       return true;
     });
 
-  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
+  // Merge AI football predictions into the upcoming list
+  const { mergedUpcoming, pickByMatch } = useMemo(() => {
+    const pickMap = new Map<string, { pick: string; odds: string | null }>();
+    for (const p of aiPredictions) {
+      const key = predictionKey(p.homeTeam, p.awayTeam);
+      pickMap.set(key, { pick: p.prediction, odds: p.odds });
+    }
+
+    // Attach picks to existing upcoming fixtures (and consume them from the map)
+    const attached = new Map<string, { pick: string; odds: string | null }>();
+    for (const m of upcoming) {
+      const key = predictionKey(m.homeTeam, m.awayTeam);
+      const reverseKey = predictionKey(m.awayTeam, m.homeTeam);
+      const found = pickMap.get(key) || pickMap.get(reverseKey);
+      if (found) {
+        attached.set(m.id, found);
+        pickMap.delete(key);
+        pickMap.delete(reverseKey);
+      }
+    }
+
+    // Remaining predictions become standalone upcoming football fixtures
+    const standalone: UpcomingMatch[] = aiPredictions
+      .filter((p) => pickMap.has(predictionKey(p.homeTeam, p.awayTeam)))
+      .map((p) => {
+        const id = `pred-${p.id}`;
+        attached.set(id, { pick: p.prediction, odds: p.odds });
+        let timeStr = "";
+        try {
+          timeStr = new Date(p.date).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+        } catch { /* noop */ }
+        return {
+          id,
+          sport: "Football",
+          league: p.competition || "Football",
+          homeTeam: p.homeTeam,
+          awayTeam: p.awayTeam,
+          date: p.date,
+          time: timeStr,
+          status: "Scheduled",
+        } as UpcomingMatch;
+      });
+
+    const combined = [...upcoming, ...standalone].sort((a, b) => {
+      const ta = new Date(a.date).getTime();
+      const tb = new Date(b.date).getTime();
+      return (Number.isFinite(ta) ? ta : 0) - (Number.isFinite(tb) ? tb : 0);
+    });
+
+    return { mergedUpcoming: combined, pickByMatch: attached };
+  }, [upcoming, aiPredictions]);
+
+  const filteredUpcoming = useMemo(() => applyFilters(mergedUpcoming).slice(0, 12), [mergedUpcoming, filter, leagueFilter]);
   const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
 
   // Status pill: loading | cached | fresh
