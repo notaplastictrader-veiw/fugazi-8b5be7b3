@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, TrendingUp, AlertTriangle } from "lucide-react";
 
