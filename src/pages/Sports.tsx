@@ -13,7 +13,7 @@ import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
 import { isPopularMatch } from "@/lib/popularTeams";
 
-const POPULAR_LIMIT = 4;
+const POPULAR_LIMIT = 6;
 
 
 const FILTER_TABS = ["all", "football", "cricket", "tennis", "betting"] as const;
