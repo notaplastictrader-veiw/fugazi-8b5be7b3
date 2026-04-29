@@ -1,49 +1,48 @@
-## Goal
-Match times from the AI football API are unreliable (tz issues), so stop showing time/countdown on upcoming prediction cards. Only show a LIVE badge when we can confirm the match is actually live, and update settled results from a verifiable source.
+## Problem
+
+1. **Overlap**: The scrolling price track is a sibling of the LIVE chip but has no clip region of its own — when items translate left, they visually slide under/over the LIVE chip.
+2. **Wrong colors**: `+%` uses `text-primary` and `−%` uses `text-destructive`. These map to theme accents:
+   - Dark theme → primary is **lime** (ok-ish for up) / destructive is red (ok)
+   - Light theme → primary is **brown-orange** (not green!)
+   - Sentinel theme → primary is **red** AND destructive is **red** → both +% and −% appear red
+
+User wants: **+% always green, −% always red, in every theme.**
 
 ## Changes
 
-### 1. `src/components/sports/PredictionCard.tsx` — strip time/countdown UI
+### 1. Add theme-independent market tokens — `src/index.css`
 
-Remove all time-dependent UI from the card since we can't trust `match_date`:
+Add `--bull` (green) and `--bear` (red) HSL variables to all three theme blocks (`:root/[data-theme="dark"]`, `[data-theme="light"]`, `[data-theme="sentinel"]`). Slightly tuned per theme for contrast, but always green/red:
 
-- Remove the `formatMatchTime()` line under the title (line 167-169).
-- Remove the bottom date/time row (line 204-210), keeping only the result line for past picks:
-  ```tsx
-  {isPast && (
-    <div className="flex items-center justify-end text-[10px] text-muted-foreground">
-      <span className="font-semibold text-foreground">Result: {p.result}</span>
-    </div>
-  )}
-  ```
-- Remove the "STARTS IN", "in Xh Ym", "Awaiting result" badges (lines 148-162). These all depend on `match_date`.
-- Keep the LIVE badge (lines 143-147) **only if** the source actually flags the match as live. Since we can't verify timing, only show it when the API exposes a live status flag — otherwise hide it. (For now: drop the time-based `phase.kind === "live"` trigger; we'll add it back only when the data layer provides a real `isLive` signal.)
-- Remove the `useEffect`/`useState` ticker, `getPhase()`, `formatMatchTime()`, `MatchPhase`, `LIVE_WINDOW_MS` — all dead code after the above.
-- Keep: sport badge, ROI badge, CORRECT/WRONG badge, teams, pick, confidence, risk warning, analyst note.
+- Dark: `--bull: 142 70% 50%; --bear: 0 85% 60%;`
+- Light: `--bull: 142 65% 38%; --bear: 0 75% 45%;`
+- Sentinel: `--bull: 142 70% 48%; --bear: 0 85% 58%;`
 
-Net effect: upcoming cards show no date/time at all. Past cards show only the result.
+### 2. Register tokens in Tailwind — `tailwind.config.ts`
 
-### 2. `src/hooks/useSportsSchedule.ts` — pass through `isLive` if present
+Add to the `colors` block alongside `teal`/`coral`/`purple`:
+```ts
+bull: "hsl(var(--bull))",
+bear: "hsl(var(--bear))",
+```
+Enables `text-bull` / `text-bear` / `bg-bull` utilities.
 
-Add an optional `isLive?: boolean` to `AIPrediction` so future API integrations can flag it. No behavior change yet (the edge function doesn't currently emit it).
+### 3. Fix overlap + apply new colors — `src/components/sections/TickerBar.tsx`
 
-### 3. `src/pages/Sports.tsx` — propagate `isLive` into `Prediction`
+Wrap `.ticker-track` in a `<div className="flex-1 min-w-0 overflow-hidden">` so the scrolling row is clipped to its own region, preventing visual overlap with the LIVE chip. Swap `text-primary`/`text-destructive` for `text-bull`/`text-bear` on the change column.
 
-When mapping `aiPredictions` → `aiAsPredictions`, forward `isLive` as a new optional field on the Prediction type. Update `Prediction` interface in `PredictionCard.tsx` to include `isLive?: boolean`, and gate the LIVE badge on `p.isLive === true`.
+### 4. Same fix in `src/components/sections/BottomTicker.tsx`
 
-### 4. Update settled results
-
-Run a SELECT against `sports_predictions` where `result <> ''` ordered by `match_date desc` to list current settled picks, then cross-check finished scores from the football-prediction RapidAPI endpoint already used by `get-sports-data` (or a public source like flashscore/api-football free tier). For any mismatched `is_correct`, queue an UPDATE migration to correct them.
-
-This is a one-time data fix done after plan approval — not a code change.
-
-## Files
-- `src/components/sports/PredictionCard.tsx` — strip time UI, gate LIVE on real flag
-- `src/hooks/useSportsSchedule.ts` — add optional `isLive` field
-- `src/pages/Sports.tsx` — forward `isLive` in mapping
-- DB: targeted UPDATEs to `sports_predictions.is_correct` / `result` after verification
+Identical wrapper + color swap (this is the fixed bottom ticker — same bug).
 
 ## Notes
-- No more "Yesterday", "Awaiting result", or wrong countdowns.
-- LIVE badge stays dormant until the data source actually marks a match live — safer than guessing.
-- Cached payload clears in ~10 min or via the existing Refresh button.
+
+- LIVE chip color stays `text-primary` (it's a brand element, should follow theme).
+- Only the +%/−% change column moves to bull/bear. Pair name and price stay theme-driven.
+- Pure CSS/structural fix — no logic changes, no new dependencies.
+
+## Files
+- `src/index.css` — add `--bull` / `--bear` tokens to 3 theme blocks
+- `tailwind.config.ts` — register `bull` / `bear` color utilities
+- `src/components/sections/TickerBar.tsx` — wrap track in clip container, use `text-bull`/`text-bear`
+- `src/components/sections/BottomTicker.tsx` — same fix

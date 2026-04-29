@@ -31,6 +31,10 @@
     --coral: 14 100% 64%;
     --purple: 260 100% 72%;
 
+    /* Market direction — always green up / red down regardless of theme */
+    --bull: 142 70% 50%;
+    --bear: 0 85% 60%;
+
     --sidebar-background: 220 10% 5%;
     --sidebar-foreground: 220 8% 80%;
     --sidebar-primary: 73 75% 53%;
@@ -67,6 +71,9 @@
     --coral: 14 70% 50%;
     --purple: 260 50% 50%;
 
+    --bull: 142 65% 38%;
+    --bear: 0 75% 45%;
+
     --sidebar-background: 30 20% 88%;
     --sidebar-foreground: 25 25% 25%;
     --sidebar-primary: 28 60% 45%;
@@ -102,6 +109,9 @@
     --teal: 168 65% 46%;
     --coral: 14 100% 60%;
     --purple: 260 80% 65%;
+
+    --bull: 142 70% 48%;
+    --bear: 0 85% 58%;
 
     --sidebar-background: 200 30% 8%;
     --sidebar-foreground: 200 15% 75%;

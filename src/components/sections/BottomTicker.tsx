@@ -13,16 +13,18 @@ const BottomTicker = () => {
         </span>
         <span className="text-[10px] font-mono font-bold tracking-wider text-primary">LIVE</span>
       </div>
-      <div className="ticker-track">
-        {items.map((item, i) => (
-          <span key={i} className="flex-shrink-0 flex items-center gap-2 text-[10px] font-mono">
-            <span className="text-muted-foreground">{item.pair}</span>
-            <span className="text-foreground">{item.price}</span>
-            <span className={item.up ? "text-primary" : "text-destructive"}>
-              {item.change}
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="ticker-track">
+          {items.map((item, i) => (
+            <span key={i} className="flex-shrink-0 flex items-center gap-2 text-[10px] font-mono">
+              <span className="text-muted-foreground">{item.pair}</span>
+              <span className="text-foreground">{item.price}</span>
+              <span className={item.up ? "text-bull" : "text-bear"}>
+                {item.change}
+              </span>
             </span>
-          </span>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

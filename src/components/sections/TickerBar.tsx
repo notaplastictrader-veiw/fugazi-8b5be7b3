@@ -14,16 +14,18 @@ const TickerBar = () => {
         </span>
         <span className="text-[10px] font-mono font-bold tracking-wider text-primary">LIVE</span>
       </div>
-      <div className="ticker-track">
-        {items.map((item, i) => (
-          <div key={i} className="flex-shrink-0 flex items-center gap-2 text-[11px] font-mono">
-            <span className="text-muted-foreground font-bold">{item.pair}</span>
-            <span className="text-foreground">{item.price}</span>
-            <span className={item.up ? "text-primary" : "text-destructive"}>
-              {item.change}
-            </span>
-          </div>
-        ))}
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="ticker-track">
+          {items.map((item, i) => (
+            <div key={i} className="flex-shrink-0 flex items-center gap-2 text-[11px] font-mono">
+              <span className="text-muted-foreground font-bold">{item.pair}</span>
+              <span className="text-foreground">{item.price}</span>
+              <span className={item.up ? "text-bull" : "text-bear"}>
+                {item.change}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
