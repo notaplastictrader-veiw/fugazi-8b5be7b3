@@ -274,7 +274,7 @@ const SportsScheduleSection = () => {
       { value: "soonest", label: "Soonest", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
       { value: "latest", label: "Latest", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
     ],
-    pageSize: 12,
+    pageSize: 6,
     paramPrefix: "ups",
   });
 
@@ -285,7 +285,7 @@ const SportsScheduleSection = () => {
       { value: "latest", label: "Most recent", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
       { value: "oldest", label: "Oldest first", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
     ],
-    pageSize: 12,
+    pageSize: 6,
     paramPrefix: "res",
   });
 
