@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, RefreshCw, Trophy, Radio, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, RefreshCw, Trophy, Radio, Clock } from "lucide-react";
 import { isPopularMatch } from "@/lib/popularTeams";
-
-const POPULAR_LIMIT = 6;
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
@@ -213,8 +215,6 @@ const SportsScheduleSection = () => {
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
   const [now, setNow] = useState(() => Date.now());
-  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
-  const [showAllResults, setShowAllResults] = useState(false);
 
   // Tick every second so countdowns and "X min ago" stay fresh
   useEffect(() => {
@@ -240,20 +240,40 @@ const SportsScheduleSection = () => {
       return true;
     });
 
-  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
-  const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
+  // Popular-first ordering as the default list (no slice — show everything,
+  // pagination takes over from here).
+  const orderPopularFirst = <T extends UpcomingMatch>(list: T[]): T[] => {
+    const pop = list.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
+    const ids = new Set(pop.map((m) => m.id));
+    return [...pop, ...list.filter((m) => !ids.has(m.id))];
+  };
 
-  // Popular-team subsets (fallback to first N if filter empties)
-  const upcomingPopular = useMemo(() => {
-    const pop = filteredUpcoming.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
-    return pop.length > 0 ? pop : filteredUpcoming;
-  }, [filteredUpcoming]);
-  const resultsPopular = useMemo(() => {
-    const pop = filteredResults.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
-    return pop.length > 0 ? pop : filteredResults;
-  }, [filteredResults]);
-  const upcomingVisible = showAllUpcoming ? filteredUpcoming : upcomingPopular.slice(0, POPULAR_LIMIT);
-  const resultsVisible = showAllResults ? filteredResults : resultsPopular.slice(0, POPULAR_LIMIT);
+  const filteredUpcoming = useMemo(() => orderPopularFirst(applyFilters(upcoming)), [upcoming, filter, leagueFilter]);
+  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(results)), [results, filter, leagueFilter]);
+  const upcomingHasPopular = useMemo(() => filteredUpcoming.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredUpcoming]);
+  const resultsHasPopular = useMemo(() => filteredResults.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredResults]);
+
+  const upcomingList = usePaginatedList(filteredUpcoming, {
+    searchKeys: ["homeTeam", "awayTeam", "league"],
+    sortOptions: [
+      { value: "default", label: "Popular first", compare: () => 0 },
+      { value: "soonest", label: "Soonest", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
+      { value: "latest", label: "Latest", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
+    ],
+    pageSize: 12,
+    paramPrefix: "ups",
+  });
+
+  const resultsList = usePaginatedList(filteredResults, {
+    searchKeys: ["homeTeam", "awayTeam", "league"],
+    sortOptions: [
+      { value: "default", label: "Popular first", compare: () => 0 },
+      { value: "latest", label: "Most recent", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
+      { value: "oldest", label: "Oldest first", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
+    ],
+    pageSize: 12,
+    paramPrefix: "res",
+  });
 
   // Status pill: loading | cached | fresh
   const statusPill = (() => {
@@ -360,36 +380,41 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Radio className="w-4 h-4 text-destructive" /> Upcoming Matches
               <span className="text-[10px] text-muted-foreground font-mono">({filteredUpcoming.length})</span>
-              {!showAllUpcoming && upcomingPopular.length < filteredUpcoming.length && (
-                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              {upcomingList.sort === "default" && !upcomingList.query && upcomingHasPopular && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular First</span>
               )}
             </h3>
             {filteredUpcoming.length > 0 ? (
               <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {upcomingVisible.map((m) => (
-                    <UpcomingCard key={m.id} m={m} now={now} />
-                  ))}
-                </div>
-                {filteredUpcoming.length > upcomingVisible.length && !showAllUpcoming && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllUpcoming(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
-                    >
-                      View all ({filteredUpcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllUpcoming && filteredUpcoming.length > POPULAR_LIMIT && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllUpcoming(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <ListingToolbar
+                  query={upcomingList.query}
+                  onQueryChange={upcomingList.setQuery}
+                  sort={upcomingList.sort}
+                  onSortChange={upcomingList.setSort}
+                  sortOptions={upcomingList.sortOptions}
+                  rangeStart={upcomingList.rangeStart}
+                  rangeEnd={upcomingList.rangeEnd}
+                  totalFiltered={upcomingList.totalFiltered}
+                  totalAll={upcomingList.totalAll}
+                  itemLabel="matches"
+                  searchPlaceholder="Search teams or league..."
+                />
+                {upcomingList.totalFiltered === 0 ? (
+                  <EmptyResults query={upcomingList.query} onReset={upcomingList.reset} />
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {upcomingList.visibleItems.map((m) => (
+                        <UpcomingCard key={m.id} m={m} now={now} />
+                      ))}
+                    </div>
+                    <SmartPagination
+                      page={upcomingList.page}
+                      totalPages={upcomingList.totalPages}
+                      onPageChange={upcomingList.setPage}
+                      className="mt-6"
+                    />
+                  </>
                 )}
               </>
             ) : (
@@ -404,36 +429,41 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Trophy className="w-4 h-4 text-primary" /> Latest Results
               <span className="text-[10px] text-muted-foreground font-mono">({filteredResults.length})</span>
-              {!showAllResults && resultsPopular.length < filteredResults.length && (
-                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              {resultsList.sort === "default" && !resultsList.query && resultsHasPopular && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular First</span>
               )}
             </h3>
             {filteredResults.length > 0 ? (
               <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {resultsVisible.map((m) => (
-                    <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
-                  ))}
-                </div>
-                {filteredResults.length > resultsVisible.length && !showAllResults && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllResults(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
-                    >
-                      View all ({filteredResults.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllResults && filteredResults.length > POPULAR_LIMIT && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllResults(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <ListingToolbar
+                  query={resultsList.query}
+                  onQueryChange={resultsList.setQuery}
+                  sort={resultsList.sort}
+                  onSortChange={resultsList.setSort}
+                  sortOptions={resultsList.sortOptions}
+                  rangeStart={resultsList.rangeStart}
+                  rangeEnd={resultsList.rangeEnd}
+                  totalFiltered={resultsList.totalFiltered}
+                  totalAll={resultsList.totalAll}
+                  itemLabel="results"
+                  searchPlaceholder="Search teams or league..."
+                />
+                {resultsList.totalFiltered === 0 ? (
+                  <EmptyResults query={resultsList.query} onReset={resultsList.reset} />
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {resultsList.visibleItems.map((m) => (
+                        <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
+                      ))}
+                    </div>
+                    <SmartPagination
+                      page={resultsList.page}
+                      totalPages={resultsList.totalPages}
+                      onPageChange={resultsList.setPage}
+                      className="mt-6"
+                    />
+                  </>
                 )}
               </>
             ) : (
