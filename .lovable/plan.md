@@ -1,48 +1,49 @@
-## Problem
+## Goal
 
-1. **Overlap**: The scrolling price track is a sibling of the LIVE chip but has no clip region of its own — when items translate left, they visually slide under/over the LIVE chip.
-2. **Wrong colors**: `+%` uses `text-primary` and `−%` uses `text-destructive`. These map to theme accents:
-   - Dark theme → primary is **lime** (ok-ish for up) / destructive is red (ok)
-   - Light theme → primary is **brown-orange** (not green!)
-   - Sentinel theme → primary is **red** AND destructive is **red** → both +% and −% appear red
-
-User wants: **+% always green, −% always red, in every theme.**
+Make the **Settled / Correct / Win Rate** stats on `/sports` actually move. Auto-settle returns 0 because the upstream RapidAPI feed doesn't cover the obscure leagues we're snapshotting (Kazakhstan, Israel, Estonia, etc.). Solution: give admin a fast manual settle UI, and improve auto-settle as a bonus.
 
 ## Changes
 
-### 1. Add theme-independent market tokens — `src/index.css`
+### 1. `src/pages/admin/SportsAdmin.tsx` — Manual settle controls
 
-Add `--bull` (green) and `--bear` (red) HSL variables to all three theme blocks (`:root/[data-theme="dark"]`, `[data-theme="light"]`, `[data-theme="sentinel"]`). Slightly tuned per theme for contrast, but always green/red:
+For each row whose `match_date` is in the past AND `is_correct` is null, show inline controls in the table:
 
-- Dark: `--bull: 142 70% 50%; --bear: 0 85% 60%;`
-- Light: `--bull: 142 65% 38%; --bear: 0 75% 45%;`
-- Sentinel: `--bull: 142 70% 48%; --bear: 0 85% 58%;`
+- **Score input** (e.g. `2-1`) — small text field, 60px wide
+- **Win** button (green) → sets `is_correct = true`, `result = score`
+- **Loss** button (red) → sets `is_correct = false`, `result = score`
+- **Void** button (gray) → sets `is_correct = null`, `result = "VOID"` (excluded from win rate since `is_correct` stays null)
+- **Reset** button (only shown for already-settled rows) → clears `result` + `is_correct`
 
-### 2. Register tokens in Tailwind — `tailwind.config.ts`
+For rows already settled, show a colored badge: ✅ WIN / ❌ LOSS / ⊘ VOID with the score, plus the Reset button.
 
-Add to the `colors` block alongside `teal`/`coral`/`purple`:
-```ts
-bull: "hsl(var(--bull))",
-bear: "hsl(var(--bear))",
-```
-Enables `text-bull` / `text-bear` / `bg-bull` utilities.
+For future matches (match_date > now), show "—" (no controls).
 
-### 3. Fix overlap + apply new colors — `src/components/sections/TickerBar.tsx`
+All updates go through `supabase.from('sports_predictions').update(...)` with toast confirmation and table refresh.
 
-Wrap `.ticker-track` in a `<div className="flex-1 min-w-0 overflow-hidden">` so the scrolling row is clipped to its own region, preventing visual overlap with the LIVE chip. Swap `text-primary`/`text-destructive` for `text-bull`/`text-bear` on the change column.
+### 2. `supabase/functions/settle-sports-predictions/index.ts` — Better logging + 2nd endpoint
 
-### 4. Same fix in `src/components/sections/BottomTicker.tsx`
+- Add `console.log` for every unmatched row showing what the upstream API returned (so we can see the actual team-name format)
+- Add a 3rd fallback endpoint path `/football-get-all-matches-by-date?date=...` to try one more variant
+- No behavior change for matched rows — just better diagnostics for next time
 
-Identical wrapper + color swap (this is the fixed bottom ticker — same bug).
+### 3. `src/pages/Sports.tsx` — Stat copy tweak
 
-## Notes
+Current bottom text: `"51 picks still pending — win rate updates as matches settle."`
 
-- LIVE chip color stays `text-primary` (it's a brand element, should follow theme).
-- Only the +%/−% change column moves to bull/bear. Pair name and price stay theme-driven.
-- Pure CSS/structural fix — no logic changes, no new dependencies.
+Change to: `"Stats update as admin settles past matches. Cron auto-settles when upstream data is available."` (so users understand it's not broken).
 
 ## Files
-- `src/index.css` — add `--bull` / `--bear` tokens to 3 theme blocks
-- `tailwind.config.ts` — register `bull` / `bear` color utilities
-- `src/components/sections/TickerBar.tsx` — wrap track in clip container, use `text-bull`/`text-bear`
-- `src/components/sections/BottomTicker.tsx` — same fix
+
+- `src/pages/admin/SportsAdmin.tsx` — add settle column + handlers
+- `supabase/functions/settle-sports-predictions/index.ts` — extra logging + fallback endpoint
+- `src/pages/Sports.tsx` — one-line copy change
+
+## Out of scope
+
+- No DB migration (table already has `result` + `is_correct` columns)
+- No new edge function
+- No changes to snapshot job or cron schedule
+
+## After deploy
+
+You go to `/admin/sports`, type a score, click Win/Loss for past matches → stats on `/sports` update instantly.
