@@ -9,6 +9,7 @@ import { I18nProvider } from "@/contexts/I18nContext";
 import CookieConsent from "@/components/CookieConsent";
 import LiveChatButton from "@/components/LiveChatButton";
 import SearchPalette from "@/components/search/SearchPalette";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import { useReferralTracking } from "@/hooks/useReferralTracking";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -147,6 +148,7 @@ const AppContent = () => {
 
   return (
     <>
+      <AnalyticsTracker />
       <CookieConsent />
       <LiveChatButton />
       <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} initialQuery={searchQuery} />
