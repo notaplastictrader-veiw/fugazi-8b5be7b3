@@ -205,12 +205,15 @@ Deno.serve(async (req) => {
   for (const [date, rows] of byDate) {
     const finished = await fetchFinishedMatches(apiKey, date);
     if (!finished.length) {
+      console.log(`[settle] ${date}: upstream returned 0 finished matches for ${rows.length} pending picks`);
       unmatched += rows.length;
       continue;
     }
+    console.log(`[settle] ${date}: upstream returned ${finished.length} finished matches; trying to match ${rows.length} picks`);
     for (const row of rows) {
       const match = finished.find((f) => teamsMatch(row.team_a, row.team_b, f.home, f.away));
       if (!match) {
+        console.log(`[settle] UNMATCHED: "${row.team_a} vs ${row.team_b}" — upstream had: ${finished.slice(0, 5).map(f => `"${f.home} vs ${f.away}"`).join(", ")}${finished.length > 5 ? ` +${finished.length - 5} more` : ""}`);
         unmatched++;
         continue;
       }
