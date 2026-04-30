@@ -110,7 +110,7 @@ const Education = () => {
           {tracks.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTrack(t.id)}
+              onClick={() => { setActiveTrack(t.id); setPage(1); }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
                 activeTrack === t.id
                   ? "bg-primary text-primary-foreground"
