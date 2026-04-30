@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calendar, RefreshCw, Trophy, Radio, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, RefreshCw, Trophy, Radio, Clock } from "lucide-react";
 import { isPopularMatch } from "@/lib/popularTeams";
-
-const POPULAR_LIMIT = 6;
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useSportsSchedule, type ResultMatch, type UpcomingMatch } from "@/hooks/useSportsSchedule";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
