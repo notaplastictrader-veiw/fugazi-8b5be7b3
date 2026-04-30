@@ -63,7 +63,21 @@ const Education = () => {
     })();
   }, []);
 
-  const filteredLessons = articles.filter(a => a.track === activeTrack);
+  const trackLessons = articles.filter(a => a.track === activeTrack);
+
+  const {
+    visibleItems: visibleLessons, page, setPage, totalPages, totalFiltered, totalAll,
+    rangeStart, rangeEnd, query, setQuery, sort, setSort, sortOptions, reset,
+  } = usePaginatedList(trackLessons, {
+    searchKeys: ["title"],
+    sortOptions: [
+      { value: "default", label: "Recommended order", compare: () => 0 },
+      { value: "title-asc", label: "Title A–Z", compare: (a: any, b: any) => a.title.localeCompare(b.title) },
+      { value: "shortest", label: "Shortest read", compare: (a: any, b: any) => (a.readTime ?? 0) - (b.readTime ?? 0) },
+    ],
+    pageSize: 12,
+    paramPrefix: "lessons",
+  });
 
   return (
     <MainLayout>
