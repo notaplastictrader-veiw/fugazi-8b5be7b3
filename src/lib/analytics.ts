@@ -1,57 +1,70 @@
-// Google Analytics 4 (gtag.js) integration
-// Set VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX in your environment to enable.
+// Google Analytics 4 via react-ga4. Consent-gated: nothing loads until the
+// user explicitly accepts cookies (localStorage `cookie_consent === "accepted"`).
+import ReactGA from "react-ga4";
 
-declare global {
-  interface Window {
-    dataLayer: any[];
-    gtag: (...args: any[]) => void;
-  }
-}
-
-const MEASUREMENT_ID =
+export const MEASUREMENT_ID: string =
   (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined) ||
   (import.meta.env.GA_MEASUREMENT_ID as string | undefined) ||
   "G-4PD1ZKK0YD";
 
+export const GA_DEBUG: boolean =
+  (import.meta.env.VITE_GA_DEBUG as string | undefined) === "true";
+
+const CONSENT_KEY = "cookie_consent";
 let initialized = false;
 
-export const isGAEnabled = (): boolean => Boolean(MEASUREMENT_ID);
+const debug = (...args: unknown[]) => {
+  if (GA_DEBUG && typeof console !== "undefined") {
+    // eslint-disable-next-line no-console
+    console.log("[GA4]", ...args);
+  }
+};
 
-export function initGA(): void {
-  if (initialized || typeof window === "undefined" || !MEASUREMENT_ID) return;
-  initialized = true;
+export const hasConsent = (): boolean => {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
+};
 
-  // Inject gtag.js asynchronously
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
-  document.head.appendChild(script);
+export const isInitialized = (): boolean => initialized;
 
-  // Initialize dataLayer + gtag
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer.push(arguments);
-  };
-  window.gtag("js", new Date());
-  // Disable automatic page_view; we send them manually on route change
-  window.gtag("config", MEASUREMENT_ID, { send_page_view: false });
-}
+export const initGA = (): void => {
+  if (initialized) return;
+  if (typeof window === "undefined") return;
+  if (!MEASUREMENT_ID) return;
+  if (!hasConsent()) {
+    debug("init skipped — no consent");
+    return;
+  }
 
-export function trackPageView(path: string): void {
-  if (typeof window === "undefined" || !MEASUREMENT_ID || !window.gtag) return;
-  window.gtag("event", "page_view", {
-    page_path: path,
-    page_location: window.location.href,
-    page_title: document.title,
-    send_to: MEASUREMENT_ID,
+  ReactGA.initialize(MEASUREMENT_ID, {
+    gaOptions: { send_page_view: false },
+    testMode: false,
   });
-}
+  initialized = true;
+  debug("init", MEASUREMENT_ID);
+};
 
-export function trackEvent(
+export const trackPageView = (path: string): void => {
+  if (!initialized || !hasConsent()) return;
+  const title = typeof document !== "undefined" ? document.title : undefined;
+  ReactGA.send({ hitType: "pageview", page: path, title });
+  debug("pageview", path);
+};
+
+export const trackEvent = (
   eventName: string,
-  params: Record<string, any> = {}
-): void {
-  if (typeof window === "undefined" || !MEASUREMENT_ID || !window.gtag) return;
-  window.gtag("event", eventName, params);
-}
+  params: Record<string, unknown> = {}
+): void => {
+  if (!initialized || !hasConsent()) return;
+  ReactGA.event(eventName, params as Record<string, any>);
+  debug("event", eventName, params);
+};
+
+export const resetGA = (): void => {
+  initialized = false;
+  debug("reset");
+};
