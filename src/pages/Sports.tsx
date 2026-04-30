@@ -130,11 +130,33 @@ const Sports = () => {
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
 
-  // Popular-team subset first, then top up with the rest so we always fill POPULAR_LIMIT cards
+  // Popular-team subset first (default ordering)
   const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
   const popularIds = new Set(upcomingPopularAll.map((p) => p.id));
   const upcomingDefault = [...upcomingPopularAll, ...upcoming.filter((p) => !popularIds.has(p.id))];
-  const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
+
+  const upcomingList = usePaginatedList(upcomingDefault, {
+    searchKeys: ["team_a", "team_b", "title", "prediction"],
+    sortOptions: [
+      { value: "default", label: "Popular first", compare: () => 0 },
+      { value: "soonest", label: "Soonest", compare: (a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime() },
+      { value: "latest", label: "Latest", compare: (a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime() },
+      { value: "confidence", label: "Highest confidence", compare: (a, b) => b.confidence - a.confidence },
+    ],
+    pageSize: 12,
+    paramPrefix: "up",
+  });
+
+  const bettingList = usePaginatedList(bettingSites, {
+    searchKeys: ["name", "sports", "features", "license"],
+    sortOptions: [
+      { value: "featured", label: "Featured", compare: () => 0 },
+      { value: "rating-desc", label: "Top rated", compare: (a: any, b: any) => (b.rating || 0) - (a.rating || 0) },
+      { value: "name-asc", label: "Name A–Z", compare: (a: any, b: any) => String(a.name).localeCompare(String(b.name)) },
+    ],
+    pageSize: 12,
+    paramPrefix: "bs",
+  });
   const totalPicks = predictions.length;
   // Auto-display stats: settled = total picks, win rate seeded daily within 76-85% range.
   // Uses YYYY-MM-DD as a seed so the value is stable for the day but rotates each day.
