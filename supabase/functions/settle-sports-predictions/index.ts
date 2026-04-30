@@ -48,6 +48,7 @@ async function fetchFinishedMatches(apiKey: string, isoDate: string): Promise<Fi
   const candidates = [
     `/football-get-matches-by-date/?date=${isoDate}`,
     `/football-matches-by-date?date=${isoDate}`,
+    `/football-get-all-matches-by-date?date=${isoDate}`,
   ];
   for (const path of candidates) {
     const res = await fetch(`https://${FOOTBALL_HOST}${path}`, {
