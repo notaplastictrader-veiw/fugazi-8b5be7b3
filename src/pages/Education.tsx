@@ -9,6 +9,10 @@ import CoursePurchaseModal from "@/components/modals/CoursePurchaseModal";
 import type { Course } from "@/data/educationArticles";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 interface Track {
   id: string;
