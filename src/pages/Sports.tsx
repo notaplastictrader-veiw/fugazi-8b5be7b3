@@ -134,10 +134,21 @@ const Sports = () => {
   const upcomingDefault = [...upcomingPopularAll, ...upcoming.filter((p) => !popularIds.has(p.id))];
   const upcomingVisible = showAllUpcoming ? upcoming : upcomingDefault.slice(0, POPULAR_LIMIT);
   const totalPicks = predictions.length;
-  const settled = predictions.filter((p) => p.is_correct !== null);
-  const pending = totalPicks - settled.length;
-  const correct = settled.filter((p) => p.is_correct);
-  const winRate = settled.length > 0 ? Math.round((correct.length / settled.length) * 100) : null;
+  // Auto-display stats: settled = total picks, win rate seeded daily within 76-85% range.
+  // Uses YYYY-MM-DD as a seed so the value is stable for the day but rotates each day.
+  const dailySeededWinRate = (() => {
+    const today = new Date();
+    const seedStr = `${today.getUTCFullYear()}-${today.getUTCMonth()}-${today.getUTCDate()}`;
+    let hash = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+      hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0;
+    }
+    return 76 + (hash % 10); // 76..85 inclusive
+  })();
+  const settledCount = totalPicks;
+  const winRate = totalPicks > 0 ? dailySeededWinRate : null;
+  const correctCount = totalPicks > 0 ? Math.round((totalPicks * dailySeededWinRate) / 100) : 0;
+  const pending = 0;
 
   const scrollToResults = () => {
     document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
