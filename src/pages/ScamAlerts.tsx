@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
@@ -7,7 +6,12 @@ import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import ReportScamModal from "@/components/scam/ReportScamModal";
 import AuthModal from "@/components/modals/AuthModal";
-import { AlertTriangle, Search, Plus, ShieldAlert } from "lucide-react";
+import { AlertTriangle, Plus, ShieldAlert } from "lucide-react";
+import { Link } from "react-router-dom";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; created_at: string;
@@ -20,10 +24,11 @@ const fallbackAlerts: ScamAlert[] = [
   { id: "sa3", title: "CryptoEdge BD", description: "Account frozen, no response 30+ days — $3,800 unresolved.", severity: "medium", created_at: new Date(Date.now() - 12 * 86400000).toISOString() },
 ];
 
+const severityRank: Record<string, number> = { high: 3, medium: 2, low: 1 };
+
 const ScamAlerts = () => {
   const { user } = useAuth();
   const [alerts, setAlerts] = useState<ScamAlert[]>(fallbackAlerts);
-  const [search, setSearch] = useState("");
   const [reportOpen, setReportOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
@@ -35,7 +40,18 @@ const ScamAlerts = () => {
     fetch();
   }, []);
 
-  const filtered = alerts.filter(a => !search || a.title.toLowerCase().includes(search.toLowerCase()));
+  const {
+    visibleItems, page, setPage, totalPages, totalFiltered, totalAll,
+    rangeStart, rangeEnd, query, setQuery, sort, setSort, sortOptions, reset,
+  } = usePaginatedList(alerts, {
+    searchKeys: ["title", "description"],
+    sortOptions: [
+      { value: "newest", label: "Newest first", compare: (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime() },
+      { value: "severity-desc", label: "Most severe", compare: (a, b) => (severityRank[b.severity] ?? 0) - (severityRank[a.severity] ?? 0) },
+      { value: "title-asc", label: "Title A–Z", compare: (a, b) => a.title.localeCompare(b.title) },
+    ],
+    pageSize: 12,
+  });
 
   return (
     <MainLayout>
@@ -50,52 +66,64 @@ const ScamAlerts = () => {
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">
             Scam <span className="text-destructive">Alerts</span>
           </h1>
-          <p className="text-sm text-muted-foreground mb-8 max-w-2xl">All verified scam alerts issued by our team and community. Stay safe.</p>
+          <p className="text-sm text-muted-foreground mb-6 max-w-2xl">All verified scam alerts issued by our team and community. Stay safe.</p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search alerts..." className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-destructive/40" />
-            </div>
+          <div className="flex justify-end mb-4">
             <Button onClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-2">
               <Plus className="w-4 h-4" /> Report a Scam
             </Button>
           </div>
 
+          <ListingToolbar
+            query={query}
+            onQueryChange={setQuery}
+            sort={sort}
+            onSortChange={setSort}
+            sortOptions={sortOptions}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            totalFiltered={totalFiltered}
+            totalAll={totalAll}
+            itemLabel="alerts"
+            searchPlaceholder="Search scam alerts..."
+          />
 
-
-          <div className="space-y-4">
-            {filtered.map(alert => {
-              const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
-              return (
-                <Link to={`/scam-alerts/${alert.id}`} key={alert.id} className="block glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors cursor-pointer">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1"><AlertTriangle className="w-5 h-5 text-destructive" /></div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-base font-bold text-foreground">{alert.title}</h3>
-                          {alert.is_repeat_offender && (
-                            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-destructive/15 text-destructive border border-destructive/40 flex items-center gap-1">
-                              <ShieldAlert className="w-2.5 h-2.5" /> Repeat
-                            </span>
-                          )}
+          {totalFiltered === 0 ? (
+            <EmptyResults query={query} onReset={reset} />
+          ) : (
+            <div className="space-y-4">
+              {visibleItems.map(alert => {
+                const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
+                return (
+                  <Link to={`/scam-alerts/${alert.id}`} key={alert.id} className="block glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors cursor-pointer">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1"><AlertTriangle className="w-5 h-5 text-destructive" /></div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-base font-bold text-foreground">{alert.title}</h3>
+                            {alert.is_repeat_offender && (
+                              <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-destructive/15 text-destructive border border-destructive/40 flex items-center gap-1">
+                                <ShieldAlert className="w-2.5 h-2.5" /> Repeat
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-mono text-muted-foreground">{daysAgo}d ago</span>
                         </div>
-                        <span className="text-[10px] font-mono text-muted-foreground">{daysAgo}d ago</span>
+                        <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                          alert.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-accent/10 text-accent border-accent/20"
+                        }`}>{alert.severity} severity</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{alert.description}</p>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                        alert.severity === "high" ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-accent/10 text-accent border-accent/20"
-                      }`}>{alert.severity} severity</span>
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-          {filtered.length === 0 && <p className="text-center text-muted-foreground py-12">No scam alerts found.</p>}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
         </div>
       </section>
       <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />

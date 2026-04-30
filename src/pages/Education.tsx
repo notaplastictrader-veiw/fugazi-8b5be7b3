@@ -9,6 +9,10 @@ import CoursePurchaseModal from "@/components/modals/CoursePurchaseModal";
 import type { Course } from "@/data/educationArticles";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 interface Track {
   id: string;
@@ -59,7 +63,21 @@ const Education = () => {
     })();
   }, []);
 
-  const filteredLessons = articles.filter(a => a.track === activeTrack);
+  const trackLessons = articles.filter(a => a.track === activeTrack);
+
+  const {
+    visibleItems: visibleLessons, page, setPage, totalPages, totalFiltered, totalAll,
+    rangeStart, rangeEnd, query, setQuery, sort, setSort, sortOptions, reset,
+  } = usePaginatedList(trackLessons, {
+    searchKeys: ["title"],
+    sortOptions: [
+      { value: "default", label: "Recommended order", compare: () => 0 },
+      { value: "title-asc", label: "Title A–Z", compare: (a: any, b: any) => a.title.localeCompare(b.title) },
+      { value: "shortest", label: "Shortest read", compare: (a: any, b: any) => (a.readTime ?? 0) - (b.readTime ?? 0) },
+    ],
+    pageSize: 12,
+    paramPrefix: "lessons",
+  });
 
   return (
     <MainLayout>
@@ -92,7 +110,7 @@ const Education = () => {
           {tracks.map((t) => (
             <button
               key={t.id}
-              onClick={() => setActiveTrack(t.id)}
+              onClick={() => { setActiveTrack(t.id); setPage(1); }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-colors ${
                 activeTrack === t.id
                   ? "bg-primary text-primary-foreground"
@@ -105,36 +123,57 @@ const Education = () => {
           ))}
         </div>
 
+        {/* Search + sort + result count for lessons */}
+        <ListingToolbar
+          query={query}
+          onQueryChange={setQuery}
+          sort={sort}
+          onSortChange={setSort}
+          sortOptions={sortOptions}
+          rangeStart={rangeStart}
+          rangeEnd={rangeEnd}
+          totalFiltered={totalFiltered}
+          totalAll={totalAll}
+          itemLabel="lessons"
+          searchPlaceholder="Search lessons..."
+        />
+
         {/* Lessons */}
-        <div className="space-y-3">
-          {filteredLessons.map((lesson, i) => (
-            <Link
-              key={lesson.slug}
-              to={lesson.isLocked ? "/education#courses" : `/education/${lesson.slug}`}
-              className="glass-card rounded-xl p-6 flex items-start gap-4 group hover:border-primary/20 transition-colors cursor-pointer block"
-            >
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
-                {i + 1}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors">
-                    {lesson.title}
-                  </h3>
-                  {lesson.isLocked ? (
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground" />
-                  ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary">FREE</span>
-                  )}
+        {totalFiltered === 0 ? (
+          <EmptyResults query={query} onReset={reset} message={query ? undefined : "No lessons in this track yet."} />
+        ) : (
+          <div className="space-y-3">
+            {visibleLessons.map((lesson: any, i: number) => (
+              <Link
+                key={lesson.slug}
+                to={lesson.isLocked ? "/education#courses" : `/education/${lesson.slug}`}
+                className="glass-card rounded-xl p-6 flex items-start gap-4 group hover:border-primary/20 transition-colors cursor-pointer block"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
+                  {rangeStart + i}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {lesson.sections[0]?.content?.replace(/<[^>]*>/g, "").slice(0, 120)}...
-                </p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
-            </Link>
-          ))}
-        </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-display font-bold text-foreground group-hover:text-primary transition-colors">
+                      {lesson.title}
+                    </h3>
+                    {lesson.isLocked ? (
+                      <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                    ) : (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/10 text-primary">FREE</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {lesson.sections[0]?.content?.replace(/<[^>]*>/g, "").slice(0, 120)}...
+                  </p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1" />
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-8" />
 
         {/* Get Notified — only show for logged-out users */}
         {!user && (
