@@ -11,7 +11,7 @@ declare global {
 const MEASUREMENT_ID =
   (import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined) ||
   (import.meta.env.GA_MEASUREMENT_ID as string | undefined) ||
-  "";
+  "G-4PD1ZKK0YD";
 
 let initialized = false;
 
