@@ -248,8 +248,22 @@ const SportsScheduleSection = () => {
     return [...pop, ...list.filter((m) => !ids.has(m.id))];
   };
 
+  const recentResults = useMemo(() => {
+    const startOfYesterday = (() => {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - 1);
+      return d.getTime();
+    })();
+    const nowMs = Date.now();
+    return results.filter((m) => {
+      const t = new Date(m.date).getTime();
+      return Number.isFinite(t) && t >= startOfYesterday && t <= nowMs + 60_000;
+    });
+  }, [results]);
+
   const filteredUpcoming = useMemo(() => orderPopularFirst(applyFilters(upcoming)), [upcoming, filter, leagueFilter]);
-  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(results)), [results, filter, leagueFilter]);
+  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(recentResults)), [recentResults, filter, leagueFilter]);
   const upcomingHasPopular = useMemo(() => filteredUpcoming.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredUpcoming]);
   const resultsHasPopular = useMemo(() => filteredResults.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredResults]);
 
@@ -260,7 +274,7 @@ const SportsScheduleSection = () => {
       { value: "soonest", label: "Soonest", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
       { value: "latest", label: "Latest", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
     ],
-    pageSize: 12,
+    pageSize: 6,
     paramPrefix: "ups",
   });
 
@@ -271,7 +285,7 @@ const SportsScheduleSection = () => {
       { value: "latest", label: "Most recent", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
       { value: "oldest", label: "Oldest first", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
     ],
-    pageSize: 12,
+    pageSize: 6,
     paramPrefix: "res",
   });
 
