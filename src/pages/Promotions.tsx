@@ -6,6 +6,10 @@ import { ExternalLink, Clock, Star, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fallbackPromos, promoTypes, PromotionDetail } from "@/data/promotionsData";
 import { supabase } from "@/integrations/supabase/client";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
@@ -50,9 +54,29 @@ const Promotions = () => {
     })();
   }, []);
 
-  const filtered = activeFilter === "all" ? promos : promos.filter((p) => p.promo_type === activeFilter);
-  const featured = filtered.filter((p) => p.is_featured);
-  const regular = filtered.filter((p) => !p.is_featured);
+  const categoryFiltered = activeFilter === "all" ? promos : promos.filter((p) => p.promo_type === activeFilter);
+
+  const {
+    visibleItems, page, setPage, totalPages, totalFiltered, totalAll,
+    rangeStart, rangeEnd, query, setQuery, sort, setSort, sortOptions, reset,
+  } = usePaginatedList(categoryFiltered, {
+    searchKeys: ["title", "description", "broker_name"],
+    sortOptions: [
+      { value: "featured-first", label: "Featured first", compare: (a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0) || new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime() },
+      { value: "newest", label: "Newest first", compare: (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime() },
+      {
+        value: "expiring",
+        label: "Expiring soon",
+        compare: (a, b) => {
+          const ax = a.expiry_date ? new Date(a.expiry_date).getTime() : Infinity;
+          const bx = b.expiry_date ? new Date(b.expiry_date).getTime() : Infinity;
+          return ax - bx;
+        },
+      },
+      { value: "title-asc", label: "Title A–Z", compare: (a, b) => a.title.localeCompare(b.title) },
+    ],
+    pageSize: 12,
+  });
 
   return (
     <MainLayout>
@@ -74,7 +98,7 @@ const Promotions = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 justify-center mb-10">
+        <div className="flex flex-wrap gap-2 justify-center mb-6">
           {promoTypes.map((t) => (
             <button
               key={t.value}
@@ -90,35 +114,31 @@ const Promotions = () => {
           ))}
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">No promotions found for this category.</div>
-        ) : (
-          <>
-            {featured.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
-                  <Star className="w-5 h-5 text-accent" /> Featured Offers
-                </h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {featured.map((p) => (
-                    <PromoCard key={p.id} promo={p} featured />
-                  ))}
-                </div>
-              </div>
-            )}
+        <ListingToolbar
+          query={query}
+          onQueryChange={setQuery}
+          sort={sort}
+          onSortChange={setSort}
+          sortOptions={sortOptions}
+          rangeStart={rangeStart}
+          rangeEnd={rangeEnd}
+          totalFiltered={totalFiltered}
+          totalAll={totalAll}
+          itemLabel="promotions"
+          searchPlaceholder="Search promotions by title or broker..."
+        />
 
-            {regular.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text-foreground mb-5">All Promotions</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {regular.map((p) => (
-                    <PromoCard key={p.id} promo={p} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
+        {totalFiltered === 0 ? (
+          <EmptyResults query={query} onReset={reset} message={query ? undefined : "No promotions found for this category."} />
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visibleItems.map((p) => (
+              <PromoCard key={p.id} promo={p} featured={p.is_featured} />
+            ))}
+          </div>
         )}
+
+        <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
       </section>
     </MainLayout>
   );
