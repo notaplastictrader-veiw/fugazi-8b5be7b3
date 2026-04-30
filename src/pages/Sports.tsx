@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Target, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { Trophy, Target, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
@@ -12,8 +12,10 @@ import { bettingSites as staticBettingSites } from "@/data/bettingSites";
 import { useSportsSchedule } from "@/hooks/useSportsSchedule";
 import type { Prediction } from "@/components/sports/PredictionCard";
 import { isPopularMatch } from "@/lib/popularTeams";
-
-const POPULAR_LIMIT = 6;
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
 
 
 const FILTER_TABS = ["all", "football", "cricket", "tennis", "betting"] as const;
