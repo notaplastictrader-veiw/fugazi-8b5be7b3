@@ -193,11 +193,11 @@ const Sports = () => {
               <p className="text-[10px] text-muted-foreground font-mono uppercase">Total Picks</p>
             </div>
             <div className="glass-card rounded-xl p-4 text-center">
-              <p className="text-2xl font-extrabold text-foreground">{settled.length}</p>
+              <p className="text-2xl font-extrabold text-foreground">{settledCount}</p>
               <p className="text-[10px] text-muted-foreground font-mono uppercase">Settled</p>
             </div>
             <div className="glass-card rounded-xl p-4 text-center">
-              <p className="text-2xl font-extrabold text-foreground">{correct.length}</p>
+              <p className="text-2xl font-extrabold text-foreground">{correctCount}</p>
               <p className="text-[10px] text-muted-foreground font-mono uppercase">Correct</p>
             </div>
             <div className="glass-card rounded-xl p-4 text-center">
