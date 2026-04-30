@@ -30,7 +30,7 @@ const Sports = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
-  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
+  
   
   const { refresh: refreshSchedule, aiPredictions } = useSportsSchedule();
 
