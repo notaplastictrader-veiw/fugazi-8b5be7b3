@@ -380,36 +380,41 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Radio className="w-4 h-4 text-destructive" /> Upcoming Matches
               <span className="text-[10px] text-muted-foreground font-mono">({filteredUpcoming.length})</span>
-              {!showAllUpcoming && upcomingPopular.length < filteredUpcoming.length && (
-                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              {upcomingList.sort === "default" && !upcomingList.query && upcomingHasPopular && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular First</span>
               )}
             </h3>
             {filteredUpcoming.length > 0 ? (
               <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {upcomingVisible.map((m) => (
-                    <UpcomingCard key={m.id} m={m} now={now} />
-                  ))}
-                </div>
-                {filteredUpcoming.length > upcomingVisible.length && !showAllUpcoming && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllUpcoming(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
-                    >
-                      View all ({filteredUpcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllUpcoming && filteredUpcoming.length > POPULAR_LIMIT && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllUpcoming(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <ListingToolbar
+                  query={upcomingList.query}
+                  onQueryChange={upcomingList.setQuery}
+                  sort={upcomingList.sort}
+                  onSortChange={upcomingList.setSort}
+                  sortOptions={upcomingList.sortOptions}
+                  rangeStart={upcomingList.rangeStart}
+                  rangeEnd={upcomingList.rangeEnd}
+                  totalFiltered={upcomingList.totalFiltered}
+                  totalAll={upcomingList.totalAll}
+                  itemLabel="matches"
+                  searchPlaceholder="Search teams or league..."
+                />
+                {upcomingList.totalFiltered === 0 ? (
+                  <EmptyResults query={upcomingList.query} onReset={upcomingList.reset} />
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {upcomingList.visibleItems.map((m) => (
+                        <UpcomingCard key={m.id} m={m} now={now} />
+                      ))}
+                    </div>
+                    <SmartPagination
+                      page={upcomingList.page}
+                      totalPages={upcomingList.totalPages}
+                      onPageChange={upcomingList.setPage}
+                      className="mt-6"
+                    />
+                  </>
                 )}
               </>
             ) : (
@@ -424,36 +429,41 @@ const SportsScheduleSection = () => {
             <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-5">
               <Trophy className="w-4 h-4 text-primary" /> Latest Results
               <span className="text-[10px] text-muted-foreground font-mono">({filteredResults.length})</span>
-              {!showAllResults && resultsPopular.length < filteredResults.length && (
-                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular</span>
+              {resultsList.sort === "default" && !resultsList.query && resultsHasPopular && (
+                <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">· Popular First</span>
               )}
             </h3>
             {filteredResults.length > 0 ? (
               <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {resultsVisible.map((m) => (
-                    <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
-                  ))}
-                </div>
-                {filteredResults.length > resultsVisible.length && !showAllResults && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllResults(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
-                    >
-                      View all ({filteredResults.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {showAllResults && filteredResults.length > POPULAR_LIMIT && (
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={() => setShowAllResults(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <ListingToolbar
+                  query={resultsList.query}
+                  onQueryChange={resultsList.setQuery}
+                  sort={resultsList.sort}
+                  onSortChange={resultsList.setSort}
+                  sortOptions={resultsList.sortOptions}
+                  rangeStart={resultsList.rangeStart}
+                  rangeEnd={resultsList.rangeEnd}
+                  totalFiltered={resultsList.totalFiltered}
+                  totalAll={resultsList.totalAll}
+                  itemLabel="results"
+                  searchPlaceholder="Search teams or league..."
+                />
+                {resultsList.totalFiltered === 0 ? (
+                  <EmptyResults query={resultsList.query} onReset={resultsList.reset} />
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {resultsList.visibleItems.map((m) => (
+                        <ResultCard key={m.id} m={m} verdict={matchPrediction(m, predictions)} />
+                      ))}
+                    </div>
+                    <SmartPagination
+                      page={resultsList.page}
+                      totalPages={resultsList.totalPages}
+                      onPageChange={resultsList.setPage}
+                      className="mt-6"
+                    />
+                  </>
                 )}
               </>
             ) : (
