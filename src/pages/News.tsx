@@ -96,9 +96,27 @@ const ArticleCard = ({ article }: { article: UnifiedArticle }) => {
   );
 };
 
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { ListingToolbar } from "@/components/common/ListingToolbar";
+import { SmartPagination } from "@/components/common/SmartPagination";
+import { EmptyResults } from "@/components/common/EmptyResults";
+
 const News = () => {
   const { articles: liveArticles, loading } = useForexNews();
   const allArticles: UnifiedArticle[] = liveArticles.map(liveToUnified);
+
+  const {
+    visibleItems, page, setPage, totalPages, totalFiltered, totalAll,
+    rangeStart, rangeEnd, query, setQuery, sort, setSort, sortOptions, reset,
+  } = usePaginatedList(allArticles, {
+    searchKeys: ["title", "excerpt", "source"],
+    sortOptions: [
+      { value: "newest", label: "Newest first", compare: (a, b) => b.timestamp - a.timestamp },
+      { value: "oldest", label: "Oldest first", compare: (a, b) => a.timestamp - b.timestamp },
+      { value: "source-asc", label: "Source A–Z", compare: (a, b) => a.source.localeCompare(b.source) },
+    ],
+    pageSize: 12,
+  });
 
   return (
     <MainLayout>
@@ -108,7 +126,7 @@ const News = () => {
         path="/news"
       />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
-        <div className="text-center mb-14">
+        <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--teal))] pulse-dot" />
             📰 LIVE NEWS
@@ -131,11 +149,31 @@ const News = () => {
             <p>No live news available right now. Check back in a few minutes.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allArticles.map((a) => (
-              <ArticleCard key={a.id} article={a} />
-            ))}
-          </div>
+          <>
+            <ListingToolbar
+              query={query}
+              onQueryChange={setQuery}
+              sort={sort}
+              onSortChange={setSort}
+              sortOptions={sortOptions}
+              rangeStart={rangeStart}
+              rangeEnd={rangeEnd}
+              totalFiltered={totalFiltered}
+              totalAll={totalAll}
+              itemLabel="articles"
+              searchPlaceholder="Search headlines, sources..."
+            />
+            {totalFiltered === 0 ? (
+              <EmptyResults query={query} onReset={reset} />
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleItems.map((a) => (
+                  <ArticleCard key={a.id} article={a} />
+                ))}
+              </div>
+            )}
+            <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+          </>
         )}
       </section>
     </MainLayout>
