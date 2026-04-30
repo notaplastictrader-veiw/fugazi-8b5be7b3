@@ -204,7 +204,7 @@ const Sports = () => {
             </div>
             {pending > 0 && (
               <p className="col-span-2 md:col-span-4 text-center text-[10px] text-muted-foreground font-mono">
-                {pending} pick{pending === 1 ? "" : "s"} still pending — win rate updates as matches settle.
+                {pending} pending — admin settles past matches manually; cron auto-settles when upstream data covers the league.
               </p>
             )}
           </div>
