@@ -170,8 +170,16 @@ const Footer = () => {
             <span className="text-destructive font-semibold">{riskWarningLabel}</span>{" "}
             {riskWarning}
           </p>
-          <p className="text-xs text-muted-foreground mt-4">
-            © {new Date().getFullYear()} Not A Fugazi Trader. {copyrightSuffix}
+          <p className="text-xs text-muted-foreground mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span>© {new Date().getFullYear()} Not A Fugazi Trader. {copyrightSuffix}</span>
+            <span className="text-border">|</span>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("open-cookie-settings"))}
+              className="text-muted-foreground hover:text-primary transition-colors underline-offset-4 hover:underline"
+            >
+              Cookie Settings
+            </button>
           </p>
         </div>
       </div>
