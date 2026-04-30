@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, Ban, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
@@ -74,7 +74,81 @@ const SportsAdmin = () => {
     toast.success("Deleted"); fetchData();
   };
 
+  const [scoreInputs, setScoreInputs] = useState<Record<string, string>>({});
+
+  const settle = async (p: SportsPrediction, outcome: "win" | "loss" | "void") => {
+    const score = (scoreInputs[p.id] || p.result || "").trim();
+    if ((outcome === "win" || outcome === "loss") && !score) {
+      toast.error("Enter score first (e.g. 2-1)");
+      return;
+    }
+    const payload =
+      outcome === "void"
+        ? { result: "VOID", is_correct: null }
+        : { result: score, is_correct: outcome === "win" };
+    const { error } = await supabase.from("sports_predictions").update(payload).eq("id", p.id);
+    if (error) { toast.error(error.message); return; }
+    if (user) await logAuditAction(user.id, "settle", "sports_predictions", p.id, { result: p.result, is_correct: p.is_correct }, payload);
+    toast.success(outcome === "void" ? "Marked as void" : outcome === "win" ? "Marked as WIN" : "Marked as LOSS");
+    setScoreInputs(s => ({ ...s, [p.id]: "" }));
+    fetchData();
+  };
+
+  const resetSettle = async (p: SportsPrediction) => {
+    const { error } = await supabase.from("sports_predictions").update({ result: "", is_correct: null }).eq("id", p.id);
+    if (error) { toast.error(error.message); return; }
+    if (user) await logAuditAction(user.id, "reset", "sports_predictions", p.id, { result: p.result, is_correct: p.is_correct }, { result: "", is_correct: null });
+    toast.success("Reset");
+    fetchData();
+  };
+
   const filtered = items.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
+
+  const renderSettleCell = (p: SportsPrediction) => {
+    const matchPast = new Date(p.match_date).getTime() < Date.now();
+    // Already settled
+    if (p.is_correct === true) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-bull/15 text-bull">✅ WIN {p.result}</span>
+          <Button variant="ghost" size="sm" className="h-6 px-1" onClick={() => resetSettle(p)}><RotateCcw className="w-3 h-3" /></Button>
+        </div>
+      );
+    }
+    if (p.is_correct === false) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-bear/15 text-bear">❌ LOSS {p.result}</span>
+          <Button variant="ghost" size="sm" className="h-6 px-1" onClick={() => resetSettle(p)}><RotateCcw className="w-3 h-3" /></Button>
+        </div>
+      );
+    }
+    if (p.result === "VOID") {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-muted text-muted-foreground">⊘ VOID</span>
+          <Button variant="ghost" size="sm" className="h-6 px-1" onClick={() => resetSettle(p)}><RotateCcw className="w-3 h-3" /></Button>
+        </div>
+      );
+    }
+    if (!matchPast) {
+      return <span className="text-xs text-muted-foreground">—</span>;
+    }
+    // Past + unsettled — show controls
+    return (
+      <div className="flex items-center gap-1">
+        <Input
+          value={scoreInputs[p.id] ?? ""}
+          onChange={e => setScoreInputs(s => ({ ...s, [p.id]: e.target.value }))}
+          placeholder="2-1"
+          className="h-7 w-16 text-xs font-mono"
+        />
+        <Button size="sm" variant="ghost" className="h-7 px-1.5 text-bull hover:bg-bull/10" onClick={() => settle(p, "win")} title="Win"><Check className="w-3.5 h-3.5" /></Button>
+        <Button size="sm" variant="ghost" className="h-7 px-1.5 text-bear hover:bg-bear/10" onClick={() => settle(p, "loss")} title="Loss"><X className="w-3.5 h-3.5" /></Button>
+        <Button size="sm" variant="ghost" className="h-7 px-1.5 text-muted-foreground" onClick={() => settle(p, "void")} title="Void"><Ban className="w-3.5 h-3.5" /></Button>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -87,11 +161,11 @@ const SportsAdmin = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Sport</TableHead>
               <TableHead>Match</TableHead>
-              <TableHead>Confidence</TableHead>
-              <TableHead>Result</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Pick</TableHead>
+              <TableHead>Conf.</TableHead>
+              <TableHead className="min-w-[200px]">Settle</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -99,11 +173,11 @@ const SportsAdmin = () => {
           <TableBody>
             {filtered.map(p => (
               <TableRow key={p.id}>
-                <TableCell className="font-medium max-w-[150px] truncate">{p.title}</TableCell>
-                <TableCell className="capitalize">{p.sport}</TableCell>
-                <TableCell>{p.team_a} vs {p.team_b}</TableCell>
-                <TableCell>{p.confidence}%</TableCell>
-                <TableCell>{p.is_correct === true ? "✅" : p.is_correct === false ? "❌" : "—"}</TableCell>
+                <TableCell className="font-medium max-w-[200px] truncate text-xs">{p.team_a} <span className="text-muted-foreground">vs</span> {p.team_b}</TableCell>
+                <TableCell className="text-xs font-mono text-muted-foreground">{new Date(p.match_date).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="font-mono text-xs">{p.prediction}</TableCell>
+                <TableCell className="text-xs">{p.confidence}%</TableCell>
+                <TableCell>{renderSettleCell(p)}</TableCell>
                 <TableCell><StatusBadge status={p.status} /></TableCell>
                 <TableCell className="text-right space-x-1">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
