@@ -248,8 +248,22 @@ const SportsScheduleSection = () => {
     return [...pop, ...list.filter((m) => !ids.has(m.id))];
   };
 
+  const recentResults = useMemo(() => {
+    const startOfYesterday = (() => {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - 1);
+      return d.getTime();
+    })();
+    const nowMs = Date.now();
+    return results.filter((m) => {
+      const t = new Date(m.date).getTime();
+      return Number.isFinite(t) && t >= startOfYesterday && t <= nowMs + 60_000;
+    });
+  }, [results]);
+
   const filteredUpcoming = useMemo(() => orderPopularFirst(applyFilters(upcoming)), [upcoming, filter, leagueFilter]);
-  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(results)), [results, filter, leagueFilter]);
+  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(recentResults)), [recentResults, filter, leagueFilter]);
   const upcomingHasPopular = useMemo(() => filteredUpcoming.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredUpcoming]);
   const resultsHasPopular = useMemo(() => filteredResults.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredResults]);
 
