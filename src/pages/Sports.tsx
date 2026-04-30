@@ -279,11 +279,36 @@ const Sports = () => {
                 Independently reviewed. We highlight warnings where applicable. Always gamble responsibly.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {bettingSites.map((site) => (
-                <BettingSiteCard key={site.id} site={site} />
-              ))}
-            </div>
+            <ListingToolbar
+              query={bettingList.query}
+              onQueryChange={bettingList.setQuery}
+              sort={bettingList.sort}
+              onSortChange={bettingList.setSort}
+              sortOptions={bettingList.sortOptions}
+              rangeStart={bettingList.rangeStart}
+              rangeEnd={bettingList.rangeEnd}
+              totalFiltered={bettingList.totalFiltered}
+              totalAll={bettingList.totalAll}
+              itemLabel="sites"
+              searchPlaceholder="Search betting sites..."
+            />
+            {bettingList.totalFiltered === 0 ? (
+              <EmptyResults query={bettingList.query} onReset={bettingList.reset} />
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {bettingList.visibleItems.map((site: any) => (
+                    <BettingSiteCard key={site.id} site={site} />
+                  ))}
+                </div>
+                <SmartPagination
+                  page={bettingList.page}
+                  totalPages={bettingList.totalPages}
+                  onPageChange={bettingList.setPage}
+                  className="mt-8"
+                />
+              </>
+            )}
             <div className="mt-8 bg-destructive/5 border border-destructive/20 rounded-xl p-4 text-center">
               <p className="text-xs text-destructive font-mono">
                 ⚠️ Gambling involves financial risk. 18+ only. Please bet responsibly and check your local regulations.
@@ -293,36 +318,45 @@ const Sports = () => {
         ) : (
           /* Predictions Feed */
           <>
-            {upcoming.length > 0 && (
+            {upcoming.length > 0 ? (
               <div className="mb-10">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
                   <Target className="w-5 h-5 text-primary" /> Upcoming Predictions
-                  {!showAllUpcoming && upcomingPopularAll.length > 0 && (
+                  {upcomingList.sort === "default" && !upcomingList.query && upcomingPopularAll.length > 0 && (
                     <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
-                      · Popular Teams
+                      · Popular Teams First
                     </span>
                   )}
                 </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {upcomingVisible.map((p) => <PredictionCard key={p.id} prediction={p} />)}
-                </div>
+                <ListingToolbar
+                  query={upcomingList.query}
+                  onQueryChange={upcomingList.setQuery}
+                  sort={upcomingList.sort}
+                  onSortChange={upcomingList.setSort}
+                  sortOptions={upcomingList.sortOptions}
+                  rangeStart={upcomingList.rangeStart}
+                  rangeEnd={upcomingList.rangeEnd}
+                  totalFiltered={upcomingList.totalFiltered}
+                  totalAll={upcomingList.totalAll}
+                  itemLabel="matches"
+                  searchPlaceholder="Search teams, league, market..."
+                />
+                {upcomingList.totalFiltered === 0 ? (
+                  <EmptyResults query={upcomingList.query} onReset={upcomingList.reset} />
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {upcomingList.visibleItems.map((p) => <PredictionCard key={p.id} prediction={p} />)}
+                    </div>
+                    <SmartPagination
+                      page={upcomingList.page}
+                      totalPages={upcomingList.totalPages}
+                      onPageChange={upcomingList.setPage}
+                      className="mt-8"
+                    />
+                  </>
+                )}
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  {upcoming.length > upcomingVisible.length && !showAllUpcoming && (
-                    <button
-                      onClick={() => setShowAllUpcoming(true)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-all"
-                    >
-                      View all ({upcoming.length}) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {showAllUpcoming && upcomingPopularAll.length > 0 && upcoming.length > POPULAR_LIMIT && (
-                    <button
-                      onClick={() => setShowAllUpcoming(false)}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-muted text-muted-foreground hover:bg-muted/70 border border-border transition-all"
-                    >
-                      Show less <ChevronUp className="w-3.5 h-3.5" />
-                    </button>
-                  )}
                   <button
                     onClick={scrollToResults}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
@@ -331,9 +365,7 @@ const Sports = () => {
                   </button>
                 </div>
               </div>
-            )}
-
-            {upcoming.length === 0 && (
+            ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
                 <p className="text-sm">No upcoming predictions yet. Check the live results below.</p>
