@@ -215,8 +215,6 @@ const SportsScheduleSection = () => {
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>("all");
   const [predictions, setPredictions] = useState<PredictionRow[]>([]);
   const [now, setNow] = useState(() => Date.now());
-  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
-  const [showAllResults, setShowAllResults] = useState(false);
 
   // Tick every second so countdowns and "X min ago" stay fresh
   useEffect(() => {
@@ -242,20 +240,40 @@ const SportsScheduleSection = () => {
       return true;
     });
 
-  const filteredUpcoming = useMemo(() => applyFilters(upcoming).slice(0, 12), [upcoming, filter, leagueFilter]);
-  const filteredResults = useMemo(() => applyFilters(results).slice(0, 12), [results, filter, leagueFilter]);
+  // Popular-first ordering as the default list (no slice — show everything,
+  // pagination takes over from here).
+  const orderPopularFirst = <T extends UpcomingMatch>(list: T[]): T[] => {
+    const pop = list.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
+    const ids = new Set(pop.map((m) => m.id));
+    return [...pop, ...list.filter((m) => !ids.has(m.id))];
+  };
 
-  // Popular-team subsets (fallback to first N if filter empties)
-  const upcomingPopular = useMemo(() => {
-    const pop = filteredUpcoming.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
-    return pop.length > 0 ? pop : filteredUpcoming;
-  }, [filteredUpcoming]);
-  const resultsPopular = useMemo(() => {
-    const pop = filteredResults.filter((m) => isPopularMatch(m.homeTeam, m.awayTeam));
-    return pop.length > 0 ? pop : filteredResults;
-  }, [filteredResults]);
-  const upcomingVisible = showAllUpcoming ? filteredUpcoming : upcomingPopular.slice(0, POPULAR_LIMIT);
-  const resultsVisible = showAllResults ? filteredResults : resultsPopular.slice(0, POPULAR_LIMIT);
+  const filteredUpcoming = useMemo(() => orderPopularFirst(applyFilters(upcoming)), [upcoming, filter, leagueFilter]);
+  const filteredResults = useMemo(() => orderPopularFirst(applyFilters(results)), [results, filter, leagueFilter]);
+  const upcomingHasPopular = useMemo(() => filteredUpcoming.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredUpcoming]);
+  const resultsHasPopular = useMemo(() => filteredResults.some((m) => isPopularMatch(m.homeTeam, m.awayTeam)), [filteredResults]);
+
+  const upcomingList = usePaginatedList(filteredUpcoming, {
+    searchKeys: ["homeTeam", "awayTeam", "league"],
+    sortOptions: [
+      { value: "default", label: "Popular first", compare: () => 0 },
+      { value: "soonest", label: "Soonest", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
+      { value: "latest", label: "Latest", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
+    ],
+    pageSize: 12,
+    paramPrefix: "ups",
+  });
+
+  const resultsList = usePaginatedList(filteredResults, {
+    searchKeys: ["homeTeam", "awayTeam", "league"],
+    sortOptions: [
+      { value: "default", label: "Popular first", compare: () => 0 },
+      { value: "latest", label: "Most recent", compare: (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() },
+      { value: "oldest", label: "Oldest first", compare: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() },
+    ],
+    pageSize: 12,
+    paramPrefix: "res",
+  });
 
   // Status pill: loading | cached | fresh
   const statusPill = (() => {
