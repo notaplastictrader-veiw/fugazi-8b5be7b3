@@ -143,7 +143,7 @@ const Sports = () => {
       { value: "latest", label: "Latest", compare: (a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime() },
       { value: "confidence", label: "Highest confidence", compare: (a, b) => b.confidence - a.confidence },
     ],
-    pageSize: 9,
+    pageSize: 8,
     paramPrefix: "up",
   });
 
