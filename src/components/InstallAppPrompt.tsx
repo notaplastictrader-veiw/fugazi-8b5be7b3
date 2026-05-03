@@ -28,6 +28,7 @@ export default function InstallAppPrompt() {
   const [showFab, setShowFab] = useState(false);
   const [platform, setPlatform] = useState<Platform>("ios");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const track = useTrackEvent();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
