@@ -151,6 +151,7 @@ const AppContent = () => {
     <>
       <AnalyticsTracker />
       <CookieConsent />
+      <InstallAppPrompt />
       <LiveChatButton />
       <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} initialQuery={searchQuery} />
       <Suspense fallback={<PageLoader />}>
