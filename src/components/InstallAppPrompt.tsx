@@ -3,6 +3,7 @@ import { Download, Share, Plus, MoreVertical, X, Smartphone } from "lucide-react
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 const STORAGE_KEY = "naft_install_prompt_dismissed";
 
@@ -27,6 +28,7 @@ export default function InstallAppPrompt() {
   const [showFab, setShowFab] = useState(false);
   const [platform, setPlatform] = useState<Platform>("ios");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const track = useTrackEvent();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -48,14 +50,30 @@ export default function InstallAppPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
     };
+    const onAppInstalled = () => {
+      track("pwa_installed", { platform: p, method: "appinstalled_event" });
+      setOpen(false);
+      setShowFab(false);
+    };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    return () => window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-  }, []);
+    window.addEventListener("appinstalled", onAppInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onAppInstalled);
+    };
+  }, [track]);
+
+  const openPrompt = () => {
+    track("install_prompt_opened", { platform });
+    setOpen(true);
+  };
 
   const handleAndroidInstall = async () => {
     if (deferredPrompt) {
+      track("install_prompt_native_triggered", { platform: "android" });
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      track("install_prompt_native_outcome", { platform: "android", outcome });
       if (outcome === "accepted") {
         setOpen(false);
         setShowFab(false);
@@ -65,6 +83,7 @@ export default function InstallAppPrompt() {
   };
 
   const dismissFab = () => {
+    track("install_prompt_dismissed", { platform });
     localStorage.setItem(STORAGE_KEY, "1");
     setShowFab(false);
   };
@@ -76,7 +95,7 @@ export default function InstallAppPrompt() {
       {showFab && (
         <div className="fixed bottom-24 right-4 z-40 md:bottom-6 md:right-24 flex items-center gap-2">
           <button
-            onClick={() => setOpen(true)}
+            onClick={openPrompt}
             className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-primary-foreground shadow-lg hover:opacity-90 transition-opacity text-sm font-semibold"
             aria-label="Install app"
           >
