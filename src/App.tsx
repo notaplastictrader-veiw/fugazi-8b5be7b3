@@ -10,6 +10,7 @@ import CookieConsent from "@/components/CookieConsent";
 import LiveChatButton from "@/components/LiveChatButton";
 import SearchPalette from "@/components/search/SearchPalette";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import InstallAppPrompt from "@/components/InstallAppPrompt";
 import { useReferralTracking } from "@/hooks/useReferralTracking";
 import { Skeleton } from "@/components/ui/skeleton";
 
