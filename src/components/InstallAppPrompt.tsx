@@ -50,14 +50,30 @@ export default function InstallAppPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
     };
+    const onAppInstalled = () => {
+      track("pwa_installed", { platform: p, method: "appinstalled_event" });
+      setOpen(false);
+      setShowFab(false);
+    };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    return () => window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-  }, []);
+    window.addEventListener("appinstalled", onAppInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onAppInstalled);
+    };
+  }, [track]);
+
+  const openPrompt = () => {
+    track("install_prompt_opened", { platform });
+    setOpen(true);
+  };
 
   const handleAndroidInstall = async () => {
     if (deferredPrompt) {
+      track("install_prompt_native_triggered", { platform: "android" });
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      track("install_prompt_native_outcome", { platform: "android", outcome });
       if (outcome === "accepted") {
         setOpen(false);
         setShowFab(false);
@@ -67,6 +83,7 @@ export default function InstallAppPrompt() {
   };
 
   const dismissFab = () => {
+    track("install_prompt_dismissed", { platform });
     localStorage.setItem(STORAGE_KEY, "1");
     setShowFab(false);
   };
