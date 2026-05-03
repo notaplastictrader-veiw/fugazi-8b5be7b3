@@ -3,6 +3,7 @@ import { Download, Share, Plus, MoreVertical, X, Smartphone } from "lucide-react
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 const STORAGE_KEY = "naft_install_prompt_dismissed";
 
