@@ -95,7 +95,7 @@ export default function InstallAppPrompt() {
       {showFab && (
         <div className="fixed bottom-24 right-4 z-40 md:bottom-6 md:right-24 flex items-center gap-2">
           <button
-            onClick={() => setOpen(true)}
+            onClick={openPrompt}
             className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-primary-foreground shadow-lg hover:opacity-90 transition-opacity text-sm font-semibold"
             aria-label="Install app"
           >
