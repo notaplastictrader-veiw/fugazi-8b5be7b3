@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import { useTheme } from "@/hooks/useTheme";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
