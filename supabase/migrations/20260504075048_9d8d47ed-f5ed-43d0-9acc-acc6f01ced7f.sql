@@ -1,0 +1,16 @@
+INSERT INTO public.calendar_events (title, description, event_date, event_time, impact, currency, category, status) VALUES
+  ('Japan - Greenery Day', 'Japanese public holiday', '2026-05-04', NULL, 'medium', 'JPY', 'economic', 'published'),
+  ('United Kingdom - Early May Bank Holiday', 'UK public holiday', '2026-05-04', NULL, 'medium', 'GBP', 'economic', 'published'),
+  ('Japan - National Sovereignty and Children''s Day', 'Japanese public holiday', '2026-05-05', NULL, 'medium', 'JPY', 'economic', 'published'),
+  ('RBA Interest Rate Decision (May)', 'Reserve Bank of Australia rate decision', '2026-05-05', '05:30', 'high', 'AUD', 'economic', 'published'),
+  ('S&P Global Services PMI (Apr)', 'S&P Global US Services PMI', '2026-05-05', '14:45', 'medium', 'USD', 'economic', 'published'),
+  ('New Home Sales (Mar)', 'US new home sales data', '2026-05-05', '15:00', 'medium', 'USD', 'economic', 'published'),
+  ('JOLTS Job Openings (Mar)', 'US JOLTS job openings report', '2026-05-05', '15:00', 'high', 'USD', 'economic', 'published'),
+  ('ISM Non-Manufacturing Prices (Apr)', 'ISM services prices index', '2026-05-05', '15:00', 'medium', 'USD', 'economic', 'published'),
+  ('ISM Non-Manufacturing PMI (Apr)', 'ISM services PMI', '2026-05-05', '15:00', 'high', 'USD', 'economic', 'published'),
+  ('Japan - Constitution Day', 'Japanese public holiday', '2026-05-06', NULL, 'medium', 'JPY', 'economic', 'published'),
+  ('ADP Nonfarm Employment Change (Apr)', 'ADP private payrolls report', '2026-05-06', '13:15', 'high', 'USD', 'economic', 'published'),
+  ('Initial Jobless Claims', 'Weekly US unemployment claims', '2026-05-07', '13:30', 'medium', 'USD', 'economic', 'published'),
+  ('Average Hourly Earnings (MoM) (Apr)', 'US wage growth month-over-month', '2026-05-08', '13:30', 'high', 'USD', 'economic', 'published'),
+  ('Nonfarm Payrolls (Apr)', 'US Nonfarm Payrolls report', '2026-05-08', '13:30', 'high', 'USD', 'economic', 'published'),
+  ('Unemployment Rate (Apr)', 'US unemployment rate', '2026-05-08', '13:30', 'high', 'USD', 'economic', 'published');
