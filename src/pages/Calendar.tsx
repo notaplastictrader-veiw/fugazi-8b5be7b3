@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
+import WeekNewsBoard from "@/components/calendar/WeekNewsBoard";
 import { dedupeKey, categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
 
 const MAJORS = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
@@ -207,6 +208,8 @@ const Calendar = () => {
             </div>
           )}
         </div>
+
+        <WeekNewsBoard />
 
         {/* Sticky filter bar */}
         <div className="sticky top-[92px] z-20 bg-background/85 backdrop-blur-md border border-border rounded-2xl p-3 mb-6 space-y-3">
