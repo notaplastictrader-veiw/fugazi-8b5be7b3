@@ -1,53 +1,70 @@
-# Plan: Make NAFT installable on mobile (manifest-only PWA)
+## Goal
 
-Goal: Users can "Add to Home Screen" on iPhone/Android and get a standalone app window with the NAFT candlestick icon — no service worker, no offline caching, no editor preview interference.
+Add a "This Week's Important News" board to `/calendar`, styled like the uploaded reference image but branded with the NAFT candlestick logo (no Bullwaves). It pulls from the same `useEconomicCalendar()` data already used on the page.
 
-## What gets added
+## Where it goes
 
-1. **`public/manifest.webmanifest`** — Web app manifest with:
-   - `name`: "Not A Fugazi — Broker Reviews & Signals"
-   - `short_name`: "NAFT"
-   - `start_url`: "/"
-   - `scope`: "/"
-   - `display`: "standalone"
-   - `orientation`: "portrait"
-   - `theme_color`: dark theme charcoal (`#0a0a0a`)
-   - `background_color`: `#0a0a0a`
-   - `icons`: 192px, 512px (any), 512px (maskable), Apple touch icon
-   - `categories`: ["finance", "business"]
-   - `lang`: "en"
+New component `src/components/calendar/WeekNewsBoard.tsx`, mounted at the top of `src/pages/Calendar.tsx` (above the existing filters/list), so the existing detailed calendar UI stays intact.
 
-2. **PWA icons in `public/icons/`** — generated from `public/images/naft-candlestick-dark-lime.svg`:
-   - `icon-192.png` (192x192, any)
-   - `icon-512.png` (512x512, any)
-   - `icon-512-maskable.png` (512x512, maskable, with safe-area padding on dark bg)
-   - `apple-touch-icon.png` (180x180, dark bg, no transparency — iOS requirement)
+## Visual structure (matches reference)
 
-3. **`index.html`** updates in `<head>`:
-   - `<link rel="manifest" href="/manifest.webmanifest">`
-   - `<meta name="theme-color" content="#0a0a0a">`
-   - `<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">`
-   - `<meta name="apple-mobile-web-app-capable" content="yes">`
-   - `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`
-   - `<meta name="apple-mobile-web-app-title" content="NAFT">`
-   - `<meta name="mobile-web-app-capable" content="yes">`
+```
+┌─────────────────────────────────────────────────────┐
+│                  [NAFT logo]                        │
+│                                                     │
+│   ┌───────────────────────────────────────────┐     │
+│   │   This Week's Important News              │     │
+│   │   (Mon DD – Fri DD)                       │     │
+│   │   *All times in UTC                       │     │
+│   └───────────────────────────────────────────┘     │
+├─────────────────────────────────────────────────────┤
+│  MON   │  TUE   │  WED   │  THU   │  FRI           │  ← primary-colored band
+│  04 May│  05 May│  06 May│  07 May│  08 May        │
+├────────┼────────┼────────┼────────┼────────────────┤
+│ [card] │ [card] │ [card] │ [card] │ [card]         │
+│ [card] │ [card] │ [card] │        │ [card]         │
+└────────┴────────┴────────┴────────┴────────────────┘
+```
 
-## What is NOT added (intentional)
+Each event card:
+- Top row: `HH:MM` (Space Mono) on the left, country flag emoji on the right
+- Below: event title (2-line clamp), small muted currency code
+- "All day" label for events without a time (e.g., bank holidays)
 
-- No `vite-plugin-pwa`
-- No `sw.js` / service worker
-- No offline caching
-- No install-prompt page (browser handles it natively via "Add to Home Screen")
+Branding:
+- Logo at the top: `/images/naft-candlestick-dark-lime.svg` (theme-aware: swap to `naft-candlestick-light-green.svg` / `naft-candlestick-dark-red.svg` based on `useTheme()`, matching existing pattern in `Navbar.tsx`)
+- Header card uses `glass-card` class, rounded-2xl, with grunge/space-mono accents
+- Day band uses `bg-primary text-primary-foreground` with `font-display` (Barlow Condensed) — fits the 3-theme system
+- Event cards use `bg-card border border-border rounded-xl`, hover lifts to `border-primary/40`
 
-## Technical notes
+## Data + filtering
 
-- Icons generated with ImageMagick from the existing SVG, composited on the dark theme background (`#0a0a0a`) so the lime candlestick stays visible on iOS (which doesn't honor transparency for home-screen icons).
-- Maskable icon uses ~20% safe-area padding so Android adaptive-icon masks don't crop the candlestick.
-- No changes to React code, routing, or existing analytics/consent logic.
+Reuse `useEconomicCalendar()` (already imported on Calendar.tsx). Filter to:
+- Current week: Monday → Friday in UTC (using `new Date()` and aligning to ISO week)
+- Impact: `high` and `medium` only (the "important news" framing)
+- Sort within each day by `event_time` ascending; null times ("All day") shown first
 
-## How users install after this ships
+Currency → flag emoji map (USD 🇺🇸, EUR 🇪🇺, GBP 🇬🇧, JPY 🇯🇵, AUD 🇦🇺, CAD 🇨🇦, CHF 🇨🇭, NZD 🇳🇿, CNY 🇨🇳) defined inline in the component.
 
-- **iPhone (Safari)**: Share button → "Add to Home Screen"
-- **Android (Chrome)**: Browser menu → "Install app" or "Add to Home Screen"
+If a day has no events, show a small muted "—" placeholder so columns stay visually balanced.
 
-Install only works on the **published** site (`fugazi.lovable.app`), not the editor preview iframe — that's a browser limitation, not something we can change.
+Clicking a card opens the existing `EventDetailModal` (lift selected-event state to Calendar.tsx via a callback prop, or handle locally inside the new component using its own modal instance).
+
+## Responsive
+
+- Desktop (≥md): 5-column grid (Mon–Fri)
+- Tablet (sm–md): horizontal scroll, 5 columns of fixed `min-w-[180px]`
+- Mobile (<sm): single column, day headers become section dividers stacked vertically
+
+## Files
+
+- **Create** `src/components/calendar/WeekNewsBoard.tsx` — the board + flag map + week-range helper
+- **Edit** `src/pages/Calendar.tsx` — import and render `<WeekNewsBoard />` near the top of the page (after `<SEO />`, before the existing filters), and reuse the same `setSelected` to open the existing modal
+
+No new dependencies, no DB changes, no edge function changes.
+
+## Out of scope
+
+- Bullwaves logo will not appear anywhere
+- No new admin UI; events continue to flow from the existing `get-economic-calendar` edge function
+- No layout changes to the existing filters/event list below
