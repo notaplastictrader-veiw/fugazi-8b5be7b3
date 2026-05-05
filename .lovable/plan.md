@@ -1,70 +1,42 @@
+# Live Ticker — Rate Limit Fallback
+
 ## Goal
+Jokhon TwelveData API rate limit shesh hoye jay (or upstream fail kore), ticker e stale/fallback price na dekhiye **"Updating soon…"** dekhabe. Limit reset hole automatically abar live price dekhabe.
 
-Add a "This Week's Important News" board to `/calendar`, styled like the uploaded reference image but branded with the NAFT candlestick logo (no Bullwaves). It pulls from the same `useEconomicCalendar()` data already used on the page.
+## Problem
+Edge function logs e dekha jacche shob symbol "Skipping … no data from upstream" — rate limit exhausted. Kintu frontend `useLivePrices` hook hardcoded `fallbackPairs` (brokers.ts) dekhacche, tai user mone kortese price update hocche na.
 
-## Where it goes
+## Changes
 
-New component `src/components/calendar/WeekNewsBoard.tsx`, mounted at the top of `src/pages/Calendar.tsx` (above the existing filters/list), so the existing detailed calendar UI stays intact.
+### 1. `supabase/functions/get-live-prices/index.ts`
+- Detect rate-limit specifically: TwelveData response e `code === 429` ba message `"run out of API credits"` / `"limit"` thakle return `{ prices: [], rate_limited: true, retry_after_ms: 60000 }`.
+- General upstream fail → `{ prices: cached ?? [], rate_limited: false, upstream_failed: true }`.
+- Cache hit (fresh) → unchanged.
+- **No more FALLBACK static prices** returned to client when live data unavailable — empty array + flag.
 
-## Visual structure (matches reference)
+### 2. `src/hooks/useLivePrices.ts`
+- Add state: `rateLimited: boolean`, `stale: boolean`.
+- Remove `fallbackPairs` as default — start with `pairs: []`, `rateLimited: false` until first fetch resolves.
+- On response with `rate_limited: true` → set `rateLimited=true`, keep `pairs=[]`.
+- On success → clear flag, set new prices.
+- Backoff: when rate-limited, retry after 90s instead of 60s; on success resume normal 60s interval.
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  [NAFT logo]                        │
-│                                                     │
-│   ┌───────────────────────────────────────────┐     │
-│   │   This Week's Important News              │     │
-│   │   (Mon DD – Fri DD)                       │     │
-│   │   *All times in UTC                       │     │
-│   └───────────────────────────────────────────┘     │
-├─────────────────────────────────────────────────────┤
-│  MON   │  TUE   │  WED   │  THU   │  FRI           │  ← primary-colored band
-│  04 May│  05 May│  06 May│  07 May│  08 May        │
-├────────┼────────┼────────┼────────┼────────────────┤
-│ [card] │ [card] │ [card] │ [card] │ [card]         │
-│ [card] │ [card] │ [card] │        │ [card]         │
-└────────┴────────┴────────┴────────┴────────────────┘
-```
+### 3. `src/components/sections/TickerBar.tsx` & `BottomTicker.tsx`
+- Read `rateLimited` from hook.
+- If `rateLimited` OR `pairs.length === 0`:
+  - Replace ticker track with a single centered animated line: **"⏳ Updating soon — live prices resuming shortly…"** (mono, muted, subtle pulse).
+  - Keep the LIVE chip but switch dot color to amber (`bg-yellow-500`) and label `"WAIT"`.
+- Otherwise behave as before.
 
-Each event card:
-- Top row: `HH:MM` (Space Mono) on the left, country flag emoji on the right
-- Below: event title (2-line clamp), small muted currency code
-- "All day" label for events without a time (e.g., bank holidays)
-
-Branding:
-- Logo at the top: `/images/naft-candlestick-dark-lime.svg` (theme-aware: swap to `naft-candlestick-light-green.svg` / `naft-candlestick-dark-red.svg` based on `useTheme()`, matching existing pattern in `Navbar.tsx`)
-- Header card uses `glass-card` class, rounded-2xl, with grunge/space-mono accents
-- Day band uses `bg-primary text-primary-foreground` with `font-display` (Barlow Condensed) — fits the 3-theme system
-- Event cards use `bg-card border border-border rounded-xl`, hover lifts to `border-primary/40`
-
-## Data + filtering
-
-Reuse `useEconomicCalendar()` (already imported on Calendar.tsx). Filter to:
-- Current week: Monday → Friday in UTC (using `new Date()` and aligning to ISO week)
-- Impact: `high` and `medium` only (the "important news" framing)
-- Sort within each day by `event_time` ascending; null times ("All day") shown first
-
-Currency → flag emoji map (USD 🇺🇸, EUR 🇪🇺, GBP 🇬🇧, JPY 🇯🇵, AUD 🇦🇺, CAD 🇨🇦, CHF 🇨🇭, NZD 🇳🇿, CNY 🇨🇳) defined inline in the component.
-
-If a day has no events, show a small muted "—" placeholder so columns stay visually balanced.
-
-Clicking a card opens the existing `EventDetailModal` (lift selected-event state to Calendar.tsx via a callback prop, or handle locally inside the new component using its own modal instance).
-
-## Responsive
-
-- Desktop (≥md): 5-column grid (Mon–Fri)
-- Tablet (sm–md): horizontal scroll, 5 columns of fixed `min-w-[180px]`
-- Mobile (<sm): single column, day headers become section dividers stacked vertically
-
-## Files
-
-- **Create** `src/components/calendar/WeekNewsBoard.tsx` — the board + flag map + week-range helper
-- **Edit** `src/pages/Calendar.tsx` — import and render `<WeekNewsBoard />` near the top of the page (after `<SEO />`, before the existing filters), and reuse the same `setSelected` to open the existing modal
-
-No new dependencies, no DB changes, no edge function changes.
+### 4. Small UX
+- Tooltip on the LIVE/WAIT chip: "Live data temporarily unavailable. Auto-retry every 90s." when rate-limited.
 
 ## Out of scope
+- No new API key, no provider swap.
+- No DB changes.
 
-- Bullwaves logo will not appear anywhere
-- No new admin UI; events continue to flow from the existing `get-economic-calendar` edge function
-- No layout changes to the existing filters/event list below
+## Files touched
+- `supabase/functions/get-live-prices/index.ts`
+- `src/hooks/useLivePrices.ts`
+- `src/components/sections/TickerBar.tsx`
+- `src/components/sections/BottomTicker.tsx`
