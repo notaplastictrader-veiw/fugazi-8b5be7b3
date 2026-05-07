@@ -87,7 +87,7 @@ const BrokerClaimProfile = () => {
       <MainLayout>
         <div className="container mx-auto px-4 py-16 text-center">
           <p className="text-muted-foreground font-mono">Please log in to claim a profile.</p>
-          <Button onClick={() => navigate("/login/broker")} className="mt-4">Log In</Button>
+          <Button onClick={() => navigate("/login")} className="mt-4">Log In</Button>
         </div>
       </MainLayout>
     );
