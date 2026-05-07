@@ -332,6 +332,17 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
                   ))}
                 </div>
 
+                {/* Role helper message */}
+                {(() => {
+                  const { icon: HelperIcon, text } = roleHelpers[signupRole];
+                  return (
+                    <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20">
+                      <HelperIcon className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
+                    </div>
+                  );
+                })()}
+
                 {/* Common Fields */}
                 <input type="text" placeholder="Full Name" required value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} />
                 <input type="email" placeholder="Email address" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} className={inputClass} />
