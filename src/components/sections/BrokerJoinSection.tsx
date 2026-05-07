@@ -75,7 +75,7 @@ const BrokerJoinSection = () => {
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
-        <span className="section-tag">// FOR BROKERS</span>
+        <span className="section-tag">// JOIN NAFT</span>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mt-3 mb-2">
           {title} <span className="text-accent">{accentText}</span>
         </h2>
