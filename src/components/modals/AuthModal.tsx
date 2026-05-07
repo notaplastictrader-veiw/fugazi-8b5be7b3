@@ -14,7 +14,6 @@ interface AuthModalProps {
 }
 
 type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
-type LoginContext = "user" | "broker" | "admin";
 
 const roleLabels: Record<SignupRole, string> = {
   user: "Trader",
@@ -23,10 +22,11 @@ const roleLabels: Record<SignupRole, string> = {
   betting_site: "Betting Site",
 };
 
-const loginContextConfig: Record<LoginContext, { label: string; icon: typeof User; desc: string }> = {
-  user: { label: "User", icon: User, desc: "Access your dashboard" },
-  broker: { label: "Broker / Provider", icon: BarChart3, desc: "Manage your listings" },
-  admin: { label: "Admin", icon: Shield, desc: "System management" },
+const roleHelpers: Record<SignupRole, { icon: typeof User; text: string }> = {
+  user: { icon: User, text: "Join as a Trader — review brokers, share experiences, build reputation." },
+  signal_provider: { icon: Radio, text: "Join as a Signal Provider — list your channel and reach traders. Application reviewed in 24–48h." },
+  broker: { icon: Building2, text: "Join as a Broker — claim or list your brokerage. Application reviewed in 24–48h." },
+  betting_site: { icon: Trophy, text: "Join as a Betting Site — list your sportsbook. Application reviewed in 24–48h." },
 };
 
 const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
