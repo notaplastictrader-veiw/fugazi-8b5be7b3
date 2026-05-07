@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Check, ChevronDown, Loader2, Shield, BarChart3, User } from "lucide-react";
+import { X, Check, ChevronDown, Loader2, User, Radio, Building2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { countries } from "@/data/countries";
