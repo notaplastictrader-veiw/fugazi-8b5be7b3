@@ -11,6 +11,7 @@ interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   defaultTab?: "login" | "signup";
+  defaultRole?: SignupRole;
 }
 
 type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
