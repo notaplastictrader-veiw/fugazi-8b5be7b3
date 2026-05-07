@@ -27,8 +27,8 @@ const SYMBOLS: Array<{ label: string; symbol: string; type: "forex" | "crypto" }
   { label: "ETH/USD", symbol: "ETH/USD", type: "crypto" },
 ];
 
-const CACHE_TTL_MS = 55_000;
-const RATE_LIMIT_BACKOFF_MS = 90_000;
+const CACHE_TTL_MS = 300_000;
+const RATE_LIMIT_BACKOFF_MS = 300_000;
 
 function formatPrice(value: number, type: string): string {
   if (type === "crypto" && value >= 1000) {
