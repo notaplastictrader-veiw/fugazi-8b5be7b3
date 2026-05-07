@@ -1,44 +1,47 @@
 ## Goal
-Login page theke "Broker/Provider" and "Admin" tab remove kore single unified login banano. Role-based redirect backend (DB `user_roles`) theke automatically hobe — jeta already `AuthCallback.tsx` e implement ache.
+1. **Login modal (AuthModal)**: Remove the User / Broker / Provider / Admin tab switcher (same security & UX rationale as the standalone Login page). Login = single form, role-based redirect from DB.
+2. **Signup modal**: Keep the 4 role tabs (Trader / Signal Provider / Broker / Betting Site) — they ARE functionally needed (different forms, different application flows, different approval queues). Add a clear contextual helper message under the active tab so users know what they're signing up for.
 
-## Why
-- **Security:** Public ly "Admin login" expose kora attackers ke target dey (brute force / credential stuffing). Generic login = role disclosure kom.
-- **UX:** User ke role choose korte hobe na, backend nije bujhe niye dashboard e pathabe.
-- **Code:** ~100 line kom, ekta source of truth (role → route map).
+## Why login tabs go but signup tabs stay
+- **Login**: Role is already in DB (`user_roles`). Tab adds zero info, just exposes attack surface (esp. Admin tab).
+- **Signup**: Role is what the user is *declaring* — the backend can't guess if someone wants a Trader account vs. Broker application. Different fields (telegram, company, license) are collected per role.
 
 ## Changes
 
-### 1. `src/pages/Login.tsx` — simplify
-- Remove `LoginTab` type, `TAB_CONFIG`, tab selector UI, "isHud" admin styling branch.
-- Remove `getDefaultTab`, `redirectByTab`.
-- Add a single `redirectByRole(userId)` helper that mirrors `AuthCallback.tsx`:
+### 1. `src/components/modals/AuthModal.tsx`
+**Login side:**
+- Remove `LoginContext` type, `loginContextConfig`, `loginContext` state.
+- Remove the 3-button context selector grid (lines ~314-338).
+- Remove "context description" line and admin styling on submit button.
+- Replace `redirectAfterLogin` with role-based version (mirror `AuthCallback`):
   - super_admin / content_ops / moderator → `/admin`
   - broker → `/portal/broker`
   - signal_provider → `/portal/signal`
   - betting_site → `/portal/betting`
-  - default → `/dashboard`
-- Google OAuth `redirectTo` → `window.location.origin + "/auth/callback"` (callback already handles role routing).
-- Single clean card style (current "user" variant), keep email/password + Google button + Forgot password link.
+  - else → close modal (stay on current page) OR go to `/dashboard` — close modal feels right here since it's a popup.
+- Update `handleGoogle` `redirectTo` → `/auth/callback` (already handles role routing).
+- Remove `Shield`, `BarChart3`, `User` icon imports if unused after.
 
-### 2. Routes — backward compatibility
-In `src/App.tsx` (or wherever routes live), keep `/login/admin` and `/login/broker` paths but render the same `<Login />` component (no behavior change), OR redirect them to `/login`. Recommend redirect via `<Navigate to="/login" replace />` so old bookmarks still work.
+**Signup side:**
+- Keep the 4 role tabs.
+- Add a helper card/message **directly below the role tab strip** that changes per selected role:
+  - **Trader**: "Join as a Trader — review brokers, share experiences, build reputation."
+  - **Signal Provider**: "Join as a Signal Provider — list your channel and reach traders. Application reviewed in 24–48h."
+  - **Broker**: "Join as a Broker — claim or list your brokerage. Application reviewed in 24–48h."
+  - **Betting Site**: "Join as a Betting Site — list your sportsbook. Application reviewed in 24–48h."
+- Style: small `text-xs text-muted-foreground` line + a subtle `bg-primary/5 border-primary/20` rounded box, ~2 lines tall. Icon (User / Signal / Building / Trophy) on the left.
 
-### 3. Remove "Admin Login" / "Broker Login" links
-Audit and remove any UI links pointing to `/login/admin` or `/login/broker` (e.g., footer, navbar dropdown). Replace with single "Log In".
-
-### 4. (Optional, recommended) Rate-limit hint
-Add a small note in code comment: admin protection now relies on `ProtectedAdminRoute` + RLS `has_role('super_admin')`. No UI change needed — already enforced.
+### 2. Touch-ups
+- Update memory `mem://ui/navigation-logic` if it references the removed admin/broker login tabs (will check & update).
 
 ## Files to edit
-- `src/pages/Login.tsx` (major simplification)
-- `src/App.tsx` (route redirects for `/login/admin`, `/login/broker`)
-- Any component linking to those old paths (grep `/login/admin`, `/login/broker`)
+- `src/components/modals/AuthModal.tsx` (main change)
 
 ## Files NOT touched
-- `AuthCallback.tsx` — already correct
-- `useUserRole.ts`, `ProtectedAdminRoute.tsx` — role gating unchanged
-- DB / RLS — no migration needed
+- `src/pages/Login.tsx` — already simplified
+- Signup flow logic — only adding a helper message, no field/validation changes
+- DB / RLS — no changes
 
 ## Out of scope
-- 2FA, captcha, IP whitelist for admin (can be added later if needed)
-- Changing role assignment flow (still DB-driven via `user_roles` table)
+- Splitting signup into multi-step wizard
+- Changing application approval flow
