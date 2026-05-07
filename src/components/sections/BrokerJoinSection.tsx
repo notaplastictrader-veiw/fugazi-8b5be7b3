@@ -1,6 +1,17 @@
-import { Shield, MessageSquare, Award, BarChart3, Check } from "lucide-react";
+import { useState } from "react";
+import { Shield, MessageSquare, Award, BarChart3, Check, User, Radio, Building2, Trophy, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import AuthModal from "@/components/modals/AuthModal";
+
+type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
+
+const joinCards: { role: SignupRole; title: string; desc: string; icon: typeof User }[] = [
+  { role: "user", title: "Join as Trader", desc: "Review brokers, share experience.", icon: User },
+  { role: "signal_provider", title: "Join as Signal Provider", desc: "List your channel, reach traders.", icon: Radio },
+  { role: "broker", title: "List Your Brokerage", desc: "Claim or list your firm.", icon: Building2 },
+  { role: "betting_site", title: "List Your Sportsbook", desc: "List your betting site.", icon: Trophy },
+];
 
 const defaultPerks = [
   { icon: "Shield", text: "Verified badge on your profile" },
