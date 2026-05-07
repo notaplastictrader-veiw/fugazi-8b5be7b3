@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { organizationSchema } from "@/components/seo/JsonLd";
 import LegalLayout, { LegalList, type LegalSection } from "@/components/legal/LegalLayout";
 import { ShieldCheck } from "lucide-react";
 
