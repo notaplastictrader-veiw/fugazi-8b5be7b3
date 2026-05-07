@@ -78,32 +78,19 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   );
 
   const redirectAfterLogin = async (userId: string) => {
-    if (loginContext === "user") {
-      onClose();
-      return;
-    }
-
     const { data: roles } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
+    const roleSet = new Set((roles ?? []).map((r) => r.role));
 
-    const roleList = roles?.map(r => r.role) || [];
-
-    if (loginContext === "admin" && roleList.includes("super_admin")) {
-      onClose();
-      navigate("/admin");
-    } else if (loginContext === "broker") {
-      if (roleList.includes("broker")) { onClose(); navigate("/portal/broker"); }
-      else if (roleList.includes("signal_provider")) { onClose(); navigate("/portal/signal"); }
-      else if (roleList.includes("betting_site")) { onClose(); navigate("/portal/betting"); }
-      else { toast.error("You don't have access to this dashboard"); onClose(); }
-    } else if (loginContext === "admin") {
-      toast.error("You don't have admin access");
-      onClose();
-    } else {
-      onClose();
+    if (roleSet.has("super_admin") || roleSet.has("content_ops") || roleSet.has("moderator")) {
+      onClose(); navigate("/admin"); return;
     }
+    if (roleSet.has("broker")) { onClose(); navigate("/portal/broker"); return; }
+    if (roleSet.has("signal_provider")) { onClose(); navigate("/portal/signal"); return; }
+    if (roleSet.has("betting_site")) { onClose(); navigate("/portal/betting"); return; }
+    onClose();
   };
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
