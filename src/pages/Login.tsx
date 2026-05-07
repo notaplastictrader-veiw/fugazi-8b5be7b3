@@ -1,29 +1,18 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, Eye, EyeOff, User, Building2, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 
-type LoginTab = "user" | "broker" | "admin";
-
-const TAB_CONFIG: Record<LoginTab, { label: string; icon: any; description: string }> = {
-  user: { label: "User", icon: User, description: "Access your dashboard & watchlist" },
-  broker: { label: "Broker / Provider", icon: Building2, description: "Manage your broker or signal profile" },
-  admin: { label: "Admin", icon: ShieldCheck, description: "Content ops & moderation panel" },
-};
-
-const ADMIN_ROLES = ["super_admin", "content_ops", "moderator"];
-
+/**
+ * Unified login page.
+ * Role-based redirect happens server-side via the user_roles table — no
+ * tab selector is needed and we deliberately don't expose an "Admin" entry
+ * point publicly. Admin route protection is enforced by ProtectedAdminRoute
+ * + RLS has_role('super_admin').
+ */
 const Login = () => {
-  const location = useLocation();
-  const getDefaultTab = (): LoginTab => {
-    if (location.pathname.includes("/login/admin")) return "admin";
-    if (location.pathname.includes("/login/broker")) return "broker";
-    return "user";
-  };
-
-  const [activeTab, setActiveTab] = useState<LoginTab>(getDefaultTab());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,38 +21,21 @@ const Login = () => {
   const { toast } = useToast();
   const { t } = useI18n();
 
-  const redirectByTab = async (userId: string) => {
-    if (activeTab === "user") {
-      navigate("/dashboard");
-      return;
-    }
-
+  const redirectByRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
+    const roles = new Set((data ?? []).map((r) => r.role));
 
-    const roles = data?.map((r) => r.role) ?? [];
-
-    if (activeTab === "admin") {
-      if (roles.includes("super_admin")) {
-        navigate("/admin");
-      } else {
-        toast({ title: "Access denied", description: "You don't have admin privileges.", variant: "destructive" });
-        navigate("/dashboard");
-      }
-    } else if (activeTab === "broker") {
-      if (roles.includes("broker")) {
-        navigate("/portal/broker");
-      } else if (roles.includes("signal_provider")) {
-        navigate("/portal/signal");
-      } else if (roles.includes("betting_site")) {
-        navigate("/portal/betting");
-      } else {
-        toast({ title: "No provider account", description: "Contact support to register as a broker or signal provider.", variant: "destructive" });
-        navigate("/dashboard");
-      }
+    if (roles.has("super_admin") || roles.has("content_ops") || roles.has("moderator")) {
+      navigate("/admin");
+      return;
     }
+    if (roles.has("broker")) { navigate("/portal/broker"); return; }
+    if (roles.has("signal_provider")) { navigate("/portal/signal"); return; }
+    if (roles.has("betting_site")) { navigate("/portal/betting"); return; }
+    navigate("/dashboard");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -77,56 +49,30 @@ const Login = () => {
       } else {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       }
-    } else {
-      toast({ title: "Welcome back!" });
-      await redirectByTab(data.user.id);
+      return;
     }
+    toast({ title: "Welcome back!" });
+    await redirectByRole(data.user.id);
   };
 
   const handleGoogleLogin = async () => {
-    const redirectPath = activeTab === "admin" ? "/admin" : activeTab === "broker" ? "/portal/broker" : "/dashboard";
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin + redirectPath },
+      options: { redirectTo: window.location.origin + "/auth/callback" },
     });
     if (error) {
       toast({ title: "Google login failed", description: error.message, variant: "destructive" });
     }
   };
 
-  const isHud = activeTab === "admin";
-
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${isHud ? "bg-[hsl(var(--sidebar-background))]" : "bg-background"}`}>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md">
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3 transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
         </Link>
-        {/* Tab Selector */}
-        <div className="flex gap-1 mb-4 p-1 bg-secondary/30 rounded-xl border border-border">
-          {(Object.keys(TAB_CONFIG) as LoginTab[]).map((tab) => {
-            const cfg = TAB_CONFIG[tab];
-            const active = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  active
-                    ? tab === "admin"
-                      ? "bg-primary/15 text-primary shadow-[0_0_12px_-2px_hsl(var(--primary)/0.4)] border border-primary/30"
-                      : "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <cfg.icon className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{cfg.label}</span>
-              </button>
-            );
-          })}
-        </div>
 
-        <div className={`rounded-2xl p-8 border ${isHud ? "bg-card/80 border-primary/20 shadow-[0_0_30px_-8px_hsl(var(--primary)/0.15)]" : "glass-card border-border"}`}>
+        <div className="rounded-2xl p-8 border glass-card border-border">
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-4">
               <span className="text-xl font-bold text-foreground">
@@ -135,14 +81,8 @@ const Login = () => {
             </Link>
             <h1 className="text-2xl font-display font-extrabold text-foreground">{t("login.title")}</h1>
             <p className="text-xs text-muted-foreground mt-1">
-              {TAB_CONFIG[activeTab].description}
+              Sign in to access your dashboard
             </p>
-            {isHud && (
-              <div className="flex items-center justify-center gap-2 mt-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-mono text-primary uppercase tracking-widest">Secure Admin Access</span>
-              </div>
-            )}
           </div>
 
           <button
@@ -173,11 +113,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
-                  isHud
-                    ? "bg-background/50 border-primary/20 text-foreground focus:ring-primary/40"
-                    : "bg-secondary/50 border-border text-foreground focus:ring-primary/50"
-                }`}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border bg-secondary/50 border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
             <div className="relative">
@@ -188,11 +124,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={`w-full pl-10 pr-12 py-3 rounded-xl border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 ${
-                  isHud
-                    ? "bg-background/50 border-primary/20 text-foreground focus:ring-primary/40"
-                    : "bg-secondary/50 border-border text-foreground focus:ring-primary/50"
-                }`}
+                className="w-full pl-10 pr-12 py-3 rounded-xl border bg-secondary/50 border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               <button
                 type="button"
@@ -212,13 +144,9 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-xl font-display font-bold text-sm transition-all disabled:opacity-50 ${
-                isHud
-                  ? "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 shadow-[0_0_16px_-4px_hsl(var(--primary)/0.3)]"
-                  : "bg-primary text-primary-foreground hover:opacity-90"
-              }`}
+              className="w-full py-3 rounded-xl font-display font-bold text-sm transition-all disabled:opacity-50 bg-primary text-primary-foreground hover:opacity-90"
             >
-              {loading ? "Signing in..." : isHud ? "⚡ Admin Sign In" : "Sign In"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 

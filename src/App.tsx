@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -166,9 +166,9 @@ const AppContent = () => {
 
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/login/user" element={<Login />} />
-          <Route path="/login/broker" element={<Login />} />
-          <Route path="/login/admin" element={<Login />} />
+          <Route path="/login/user" element={<Navigate to="/login" replace />} />
+          <Route path="/login/broker" element={<Navigate to="/login" replace />} />
+          <Route path="/login/admin" element={<Navigate to="/login" replace />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/join/trader" element={<Signup />} />
           <Route path="/join/broker" element={<Signup />} />
