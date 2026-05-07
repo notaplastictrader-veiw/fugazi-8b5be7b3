@@ -45,6 +45,7 @@ const Partnership = lazy(() => import("./pages/Partnership"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const CookiesPage = lazy(() => import("./pages/Cookies"));
+const Disclaimer = lazy(() => import("./pages/Disclaimer"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const Forecasts = lazy(() => import("./pages/Forecasts"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
@@ -199,6 +200,7 @@ const AppContent = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/cookies" element={<CookiesPage />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
           <Route path="/profile/:username" element={<UserProfile />} />
