@@ -183,6 +183,7 @@ const sections: LegalSection[] = [
 
 const Terms = () => (
   <MainLayout>
+    <JsonLd data={organizationSchema} />
     <SEO
       title="Terms & Conditions"
       description="Read the terms and conditions for using Not A Fugazi Trader platform."

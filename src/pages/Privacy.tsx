@@ -168,6 +168,7 @@ const sections: LegalSection[] = [
 
 const Privacy = () => (
   <MainLayout>
+    <JsonLd data={organizationSchema} />
     <SEO
       title="Privacy Policy"
       description="Learn how Not A Fugazi Trader collects, uses, and protects your personal data."

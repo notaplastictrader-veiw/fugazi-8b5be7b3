@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { organizationSchema } from "@/components/seo/JsonLd";
 import { AlertTriangle, TrendingDown, Dices, ShieldAlert, Building2, Link2, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -80,6 +81,7 @@ const Highlight = ({ children }: { children: React.ReactNode }) => (
 
 const Disclaimer = () => (
   <MainLayout>
+    <JsonLd data={organizationSchema} />
     <SEO
       title="Risk & Liability Disclaimer"
       description="Not A Fugazi Trader (NAFT) is an independent information and review platform. Read our full risk, liability, and third-party services disclaimer."
