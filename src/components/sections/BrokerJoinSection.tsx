@@ -1,6 +1,17 @@
-import { Shield, MessageSquare, Award, BarChart3, Check } from "lucide-react";
+import { useState } from "react";
+import { Shield, MessageSquare, Award, BarChart3, Check, User, Radio, Building2, Trophy, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import AuthModal from "@/components/modals/AuthModal";
+
+type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
+
+const joinCards: { role: SignupRole; title: string; desc: string; icon: typeof User }[] = [
+  { role: "user", title: "Join as Trader", desc: "Review brokers, share experience.", icon: User },
+  { role: "signal_provider", title: "Join as Signal Provider", desc: "List your channel, reach traders.", icon: Radio },
+  { role: "broker", title: "List Your Brokerage", desc: "Claim or list your firm.", icon: Building2 },
+  { role: "betting_site", title: "List Your Sportsbook", desc: "List your betting site.", icon: Trophy },
+];
 
 const defaultPerks = [
   { icon: "Shield", text: "Verified badge on your profile" },
@@ -40,6 +51,13 @@ const defaultTiers = [
 
 const BrokerJoinSection = () => {
   const cms = useSiteSettings<Record<string, any>>("broker_join_section", {});
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authRole, setAuthRole] = useState<SignupRole | undefined>(undefined);
+
+  const openJoin = (role: SignupRole) => {
+    setAuthRole(role);
+    setAuthOpen(true);
+  };
 
   const title = cms.title || "For Brokers & Signal Providers —";
   const accentText = cms.accent_text || "List With Us.";
@@ -114,7 +132,43 @@ const BrokerJoinSection = () => {
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-6">{footerNote}</p>
+
+        {/* Role-based Join CTAs */}
+        <div className="mt-12 pt-10 border-t border-border">
+          <div className="mb-6">
+            <span className="section-tag">// JOIN THE NETWORK</span>
+            <h3 className="text-2xl md:text-3xl font-display font-extrabold text-foreground mt-2">
+              Pick your role. <span className="text-primary">Get started in 60 seconds.</span>
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {joinCards.map(({ role, title: jt, desc, icon: Icon }) => (
+              <button
+                key={role}
+                type="button"
+                onClick={() => openJoin(role)}
+                className="glass-card rounded-xl p-5 text-left transition-all hover:border-primary/40 hover:-translate-y-0.5 group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="font-display font-bold text-base text-foreground mb-1">{jt}</div>
+                <p className="text-xs text-muted-foreground mb-3">{desc}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                  Join <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        defaultTab="signup"
+        defaultRole={authRole}
+      />
     </section>
   );
 };

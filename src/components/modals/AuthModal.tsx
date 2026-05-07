@@ -11,6 +11,7 @@ interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   defaultTab?: "login" | "signup";
+  defaultRole?: SignupRole;
 }
 
 type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
@@ -29,7 +30,7 @@ const roleHelpers: Record<SignupRole, { icon: typeof User; text: string }> = {
   betting_site: { icon: Trophy, text: "Join as a Betting Site — list your sportsbook. Application reviewed in 24–48h." },
 };
 
-const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
+const AuthModal = ({ open, onClose, defaultTab = "login", defaultRole }: AuthModalProps) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"login" | "signup">(defaultTab);
@@ -43,7 +44,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   const [loginPassword, setLoginPassword] = useState("");
 
   // Signup common
-  const [signupRole, setSignupRole] = useState<SignupRole>("user");
+  const [signupRole, setSignupRole] = useState<SignupRole>(defaultRole ?? "user");
   const [fullName, setFullName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
@@ -67,8 +68,11 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   const [forgotEmail, setForgotEmail] = useState("");
 
   useEffect(() => {
-    if (open) setTab(defaultTab);
-  }, [open, defaultTab]);
+    if (open) {
+      setTab(defaultRole ? "signup" : defaultTab);
+      if (defaultRole) setSignupRole(defaultRole);
+    }
+  }, [open, defaultTab, defaultRole]);
 
   if (!open) return null;
 
