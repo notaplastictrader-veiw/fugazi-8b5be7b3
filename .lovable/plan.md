@@ -1,42 +1,44 @@
-# Live Ticker — Rate Limit Fallback
-
 ## Goal
-Jokhon TwelveData API rate limit shesh hoye jay (or upstream fail kore), ticker e stale/fallback price na dekhiye **"Updating soon…"** dekhabe. Limit reset hole automatically abar live price dekhabe.
+Login page theke "Broker/Provider" and "Admin" tab remove kore single unified login banano. Role-based redirect backend (DB `user_roles`) theke automatically hobe — jeta already `AuthCallback.tsx` e implement ache.
 
-## Problem
-Edge function logs e dekha jacche shob symbol "Skipping … no data from upstream" — rate limit exhausted. Kintu frontend `useLivePrices` hook hardcoded `fallbackPairs` (brokers.ts) dekhacche, tai user mone kortese price update hocche na.
+## Why
+- **Security:** Public ly "Admin login" expose kora attackers ke target dey (brute force / credential stuffing). Generic login = role disclosure kom.
+- **UX:** User ke role choose korte hobe na, backend nije bujhe niye dashboard e pathabe.
+- **Code:** ~100 line kom, ekta source of truth (role → route map).
 
 ## Changes
 
-### 1. `supabase/functions/get-live-prices/index.ts`
-- Detect rate-limit specifically: TwelveData response e `code === 429` ba message `"run out of API credits"` / `"limit"` thakle return `{ prices: [], rate_limited: true, retry_after_ms: 60000 }`.
-- General upstream fail → `{ prices: cached ?? [], rate_limited: false, upstream_failed: true }`.
-- Cache hit (fresh) → unchanged.
-- **No more FALLBACK static prices** returned to client when live data unavailable — empty array + flag.
+### 1. `src/pages/Login.tsx` — simplify
+- Remove `LoginTab` type, `TAB_CONFIG`, tab selector UI, "isHud" admin styling branch.
+- Remove `getDefaultTab`, `redirectByTab`.
+- Add a single `redirectByRole(userId)` helper that mirrors `AuthCallback.tsx`:
+  - super_admin / content_ops / moderator → `/admin`
+  - broker → `/portal/broker`
+  - signal_provider → `/portal/signal`
+  - betting_site → `/portal/betting`
+  - default → `/dashboard`
+- Google OAuth `redirectTo` → `window.location.origin + "/auth/callback"` (callback already handles role routing).
+- Single clean card style (current "user" variant), keep email/password + Google button + Forgot password link.
 
-### 2. `src/hooks/useLivePrices.ts`
-- Add state: `rateLimited: boolean`, `stale: boolean`.
-- Remove `fallbackPairs` as default — start with `pairs: []`, `rateLimited: false` until first fetch resolves.
-- On response with `rate_limited: true` → set `rateLimited=true`, keep `pairs=[]`.
-- On success → clear flag, set new prices.
-- Backoff: when rate-limited, retry after 90s instead of 60s; on success resume normal 60s interval.
+### 2. Routes — backward compatibility
+In `src/App.tsx` (or wherever routes live), keep `/login/admin` and `/login/broker` paths but render the same `<Login />` component (no behavior change), OR redirect them to `/login`. Recommend redirect via `<Navigate to="/login" replace />` so old bookmarks still work.
 
-### 3. `src/components/sections/TickerBar.tsx` & `BottomTicker.tsx`
-- Read `rateLimited` from hook.
-- If `rateLimited` OR `pairs.length === 0`:
-  - Replace ticker track with a single centered animated line: **"⏳ Updating soon — live prices resuming shortly…"** (mono, muted, subtle pulse).
-  - Keep the LIVE chip but switch dot color to amber (`bg-yellow-500`) and label `"WAIT"`.
-- Otherwise behave as before.
+### 3. Remove "Admin Login" / "Broker Login" links
+Audit and remove any UI links pointing to `/login/admin` or `/login/broker` (e.g., footer, navbar dropdown). Replace with single "Log In".
 
-### 4. Small UX
-- Tooltip on the LIVE/WAIT chip: "Live data temporarily unavailable. Auto-retry every 90s." when rate-limited.
+### 4. (Optional, recommended) Rate-limit hint
+Add a small note in code comment: admin protection now relies on `ProtectedAdminRoute` + RLS `has_role('super_admin')`. No UI change needed — already enforced.
+
+## Files to edit
+- `src/pages/Login.tsx` (major simplification)
+- `src/App.tsx` (route redirects for `/login/admin`, `/login/broker`)
+- Any component linking to those old paths (grep `/login/admin`, `/login/broker`)
+
+## Files NOT touched
+- `AuthCallback.tsx` — already correct
+- `useUserRole.ts`, `ProtectedAdminRoute.tsx` — role gating unchanged
+- DB / RLS — no migration needed
 
 ## Out of scope
-- No new API key, no provider swap.
-- No DB changes.
-
-## Files touched
-- `supabase/functions/get-live-prices/index.ts`
-- `src/hooks/useLivePrices.ts`
-- `src/components/sections/TickerBar.tsx`
-- `src/components/sections/BottomTicker.tsx`
+- 2FA, captcha, IP whitelist for admin (can be added later if needed)
+- Changing role assignment flow (still DB-driven via `user_roles` table)
