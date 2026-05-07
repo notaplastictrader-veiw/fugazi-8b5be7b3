@@ -1,46 +1,45 @@
-## Goal
-Make the `/disclaimer` page feel less plain — especially the 3 most important risk-related sections — so users immediately understand them when they click "Read full disclaimer →" from the footer.
+## Pre-Deployment Checklist & Fixes
 
-## What changes
+### Critical Fixes (Deploy-blocker)
 
-Restructure `src/pages/Disclaimer.tsx` only. No new files, no DB, no copy changes.
+1. **Sitemap.xml missing legal pages**
+   - Add `/terms`, `/privacy`, `/disclaimer`, `/cookies` to `public/sitemap.xml`
+   - Update `lastmod` to match page dates (April 2026)
 
-### 1. Page header upgrade
-- Add a top warning hero band: amber/destructive-tinted card with `AlertTriangle` icon, the title, and the "Last updated" line — instead of plain h1 + small grey date.
-- Adds visual weight without changing the page route.
+2. **Cookies page inconsistent design**
+   - Convert `src/pages/Cookies.tsx` from basic prose layout to the shared `LegalLayout` component
+   - Structure into numbered sections (What Are Cookies, Types, Managing, Third-Party, Contact)
+   - Use `Cookie` icon, "primary" accent, cross-links footer
 
-### 2. Three "critical" sections become highlighted callout cards
-Convert these three into distinct callout blocks (not plain `<h2><p>`):
-- **Financial & Trading Content** — TrendingDown icon, amber accent
-- **Sports Predictions & Betting-Related Content** — Dice/Gamepad icon, orange accent
-- **Liability** — ShieldAlert icon, destructive (red) accent
+3. **React Router v7 console warnings**
+   - In `src/main.tsx`, add `future={{ v7_relativeSplatPath: true, v7_startTransition: true }}` to `BrowserRouter`
+   - Silences the 2 yellow warnings currently appearing in console
 
-Each card:
-- Left accent border (4px) in the section's accent color
-- Subtle tinted background (`bg-destructive/5`, `bg-amber-500/5`, etc. via semantic tokens)
-- Icon + bold label header row
-- Generous padding (`p-6`), rounded corners, clear gap between cards
-- Key phrases bolded (already are) plus an inline "highlight" pill where critical (e.g. "informational and educational purposes only", "no liability")
+4. **Theme flash on page load (FOUT)**
+   - `index.html` hardcodes `data-theme="dark"` — if user saved Light/Sentinel, they see a flash of dark before React hydrates
+   - Add a small inline `<script>` in `<head>` before fonts to read `naft-theme` from localStorage and set `data-theme` early
 
-### 3. Secondary sections stay lighter
-- **About NAFT**, **Third-Party Services**, **By Using NAFT** remain as normal prose blocks but with improved spacing (`space-y-8`, dividers between them) so the highlighted cards stand out by contrast.
+5. **404 page lacks layout wrapper**
+   - Wrap `NotFound` in `MainLayout` + `SEO` so the navbar/footer appear and page title is set
+   - Keep existing centered content styling
 
-### 4. Spacing & rhythm
-- Wrap content in a `space-y-10` container.
-- Increase section heading sizes slightly (`text-2xl font-display`).
-- Add a thin `border-b border-border/40` divider between non-callout sections.
+### Polish / Perfection Items
 
-### 5. Footer CTA on the page
-Add a small bottom strip linking back to Terms / Privacy / Contact with buttons instead of inline text — improves scannability after the user reads the disclaimer.
+6. **Add Organization JSON-LD to legal pages**
+   - Import `organizationSchema` from `JsonLd.tsx` and render `<JsonLd data={organizationSchema} />` on Terms, Privacy, Disclaimer pages for richer search results
 
-## Out of scope
-- No content rewriting (legal text stays exactly as-is).
-- No translations.
-- No changes to footer summary / route / DB.
-- No changes to Terms or Privacy pages.
+7. **Date consistency**
+   - Align sitemap `<lastmod>` with page "Last updated" text (currently pages say "April 2026", sitemap says "2026-04-30")
 
-## Technical notes
-- Use existing semantic tokens (`destructive`, `muted`, `border`, `primary`) — no hardcoded colors.
-- Icons from `lucide-react` (already a dependency).
-- Keep `MainLayout` + `SEO` wrapper unchanged.
-- Stays within `prose` only for body paragraphs inside cards; outer layout uses plain Tailwind.
+### Files to edit
+- `public/sitemap.xml`
+- `src/pages/Cookies.tsx`
+- `src/main.tsx`
+- `index.html`
+- `src/pages/NotFound.tsx`
+- `src/pages/Terms.tsx`, `src/pages/Privacy.tsx`, `src/pages/Disclaimer.tsx` (JSON-LD only)
+
+### Out of scope
+- No database changes
+- No new routes or features
+- No content rewriting (Cookies content stays identical, only layout changes)

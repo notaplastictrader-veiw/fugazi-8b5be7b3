@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { organizationSchema } from "@/components/seo/JsonLd";
 import LegalLayout, { LegalList, type LegalSection } from "@/components/legal/LegalLayout";
 import { ScrollText } from "lucide-react";
 
@@ -182,6 +183,7 @@ const sections: LegalSection[] = [
 
 const Terms = () => (
   <MainLayout>
+    <JsonLd data={organizationSchema} />
     <SEO
       title="Terms & Conditions"
       description="Read the terms and conditions for using Not A Fugazi Trader platform."

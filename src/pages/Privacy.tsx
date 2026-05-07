@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { organizationSchema } from "@/components/seo/JsonLd";
 import LegalLayout, { LegalList, type LegalSection } from "@/components/legal/LegalLayout";
 import { ShieldCheck } from "lucide-react";
 
@@ -167,6 +168,7 @@ const sections: LegalSection[] = [
 
 const Privacy = () => (
   <MainLayout>
+    <JsonLd data={organizationSchema} />
     <SEO
       title="Privacy Policy"
       description="Learn how Not A Fugazi Trader collects, uses, and protects your personal data."
