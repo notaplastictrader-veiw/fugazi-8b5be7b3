@@ -36,7 +36,7 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [showUnderReview, setShowUnderReview] = useState(false);
-  const [loginContext, setLoginContext] = useState<LoginContext>("user");
+  
 
   // Login
   const [loginEmail, setLoginEmail] = useState("");
