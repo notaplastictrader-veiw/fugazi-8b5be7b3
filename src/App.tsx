@@ -166,9 +166,9 @@ const AppContent = () => {
 
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/login/user" element={<Login />} />
-          <Route path="/login/broker" element={<Login />} />
-          <Route path="/login/admin" element={<Login />} />
+          <Route path="/login/user" element={<Navigate to="/login" replace />} />
+          <Route path="/login/broker" element={<Navigate to="/login" replace />} />
+          <Route path="/login/admin" element={<Navigate to="/login" replace />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/join/trader" element={<Signup />} />
           <Route path="/join/broker" element={<Signup />} />
