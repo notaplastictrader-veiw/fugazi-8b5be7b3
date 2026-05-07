@@ -66,6 +66,7 @@ const defaultColumns = [
       { label: "Partnership", href: "/partnership" },
       { label: "Advertise", href: "/advertise" },
       { label: "Terms & Conditions", href: "/terms" },
+      { label: "Disclaimer", href: "/disclaimer" },
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Cookie Policy", href: "/cookies" },
     ],
@@ -96,8 +97,8 @@ const Footer = () => {
   const socialLinks = (Array.isArray(cms.social_links) && cms.social_links.length > 0 ? cms.social_links : defaultSocial) as typeof defaultSocial;
   const aboutLabel = cms.about_label || "About Us";
   const contactLabel = cms.contact_label || "Contact Us";
-  const riskWarningLabel = cms.risk_warning_label || "⚠ Risk Warning:";
-  const riskWarning = cms.risk_warning || "Trading foreign exchange, CFDs, and cryptocurrencies carries a high level of risk and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Before deciding to trade, you should carefully consider your investment objectives, level of experience, and risk appetite. The possibility exists that you could sustain a loss of some or all of your initial investment.";
+  const riskWarningLabel = cms.risk_warning_label || "⚠ Risk & Liability Disclaimer:";
+  const riskWarning = cms.risk_warning || "Not A Fugazi Trader (NAFT) is an independent information and review platform — not a broker, advisor, signal provider, or bookmaker. All content (broker listings, signals, forecasts, sports predictions, news) is for informational and educational purposes only and is not financial, legal, or betting advice. Trading and gambling carry substantial risk of loss; you are solely responsible for verifying that any third-party service is lawful and regulated in your jurisdiction. NAFT accepts no liability for any losses arising from use of this site or third-party services.";
   const copyrightSuffix = cms.copyright_suffix || t("footer.rights", "All rights reserved.");
 
   return (
@@ -168,7 +169,10 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-border">
           <p className="text-xs text-muted-foreground leading-relaxed max-w-4xl">
             <span className="text-destructive font-semibold">{riskWarningLabel}</span>{" "}
-            {riskWarning}
+            {riskWarning}{" "}
+            <Link to="/disclaimer" className="text-primary font-semibold hover:underline underline-offset-4">
+              Read full disclaimer →
+            </Link>
           </p>
           <p className="text-xs text-muted-foreground mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>© {new Date().getFullYear()} Not A Fugazi Trader. {copyrightSuffix}</span>
