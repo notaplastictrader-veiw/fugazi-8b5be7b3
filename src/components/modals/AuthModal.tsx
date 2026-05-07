@@ -215,10 +215,9 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
   };
 
   const handleGoogle = async () => {
-    const redirectPath = loginContext === "admin" ? "/admin" : loginContext === "broker" ? "/portal/broker" : "/";
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}${redirectPath}` },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
   };
 
