@@ -297,37 +297,10 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
               ))}
             </div>
 
-            {/* Login Context Selector — only show on login tab */}
-            {tab === "login" && (
-              <div className="grid grid-cols-3 gap-1 p-1 bg-secondary/50 rounded-xl mb-5">
-                {(Object.keys(loginContextConfig) as LoginContext[]).map((ctx) => {
-                  const { label, icon: Icon } = loginContextConfig[ctx];
-                  return (
-                    <button
-                      key={ctx}
-                      type="button"
-                      onClick={() => setLoginContext(ctx)}
-                      className={`flex items-center justify-center gap-1.5 px-2 py-2 text-[11px] font-semibold rounded-lg transition-all ${
-                        loginContext === ctx
-                          ? ctx === "admin"
-                            ? "bg-destructive/20 text-destructive border border-destructive/30 shadow-[0_0_8px_rgba(239,68,68,0.2)]"
-                            : "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
             {tab === "login" ? (
               <form onSubmit={handleLogin} className="space-y-4">
-                {/* Context description */}
-                <p className="text-xs text-muted-foreground text-center -mt-2 mb-2">
-                  {loginContextConfig[loginContext].desc}
+                <p className="text-xs text-muted-foreground text-center mb-2">
+                  Sign in to your account — we'll route you to the right dashboard.
                 </p>
 
                 <input type="email" placeholder="Email address" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} className={inputClass} />
@@ -336,12 +309,8 @@ const AuthModal = ({ open, onClose, defaultTab = "login" }: AuthModalProps) => {
                   <button type="button" onClick={() => setShowForgot(true)} className="text-xs text-primary hover:underline">Forgot password?</button>
                 </div>
                 <button type="submit" disabled={loading}
-                  className={`w-full py-3 text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all ${
-                    loginContext === "admin"
-                      ? "bg-destructive text-destructive-foreground shadow-[0_0_12px_rgba(239,68,68,0.3)]"
-                      : "bg-primary text-primary-foreground"
-                  }`}>
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : loginContext === "admin" ? "Secure Login" : "Log In"}
+                  className="w-full py-3 text-sm font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all bg-primary text-primary-foreground">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Log In"}
                 </button>
                 <div className="flex items-center gap-3 my-2">
                   <div className="flex-1 h-px bg-border" /><span className="text-xs text-muted-foreground">or</span><div className="flex-1 h-px bg-border" />
