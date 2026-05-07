@@ -51,6 +51,13 @@ const defaultTiers = [
 
 const BrokerJoinSection = () => {
   const cms = useSiteSettings<Record<string, any>>("broker_join_section", {});
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authRole, setAuthRole] = useState<SignupRole | undefined>(undefined);
+
+  const openJoin = (role: SignupRole) => {
+    setAuthRole(role);
+    setAuthOpen(true);
+  };
 
   const title = cms.title || "For Brokers & Signal Providers —";
   const accentText = cms.accent_text || "List With Us.";
