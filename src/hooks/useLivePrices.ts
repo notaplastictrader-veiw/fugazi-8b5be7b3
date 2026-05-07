@@ -14,8 +14,8 @@ let lastFetchedAt = 0;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
 
-const REFRESH_MS = 60_000;
-const RATE_LIMIT_RETRY_MS = 90_000;
+const REFRESH_MS = 300_000;
+const RATE_LIMIT_RETRY_MS = 300_000;
 
 async function refresh() {
   if (inflight) return inflight;
