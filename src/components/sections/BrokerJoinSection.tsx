@@ -59,13 +59,13 @@ const BrokerJoinSection = () => {
     setAuthOpen(true);
   };
 
-  const title = cms.title || "For Brokers & Signal Providers —";
-  const accentText = cms.accent_text || "List With Us.";
+  const title = cms.title || "Be part of the network —";
+  const accentText = cms.accent_text || "Built on Trust.";
   const description = cms.description || "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
   const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
   const ctaText = cms.cta_text || "Promote Your Broker →";
   const ctaLink = cms.cta_link || "/advertise";
-  const subtitle = cms.subtitle || "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.";
+  const subtitle = cms.subtitle || "Traders, signal providers, brokers, and sportsbooks — find your place on the fastest-growing global trading platform.";
   const claimText = cms.claim_text || "Already listed? Claim your profile →";
   const claimLink = cms.claim_link || "/brokers";
   const footerNote = cms.footer_note || "All listings are reviewed before going live. We do not list brokers with active unresolved scam reports.";
