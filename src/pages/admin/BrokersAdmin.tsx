@@ -312,8 +312,9 @@ const BrokersAdmin = () => {
                 {form.account_types.map((at, i) => (
                   <div key={i} className="grid grid-cols-12 gap-2 items-start">
                     <Input className="col-span-3" placeholder="Name (Standard)" value={at.name} onChange={e => updateAccountType(i, "name", e.target.value)} />
-                    <Input className="col-span-3" placeholder="Min ($10)" value={at.min_deposit} onChange={e => updateAccountType(i, "min_deposit", e.target.value)} />
-                    <Input className="col-span-3" placeholder="Spread (1.0 pip)" value={at.spread} onChange={e => updateAccountType(i, "spread", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Min ($10)" value={at.min_deposit} onChange={e => updateAccountType(i, "min_deposit", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Spread (1.0)" value={at.spread} onChange={e => updateAccountType(i, "spread", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Leverage (1:500)" value={(at as any).leverage || ""} onChange={e => updateAccountType(i, "leverage", e.target.value)} />
                     <Input className="col-span-2" placeholder="Commission" value={at.commission} onChange={e => updateAccountType(i, "commission", e.target.value)} />
                     <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removeAccountType(i)}><X className="w-4 h-4 text-destructive" /></Button>
                   </div>
