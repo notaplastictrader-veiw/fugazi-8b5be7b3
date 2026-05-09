@@ -138,6 +138,7 @@ const BrokersAdmin = () => {
       complaints: Number(form.complaints),
       founded_year: form.founded_year ? Number(form.founded_year) : null,
       account_types: form.account_types,
+      payment_method_details: form.payment_method_details,
       status: form.status as "draft" | "pending" | "published" | "rejected",
       show_on_homepage: !!form.show_on_homepage,
       homepage_position: form.show_on_homepage && form.homepage_position
