@@ -173,9 +173,13 @@ const BrokersAdmin = () => {
   };
 
   const filtered = useMemo(() => {
-    let result = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
-    return filterByDateRange(result, "created_at", fromDate, toDate);
-  }, [brokers, search, fromDate, toDate]);
+    return brokers.filter(b => {
+      if (search && !b.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (typeFilter !== "all" && b.type !== typeFilter) return false;
+      if (statusFilter !== "all" && b.status !== statusFilter) return false;
+      return true;
+    });
+  }, [brokers, search, typeFilter, statusFilter]);
 
   const handleExport = () => {
     exportToCSV(filtered.map(b => ({
