@@ -328,6 +328,20 @@ const BrokersAdmin = () => {
               <div><Label>Support Phone</Label><Input value={form.support_phone} onChange={e => setForm({...form, support_phone: e.target.value})} /></div>
             </div>
 
+            <div className="border border-amber-500/30 bg-amber-500/5 rounded-lg p-3 space-y-3">
+              <Label className="text-foreground">Risk & Trust Info</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-xs">License Number</Label><Input value={form.license_number} onChange={e => setForm({...form, license_number: e.target.value})} placeholder="SD185 (Equitex Capital Ltd)" /></div>
+                <div></div>
+                <div><Label className="text-xs">Withdrawal Time</Label><Input value={form.withdrawal_time} onChange={e => setForm({...form, withdrawal_time: e.target.value})} placeholder="1–3 days (crypto), 3–5 days (bank)" /></div>
+                <div><Label className="text-xs">Withdrawal Fee</Label><Input value={form.withdrawal_fee} onChange={e => setForm({...form, withdrawal_fee: e.target.value})} placeholder="Crypto free, Bank $10" /></div>
+              </div>
+              <div>
+                <Label className="text-xs">Warning Note (shown next to Open Account button)</Label>
+                <Textarea rows={2} value={form.warning_note} onChange={e => setForm({...form, warning_note: e.target.value})} placeholder="Test withdrawal with $50 first before depositing more." />
+              </div>
+            </div>
+
             <div className="border border-primary/30 bg-primary/5 rounded-lg p-3 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
