@@ -338,6 +338,25 @@ const BrokersAdmin = () => {
               </div>
             </div>
 
+            <div className="border border-border rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <Label>Payment Method Details (Deposits & Withdrawals table)</Label>
+                <Button type="button" size="sm" variant="outline" onClick={addPaymentDetail}><Plus className="w-3 h-3 mr-1" /> Add</Button>
+              </div>
+              {form.payment_method_details.length === 0 && <p className="text-xs text-muted-foreground">No payment methods added. Add rows to populate the public Deposits & Withdrawals table.</p>}
+              <div className="space-y-2">
+                {form.payment_method_details.map((p, i) => (
+                  <div key={i} className="grid grid-cols-12 gap-2 items-start">
+                    <Input className="col-span-3" placeholder="Method (Bank Transfer)" value={p.method} onChange={e => updatePaymentDetail(i, "method", e.target.value)} />
+                    <Input className="col-span-3" placeholder="Min ($50)" value={p.min} onChange={e => updatePaymentDetail(i, "min", e.target.value)} />
+                    <Input className="col-span-3" placeholder="Processing (1-3 days)" value={p.processing} onChange={e => updatePaymentDetail(i, "processing", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Fee (Free)" value={p.fee} onChange={e => updatePaymentDetail(i, "fee", e.target.value)} />
+                    <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removePaymentDetail(i)}><X className="w-4 h-4 text-destructive" /></Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-3 gap-3">
               <div><Label>Website URL</Label><Input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})} placeholder="https://" /></div>
               <div><Label>Support Email</Label><Input value={form.support_email} onChange={e => setForm({...form, support_email: e.target.value})} /></div>
