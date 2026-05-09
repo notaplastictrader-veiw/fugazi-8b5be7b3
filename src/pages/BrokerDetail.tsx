@@ -591,18 +591,19 @@ const BrokerDetail = () => {
                           <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Min Deposit</th>
                           <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Spread</th>
                           <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Leverage</th>
+                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Commission</th>
                         </tr>
                       </thead>
                       <tbody>
                         {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
-                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, commission: "—" },
-                          { name: "ECN/Raw", min_deposit: "$200+", spread: "0.0 pips", commission: "$3.5/lot" },
+                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, leverage: broker.leverage, commission: "—" },
                         ]).map((at, i) => (
                           <tr key={i} className="border-t border-border/50">
                             <td className="px-4 py-2.5 text-foreground">{at.name}</td>
                             <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
                             <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || broker.leverage}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
                           </tr>
                         ))}
                       </tbody>
