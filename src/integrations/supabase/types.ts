@@ -467,6 +467,7 @@ export type Database = {
           logo_url: string | null
           min_deposit: string | null
           name: string
+          payment_method_details: Json
           payment_methods: string[] | null
           platforms: string[] | null
           pros: string[] | null
@@ -505,6 +506,7 @@ export type Database = {
           logo_url?: string | null
           min_deposit?: string | null
           name: string
+          payment_method_details?: Json
           payment_methods?: string[] | null
           platforms?: string[] | null
           pros?: string[] | null
@@ -543,6 +545,7 @@ export type Database = {
           logo_url?: string | null
           min_deposit?: string | null
           name?: string
+          payment_method_details?: Json
           payment_methods?: string[] | null
           platforms?: string[] | null
           pros?: string[] | null
