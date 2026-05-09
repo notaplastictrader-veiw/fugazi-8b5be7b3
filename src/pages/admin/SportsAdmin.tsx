@@ -191,11 +191,17 @@ const SportsAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Prediction" : "Add Prediction"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Prediction" : "Add Prediction"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Sport</Label>
                 <Select value={form.sport} onValueChange={v => setForm({...form, sport: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -208,12 +214,12 @@ const SportsAdmin = () => {
               </div>
               <div><Label>Match Date</Label><Input type="datetime-local" value={form.match_date} onChange={e => setForm({...form, match_date: e.target.value})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Team A</Label><Input value={form.team_a} onChange={e => setForm({...form, team_a: e.target.value})} /></div>
               <div><Label>Team B</Label><Input value={form.team_b} onChange={e => setForm({...form, team_b: e.target.value})} /></div>
             </div>
             <div><Label>Prediction</Label><Input value={form.prediction} onChange={e => setForm({...form, prediction: e.target.value})} placeholder="e.g. Team A Win" /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Confidence (%)</Label><Input type="number" min={0} max={100} value={form.confidence} onChange={e => setForm({...form, confidence: +e.target.value})} /></div>
               <div><Label>Result</Label>
                 <Select value={form.is_correct === null ? "pending" : form.is_correct ? "correct" : "incorrect"} onValueChange={v => setForm({...form, is_correct: v === "pending" ? null : v === "correct"})}>
@@ -223,9 +229,9 @@ const SportsAdmin = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div><Label>Result Text</Label><Input value={form.result} onChange={e => setForm({...form, result: e.target.value})} placeholder="e.g. 2-1" /></div>
             </div>
-            <div><Label>Result Text</Label><Input value={form.result} onChange={e => setForm({...form, result: e.target.value})} placeholder="e.g. 2-1" /></div>
-            <div><Label>Analyst Note</Label><Textarea rows={2} value={form.analyst_note} onChange={e => setForm({...form, analyst_note: e.target.value})} /></div>
+            <div><Label>Analyst Note</Label><Textarea rows={3} value={form.analyst_note} onChange={e => setForm({...form, analyst_note: e.target.value})} /></div>
             <div><Label>Status</Label>
               <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -235,7 +241,6 @@ const SportsAdmin = () => {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
           </div>
         </DialogContent>
       </Dialog>
