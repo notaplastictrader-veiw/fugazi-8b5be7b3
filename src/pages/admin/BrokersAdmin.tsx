@@ -110,6 +110,9 @@ const BrokersAdmin = () => {
       account_types: Array.isArray(b.account_types)
         ? b.account_types.map((at: any) => ({ leverage: "", ...at }))
         : [],
+      payment_method_details: Array.isArray((b as any).payment_method_details)
+        ? (b as any).payment_method_details.map((p: any) => ({ method: "", min: "", processing: "", fee: "", ...p }))
+        : [],
       description: b.description || "",
       headquarters: b.headquarters || "",
       website_url: b.website_url || "",
