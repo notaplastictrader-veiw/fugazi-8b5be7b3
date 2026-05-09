@@ -6,25 +6,18 @@ const TickerBar = () => {
   const showFallback = (rateLimited || pairs.length === 0) && pairs.length === 0;
   const items = showFallback ? [] : [...pairs, ...pairs];
 
-  // Status: LIVE (forex+crypto open), CRYPTO (weekend), WAIT (no data)
-  const status: "LIVE" | "CRYPTO" | "WAIT" = showFallback
-    ? "WAIT"
-    : forexOpen
-      ? "LIVE"
-      : "CRYPTO";
-
-  const dotClass =
-    status === "LIVE" ? "bg-primary" : status === "CRYPTO" ? "bg-amber-500" : "bg-yellow-500";
-  const textClass =
-    status === "LIVE" ? "text-primary" : status === "CRYPTO" ? "text-amber-500" : "text-yellow-500";
-  const label = status === "LIVE" ? "LIVE" : status === "CRYPTO" ? "CRYPTO" : "WAIT";
-
+  // Chip stays LIVE whenever data is flowing — per-pair "CLOSED" badges
+  // already convey forex weekend status.
+  const status: "LIVE" | "WAIT" = showFallback ? "WAIT" : "LIVE";
+  const dotClass = status === "LIVE" ? "bg-primary" : "bg-yellow-500";
+  const textClass = status === "LIVE" ? "text-primary" : "text-yellow-500";
+  const label = status;
   const tooltip =
-    status === "LIVE"
-      ? "Live market data"
-      : status === "CRYPTO"
-        ? `Forex markets closed — reopens in ${formatDuration(msUntilForexOpen())} (Sun 22:00 UTC). Crypto streams live.`
-        : "Live data temporarily unavailable. Auto-retry every 90s.";
+    status === "WAIT"
+      ? "Live data temporarily unavailable. Auto-retry every 90s."
+      : forexOpen
+        ? "Live market data"
+        : `Forex closed — crypto live. Reopens in ${formatDuration(msUntilForexOpen())} (Sun 22:00 UTC).`;
 
   return (
     <div className="relative z-[200] bg-card/90 backdrop-blur-sm border-b border-border overflow-hidden h-[32px] flex items-center">
