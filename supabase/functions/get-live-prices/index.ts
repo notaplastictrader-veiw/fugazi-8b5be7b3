@@ -134,12 +134,19 @@ Deno.serve(async (req) => {
     const age = Date.now() - fetchedAt;
 
     // Helper: stamp forex pairs as closed when market is shut.
+    // Infer type from label for legacy cache entries that lack `type`.
+    const FOREX_LABELS = new Set([
+      "XAU/USD", "EUR/USD", "GBP/USD", "USD/JPY", "AUD/USD", "USD/CAD",
+    ]);
+    const inferType = (p: TickerPair): MarketKind =>
+      p.type ?? (FOREX_LABELS.has(p.pair) ? "forex" : "crypto");
     const stampClosed = (pairs: TickerPair[]): TickerPair[] =>
-      pairs.map((p) =>
-        p.type === "forex" && !forexOpen
-          ? { ...p, closed: true, change: "CLOSED", up: false }
-          : { ...p, closed: false },
-      );
+      pairs.map((p) => {
+        const t = inferType(p);
+        return t === "forex" && !forexOpen
+          ? { ...p, type: t, closed: true, change: "CLOSED", up: false }
+          : { ...p, type: t, closed: false };
+      });
 
     // Fresh cache → serve it (with weekend stamp applied)
     if (cachedPrices.length > 0 && age < CACHE_TTL_MS) {
