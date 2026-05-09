@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { isForexOpen } from "@/lib/marketHours";
 
 export interface TickerPair {
   pair: string;
   price: string;
   change: string;
   up: boolean;
+  type?: "forex" | "crypto";
+  closed?: boolean;
 }
 
 let sharedPairs: TickerPair[] = [];
 let sharedRateLimited = false;
+let sharedForexOpen = isForexOpen();
 let lastFetchedAt = 0;
 let inflight: Promise<void> | null = null;
 const subscribers = new Set<() => void>();
@@ -23,13 +27,18 @@ async function refresh() {
     try {
       const { data, error } = await supabase.functions.invoke("get-live-prices");
       if (error) throw error;
-      if (data?.rate_limited) {
-        sharedRateLimited = true;
-        sharedPairs = [];
-      } else if (data?.prices && Array.isArray(data.prices) && data.prices.length > 0) {
+      if (typeof data?.forex_open === "boolean") {
+        sharedForexOpen = data.forex_open;
+      } else {
+        sharedForexOpen = isForexOpen();
+      }
+      if (data?.prices && Array.isArray(data.prices) && data.prices.length > 0) {
         sharedPairs = data.prices as TickerPair[];
         sharedRateLimited = false;
         lastFetchedAt = Date.now();
+      } else if (data?.rate_limited) {
+        sharedRateLimited = true;
+        sharedPairs = [];
       } else {
         sharedRateLimited = true;
         sharedPairs = [];
@@ -51,6 +60,7 @@ export function useLivePrices() {
   const [pairs, setPairs] = useState<TickerPair[]>(sharedPairs);
   const [rateLimited, setRateLimited] = useState<boolean>(sharedRateLimited);
   const [lastUpdated, setLastUpdated] = useState<number>(lastFetchedAt);
+  const [forexOpen, setForexOpen] = useState<boolean>(sharedForexOpen);
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -58,6 +68,7 @@ export function useLivePrices() {
       setPairs(sharedPairs);
       setRateLimited(sharedRateLimited);
       setLastUpdated(lastFetchedAt);
+      setForexOpen(sharedForexOpen);
     };
     subscribers.add(sync);
 
@@ -82,5 +93,5 @@ export function useLivePrices() {
     };
   }, []);
 
-  return { pairs, lastUpdated, rateLimited };
+  return { pairs, lastUpdated, rateLimited, forexOpen };
 }
