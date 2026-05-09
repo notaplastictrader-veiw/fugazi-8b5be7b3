@@ -22,7 +22,7 @@ const formatDate = (d: string) => {
   return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
 };
 
-interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
+interface AccountType { name: string; min_deposit: string; spread: string; leverage: string; commission: string; }
 
 interface Broker {
   id: string;

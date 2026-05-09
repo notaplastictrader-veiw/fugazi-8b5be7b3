@@ -463,6 +463,7 @@ export type Database = {
           homepage_position: number | null
           id: string
           leverage: string | null
+          license_number: string | null
           logo_url: string | null
           min_deposit: string | null
           name: string
@@ -481,7 +482,10 @@ export type Database = {
           tags: string[] | null
           type: string
           updated_at: string
+          warning_note: string | null
           website_url: string | null
+          withdrawal_fee: string | null
+          withdrawal_time: string | null
         }
         Insert: {
           account_types?: Json | null
@@ -497,6 +501,7 @@ export type Database = {
           homepage_position?: number | null
           id?: string
           leverage?: string | null
+          license_number?: string | null
           logo_url?: string | null
           min_deposit?: string | null
           name: string
@@ -515,7 +520,10 @@ export type Database = {
           tags?: string[] | null
           type?: string
           updated_at?: string
+          warning_note?: string | null
           website_url?: string | null
+          withdrawal_fee?: string | null
+          withdrawal_time?: string | null
         }
         Update: {
           account_types?: Json | null
@@ -531,6 +539,7 @@ export type Database = {
           homepage_position?: number | null
           id?: string
           leverage?: string | null
+          license_number?: string | null
           logo_url?: string | null
           min_deposit?: string | null
           name?: string
@@ -549,7 +558,10 @@ export type Database = {
           tags?: string[] | null
           type?: string
           updated_at?: string
+          warning_note?: string | null
           website_url?: string | null
+          withdrawal_fee?: string | null
+          withdrawal_time?: string | null
         }
         Relationships: []
       }
