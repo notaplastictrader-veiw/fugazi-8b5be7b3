@@ -23,6 +23,7 @@ const formatDate = (d: string) => {
 };
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage: string; commission: string; }
+interface PaymentMethodDetail { method: string; min: string; processing: string; fee: string; }
 
 interface Broker {
   id: string;
