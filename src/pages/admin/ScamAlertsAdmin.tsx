@@ -8,6 +8,7 @@ import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
