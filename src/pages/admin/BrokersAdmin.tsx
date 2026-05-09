@@ -104,7 +104,9 @@ const BrokersAdmin = () => {
       cons: b.cons || [],
       payment_methods: b.payment_methods || [],
       platforms: b.platforms || [],
-      account_types: Array.isArray(b.account_types) ? b.account_types : [],
+      account_types: Array.isArray(b.account_types)
+        ? b.account_types.map((at: any) => ({ leverage: "", ...at }))
+        : [],
       description: b.description || "",
       headquarters: b.headquarters || "",
       website_url: b.website_url || "",
@@ -113,6 +115,10 @@ const BrokersAdmin = () => {
       founded_year: b.founded_year ?? null,
       show_on_homepage: (b as any).show_on_homepage ?? false,
       homepage_position: (b as any).homepage_position ?? null,
+      license_number: (b as any).license_number || "",
+      withdrawal_time: (b as any).withdrawal_time || "",
+      withdrawal_fee: (b as any).withdrawal_fee || "",
+      warning_note: (b as any).warning_note || "",
     });
     setModalOpen(true);
   };
