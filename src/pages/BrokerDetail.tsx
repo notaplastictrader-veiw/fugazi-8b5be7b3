@@ -664,28 +664,6 @@ const BrokerDetail = () => {
                     </tbody>
                   </table>
                 </div>
-                {(broker.withdrawal_time || broker.withdrawal_fee) && (
-                  <div className="glass-card rounded-xl p-4 mt-3 grid sm:grid-cols-2 gap-4 text-sm">
-                    {broker.withdrawal_time && (
-                      <div className="flex items-start gap-2">
-                        <Clock className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs text-muted-foreground font-mono">Withdrawal Time</div>
-                          <div className="text-foreground">{broker.withdrawal_time}</div>
-                        </div>
-                      </div>
-                    )}
-                    {broker.withdrawal_fee && (
-                      <div className="flex items-start gap-2">
-                        <CreditCard className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs text-muted-foreground font-mono">Withdrawal Fee</div>
-                          <div className="text-foreground">{broker.withdrawal_fee}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </section>
 
               {/* Customer Support */}
