@@ -444,12 +444,6 @@ const BrokerDetail = () => {
                     Add Review
                   </Button>
                 </div>
-                {broker.warning_note && (
-                  <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>{broker.warning_note}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
