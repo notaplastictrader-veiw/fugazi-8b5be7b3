@@ -41,6 +41,7 @@ interface Broker {
   pros?: string[];
   cons?: string[];
   payment_methods?: string[];
+  payment_method_details?: { method: string; min: string; processing: string; fee: string }[];
   platforms?: string[];
   account_types?: AccountType[];
   website_url?: string;
