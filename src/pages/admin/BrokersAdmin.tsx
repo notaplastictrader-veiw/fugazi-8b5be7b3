@@ -85,8 +85,8 @@ const BrokersAdmin = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Broker | null>(null);
   const [form, setForm] = useState<typeof emptyBroker>(emptyBroker);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchBrokers = async () => {
     const { data } = await supabase.from("brokers").select("*").order("created_at", { ascending: false });
