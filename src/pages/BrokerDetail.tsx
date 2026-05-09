@@ -444,12 +444,6 @@ const BrokerDetail = () => {
                     Add Review
                   </Button>
                 </div>
-                {broker.warning_note && (
-                  <div className="mt-3 flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                    <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                    <span>{broker.warning_note}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -577,15 +571,6 @@ const BrokerDetail = () => {
                     {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
                     {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
                   </p>
-                  {broker.license_number && (
-                    <div className="flex items-start gap-2 text-sm border-t border-border/50 pt-3">
-                      <FileText className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="text-muted-foreground">License Number: </span>
-                        <span className="text-foreground font-mono">{broker.license_number}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </section>
 
@@ -679,28 +664,6 @@ const BrokerDetail = () => {
                     </tbody>
                   </table>
                 </div>
-                {(broker.withdrawal_time || broker.withdrawal_fee) && (
-                  <div className="glass-card rounded-xl p-4 mt-3 grid sm:grid-cols-2 gap-4 text-sm">
-                    {broker.withdrawal_time && (
-                      <div className="flex items-start gap-2">
-                        <Clock className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs text-muted-foreground font-mono">Withdrawal Time</div>
-                          <div className="text-foreground">{broker.withdrawal_time}</div>
-                        </div>
-                      </div>
-                    )}
-                    {broker.withdrawal_fee && (
-                      <div className="flex items-start gap-2">
-                        <CreditCard className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs text-muted-foreground font-mono">Withdrawal Fee</div>
-                          <div className="text-foreground">{broker.withdrawal_fee}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </section>
 
               {/* Customer Support */}
