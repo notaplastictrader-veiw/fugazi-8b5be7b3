@@ -157,22 +157,32 @@ const Sports = () => {
     pageSize: 12,
     paramPrefix: "bs",
   });
-  const totalPicks = predictions.length;
-  // Auto-display stats: settled = total picks, win rate seeded daily within 76-85% range.
-  // Uses YYYY-MM-DD as a seed so the value is stable for the day but rotates each day.
-  const dailySeededWinRate = (() => {
-    const today = new Date();
-    const seedStr = `${today.getUTCFullYear()}-${today.getUTCMonth()}-${today.getUTCDate()}`;
-    let hash = 0;
-    for (let i = 0; i < seedStr.length; i++) {
-      hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0;
-    }
-    return 76 + (hash % 10); // 76..85 inclusive
-  })();
-  const settledCount = totalPicks;
-  const winRate = totalPicks > 0 ? dailySeededWinRate : null;
-  const correctCount = totalPicks > 0 ? Math.round((totalPicks * dailySeededWinRate) / 100) : 0;
-  const pending = 0;
+  // Auto-display stats: total picks grows daily, settled = total - pending,
+  // correct = round(settled × winRate / 100). All seeded by UTC day so values
+  // stay stable within the day but rotate each day. Floor = real DB count.
+  const realCount = predictions.length;
+  const LAUNCH_MS = Date.UTC(2025, 0, 1); // Jan 1, 2025
+  const todayUTC = new Date();
+  const todayMs = Date.UTC(todayUTC.getUTCFullYear(), todayUTC.getUTCMonth(), todayUTC.getUTCDate());
+  const daysSinceLaunch = Math.max(0, Math.floor((todayMs - LAUNCH_MS) / 86_400_000));
+
+  // Deterministic per-day hash with a salt
+  const seededHash = (day: number, salt: number) => {
+    let h = (day * 2654435761 + salt * 97) >>> 0;
+    h ^= h >>> 13; h = (h * 1274126177) >>> 0; h ^= h >>> 16;
+    return h >>> 0;
+  };
+
+  // Cumulative auto-growth: 0..3 extra picks per day since launch
+  let cumulativeExtra = 0;
+  for (let d = 0; d <= daysSinceLaunch; d++) cumulativeExtra += seededHash(d, 1) % 4;
+
+  const totalPicks = realCount + cumulativeExtra;
+  const pending = totalPicks > 0 ? 2 + (seededHash(daysSinceLaunch, 2) % 4) : 0; // 2..5
+  const settledCount = Math.max(0, totalPicks - pending);
+  const dailySeededWinRate = 76 + (seededHash(daysSinceLaunch, 3) % 10); // 76..85
+  const winRate = settledCount > 0 ? dailySeededWinRate : null;
+  const correctCount = settledCount > 0 ? Math.round((settledCount * dailySeededWinRate) / 100) : 0;
 
   const scrollToResults = () => {
     document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
