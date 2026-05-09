@@ -1,23 +1,52 @@
-## Change
+## Goal
 
-`src/pages/Education.tsx` — Premium Content section er heading area te ekta "UPCOMING" badge add korbo, jate users bujhe j courses ekhono setup hoyni.
+Add the fields you actually want (skip restricted countries / scam score), and fix the broker-detail Trading Conditions table where the "Leverage" header sits above commission values.
 
-### Location
-Line ~175 er kasakasi, "PREMIUM CONTENT" badge er pashe ekta amber/coral "UPCOMING" badge add hobe. Subheading text o slightly update korbo: "Coming soon — structured courses and ebooks written by professional traders."
+## DB changes — `public.brokers`
 
-### Code
-```tsx
-<div className="flex items-center justify-center gap-2 mb-4">
-  <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent">
-    PREMIUM CONTENT
-  </span>
-  <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/30">
-    UPCOMING
-  </span>
-</div>
-```
+Add 4 nullable columns (no breaking changes):
 
-Course cards er upor optionally ekta subtle "coming soon" overlay/disable o korte pari — but tumi bolso shudhu label, tai ami shudhu badge add korbo, cards visible thakbe.
+| Column | Type | Default | Purpose |
+|---|---|---|---|
+| `license_number` | text | `''` | e.g. "SD185 (Equitex Capital Ltd)" — shown in Regulation & Safety |
+| `withdrawal_time` | text | `''` | e.g. "1–3 days (crypto), 3–5 days (bank)" |
+| `withdrawal_fee` | text | `''` | e.g. "Crypto free, Bank $10" |
+| `warning_note` | text | `''` | Optional amber alert near "Open Account" CTA |
 
-## Files
-- `src/pages/Education.tsx`
+Also extend the existing `account_types` jsonb shape to include a per-row `leverage` field:
+`{ name, min_deposit, spread, leverage, commission }` — purely additive, old rows still work.
+
+## Admin form — `src/pages/admin/BrokersAdmin.tsx`
+
+- Extend `AccountType` interface + `addAccountType` defaults with `leverage`.
+- Account Types editor: change grid from 12-col (4 inputs) to add a 5th input "Leverage (1:500)".
+- Add new "Risk & Trust Info" section in the modal:
+  - License Number (Input)
+  - Withdrawal Time (Input)
+  - Withdrawal Fee (Input)
+  - Warning Note (Textarea)
+- Wire all fields into `emptyBroker`, `openEdit`, and `payload`.
+
+## Public broker detail — `src/pages/BrokerDetail.tsx`
+
+1. **Trading Conditions table (line 582–606):** Add a "Commission" column so the table becomes:
+   ```
+   Account | Min Deposit | Spread | Leverage | Commission
+   ```
+   - `Leverage` cell → `at.leverage || broker.leverage`
+   - `Commission` cell → `at.commission || '—'`
+2. **Regulation & Safety section:** show `license_number` row when present.
+3. **Funding/Payment Methods section:** show "Withdrawal Time" and "Withdrawal Fee" rows when present.
+4. **Sidebar near "Open Account" CTA:** if `warning_note` exists, render an amber alert card with the warning text.
+5. Extend `Broker` + `AccountType` interfaces accordingly.
+
+## Files touched
+
+- New migration: 4 columns on `public.brokers`
+- `src/pages/admin/BrokersAdmin.tsx` — interface, form state, modal fields, save payload, account-types editor
+- `src/pages/BrokerDetail.tsx` — interface, table header/cells, new info rows, optional warning card
+
+## Out of scope
+
+- Restricted countries, scam score (per your request — skipped)
+- Filling actual values for Bullwaves (you'll do via admin UI after fields exist)
