@@ -22,7 +22,7 @@ const formatDate = (d: string) => {
   return `${String(date.getDate()).padStart(2,'0')}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getFullYear()).slice(-2)}`;
 };
 
-interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
+interface AccountType { name: string; min_deposit: string; spread: string; leverage: string; commission: string; }
 
 interface Broker {
   id: string;
@@ -55,6 +55,10 @@ interface Broker {
   support_phone: string;
   show_on_homepage: boolean;
   homepage_position: number | null;
+  license_number: string;
+  withdrawal_time: string;
+  withdrawal_fee: string;
+  warning_note: string;
 }
 
 const emptyBroker = {
@@ -67,6 +71,7 @@ const emptyBroker = {
   account_types: [] as AccountType[],
   website_url: "", support_email: "", support_phone: "",
   show_on_homepage: false, homepage_position: null as number | null,
+  license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
 };
 
 const BrokersAdmin = () => {
@@ -99,7 +104,9 @@ const BrokersAdmin = () => {
       cons: b.cons || [],
       payment_methods: b.payment_methods || [],
       platforms: b.platforms || [],
-      account_types: Array.isArray(b.account_types) ? b.account_types : [],
+      account_types: Array.isArray(b.account_types)
+        ? b.account_types.map((at: any) => ({ leverage: "", ...at }))
+        : [],
       description: b.description || "",
       headquarters: b.headquarters || "",
       website_url: b.website_url || "",
@@ -108,6 +115,10 @@ const BrokersAdmin = () => {
       founded_year: b.founded_year ?? null,
       show_on_homepage: (b as any).show_on_homepage ?? false,
       homepage_position: (b as any).homepage_position ?? null,
+      license_number: (b as any).license_number || "",
+      withdrawal_time: (b as any).withdrawal_time || "",
+      withdrawal_fee: (b as any).withdrawal_fee || "",
+      warning_note: (b as any).warning_note || "",
     });
     setModalOpen(true);
   };
@@ -169,7 +180,7 @@ const BrokersAdmin = () => {
   };
 
   // Account-types editor
-  const addAccountType = () => setForm({ ...form, account_types: [...form.account_types, { name: "", min_deposit: "", spread: "", commission: "" }] });
+  const addAccountType = () => setForm({ ...form, account_types: [...form.account_types, { name: "", min_deposit: "", spread: "", leverage: "", commission: "" }] });
   const updateAccountType = (i: number, field: keyof AccountType, value: string) => {
     const updated = [...form.account_types];
     updated[i] = { ...updated[i], [field]: value };
@@ -301,8 +312,9 @@ const BrokersAdmin = () => {
                 {form.account_types.map((at, i) => (
                   <div key={i} className="grid grid-cols-12 gap-2 items-start">
                     <Input className="col-span-3" placeholder="Name (Standard)" value={at.name} onChange={e => updateAccountType(i, "name", e.target.value)} />
-                    <Input className="col-span-3" placeholder="Min ($10)" value={at.min_deposit} onChange={e => updateAccountType(i, "min_deposit", e.target.value)} />
-                    <Input className="col-span-3" placeholder="Spread (1.0 pip)" value={at.spread} onChange={e => updateAccountType(i, "spread", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Min ($10)" value={at.min_deposit} onChange={e => updateAccountType(i, "min_deposit", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Spread (1.0)" value={at.spread} onChange={e => updateAccountType(i, "spread", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Leverage (1:500)" value={(at as any).leverage || ""} onChange={e => updateAccountType(i, "leverage", e.target.value)} />
                     <Input className="col-span-2" placeholder="Commission" value={at.commission} onChange={e => updateAccountType(i, "commission", e.target.value)} />
                     <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removeAccountType(i)}><X className="w-4 h-4 text-destructive" /></Button>
                   </div>
@@ -314,6 +326,20 @@ const BrokersAdmin = () => {
               <div><Label>Website URL</Label><Input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})} placeholder="https://" /></div>
               <div><Label>Support Email</Label><Input value={form.support_email} onChange={e => setForm({...form, support_email: e.target.value})} /></div>
               <div><Label>Support Phone</Label><Input value={form.support_phone} onChange={e => setForm({...form, support_phone: e.target.value})} /></div>
+            </div>
+
+            <div className="border border-amber-500/30 bg-amber-500/5 rounded-lg p-3 space-y-3">
+              <Label className="text-foreground">Risk & Trust Info</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label className="text-xs">License Number</Label><Input value={form.license_number} onChange={e => setForm({...form, license_number: e.target.value})} placeholder="SD185 (Equitex Capital Ltd)" /></div>
+                <div></div>
+                <div><Label className="text-xs">Withdrawal Time</Label><Input value={form.withdrawal_time} onChange={e => setForm({...form, withdrawal_time: e.target.value})} placeholder="1–3 days (crypto), 3–5 days (bank)" /></div>
+                <div><Label className="text-xs">Withdrawal Fee</Label><Input value={form.withdrawal_fee} onChange={e => setForm({...form, withdrawal_fee: e.target.value})} placeholder="Crypto free, Bank $10" /></div>
+              </div>
+              <div>
+                <Label className="text-xs">Warning Note (shown next to Open Account button)</Label>
+                <Textarea rows={2} value={form.warning_note} onChange={e => setForm({...form, warning_note: e.target.value})} placeholder="Test withdrawal with $50 first before depositing more." />
+              </div>
             </div>
 
             <div className="border border-primary/30 bg-primary/5 rounded-lg p-3 space-y-3">
