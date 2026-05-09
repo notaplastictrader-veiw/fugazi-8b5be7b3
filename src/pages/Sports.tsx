@@ -126,8 +126,10 @@ const Sports = () => {
   const isBetting = activeFilter === "betting";
   const filtered = activeFilter === "all" ? allPredictions : allPredictions.filter((p) => p.sport === activeFilter);
 
+  const UPCOMING_GRACE_MS = 3 * 60 * 60 * 1000; // keep live matches visible for 3h after kickoff
+  const nowMsForUpcoming = Date.now();
   const upcoming = filtered
-    .filter((p) => !p.result)
+    .filter((p) => !p.result && new Date(p.match_date).getTime() + UPCOMING_GRACE_MS > nowMsForUpcoming)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
 
   // Popular-team subset first (default ordering) — only pin if kicking off within 48h
