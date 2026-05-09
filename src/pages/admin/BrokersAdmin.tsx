@@ -13,8 +13,8 @@ import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
-import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
-import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
+import { exportToCSV } from "@/lib/adminExport";
+import { Download } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Switch } from "@/components/ui/switch";
 
@@ -85,8 +85,8 @@ const BrokersAdmin = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Broker | null>(null);
   const [form, setForm] = useState<typeof emptyBroker>(emptyBroker);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchBrokers = async () => {
     const { data } = await supabase.from("brokers").select("*").order("created_at", { ascending: false });
@@ -173,9 +173,13 @@ const BrokersAdmin = () => {
   };
 
   const filtered = useMemo(() => {
-    let result = brokers.filter(b => b.name.toLowerCase().includes(search.toLowerCase()));
-    return filterByDateRange(result, "created_at", fromDate, toDate);
-  }, [brokers, search, fromDate, toDate]);
+    return brokers.filter(b => {
+      if (search && !b.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (typeFilter !== "all" && b.type !== typeFilter) return false;
+      if (statusFilter !== "all" && b.status !== statusFilter) return false;
+      return true;
+    });
+  }, [brokers, search, typeFilter, statusFilter]);
 
   const handleExport = () => {
     exportToCSV(filtered.map(b => ({
@@ -211,8 +215,35 @@ const BrokersAdmin = () => {
         <h2 className="text-2xl font-bold text-foreground">Brokers</h2>
         <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Broker</Button>
       </div>
-      <Input placeholder="Search brokers..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 max-w-sm" />
-      <AdminTableToolbar fromDate={fromDate} toDate={toDate} onFromChange={setFromDate} onToChange={setToDate} onExport={handleExport} />
+      <div className="flex flex-wrap items-center gap-3 mb-4">
+        <Input placeholder="Search brokers..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-xs" />
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Type" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="forex">Forex</SelectItem>
+            <SelectItem value="crypto">Crypto</SelectItem>
+            <SelectItem value="binary">Binary</SelectItem>
+            <SelectItem value="ecn">ECN</SelectItem>
+            <SelectItem value="prop-firm">Prop Firm</SelectItem>
+            <SelectItem value="scam-watch">Scam Watch</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-xs font-mono text-muted-foreground">{filtered.length} of {brokers.length}</span>
+        <Button variant="outline" size="sm" className="ml-auto" onClick={handleExport}>
+          <Download className="w-4 h-4 mr-1" /> Download Excel
+        </Button>
+      </div>
       <div className="rounded-lg border border-border overflow-hidden">
         <Table>
           <TableHeader>

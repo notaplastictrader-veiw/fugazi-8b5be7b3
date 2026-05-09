@@ -1,57 +1,63 @@
 ## Goal
 
-Make the broker edit modal **wide, tabbed, and breathable** so editing doesn't feel cramped. Remove the now-unwanted "Risk & Trust Info" block.
+Brokers admin er date filter ekhon kaj korche na (most rows er created_at same/seed time, tai date pick korle list khali hoy). Date filter er bodole **Type dropdown** dao, plus shob admin edit modal — Betting Sites, Promotions, Signals, Scam Alerts, News, Education, Sports, Calendar, Courses, Forecasts — Brokers er motoi clean, wide, **tabbed/sectioned** kore user-friendly banao.
 
-## Modal redesign — `src/pages/admin/BrokersAdmin.tsx`
+## Phase 1 — Brokers admin toolbar fix
 
-**Size & shell**
-- Bump width: `max-w-2xl` → `max-w-5xl` (≈1024px)
-- Keep `max-h-[90vh] overflow-y-auto`
-- Add a sticky header (title + Save/Cancel) so action buttons are always reachable
-- Replace the single long scroll with a **5-tab layout** using existing shadcn `Tabs`
+`src/pages/admin/BrokersAdmin.tsx`:
+- `AdminTableToolbar` (date from/to) **shoraye dao**.
+- Tar bodole ekta horizontal toolbar:
+  - Search input (already ache)
+  - **Type** select dropdown: All / Forex / Crypto / Binary / ECN / Prop Firm / Scam Watch
+  - **Status** select dropdown: All / Draft / Pending / Published / Rejected
+  - Right side: **Download Excel** button (handleExport already ache)
+- `filtered` useMemo update: name search + type filter + status filter.
+- `filterByDateRange` import & date state remove.
+- Result count chip (`{filtered.length} of {brokers.length}`) toolbar er pashe.
 
-**Tabs and what goes in each**
+`AdminTableToolbar.tsx` shei moto onno admin page-eo use hoy (ReviewsAdmin, ComplaintsAdmin, etc.) — oi gulo touch korbo na, shudhu Brokers theke shoranor.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ Edit Broker                                  [Cancel][Save] │
-├─────────────────────────────────────────────────────────────┤
-│ [Basics] [Trading] [Funding] [Display] [Status]             │
-├─────────────────────────────────────────────────────────────┤
-│  …active tab content…                                       │
-└─────────────────────────────────────────────────────────────┘
-```
+## Phase 2 — Reusable tabbed modal pattern
 
-1. **Basics** — Name, Slug, Type, Badge, Description, Founded Year, Headquarters, Logo upload, Tags, Regulation
-2. **Trading** — Score, Stars, Avg Spread, Leverage, Min Deposit, Pros, Cons, Platforms, **Account Types** repeater
-3. **Funding** — Payment Methods (chip input), **Payment Method Details** repeater (the new Deposits & Withdrawals editor)
-4. **Display** — Website URL, Support Email, Support Phone, Show on Homepage toggle + position
-5. **Status** — Status dropdown (draft/pending/published/rejected) + Save button (also in sticky header)
+Brokers er current 5-tab modal pattern (sticky header, max-w-5xl, Tabs) jeta already ache, sheta-i template. Ekta common helper file lagbe na — pattern direct copy korbo prottek admin e to keep diff small.
 
-**Polish details**
-- Inside each tab, group related fields into card-style blocks with thin borders + `p-4` padding so they breathe
-- Repeater rows: switch from raw 12-col grid to labeled inputs in 2-col responsive grid (so on narrow screens they stack instead of squeezing into tiny columns) — current 12-col is the main "hijibiji" cause
-- Each repeater row gets a small header `#1 Standard Account` with the delete button on the right
-- Use `min-h-[52px]` on the repeater "empty state" so it doesn't collapse
+Common rules prottek modal er jonno:
+- `DialogContent` width: `max-w-3xl` (small forms) ba `max-w-5xl` (boro forms with repeaters).
+- Sticky header: title + Save/Cancel button right e.
+- Body `max-h-[75vh] overflow-y-auto` with tab panels.
+- 2-column responsive grid for related fields (`grid-cols-1 md:grid-cols-2`).
+- Empty repeater rows e dashed border + "Add" button.
+- Status select shobshomoy "Settings/Status" tab e.
 
-## Removals — Risk & Trust Info
+## Phase 3 — Per-page modal redesigns
 
-Per your request:
-- Remove the amber "Risk & Trust Info" section from the modal entirely
-- Stop sending `license_number`, `withdrawal_time`, `withdrawal_fee`, `warning_note` in the save payload (they'll just stay as their DB defaults of `''`)
-- Drop the matching renders in `src/pages/BrokerDetail.tsx`:
-  - License number row inside Regulation & Safety
-  - Withdrawal Time / Withdrawal Fee cards under the Deposits table (the new Payment Method Details table already covers fees & processing)
-  - Amber Warning Note alert next to "Open Account"
-- The DB columns stay (no migration; non-destructive). If you ever want them back, just re-add the inputs.
+Each page er edit modal ke tab e bhag korbo:
 
-## Files touched
+| Page | Tabs | Width |
+|------|------|-------|
+| BettingSitesAdmin | Basics (name, slug, logo, license, url) • Offer (bonus, min deposit, withdrawal speed, sports, features) • Settings (warning, display order, status) | max-w-3xl |
+| PromotionsAdmin | Basics (title, slug, broker, type) • Offer (amount, conditions, expiry) • Display (image, cta, order) • Status | max-w-3xl |
+| SignalsAdmin | Basics (pair, direction, entry/SL/TP) • Analysis (rationale, timeframe) • Status | max-w-3xl |
+| ScamAlertsAdmin | Basics (broker, severity, title) • Details (description, evidence) • Status | max-w-3xl |
+| NewsAdmin | Basics (title, slug, category) • Content (excerpt, body, image) • SEO/Status | max-w-3xl |
+| EducationAdmin | Basics (title, slug, level) • Content (body, video, image) • Meta (tags, order) • Status | max-w-5xl |
+| SportsAdmin | Basics (event, league, kickoff) • Prediction (pick, confidence) • Status | max-w-3xl |
+| CalendarAdmin | Basics (event, currency, importance) • Schedule (date, time) • Values (forecast/previous/actual) | max-w-3xl |
+| CoursesAdmin | Basics (title, slug, instructor) • Content (description, modules, duration) • Pricing (price, discount) • Status | max-w-3xl |
+| ForecastsAdmin | Basics (asset, category, direction) • Forecast (entry, target, rationale) • Status | max-w-3xl |
 
-- `src/pages/admin/BrokersAdmin.tsx` — modal restructure into Tabs, repeater rows polished, Risk & Trust block removed
-- `src/pages/BrokerDetail.tsx` — remove the 3 render blocks tied to the removed fields
+## Phase 4 — QA
+
+- Brokers admin e Type dropdown switch korle list filter hocche kina.
+- 1-2 admin modal kholo, Save kaj korche kina, repeater add/remove kaj korche kina.
 
 ## Out of scope
 
-- Field-level validation, autosave, or dirty-state warnings
-- Database migrations (none needed)
-- Touching any other admin page
+- DB schema change nai.
+- Admin table column change nai (only toolbar).
+- Onno admin page er date toolbar (Reviews/Complaints) jeegulor real `created_at` ache shegulo aagey moto thakbe.
+- Validation/dirty-state warning nai.
+
+## Notes
+
+User asked specifically "type er ekhane drop down" — interpret kortechi Brokers admin e Type filter dropdown chai (jeta most cluttered list).

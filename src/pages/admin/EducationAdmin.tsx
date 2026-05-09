@@ -6,8 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Plus, Pencil, Trash2, BookOpen, Lock, Unlock, ChevronUp, ChevronDown, X } from "lucide-react";
@@ -194,120 +195,136 @@ const EducationAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
             <DialogTitle>{editing ? "Edit Article" : "Add Article"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
+            </div>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Title</Label>
-                <Input value={form.title} onChange={e => {
-                  const t = e.target.value;
-                  setForm(f => ({ ...f, title: t, slug: f.slug || slugify(t) }));
-                }} />
-              </div>
-              <div>
-                <Label>Slug</Label>
-                <Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} />
-              </div>
-            </div>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-3 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="sections">Sections</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label>Track</Label>
-                <Select value={form.track} onValueChange={v => setForm({ ...form, track: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Read Time (min)</Label>
-                <Input type="number" min={1} value={form.read_time}
-                  onChange={e => setForm({ ...form, read_time: +e.target.value })} />
-              </div>
-              <div>
-                <Label>Display Order</Label>
-                <Input type="number" value={form.display_order}
-                  onChange={e => setForm({ ...form, display_order: +e.target.value })} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 pt-6">
-                <Switch checked={form.is_locked} onCheckedChange={v => setForm({ ...form, is_locked: v })} />
-                <Label>Locked (premium)</Label>
-              </div>
-              <div>
-                <Label>Linked Course (optional)</Label>
-                <Select value={form.course_id || "none"} onValueChange={v => setForm({ ...form, course_id: v === "none" ? null : v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">— None —</SelectItem>
-                    {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label>Key Takeaway</Label>
-              <Textarea rows={2} value={form.key_takeaway}
-                onChange={e => setForm({ ...form, key_takeaway: e.target.value })} />
-            </div>
-
-            <ImageUpload value={form.hero_image_url} onChange={url => setForm({ ...form, hero_image_url: url })} bucket="media" folder="education" maxSizeMB={5} label="Hero Image" accept="image/png,image/jpeg,image/webp" />
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label>Sections ({form.sections.length})</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addSection}>
-                  <Plus className="w-3 h-3 mr-1" /> Add Section
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {form.sections.map((s, idx) => (
-                  <div key={idx} className="border border-border rounded-lg p-3 bg-muted/20 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-muted-foreground">#{idx + 1}</span>
-                      <Input placeholder="Section title" value={s.title}
-                        onChange={e => updateSection(idx, { title: e.target.value })} className="flex-1" />
-                      <Button type="button" variant="ghost" size="sm" onClick={() => moveSection(idx, -1)} disabled={idx === 0}>
-                        <ChevronUp className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => moveSection(idx, 1)} disabled={idx === form.sections.length - 1}>
-                        <ChevronDown className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => removeSection(idx)} disabled={form.sections.length === 1}>
-                        <X className="w-3.5 h-3.5 text-destructive" />
-                      </Button>
-                    </div>
-                    <Textarea rows={5} placeholder="Section content (HTML allowed: <p>, <ul>, <li>, <strong>, <em>)"
-                      value={s.content} onChange={e => updateSection(idx, { content: e.target.value })}
-                      className="font-mono text-xs" />
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input value={form.title} onChange={e => {
+                      const t = e.target.value;
+                      setForm(f => ({ ...f, title: t, slug: f.slug || slugify(t) }));
+                    }} />
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div>
+                    <Label>Slug</Label>
+                    <Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Track</Label>
+                    <Select value={form.track} onValueChange={v => setForm({ ...form, track: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Read Time (min)</Label>
+                    <Input type="number" min={1} value={form.read_time}
+                      onChange={e => setForm({ ...form, read_time: +e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Display Order</Label>
+                    <Input type="number" value={form.display_order}
+                      onChange={e => setForm({ ...form, display_order: +e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Key Takeaway</Label>
+                  <Textarea rows={3} value={form.key_takeaway}
+                    onChange={e => setForm({ ...form, key_takeaway: e.target.value })} />
+                </div>
+                <ImageUpload value={form.hero_image_url} onChange={url => setForm({ ...form, hero_image_url: url })} bucket="media" folder="education" maxSizeMB={5} label="Hero Image" accept="image/png,image/jpeg,image/webp" />
+              </TabsContent>
 
-            <div>
-              <Label>Status</Label>
-              <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <TabsContent value="sections" className="space-y-4 mt-0">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Sections ({form.sections.length})</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addSection}>
+                    <Plus className="w-3 h-3 mr-1" /> Add Section
+                  </Button>
+                </div>
+                {form.sections.length === 0 && (
+                  <div className="border border-dashed border-border rounded-lg min-h-[80px] flex items-center justify-center">
+                    <p className="text-xs text-muted-foreground">No sections yet. Click "Add Section" above.</p>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  {form.sections.map((s, idx) => (
+                    <div key={idx} className="border border-border rounded-lg p-3 bg-muted/20 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-muted-foreground">#{idx + 1}</span>
+                        <Input placeholder="Section title" value={s.title}
+                          onChange={e => updateSection(idx, { title: e.target.value })} className="flex-1" />
+                        <Button type="button" variant="ghost" size="sm" onClick={() => moveSection(idx, -1)} disabled={idx === 0}>
+                          <ChevronUp className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => moveSection(idx, 1)} disabled={idx === form.sections.length - 1}>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeSection(idx)} disabled={form.sections.length === 1}>
+                          <X className="w-3.5 h-3.5 text-destructive" />
+                        </Button>
+                      </div>
+                      <Textarea rows={6} placeholder="Section content (HTML allowed: <p>, <ul>, <li>, <strong>, <em>)"
+                        value={s.content} onChange={e => updateSection(idx, { content: e.target.value })}
+                        className="font-mono text-xs" />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
 
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+              <TabsContent value="settings" className="space-y-4 mt-0">
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                  <Switch checked={form.is_locked} onCheckedChange={v => setForm({ ...form, is_locked: v })} />
+                  <div>
+                    <Label className="cursor-pointer">Locked (Premium)</Label>
+                    <p className="text-xs text-muted-foreground">Only paid members can read</p>
+                  </div>
+                </div>
+                <div>
+                  <Label>Linked Course <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                  <Select value={form.course_id || "none"} onValueChange={v => setForm({ ...form, course_id: v === "none" ? null : v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— None —</SelectItem>
+                      {courses.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
