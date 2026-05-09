@@ -55,6 +55,10 @@ interface Broker {
   support_phone: string;
   show_on_homepage: boolean;
   homepage_position: number | null;
+  license_number: string;
+  withdrawal_time: string;
+  withdrawal_fee: string;
+  warning_note: string;
 }
 
 const emptyBroker = {
