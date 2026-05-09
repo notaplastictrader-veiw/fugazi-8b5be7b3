@@ -173,73 +173,91 @@ const ScamAlertsAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Alert" : "Add Alert"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
-            <div><Label>Short Description (card teaser)</Label><Textarea rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
-
-            <div>
-              <Label>Story / Summary (shown on detail page)</Label>
-              <Textarea rows={4} value={form.story} onChange={e => setForm({...form, story: e.target.value})} placeholder="Short investigation summary." />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Severity</Label>
-                <Select value={form.severity} onValueChange={v => setForm({...form, severity: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label>Linked Broker (optional)</Label>
-              <Select value={form.broker_id || "__none__"} onValueChange={v => setForm({...form, broker_id: v === "__none__" ? "" : v})}>
-                <SelectTrigger><SelectValue placeholder="No broker linked" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— None —</SelectItem>
-                  {brokers.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <p className="text-[11px] text-muted-foreground mt-1">If linked, the investigation report appears on the broker's profile too.</p>
-            </div>
-
-            <div className="flex items-center gap-2 pt-2 border-t border-border">
-              <Switch checked={form.is_repeat_offender} onCheckedChange={v => setForm({...form, is_repeat_offender: v})} />
-              <Label>Mark as REPEAT OFFENDER (red tag)</Label>
-            </div>
-
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Alert" : "Add Alert"}</DialogTitle>
             <div className="flex items-center gap-2">
-              <Switch checked={form.show_full_report} onCheckedChange={v => setForm({...form, show_full_report: v})} />
-              <Label>Publish Full Investigation Report</Label>
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
             </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-3 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="report">Report</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
 
-            <div>
-              <Label>Full Investigation Report</Label>
-              <Textarea rows={8} value={form.full_report} onChange={e => setForm({...form, full_report: e.target.value})} placeholder="Long-form investigation. Rendered with red highlights when 'Publish Full Report' is on." />
-            </div>
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
+                <div><Label>Short Description <span className="text-xs text-muted-foreground font-normal">(card teaser)</span></Label><Textarea rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Severity</Label>
+                    <Select value={form.severity} onValueChange={v => setForm({...form, severity: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Linked Broker <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+                    <Select value={form.broker_id || "__none__"} onValueChange={v => setForm({...form, broker_id: v === "__none__" ? "" : v})}>
+                      <SelectTrigger><SelectValue placeholder="No broker linked" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">— None —</SelectItem>
+                        {brokers.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
 
-            <ImageUpload value="" onChange={() => {}} bucket="media" folder="scams" maxSizeMB={5} label="Evidence Image (optional, separate upload)" accept="image/png,image/jpeg,image/webp" />
+              <TabsContent value="report" className="space-y-4 mt-0">
+                <div>
+                  <Label>Story / Summary <span className="text-xs text-muted-foreground font-normal">(detail page)</span></Label>
+                  <Textarea rows={5} value={form.story} onChange={e => setForm({...form, story: e.target.value})} placeholder="Short investigation summary." />
+                </div>
+                <div>
+                  <Label>Full Investigation Report</Label>
+                  <Textarea rows={10} value={form.full_report} onChange={e => setForm({...form, full_report: e.target.value})} placeholder="Long-form investigation. Rendered with red highlights when 'Publish Full Report' is on." />
+                </div>
+                <ImageUpload value="" onChange={() => {}} bucket="media" folder="scams" maxSizeMB={5} label="Evidence Image (optional, separate upload)" accept="image/png,image/jpeg,image/webp" />
+              </TabsContent>
 
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+              <TabsContent value="settings" className="space-y-4 mt-0">
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                  <Switch checked={form.is_repeat_offender} onCheckedChange={v => setForm({...form, is_repeat_offender: v})} />
+                  <div>
+                    <Label className="cursor-pointer">Repeat Offender</Label>
+                    <p className="text-xs text-muted-foreground">Marks the alert with a red REPEAT OFFENDER tag.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                  <Switch checked={form.show_full_report} onCheckedChange={v => setForm({...form, show_full_report: v})} />
+                  <div>
+                    <Label className="cursor-pointer">Publish Full Report</Label>
+                    <p className="text-xs text-muted-foreground">Show the full investigation on the detail page.</p>
+                  </div>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
