@@ -174,7 +174,7 @@ const BrokersAdmin = () => {
   };
 
   // Account-types editor
-  const addAccountType = () => setForm({ ...form, account_types: [...form.account_types, { name: "", min_deposit: "", spread: "", commission: "" }] });
+  const addAccountType = () => setForm({ ...form, account_types: [...form.account_types, { name: "", min_deposit: "", spread: "", leverage: "", commission: "" }] });
   const updateAccountType = (i: number, field: keyof AccountType, value: string) => {
     const updated = [...form.account_types];
     updated[i] = { ...updated[i], [field]: value };
