@@ -195,6 +195,15 @@ const BrokersAdmin = () => {
   };
   const removeAccountType = (i: number) => setForm({ ...form, account_types: form.account_types.filter((_, idx) => idx !== i) });
 
+  // Payment method details editor
+  const addPaymentDetail = () => setForm({ ...form, payment_method_details: [...form.payment_method_details, { method: "", min: "", processing: "", fee: "" }] });
+  const updatePaymentDetail = (i: number, field: keyof PaymentMethodDetail, value: string) => {
+    const updated = [...form.payment_method_details];
+    updated[i] = { ...updated[i], [field]: value };
+    setForm({ ...form, payment_method_details: updated });
+  };
+  const removePaymentDetail = (i: number) => setForm({ ...form, payment_method_details: form.payment_method_details.filter((_, idx) => idx !== i) });
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
