@@ -18,7 +18,7 @@ import {
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import StarRating from "@/components/reviews/StarRating";
 
-interface AccountType { name: string; min_deposit: string; spread: string; commission: string; }
+interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
   id: string;
   name: string;
@@ -46,6 +46,10 @@ interface Broker {
   website_url?: string;
   support_email?: string;
   support_phone?: string;
+  license_number?: string;
+  withdrawal_time?: string;
+  withdrawal_fee?: string;
+  warning_note?: string;
 }
 
 interface ReviewReply {
