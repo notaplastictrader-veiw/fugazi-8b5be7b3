@@ -109,40 +109,63 @@ const NewsAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Article" : "Add Article"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
-            <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} placeholder="url-friendly-slug" /></div>
-            <div><Label>Excerpt</Label><Textarea rows={2} value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} /></div>
-            <div><Label>Content</Label><Textarea rows={6} value={form.content} onChange={e => setForm({...form, content: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Category</Label>
-                <Select value={form.category} onValueChange={v => setForm({...form, category: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="market">Market</SelectItem>
-                    <SelectItem value="regulation">Regulation</SelectItem>
-                    <SelectItem value="crypto">Crypto</SelectItem>
-                    <SelectItem value="analysis">Analysis</SelectItem>
-                    <SelectItem value="editorial">Editorial</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><Label>Author</Label><Input value={form.author} onChange={e => setForm({...form, author: e.target.value})} /></div>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Article" : "Add Article"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
             </div>
-            <div><Label>Source URL</Label><Input value={form.source_url} onChange={e => setForm({...form, source_url: e.target.value})} /></div>
-            <ImageUpload value={form.image_url} onChange={url => setForm({...form, image_url: url})} bucket="media" folder="news" maxSizeMB={5} label="Article Image" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <div><Label>Status</Label>
-              <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem><SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="published">Published</SelectItem><SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-3 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="content">Content</TabsTrigger>
+                <TabsTrigger value="meta">Meta &amp; Status</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
+                  <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} placeholder="url-friendly-slug" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Category</Label>
+                    <Select value={form.category} onValueChange={v => setForm({...form, category: v})}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="market">Market</SelectItem>
+                        <SelectItem value="regulation">Regulation</SelectItem>
+                        <SelectItem value="crypto">Crypto</SelectItem>
+                        <SelectItem value="analysis">Analysis</SelectItem>
+                        <SelectItem value="editorial">Editorial</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label>Author</Label><Input value={form.author} onChange={e => setForm({...form, author: e.target.value})} /></div>
+                </div>
+                <div><Label>Excerpt</Label><Textarea rows={2} value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} /></div>
+              </TabsContent>
+
+              <TabsContent value="content" className="space-y-4 mt-0">
+                <div><Label>Content</Label><Textarea rows={14} value={form.content} onChange={e => setForm({...form, content: e.target.value})} /></div>
+                <ImageUpload value={form.image_url} onChange={url => setForm({...form, image_url: url})} bucket="media" folder="news" maxSizeMB={5} label="Article Image" accept="image/png,image/jpeg,image/webp,image/gif" />
+              </TabsContent>
+
+              <TabsContent value="meta" className="space-y-4 mt-0">
+                <div><Label>Source URL</Label><Input value={form.source_url} onChange={e => setForm({...form, source_url: e.target.value})} placeholder="https://…" /></div>
+                <div><Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem><SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="published">Published</SelectItem><SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
