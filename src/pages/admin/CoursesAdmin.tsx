@@ -184,9 +184,15 @@ const CoursesAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Course" : "Add Course"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Course" : "Add Course"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div>
               <Label>Title</Label>
               <Input value={form.title} onChange={e => {
@@ -194,7 +200,7 @@ const CoursesAdmin = () => {
                 setForm(f => ({ ...f, title: t, slug: f.slug || slugify(t) }));
               }} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} /></div>
               <div>
                 <Label>Type</Label>
@@ -209,18 +215,18 @@ const CoursesAdmin = () => {
               </div>
             </div>
             <div><Label>Description</Label><Textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Price ($)</Label><Input type="number" min={0} value={form.price} onChange={e => setForm({ ...form, price: +e.target.value })} /></div>
-              <div><Label>Original Price ($, optional)</Label><Input type="number" value={form.original_price ?? ""} onChange={e => setForm({ ...form, original_price: e.target.value ? +e.target.value : null })} placeholder="For strikethrough" /></div>
+              <div><Label>Original Price <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label><Input type="number" value={form.original_price ?? ""} onChange={e => setForm({ ...form, original_price: e.target.value ? +e.target.value : null })} placeholder="For strikethrough" /></div>
             </div>
             <div>
-              <Label>Includes (one per line)</Label>
-              <Textarea rows={3} value={includesText} onChange={e => setIncludesText(e.target.value)}
+              <Label>Includes <span className="text-xs text-muted-foreground font-normal">(one per line)</span></Label>
+              <Textarea rows={4} value={includesText} onChange={e => setIncludesText(e.target.value)}
                 placeholder="PDF workbook&#10;Video links&#10;Quiz at end of each module" />
             </div>
             <div><Label>Note</Label><Input value={form.note} onChange={e => setForm({ ...form, note: e.target.value })} placeholder="Instant access after purchase" /></div>
             <ImageUpload value={form.thumbnail_url} onChange={url => setForm({ ...form, thumbnail_url: url })} bucket="media" folder="courses" maxSizeMB={5} label="Course Thumbnail" accept="image/png,image/jpeg,image/webp" />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: +e.target.value })} /></div>
               <div>
                 <Label>Status</Label>
@@ -235,17 +241,16 @@ const CoursesAdmin = () => {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border flex-1 min-w-[180px]">
                 <Switch checked={form.is_active} onCheckedChange={v => setForm({ ...form, is_active: v })} />
-                <Label>Active</Label>
+                <Label className="cursor-pointer">Active</Label>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border flex-1 min-w-[180px]">
                 <Switch checked={form.is_featured} onCheckedChange={v => setForm({ ...form, is_featured: v })} />
-                <Label>Featured (Best Value)</Label>
+                <Label className="cursor-pointer">Featured (Best Value)</Label>
               </div>
             </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
           </div>
         </DialogContent>
       </Dialog>
