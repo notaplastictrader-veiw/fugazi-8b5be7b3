@@ -71,6 +71,7 @@ const emptyBroker = {
   pros: [] as string[], cons: [] as string[],
   payment_methods: [] as string[], platforms: [] as string[],
   account_types: [] as AccountType[],
+  payment_method_details: [] as PaymentMethodDetail[],
   website_url: "", support_email: "", support_phone: "",
   show_on_homepage: false, homepage_position: null as number | null,
   license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
