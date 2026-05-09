@@ -192,9 +192,14 @@ const Education = () => {
         {/* Courses Section */}
         <div id="courses" className="mt-20">
           <div className="text-center mb-10">
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent mb-4">
-              PREMIUM CONTENT
-            </span>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent">
+                PREMIUM CONTENT
+              </span>
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+                UPCOMING
+              </span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground mb-3">
               Take Your Trading Further
             </h2>
