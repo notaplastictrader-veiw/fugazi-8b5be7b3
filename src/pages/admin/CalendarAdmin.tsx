@@ -114,16 +114,22 @@ const CalendarAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Event" : "Add Event"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+        <DialogContent className="max-w-2xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Event" : "Add Event"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
+            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} /></div>
             <div><Label>Description</Label><Textarea rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Event Date</Label><Input type="date" value={form.event_date} onChange={e => setForm({...form, event_date: e.target.value})} /></div>
               <div><Label>Event Time</Label><Input type="time" value={form.event_time} onChange={e => setForm({...form, event_time: e.target.value})} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div><Label>Impact</Label>
                 <Select value={form.impact} onValueChange={v => setForm({...form, impact: v})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
@@ -134,29 +140,30 @@ const CalendarAdmin = () => {
               </div>
               <div><Label>Currency</Label><Input value={form.currency} onChange={e => setForm({...form, currency: e.target.value})} placeholder="e.g. USD" /></div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-4">
               <div><Label>Forecast</Label><Input value={form.forecast_value} onChange={e => setForm({...form, forecast_value: e.target.value})} /></div>
               <div><Label>Previous</Label><Input value={form.previous_value} onChange={e => setForm({...form, previous_value: e.target.value})} /></div>
               <div><Label>Actual</Label><Input value={form.actual_value} onChange={e => setForm({...form, actual_value: e.target.value})} /></div>
             </div>
-            <div><Label>Category</Label>
-              <Select value={form.category} onValueChange={v => setForm({...form, category: v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="economic">Economic</SelectItem><SelectItem value="earnings">Earnings</SelectItem><SelectItem value="political">Political</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div><Label>Category</Label>
+                <Select value={form.category} onValueChange={v => setForm({...form, category: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="economic">Economic</SelectItem><SelectItem value="earnings">Earnings</SelectItem><SelectItem value="political">Political</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Status</Label>
+                <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem><SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="published">Published</SelectItem><SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div><Label>Status</Label>
-              <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem><SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="published">Published</SelectItem><SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
           </div>
         </DialogContent>
       </Dialog>
