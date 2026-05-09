@@ -130,8 +130,13 @@ const Sports = () => {
     .filter((p) => !p.result)
     .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
 
-  // Popular-team subset first (default ordering)
-  const upcomingPopularAll = upcoming.filter((p) => isPopularMatch(p.team_a, p.team_b));
+  // Popular-team subset first (default ordering) — only pin if kicking off within 48h
+  // so distant future matches don't camp on page 1 and the list rotates daily.
+  const POPULAR_PIN_WINDOW_MS = 48 * 60 * 60 * 1000;
+  const nowMs = Date.now();
+  const upcomingPopularAll = upcoming.filter(
+    (p) => isPopularMatch(p.team_a, p.team_b) && new Date(p.match_date).getTime() - nowMs <= POPULAR_PIN_WINDOW_MS
+  );
   const popularIds = new Set(upcomingPopularAll.map((p) => p.id));
   const upcomingDefault = [...upcomingPopularAll, ...upcoming.filter((p) => !popularIds.has(p.id))];
 
