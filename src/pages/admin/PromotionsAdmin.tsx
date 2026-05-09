@@ -196,79 +196,95 @@ const PromotionsAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Promotion" : "Add Promotion"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
-              <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="auto-from-title" /></div>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Promotion" : "Add Promotion"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
             </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-4 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="offer">Offer</TabsTrigger>
+                <TabsTrigger value="display">Display</TabsTrigger>
+                <TabsTrigger value="status">Status</TabsTrigger>
+              </TabsList>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Broker / Brand Name</Label><Input value={form.broker_name} onChange={e => setForm({ ...form, broker_name: e.target.value })} placeholder="e.g. Exness" /></div>
-              <div><Label>Bonus Amount</Label><Input value={form.bonus_amount} onChange={e => setForm({ ...form, bonus_amount: e.target.value })} placeholder="e.g. 100% / $30" /></div>
-            </div>
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Title</Label><Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
+                  <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="auto-from-title" /></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Broker / Brand</Label><Input value={form.broker_name} onChange={e => setForm({ ...form, broker_name: e.target.value })} placeholder="e.g. Exness" /></div>
+                  <div>
+                    <Label>Type</Label>
+                    <Select value={form.promo_type} onValueChange={v => setForm({ ...form, promo_type: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bonus">Deposit Bonus</SelectItem>
+                        <SelectItem value="no-deposit">No Deposit</SelectItem>
+                        <SelectItem value="cashback">Cashback</SelectItem>
+                        <SelectItem value="discount">Challenge Discount</SelectItem>
+                        <SelectItem value="spread">Low Spread</SelectItem>
+                        <SelectItem value="profit-split">Profit Split</SelectItem>
+                        <SelectItem value="low-deposit">Low Deposit / Trial</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div><Label>Short Description <span className="text-xs text-muted-foreground font-normal">(card teaser)</span></Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
+                <div><Label>Full Description <span className="text-xs text-muted-foreground font-normal">(detail page)</span></Label><Textarea value={form.full_description} onChange={e => setForm({ ...form, full_description: e.target.value })} rows={6} placeholder="Long-form explanation shown on the promo detail page." /></div>
+              </TabsContent>
 
-            <div><Label>Short Description (card teaser)</Label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} /></div>
+              <TabsContent value="offer" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Bonus Amount</Label><Input value={form.bonus_amount} onChange={e => setForm({ ...form, bonus_amount: e.target.value })} placeholder="e.g. 100% / $30" /></div>
+                  <div><Label>Expiry Date</Label><Input type="date" value={form.expiry_date} onChange={e => setForm({ ...form, expiry_date: e.target.value })} /></div>
+                </div>
+                <div>
+                  <Label>How to Claim <span className="text-xs text-muted-foreground font-normal">(one step per line)</span></Label>
+                  <Textarea value={form.how_to_claim} onChange={e => setForm({ ...form, how_to_claim: e.target.value })} rows={5} placeholder={"Register a new account\nDeposit minimum $50\nBonus applied automatically"} />
+                </div>
+                <div>
+                  <Label>Terms & Conditions <span className="text-xs text-muted-foreground font-normal">(one per line)</span></Label>
+                  <Textarea value={form.terms} onChange={e => setForm({ ...form, terms: e.target.value })} rows={5} placeholder={"Minimum deposit required\n30x wagering requirement\n30-day expiry"} />
+                </div>
+              </TabsContent>
 
-            <div><Label>Full Description (detail page)</Label><Textarea value={form.full_description} onChange={e => setForm({ ...form, full_description: e.target.value })} rows={5} placeholder="Long-form explanation shown on the promo detail page." /></div>
+              <TabsContent value="display" className="space-y-4 mt-0">
+                <ImageUpload value={form.image_url} onChange={url => setForm({ ...form, image_url: url })} bucket="media" folder="promotions" maxSizeMB={5} label="Promotion Banner" accept="image/png,image/jpeg,image/webp,image/gif" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Read More Link <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label><Input value={form.link_url} onChange={e => setForm({ ...form, link_url: e.target.value })} placeholder="https://..." /></div>
+                  <div><Label>Claim / Referral URL</Label><Input value={form.referral_url} onChange={e => setForm({ ...form, referral_url: e.target.value })} placeholder="Affiliate link used by Claim button" /></div>
+                </div>
+              </TabsContent>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Type</Label>
-                <Select value={form.promo_type} onValueChange={v => setForm({ ...form, promo_type: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bonus">Deposit Bonus</SelectItem>
-                    <SelectItem value="no-deposit">No Deposit</SelectItem>
-                    <SelectItem value="cashback">Cashback</SelectItem>
-                    <SelectItem value="discount">Challenge Discount</SelectItem>
-                    <SelectItem value="spread">Low Spread</SelectItem>
-                    <SelectItem value="profit-split">Profit Split</SelectItem>
-                    <SelectItem value="low-deposit">Low Deposit / Trial</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><Label>Expiry Date</Label><Input type="date" value={form.expiry_date} onChange={e => setForm({ ...form, expiry_date: e.target.value })} /></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Read More Link (optional)</Label><Input value={form.link_url} onChange={e => setForm({ ...form, link_url: e.target.value })} placeholder="https://..." /></div>
-              <div><Label>Claim / Referral URL</Label><Input value={form.referral_url} onChange={e => setForm({ ...form, referral_url: e.target.value })} placeholder="Affiliate link used by Claim button" /></div>
-            </div>
-
-            <ImageUpload value={form.image_url} onChange={url => setForm({ ...form, image_url: url })} bucket="media" folder="promotions" maxSizeMB={5} label="Promotion Banner" accept="image/png,image/jpeg,image/webp,image/gif" />
-
-            <div>
-              <Label>How to Claim (one step per line)</Label>
-              <Textarea value={form.how_to_claim} onChange={e => setForm({ ...form, how_to_claim: e.target.value })} rows={4} placeholder={"Register a new account\nDeposit minimum $50\nBonus applied automatically"} />
-            </div>
-
-            <div>
-              <Label>Terms & Conditions (one per line)</Label>
-              <Textarea value={form.terms} onChange={e => setForm({ ...form, terms: e.target.value })} rows={4} placeholder={"Minimum deposit required\n30x wagering requirement\n30-day expiry"} />
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Switch checked={form.is_featured} onCheckedChange={v => setForm({ ...form, is_featured: v })} />
-                <Label>Featured</Label>
-              </div>
-              <div className="flex-1">
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button onClick={handleSave} className="w-full">{editing ? "Update Promotion" : "Create Promotion"}</Button>
+              <TabsContent value="status" className="space-y-4 mt-0">
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                  <Switch checked={form.is_featured} onCheckedChange={v => setForm({ ...form, is_featured: v })} />
+                  <div>
+                    <Label className="cursor-pointer">Featured</Label>
+                    <p className="text-xs text-muted-foreground">Highlight this promotion on the homepage</p>
+                  </div>
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
