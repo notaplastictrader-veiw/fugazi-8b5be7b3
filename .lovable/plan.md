@@ -1,56 +1,32 @@
 ## Problem
 
-"Inter Turku vs HJK" (এবং similar matches) **Upcoming Predictions** এর page 1-এ আটকে আছে অনেকদিন। কারণ:
+"Upcoming Predictions" e goto mash/tarikh er match guloo show korche. Karon current logic shudhu `!p.result` check kore — match_date past ki future seta dekhe na. Fole admin/AI feed jodi result fill na kore, expired matches forever "Upcoming" e atke thake.
 
-1. **Substring false-positive**: `isPopularMatch` করে `team.includes("inter")` — এতে "Inter Turku", "Real Salt Lake", "Athletic Bilbao B" সব popular হিসেবে count হয়ে top-pin হয়।
-2. **No freshness window**: দূরের future match (5–10 দিন পরে) যতদিন না খেলা হয় ততদিন upcoming list-এ থাকে — daily কিছুই বদলায় না দেখা যায়।
-3. **Soonest sort within group**: same popular group-এ যেটা soonest সেটা আগে — কিন্তু একবার "popular" tag লেগে গেলে নতুন real-popular না এলে এটাই top-এ।
+## Fix
 
-## Fixes (frontend only — `src/lib/popularTeams.ts` + small tweak in `Sports.tsx`)
+`src/pages/Sports.tsx` (lines 129-131) e date-based filter add korbo:
 
-### 1. Whole-word matching, not substring
+```ts
+const nowMs = Date.now();
+const UPCOMING_GRACE_MS = 3 * 60 * 60 * 1000; // 3h grace (live match window)
 
-`isPopularMatch` কে token-based করব:
-- Team name কে normalize → split into words/tokens
-- Multi-word entry (e.g. "real madrid", "manchester city") কে phrase হিসেবে exact match
-- Single-word entry (e.g. "arsenal", "liverpool", "inter", "milan", "real") কে **whole word boundary** match
-
-```text
-"Inter Turku" → tokens: ["inter", "turku"]  
-  "inter" alone is too generic → only match if also paired with "milan" 
-  or move to multi-word phrase "inter milan"
+const upcoming = filtered
+  .filter((p) => !p.result && new Date(p.match_date).getTime() + UPCOMING_GRACE_MS > nowMs)
+  .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime());
 ```
 
-Concrete change: ambiguous single tokens (`inter`, `milan`, `real`, `athletic`, `india`) replaced with phrase forms only:
-- `"inter"` → remove; keep `"inter milan"`, `"inter miami"`
-- `"milan"` → remove; keep `"ac milan"`, `"milan"` only as phrase via word-boundary
-- `"real"` → remove; keep `"real madrid"`, `"real sociedad"`, `"real betis"`
-- `"athletic"` → keep only `"athletic bilbao"` and `"athletic club"`
-- `"india"` (cricket) → keep but match whole-word only (won't hit "Indianapolis")
+### Logic
+- **Future matches** → Upcoming e thakbe ✓
+- **Live (last 3h)** → grace window e thakbe (jate live match list theke vanish na hoy)
+- **3 ghonta+ purono + no result** → Upcoming theke chole jabe (silently expire)
 
-### 2. Limit "popular" pinning to next 48 hours
+### Side effects
+- Total count "52 matches" automatically kombe — shudhu valid future matches dekhabe
+- Pagination o auto-correct hobe
+- Popular pin window (48h) already future-only, tai oitar kono change lagbe na
 
-Sports.tsx-এ popular grouping line — শুধু সেই popular matches কে top-pin করব যেগুলো **আগামী 48 ঘণ্টার মধ্যে** শুরু হবে। এতে দূরের future popular matches normal date order-এ থাকবে আর প্রতিদিন list naturally rotate হবে।
+### Optional polish (jodi chao)
+Expired matches er jonno ekta separate "Awaiting Result" section — jate admin dashboard theke shob settle korte pare. Bolo lagbe ki na, default e shudhu hide kore dibo.
 
-```text
-upcomingPopularSoon = popular AND match_date < now + 48h
-upcomingDefault = [...popularSoon, ...rest sorted by date]
-```
-
-দূরের popular ম্যাচ rest-এর মধ্যে date order-এ থাকবে — যত দিন কাছাকাছি আসবে তত উপরে উঠবে।
-
-### 3. (Optional polish) Dedup tighter
-
-কোনো ম্যাচ যদি AI feed থেকে প্রতিদিন একই date/time-এ আসতে থাকে কিন্তু DB-তেও থাকে, current dedupe ঠিক আছে — extra change লাগবে না।
-
-## What user will see
-
-- "Inter Turku vs HJK" আর popular section-এ থাকবে না
-- Page 1 প্রতিদিন বদলাবে কারণ shortest-time-to-kickoff matches উপরে আসবে
-- Real/Barca/Man City type matches তখনই top-pin হবে যখন তারা আগামী 2 দিনের মধ্যে খেলবে
-
-## Out of scope
-
-- Backend / edge function change নয়
-- Admin panel / DB schema unchanged
-- Latest Results section unchanged
+## Files
+- `src/pages/Sports.tsx` — 1 filter line update
