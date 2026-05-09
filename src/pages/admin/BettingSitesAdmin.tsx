@@ -176,50 +176,76 @@ const BettingSitesAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Betting Site" : "Add Betting Site"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Name</Label>
-                <Input value={form.name} onChange={e => {
-                  const v = e.target.value;
-                  setForm(f => ({ ...f, name: v, slug: f.slug || slugify(v) }));
-                }} />
-              </div>
-              <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} /></div>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Betting Site" : "Add Betting Site"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Rating (0-10)</Label><Input type="number" min={0} max={10} step={0.1} value={form.rating} onChange={e => setForm({ ...form, rating: +e.target.value })} /></div>
-              <div></div>
-            </div>
-            <ImageUpload value={form.logo} onChange={url => setForm({ ...form, logo: url })} bucket="logos" folder="betting" maxSizeMB={2} label="Site Logo (image or emoji URL)" />
-            <div><Label>Welcome Bonus</Label><Input value={form.bonus} onChange={e => setForm({ ...form, bonus: e.target.value })} placeholder="Up to $30 in Bet Credits" /></div>
-            <div><Label>License</Label><Input value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} placeholder="UK Gambling Commission" /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Min Deposit</Label><Input value={form.min_deposit} onChange={e => setForm({ ...form, min_deposit: e.target.value })} /></div>
-              <div><Label>Withdrawal Speed</Label><Input value={form.withdrawal_speed} onChange={e => setForm({ ...form, withdrawal_speed: e.target.value })} /></div>
-            </div>
-            <div><Label>Sports (comma-separated)</Label><Input value={sportsText} onChange={e => setSportsText(e.target.value)} placeholder="football, cricket, basketball" /></div>
-            <div><Label>Features (comma-separated)</Label><Input value={featuresText} onChange={e => setFeaturesText(e.target.value)} placeholder="Live Streaming, Cash Out, Bet Builder" /></div>
-            <div><Label>URL</Label><Input value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} /></div>
-            <div><Label>Warning (optional)</Label><Textarea rows={2} value={form.warning} onChange={e => setForm({ ...form, warning: e.target.value })} placeholder="Risk warning…" /></div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: +e.target.value })} /></div>
-              <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-3 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="offer">Offer</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Name</Label>
+                    <Input value={form.name} onChange={e => {
+                      const v = e.target.value;
+                      setForm(f => ({ ...f, name: v, slug: f.slug || slugify(v) }));
+                    }} />
+                  </div>
+                  <div><Label>Slug</Label><Input value={form.slug} onChange={e => setForm({ ...form, slug: slugify(e.target.value) })} /></div>
+                </div>
+                <ImageUpload value={form.logo} onChange={url => setForm({ ...form, logo: url })} bucket="logos" folder="betting" maxSizeMB={2} label="Site Logo (image or emoji)" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>License</Label><Input value={form.license} onChange={e => setForm({ ...form, license: e.target.value })} placeholder="UK Gambling Commission" /></div>
+                  <div><Label>URL</Label><Input value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} placeholder="https://…" /></div>
+                </div>
+                <div><Label>Rating (0–10)</Label><Input type="number" min={0} max={10} step={0.1} value={form.rating} onChange={e => setForm({ ...form, rating: +e.target.value })} className="max-w-[140px]" /></div>
+              </TabsContent>
+
+              <TabsContent value="offer" className="space-y-4 mt-0">
+                <div><Label>Welcome Bonus</Label><Input value={form.bonus} onChange={e => setForm({ ...form, bonus: e.target.value })} placeholder="Up to $30 in Bet Credits" /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Min Deposit</Label><Input value={form.min_deposit} onChange={e => setForm({ ...form, min_deposit: e.target.value })} /></div>
+                  <div><Label>Withdrawal Speed</Label><Input value={form.withdrawal_speed} onChange={e => setForm({ ...form, withdrawal_speed: e.target.value })} placeholder="24h" /></div>
+                </div>
+                <div>
+                  <Label>Sports <span className="text-xs text-muted-foreground font-normal">(comma-separated)</span></Label>
+                  <Input value={sportsText} onChange={e => setSportsText(e.target.value)} placeholder="football, cricket, basketball" />
+                </div>
+                <div>
+                  <Label>Features <span className="text-xs text-muted-foreground font-normal">(comma-separated)</span></Label>
+                  <Input value={featuresText} onChange={e => setFeaturesText(e.target.value)} placeholder="Live Streaming, Cash Out, Bet Builder" />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-4 mt-0">
+                <div><Label>Warning <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label><Textarea rows={3} value={form.warning} onChange={e => setForm({ ...form, warning: e.target.value })} placeholder="Risk warning…" /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Display Order</Label><Input type="number" value={form.display_order} onChange={e => setForm({ ...form, display_order: +e.target.value })} /></div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
