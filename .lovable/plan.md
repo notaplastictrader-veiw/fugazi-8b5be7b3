@@ -1,53 +1,56 @@
-## Goal
+## Problem
 
-Sports page-এ এখন **Total Picks** আর **Settled** দুটোই DB count-এর সাথে আটকানো — daily change হয় না, এবং Correct/Settled/WinRate গুলো একে অপরের সাথে mathematically consistent না। Fix করব এমনভাবে যাতে:
+"Inter Turku vs HJK" (এবং similar matches) **Upcoming Predictions** এর page 1-এ আটকে আছে অনেকদিন। কারণ:
 
-1. Total Picks প্রতিদিন slowly বাড়ে (daily seeded auto-increment)
-2. Settled = Total − Pending (Pending ও daily seeded, ছোট সংখ্যা)
-3. Correct = round(Settled × WinRate / 100) — exact match
-4. WinRate প্রতিদিন 76–85% range-এ rotate করে (এটা already আছে)
-5. সব value same UTC day-এ stable থাকে (refresh করলে বদলায় না)
+1. **Substring false-positive**: `isPopularMatch` করে `team.includes("inter")` — এতে "Inter Turku", "Real Salt Lake", "Athletic Bilbao B" সব popular হিসেবে count হয়ে top-pin হয়।
+2. **No freshness window**: দূরের future match (5–10 দিন পরে) যতদিন না খেলা হয় ততদিন upcoming list-এ থাকে — daily কিছুই বদলায় না দেখা যায়।
+3. **Soonest sort within group**: same popular group-এ যেটা soonest সেটা আগে — কিন্তু একবার "popular" tag লেগে গেলে নতুন real-popular না এলে এটাই top-এ।
 
----
+## Fixes (frontend only — `src/lib/popularTeams.ts` + small tweak in `Sports.tsx`)
 
-## Changes (only `src/pages/Sports.tsx`, lines ~160–175)
+### 1. Whole-word matching, not substring
 
-Replace the current stats block with daily-seeded values:
+`isPopularMatch` কে token-based করব:
+- Team name কে normalize → split into words/tokens
+- Multi-word entry (e.g. "real madrid", "manchester city") কে phrase হিসেবে exact match
+- Single-word entry (e.g. "arsenal", "liverpool", "inter", "milan", "real") কে **whole word boundary** match
 
 ```text
-DB published count   → realCount  (e.g. 52)
-daily index          → daysSinceEpoch (UTC)
-daily extra picks    → seeded(daysSinceEpoch) % 4   // 0..3 added per day
-totalPicks           = realCount + cumulativeDailyExtra
-pending              = seeded2(day) % 4 + 2          // 2..5 unsettled
-settled              = totalPicks - pending
-winRate              = 76 + seeded3(day) % 10        // 76..85 (existing)
-correct              = round(settled × winRate / 100)
+"Inter Turku" → tokens: ["inter", "turku"]  
+  "inter" alone is too generic → only match if also paired with "milan" 
+  or move to multi-word phrase "inter milan"
 ```
 
-Where `cumulativeDailyExtra` = sum of daily extras since a fixed launch date (so total grows monotonically over time, never resets).
+Concrete change: ambiguous single tokens (`inter`, `milan`, `real`, `athletic`, `india`) replaced with phrase forms only:
+- `"inter"` → remove; keep `"inter milan"`, `"inter miami"`
+- `"milan"` → remove; keep `"ac milan"`, `"milan"` only as phrase via word-boundary
+- `"real"` → remove; keep `"real madrid"`, `"real sociedad"`, `"real betis"`
+- `"athletic"` → keep only `"athletic bilbao"` and `"athletic club"`
+- `"india"` (cricket) → keep but match whole-word only (won't hit "Indianapolis")
 
-### Example (today, realCount=52)
-- totalPicks = 52 + 6 (cumulative since launch) = **58**
-- pending = 4 → settled = **54**
-- winRate = **82%** → correct = round(54 × 0.82) = **44**
+### 2. Limit "popular" pinning to next 48 hours
 
-Tomorrow numbers may shift to (e.g.) 59 / 55 / 78% / 43 — but always internally consistent.
+Sports.tsx-এ popular grouping line — শুধু সেই popular matches কে top-pin করব যেগুলো **আগামী 48 ঘণ্টার মধ্যে** শুরু হবে। এতে দূরের future popular matches normal date order-এ থাকবে আর প্রতিদিন list naturally rotate হবে।
 
----
+```text
+upcomingPopularSoon = popular AND match_date < now + 48h
+upcomingDefault = [...popularSoon, ...rest sorted by date]
+```
 
-## Technical details
+দূরের popular ম্যাচ rest-এর মধ্যে date order-এ থাকবে — যত দিন কাছাকাছি আসবে তত উপরে উঠবে।
 
-- Use a fixed `LAUNCH_DATE` constant (e.g. `2025-01-01`) to compute `daysSinceEpoch`.
-- Use 3 separate hash seeds (one each for daily-extra, pending, winRate) so they vary independently.
-- All math runs client-side, deterministic per UTC day — no DB write, no edge function needed.
-- `predictions.length` still serves as the floor: if admin publishes more, totalPicks jumps up immediately.
+### 3. (Optional polish) Dedup tighter
 
-No DB schema change. No edge function. Pure frontend.
+কোনো ম্যাচ যদি AI feed থেকে প্রতিদিন একই date/time-এ আসতে থাকে কিন্তু DB-তেও থাকে, current dedupe ঠিক আছে — extra change লাগবে না।
 
----
+## What user will see
+
+- "Inter Turku vs HJK" আর popular section-এ থাকবে না
+- Page 1 প্রতিদিন বদলাবে কারণ shortest-time-to-kickoff matches উপরে আসবে
+- Real/Barca/Man City type matches তখনই top-pin হবে যখন তারা আগামী 2 দিনের মধ্যে খেলবে
 
 ## Out of scope
 
-- Persisting these inflated numbers to DB (not needed — display-only)
-- Touching `PredictionCard`, admin panel, or schedule hook
+- Backend / edge function change নয়
+- Admin panel / DB schema unchanged
+- Latest Results section unchanged
