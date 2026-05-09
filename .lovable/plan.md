@@ -1,42 +1,57 @@
 ## Goal
 
-Make the **Deposits & Withdrawals** table fully editable from the admin panel. Right now method names come from `payment_methods` (string array) but Min / Processing / Fee columns are hardcoded dashes — so the table looks empty. We need per-row data stored in DB.
+Make the broker edit modal **wide, tabbed, and breathable** so editing doesn't feel cramped. Remove the now-unwanted "Risk & Trust Info" block.
 
-## DB change — `public.brokers`
+## Modal redesign — `src/pages/admin/BrokersAdmin.tsx`
 
-Add one new jsonb column (additive, nullable, no breaking changes):
+**Size & shell**
+- Bump width: `max-w-2xl` → `max-w-5xl` (≈1024px)
+- Keep `max-h-[90vh] overflow-y-auto`
+- Add a sticky header (title + Save/Cancel) so action buttons are always reachable
+- Replace the single long scroll with a **5-tab layout** using existing shadcn `Tabs`
 
-| Column | Type | Default | Shape |
-|---|---|---|---|
-| `payment_method_details` | jsonb | `'[]'::jsonb` | `[{ method, min, processing, fee }]` |
+**Tabs and what goes in each**
 
-The old `payment_methods` text[] column stays as-is (still used elsewhere as a quick tag list). The new jsonb is what drives the table.
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Edit Broker                                  [Cancel][Save] │
+├─────────────────────────────────────────────────────────────┤
+│ [Basics] [Trading] [Funding] [Display] [Status]             │
+├─────────────────────────────────────────────────────────────┤
+│  …active tab content…                                       │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Admin form — `src/pages/admin/BrokersAdmin.tsx`
+1. **Basics** — Name, Slug, Type, Badge, Description, Founded Year, Headquarters, Logo upload, Tags, Regulation
+2. **Trading** — Score, Stars, Avg Spread, Leverage, Min Deposit, Pros, Cons, Platforms, **Account Types** repeater
+3. **Funding** — Payment Methods (chip input), **Payment Method Details** repeater (the new Deposits & Withdrawals editor)
+4. **Display** — Website URL, Support Email, Support Phone, Show on Homepage toggle + position
+5. **Status** — Status dropdown (draft/pending/published/rejected) + Save button (also in sticky header)
 
-Add a new editor block in the broker modal called **Payment Method Details** (sits right after the existing Account Types editor since the UX is identical):
+**Polish details**
+- Inside each tab, group related fields into card-style blocks with thin borders + `p-4` padding so they breathe
+- Repeater rows: switch from raw 12-col grid to labeled inputs in 2-col responsive grid (so on narrow screens they stack instead of squeezing into tiny columns) — current 12-col is the main "hijibiji" cause
+- Each repeater row gets a small header `#1 Standard Account` with the delete button on the right
+- Use `min-h-[52px]` on the repeater "empty state" so it doesn't collapse
 
-- Repeater rows with 4 inputs per row: Method, Min, Processing, Fee
-- "Add row" button + per-row delete (✕)
-- Wire into `Broker` interface, `emptyBroker`, `openEdit`, and the save `payload`
+## Removals — Risk & Trust Info
 
-## Public page — `src/pages/BrokerDetail.tsx`
-
-Replace the current table-body logic (lines 661–675) with a 3-tier fallback:
-
-1. If `broker.payment_method_details` has entries → render those rows as-is (full Min/Processing/Fee data).
-2. Else if `broker.payment_methods` has entries → render method names with `—` placeholders (current behaviour).
-3. Else → render the existing hardcoded sample rows.
-
-Also extend the `Broker` interface with `payment_method_details?: { method: string; min: string; processing: string; fee: string }[]`.
+Per your request:
+- Remove the amber "Risk & Trust Info" section from the modal entirely
+- Stop sending `license_number`, `withdrawal_time`, `withdrawal_fee`, `warning_note` in the save payload (they'll just stay as their DB defaults of `''`)
+- Drop the matching renders in `src/pages/BrokerDetail.tsx`:
+  - License number row inside Regulation & Safety
+  - Withdrawal Time / Withdrawal Fee cards under the Deposits table (the new Payment Method Details table already covers fees & processing)
+  - Amber Warning Note alert next to "Open Account"
+- The DB columns stay (no migration; non-destructive). If you ever want them back, just re-add the inputs.
 
 ## Files touched
 
-- New migration: 1 jsonb column on `public.brokers`
-- `src/pages/admin/BrokersAdmin.tsx` — interface, form state, modal repeater, save payload
-- `src/pages/BrokerDetail.tsx` — interface + table body fallback logic
+- `src/pages/admin/BrokersAdmin.tsx` — modal restructure into Tabs, repeater rows polished, Risk & Trust block removed
+- `src/pages/BrokerDetail.tsx` — remove the 3 render blocks tied to the removed fields
 
 ## Out of scope
 
-- Removing/migrating the legacy `payment_methods` array (kept for backwards compat)
-- Changing the Withdrawal Time / Fee cards below the table (already DB-driven)
+- Field-level validation, autosave, or dirty-state warnings
+- Database migrations (none needed)
+- Touching any other admin page
