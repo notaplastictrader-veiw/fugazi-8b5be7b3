@@ -151,70 +151,100 @@ const SignalsAdmin = () => {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? "Edit Signal" : "Add Signal"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
-            <ImageUpload value={form.logo_url} onChange={url => setForm({...form, logo_url: url})} bucket="logos" folder="signals" maxSizeMB={2} label="Signal Group Logo" />
-            <div><Label>Description</Label>
-              <Textarea rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Short description shown on detail page" />
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border flex-row items-center justify-between space-y-0 sticky top-0 bg-background z-10">
+            <DialogTitle>{editing ? "Edit Signal" : "Add Signal"}</DialogTitle>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button size="sm" onClick={handleSave}>{editing ? "Update" : "Create"}</Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Win Rate (%)</Label><Input type="number" value={form.win_rate} onChange={e => setForm({...form, win_rate: +e.target.value})} /></div>
-              <div><Label>Monthly Signals</Label><Input value={form.monthly_signals} onChange={e => setForm({...form, monthly_signals: e.target.value})} /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Avg R:R</Label><Input value={form.avg_rr} onChange={e => setForm({...form, avg_rr: e.target.value})} /></div>
-              <div><Label>Track Record</Label><Input value={form.track_record} onChange={e => setForm({...form, track_record: e.target.value})} /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Members</Label><Input value={form.members} onChange={e => setForm({...form, members: e.target.value})} /></div>
-              <div className="flex items-end gap-2">
-                <Switch checked={form.verified} onCheckedChange={v => setForm({...form, verified: v})} />
-                <Label>Verified</Label>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>Telegram URL</Label><Input value={form.telegram_url} onChange={e => setForm({...form, telegram_url: e.target.value})} placeholder="https://t.me/..." /></div>
-              <div><Label>Discord URL</Label><Input value={form.discord_url} onChange={e => setForm({...form, discord_url: e.target.value})} placeholder="https://discord.gg/..." /></div>
-            </div>
-            <div><Label>Categories (comma-separated)</Label>
-              <Input value={form.categories.join(", ")} onChange={e => setForm({...form, categories: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})} placeholder="Forex, Gold, Crypto" />
-            </div>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5">
+            <Tabs defaultValue="basics" className="w-full">
+              <TabsList className="grid grid-cols-4 w-full mb-5">
+                <TabsTrigger value="basics">Basics</TabsTrigger>
+                <TabsTrigger value="performance">Performance</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                <TabsTrigger value="status">Status</TabsTrigger>
+              </TabsList>
 
-            <div className="border border-border rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <Label>Pricing Tiers</Label>
-                <Button type="button" size="sm" variant="outline" onClick={addTier}><Plus className="w-3 h-3 mr-1" /> Add Tier</Button>
-              </div>
-              {form.pricing_tiers.length === 0 && <p className="text-xs text-muted-foreground">No pricing tiers added.</p>}
-              <div className="space-y-3">
-                {form.pricing_tiers.map((t, i) => (
-                  <div key={i} className="border border-border/50 rounded p-2 space-y-2">
-                    <div className="grid grid-cols-12 gap-2">
-                      <Input className="col-span-4" placeholder="Tier name (Free / VIP)" value={t.name} onChange={e => updateTier(i, "name", e.target.value)} />
-                      <Input className="col-span-3" placeholder="Price ($49)" value={t.price} onChange={e => updateTier(i, "price", e.target.value)} />
-                      <Input className="col-span-4" placeholder="Period (monthly)" value={t.period} onChange={e => updateTier(i, "period", e.target.value)} />
-                      <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removeTier(i)}><X className="w-4 h-4 text-destructive" /></Button>
-                    </div>
-                    <Textarea rows={2} placeholder="Features (one per line)" value={t.features.join("\n")} onChange={e => updateTier(i, "features", e.target.value.split("\n").map(s => s.trim()).filter(Boolean))} />
+              <TabsContent value="basics" className="space-y-4 mt-0">
+                <div><Label>Name</Label><Input value={form.name} onChange={e => setForm({...form, name: e.target.value})} /></div>
+                <ImageUpload value={form.logo_url} onChange={url => setForm({...form, logo_url: url})} bucket="logos" folder="signals" maxSizeMB={2} label="Signal Group Logo" />
+                <div><Label>Description</Label>
+                  <Textarea rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Short description shown on detail page" />
+                </div>
+                <div><Label>Categories <span className="text-xs text-muted-foreground font-normal">(comma-separated)</span></Label>
+                  <Input value={form.categories.join(", ")} onChange={e => setForm({...form, categories: e.target.value.split(",").map(s => s.trim()).filter(Boolean)})} placeholder="Forex, Gold, Crypto" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Telegram URL</Label><Input value={form.telegram_url} onChange={e => setForm({...form, telegram_url: e.target.value})} placeholder="https://t.me/..." /></div>
+                  <div><Label>Discord URL</Label><Input value={form.discord_url} onChange={e => setForm({...form, discord_url: e.target.value})} placeholder="https://discord.gg/..." /></div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="performance" className="space-y-4 mt-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label>Win Rate (%)</Label><Input type="number" value={form.win_rate} onChange={e => setForm({...form, win_rate: +e.target.value})} /></div>
+                  <div><Label>Monthly Signals</Label><Input value={form.monthly_signals} onChange={e => setForm({...form, monthly_signals: e.target.value})} /></div>
+                  <div><Label>Avg R:R</Label><Input value={form.avg_rr} onChange={e => setForm({...form, avg_rr: e.target.value})} /></div>
+                  <div><Label>Track Record</Label><Input value={form.track_record} onChange={e => setForm({...form, track_record: e.target.value})} /></div>
+                  <div><Label>Members</Label><Input value={form.members} onChange={e => setForm({...form, members: e.target.value})} /></div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                  <Switch checked={form.verified} onCheckedChange={v => setForm({...form, verified: v})} />
+                  <div>
+                    <Label className="cursor-pointer">Verified</Label>
+                    <p className="text-xs text-muted-foreground">Show verified badge on listings</p>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </TabsContent>
 
-            <div><Label>Status</Label>
-              <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button onClick={handleSave} className="w-full">{editing ? "Update" : "Create"}</Button>
+              <TabsContent value="pricing" className="space-y-4 mt-0">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Pricing Tiers</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={addTier}><Plus className="w-3 h-3 mr-1" /> Add Tier</Button>
+                </div>
+                {form.pricing_tiers.length === 0 && (
+                  <div className="border border-dashed border-border rounded-lg min-h-[80px] flex items-center justify-center">
+                    <p className="text-xs text-muted-foreground">No pricing tiers yet. Click "Add Tier" above.</p>
+                  </div>
+                )}
+                <div className="space-y-3">
+                  {form.pricing_tiers.map((t, i) => (
+                    <div key={i} className="border border-border rounded-lg p-4 space-y-3 bg-muted/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono text-muted-foreground">#{i + 1} Tier</span>
+                        <Button type="button" size="sm" variant="ghost" onClick={() => removeTier(i)}><X className="w-4 h-4 text-destructive" /></Button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div><Label className="text-xs">Name</Label><Input placeholder="Free / VIP" value={t.name} onChange={e => updateTier(i, "name", e.target.value)} /></div>
+                        <div><Label className="text-xs">Price</Label><Input placeholder="$49" value={t.price} onChange={e => updateTier(i, "price", e.target.value)} /></div>
+                        <div><Label className="text-xs">Period</Label><Input placeholder="monthly" value={t.period} onChange={e => updateTier(i, "period", e.target.value)} /></div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Features <span className="text-muted-foreground font-normal">(one per line)</span></Label>
+                        <Textarea rows={3} value={t.features.join("\n")} onChange={e => updateTier(i, "features", e.target.value.split("\n").map(s => s.trim()).filter(Boolean))} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="status" className="space-y-4 mt-0">
+                <div><Label>Status</Label>
+                  <Select value={form.status} onValueChange={v => setForm({...form, status: v})}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
