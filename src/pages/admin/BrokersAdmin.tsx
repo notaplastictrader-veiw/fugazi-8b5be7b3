@@ -23,6 +23,7 @@ const formatDate = (d: string) => {
 };
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage: string; commission: string; }
+interface PaymentMethodDetail { method: string; min: string; processing: string; fee: string; }
 
 interface Broker {
   id: string;
@@ -50,6 +51,7 @@ interface Broker {
   payment_methods: string[];
   platforms: string[];
   account_types: AccountType[];
+  payment_method_details: PaymentMethodDetail[];
   website_url: string;
   support_email: string;
   support_phone: string;
@@ -69,6 +71,7 @@ const emptyBroker = {
   pros: [] as string[], cons: [] as string[],
   payment_methods: [] as string[], platforms: [] as string[],
   account_types: [] as AccountType[],
+  payment_method_details: [] as PaymentMethodDetail[],
   website_url: "", support_email: "", support_phone: "",
   show_on_homepage: false, homepage_position: null as number | null,
   license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
@@ -107,6 +110,9 @@ const BrokersAdmin = () => {
       account_types: Array.isArray(b.account_types)
         ? b.account_types.map((at: any) => ({ leverage: "", ...at }))
         : [],
+      payment_method_details: Array.isArray((b as any).payment_method_details)
+        ? (b as any).payment_method_details.map((p: any) => ({ method: "", min: "", processing: "", fee: "", ...p }))
+        : [],
       description: b.description || "",
       headquarters: b.headquarters || "",
       website_url: b.website_url || "",
@@ -132,6 +138,7 @@ const BrokersAdmin = () => {
       complaints: Number(form.complaints),
       founded_year: form.founded_year ? Number(form.founded_year) : null,
       account_types: form.account_types,
+      payment_method_details: form.payment_method_details,
       status: form.status as "draft" | "pending" | "published" | "rejected",
       show_on_homepage: !!form.show_on_homepage,
       homepage_position: form.show_on_homepage && form.homepage_position
@@ -187,6 +194,15 @@ const BrokersAdmin = () => {
     setForm({ ...form, account_types: updated });
   };
   const removeAccountType = (i: number) => setForm({ ...form, account_types: form.account_types.filter((_, idx) => idx !== i) });
+
+  // Payment method details editor
+  const addPaymentDetail = () => setForm({ ...form, payment_method_details: [...form.payment_method_details, { method: "", min: "", processing: "", fee: "" }] });
+  const updatePaymentDetail = (i: number, field: keyof PaymentMethodDetail, value: string) => {
+    const updated = [...form.payment_method_details];
+    updated[i] = { ...updated[i], [field]: value };
+    setForm({ ...form, payment_method_details: updated });
+  };
+  const removePaymentDetail = (i: number) => setForm({ ...form, payment_method_details: form.payment_method_details.filter((_, idx) => idx !== i) });
 
   return (
     <div>
@@ -317,6 +333,25 @@ const BrokersAdmin = () => {
                     <Input className="col-span-2" placeholder="Leverage (1:500)" value={(at as any).leverage || ""} onChange={e => updateAccountType(i, "leverage", e.target.value)} />
                     <Input className="col-span-2" placeholder="Commission" value={at.commission} onChange={e => updateAccountType(i, "commission", e.target.value)} />
                     <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removeAccountType(i)}><X className="w-4 h-4 text-destructive" /></Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <Label>Payment Method Details (Deposits & Withdrawals table)</Label>
+                <Button type="button" size="sm" variant="outline" onClick={addPaymentDetail}><Plus className="w-3 h-3 mr-1" /> Add</Button>
+              </div>
+              {form.payment_method_details.length === 0 && <p className="text-xs text-muted-foreground">No payment methods added. Add rows to populate the public Deposits & Withdrawals table.</p>}
+              <div className="space-y-2">
+                {form.payment_method_details.map((p, i) => (
+                  <div key={i} className="grid grid-cols-12 gap-2 items-start">
+                    <Input className="col-span-3" placeholder="Method (Bank Transfer)" value={p.method} onChange={e => updatePaymentDetail(i, "method", e.target.value)} />
+                    <Input className="col-span-3" placeholder="Min ($50)" value={p.min} onChange={e => updatePaymentDetail(i, "min", e.target.value)} />
+                    <Input className="col-span-3" placeholder="Processing (1-3 days)" value={p.processing} onChange={e => updatePaymentDetail(i, "processing", e.target.value)} />
+                    <Input className="col-span-2" placeholder="Fee (Free)" value={p.fee} onChange={e => updatePaymentDetail(i, "fee", e.target.value)} />
+                    <Button type="button" size="sm" variant="ghost" className="col-span-1" onClick={() => removePaymentDetail(i)}><X className="w-4 h-4 text-destructive" /></Button>
                   </div>
                 ))}
               </div>

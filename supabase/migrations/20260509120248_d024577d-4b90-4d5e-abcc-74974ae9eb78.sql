@@ -1,0 +1,1 @@
+ALTER TABLE public.brokers ADD COLUMN IF NOT EXISTS payment_method_details jsonb NOT NULL DEFAULT '[]'::jsonb;
