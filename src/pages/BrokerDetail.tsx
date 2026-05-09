@@ -571,15 +571,6 @@ const BrokerDetail = () => {
                     {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
                     {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
                   </p>
-                  {broker.license_number && (
-                    <div className="flex items-start gap-2 text-sm border-t border-border/50 pt-3">
-                      <FileText className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="text-muted-foreground">License Number: </span>
-                        <span className="text-foreground font-mono">{broker.license_number}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </section>
 
