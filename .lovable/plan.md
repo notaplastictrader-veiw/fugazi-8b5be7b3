@@ -1,52 +1,42 @@
 ## Goal
 
-Add the fields you actually want (skip restricted countries / scam score), and fix the broker-detail Trading Conditions table where the "Leverage" header sits above commission values.
+Make the **Deposits & Withdrawals** table fully editable from the admin panel. Right now method names come from `payment_methods` (string array) but Min / Processing / Fee columns are hardcoded dashes — so the table looks empty. We need per-row data stored in DB.
 
-## DB changes — `public.brokers`
+## DB change — `public.brokers`
 
-Add 4 nullable columns (no breaking changes):
+Add one new jsonb column (additive, nullable, no breaking changes):
 
-| Column | Type | Default | Purpose |
+| Column | Type | Default | Shape |
 |---|---|---|---|
-| `license_number` | text | `''` | e.g. "SD185 (Equitex Capital Ltd)" — shown in Regulation & Safety |
-| `withdrawal_time` | text | `''` | e.g. "1–3 days (crypto), 3–5 days (bank)" |
-| `withdrawal_fee` | text | `''` | e.g. "Crypto free, Bank $10" |
-| `warning_note` | text | `''` | Optional amber alert near "Open Account" CTA |
+| `payment_method_details` | jsonb | `'[]'::jsonb` | `[{ method, min, processing, fee }]` |
 
-Also extend the existing `account_types` jsonb shape to include a per-row `leverage` field:
-`{ name, min_deposit, spread, leverage, commission }` — purely additive, old rows still work.
+The old `payment_methods` text[] column stays as-is (still used elsewhere as a quick tag list). The new jsonb is what drives the table.
 
 ## Admin form — `src/pages/admin/BrokersAdmin.tsx`
 
-- Extend `AccountType` interface + `addAccountType` defaults with `leverage`.
-- Account Types editor: change grid from 12-col (4 inputs) to add a 5th input "Leverage (1:500)".
-- Add new "Risk & Trust Info" section in the modal:
-  - License Number (Input)
-  - Withdrawal Time (Input)
-  - Withdrawal Fee (Input)
-  - Warning Note (Textarea)
-- Wire all fields into `emptyBroker`, `openEdit`, and `payload`.
+Add a new editor block in the broker modal called **Payment Method Details** (sits right after the existing Account Types editor since the UX is identical):
 
-## Public broker detail — `src/pages/BrokerDetail.tsx`
+- Repeater rows with 4 inputs per row: Method, Min, Processing, Fee
+- "Add row" button + per-row delete (✕)
+- Wire into `Broker` interface, `emptyBroker`, `openEdit`, and the save `payload`
 
-1. **Trading Conditions table (line 582–606):** Add a "Commission" column so the table becomes:
-   ```
-   Account | Min Deposit | Spread | Leverage | Commission
-   ```
-   - `Leverage` cell → `at.leverage || broker.leverage`
-   - `Commission` cell → `at.commission || '—'`
-2. **Regulation & Safety section:** show `license_number` row when present.
-3. **Funding/Payment Methods section:** show "Withdrawal Time" and "Withdrawal Fee" rows when present.
-4. **Sidebar near "Open Account" CTA:** if `warning_note` exists, render an amber alert card with the warning text.
-5. Extend `Broker` + `AccountType` interfaces accordingly.
+## Public page — `src/pages/BrokerDetail.tsx`
+
+Replace the current table-body logic (lines 661–675) with a 3-tier fallback:
+
+1. If `broker.payment_method_details` has entries → render those rows as-is (full Min/Processing/Fee data).
+2. Else if `broker.payment_methods` has entries → render method names with `—` placeholders (current behaviour).
+3. Else → render the existing hardcoded sample rows.
+
+Also extend the `Broker` interface with `payment_method_details?: { method: string; min: string; processing: string; fee: string }[]`.
 
 ## Files touched
 
-- New migration: 4 columns on `public.brokers`
-- `src/pages/admin/BrokersAdmin.tsx` — interface, form state, modal fields, save payload, account-types editor
-- `src/pages/BrokerDetail.tsx` — interface, table header/cells, new info rows, optional warning card
+- New migration: 1 jsonb column on `public.brokers`
+- `src/pages/admin/BrokersAdmin.tsx` — interface, form state, modal repeater, save payload
+- `src/pages/BrokerDetail.tsx` — interface + table body fallback logic
 
 ## Out of scope
 
-- Restricted countries, scam score (per your request — skipped)
-- Filling actual values for Bullwaves (you'll do via admin UI after fields exist)
+- Removing/migrating the legacy `payment_methods` array (kept for backwards compat)
+- Changing the Withdrawal Time / Fee cards below the table (already DB-driven)
