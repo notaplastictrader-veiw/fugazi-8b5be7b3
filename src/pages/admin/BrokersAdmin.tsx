@@ -51,6 +51,7 @@ interface Broker {
   payment_methods: string[];
   platforms: string[];
   account_types: AccountType[];
+  payment_method_details: PaymentMethodDetail[];
   website_url: string;
   support_email: string;
   support_phone: string;
