@@ -13,8 +13,8 @@ import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { submitToApprovalQueue, logAuditAction } from "@/lib/approvalQueue";
-import AdminTableToolbar from "@/components/admin/AdminTableToolbar";
-import { exportToCSV, filterByDateRange } from "@/lib/adminExport";
+import { exportToCSV } from "@/lib/adminExport";
+import { Download } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Switch } from "@/components/ui/switch";
 
