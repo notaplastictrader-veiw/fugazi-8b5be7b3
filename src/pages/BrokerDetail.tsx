@@ -659,7 +659,9 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(broker.payment_methods && broker.payment_methods.length > 0
+                      {(broker.payment_method_details && broker.payment_method_details.length > 0
+                        ? broker.payment_method_details
+                        : broker.payment_methods && broker.payment_methods.length > 0
                         ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
                         : [
                           { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
