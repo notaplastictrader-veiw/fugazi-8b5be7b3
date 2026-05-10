@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Shield, Award, AlertTriangle, ExternalLink } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import StarRating from "@/components/reviews/StarRating";
@@ -78,10 +79,14 @@ const Brokers = () => {
   return (
     <MainLayout>
       <SEO
-        title="Broker Reviews"
-        description="Compare 280+ forex and CFD brokers with verified scores, spreads, regulation status, and real trader reviews. Find the best broker for you."
+        title="Broker Reviews — 280+ Forex Brokers Rated by Real Traders"
+        description="Compare 280+ forex & CFD brokers with verified trust scores, spreads, regulation, and real trader reviews. Updated daily — find the safest broker now."
         path="/brokers"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Brokers", path: "/brokers" },
+      ])} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// ALL BROKERS</span>

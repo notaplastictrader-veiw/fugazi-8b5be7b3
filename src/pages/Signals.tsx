@@ -51,10 +51,14 @@ const Signals = () => {
   return (
     <MainLayout>
       <SEO
-        title="Verified Signal Groups"
-        description="Every Telegram signal group listed, reviewed, and rated by real traders. Win rates, track records, and verified performance."
+        title="Verified Signal Groups — Forex & Crypto Telegram Signals"
+        description="Browse every verified forex and crypto signal group. Real win rates, audited track records, transparent performance — no fake screenshots."
         path="/signals"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Signals", path: "/signals" },
+      ])} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SIGNAL HUB</span>
