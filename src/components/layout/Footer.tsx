@@ -90,7 +90,7 @@ const Footer = () => {
 
   const logoSrc = theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg";
 
-  const brandName = cms.brand_name || "Not A Fugazi";
+  const brandName = cms.brand_name || "NAFT";
   const brandAccent = cms.brand_accent || "Trader";
   const brandDescription = cms.brand_description || "The world's most transparent broker review platform. Real reviews, real complaints, verified withdrawal proof.";
   const columns = (Array.isArray(cms.columns) && cms.columns.length > 0 ? cms.columns : defaultColumns) as typeof defaultColumns;
@@ -175,7 +175,7 @@ const Footer = () => {
             </Link>
           </p>
           <p className="text-xs text-muted-foreground mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span>© {new Date().getFullYear()} Not A Fugazi Trader. {copyrightSuffix}</span>
+            <span>© {new Date().getFullYear()} NAFT. {copyrightSuffix}</span>
             <span className="text-border">|</span>
             <button
               type="button"
