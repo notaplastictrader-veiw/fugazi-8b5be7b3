@@ -42,7 +42,7 @@ const Contact = () => {
     <MainLayout>
       <SEO
         title="Contact Us"
-        description="Get in touch with Not A Fugazi Trader. Report scams, submit complaints, request broker reviews, or partner with us."
+        description="Get in touch with NAFT. Report scams, submit complaints, request broker reviews, or partner with us."
         path="/contact"
       />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">

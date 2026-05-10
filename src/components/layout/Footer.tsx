@@ -90,7 +90,7 @@ const Footer = () => {
 
   const logoSrc = theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg";
 
-  const brandName = cms.brand_name || "Not A Fugazi";
+  const brandName = cms.brand_name || "NAFT";
   const brandAccent = cms.brand_accent || "Trader";
   const brandDescription = cms.brand_description || "The world's most transparent broker review platform. Real reviews, real complaints, verified withdrawal proof.";
   const columns = (Array.isArray(cms.columns) && cms.columns.length > 0 ? cms.columns : defaultColumns) as typeof defaultColumns;
@@ -98,7 +98,7 @@ const Footer = () => {
   const aboutLabel = cms.about_label || "About Us";
   const contactLabel = cms.contact_label || "Contact Us";
   const riskWarningLabel = cms.risk_warning_label || "⚠ Risk & Liability Disclaimer:";
-  const riskWarning = cms.risk_warning || "Not A Fugazi Trader (NAFT) is an independent information and review platform — not a broker, advisor, signal provider, or bookmaker. All content (broker listings, signals, forecasts, sports predictions, news) is for informational and educational purposes only and is not financial, legal, or betting advice. Trading and gambling carry substantial risk of loss; you are solely responsible for verifying that any third-party service is lawful and regulated in your jurisdiction. NAFT accepts no liability for any losses arising from use of this site or third-party services.";
+  const riskWarning = cms.risk_warning || "NAFT is an independent information and review platform — not a broker, advisor, signal provider, or bookmaker. All content (broker listings, signals, forecasts, sports predictions, news) is for informational and educational purposes only and is not financial, legal, or betting advice. Trading and gambling carry substantial risk of loss; you are solely responsible for verifying that any third-party service is lawful and regulated in your jurisdiction. NAFT accepts no liability for any losses arising from use of this site or third-party services.";
   const copyrightSuffix = cms.copyright_suffix || t("footer.rights", "All rights reserved.");
 
   return (
@@ -175,7 +175,7 @@ const Footer = () => {
             </Link>
           </p>
           <p className="text-xs text-muted-foreground mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span>© {new Date().getFullYear()} Not A Fugazi Trader. {copyrightSuffix}</span>
+            <span>© {new Date().getFullYear()} NAFT. {copyrightSuffix}</span>
             <span className="text-border">|</span>
             <button
               type="button"
