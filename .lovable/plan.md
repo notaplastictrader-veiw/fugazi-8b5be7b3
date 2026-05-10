@@ -1,43 +1,49 @@
-## Plan: Calendar API সরিয়ে শুধু DB-driven weekly news
+## Plan: Google-এ site index করানোর জন্য SEO fix
 
-### লক্ষ্য
-JBlanked API (credits শেষ, 401 error) পুরোপুরি সরিয়ে দেয়া। "This Week's Important News" card শুধু `calendar_events` table থেকে ডেটা দেখাবে — admin panel থেকে আপনি/আমি weekly events add করব।
+### আসল সমস্যা কী
 
-### কী কী পরিবর্তন হবে
+**1. Wrong canonical domain everywhere** — এটাই main issue
+- `public/sitemap.xml` → সব URL `fugazi.lovable.app` দিয়ে দেওয়া
+- `public/robots.txt` → sitemap link `fugazi.lovable.app/sitemap.xml`
+- `src/components/SEO.tsx` → `BASE_URL = "https://naftreview.lovable.app"` (পুরোনো URL!)
+- ফলে Google যা index করছে সেটা `notafugazitrader.com` না, lovable subdomain → আপনার custom domain খুঁজলে পায় না
 
-**1. Edge function delete**
-- `supabase/functions/get-economic-calendar/` — পুরো folder মুছে ফেলা হবে
-- Supabase থেকেও deploy uninstall করা হবে
+**2. Site Google-এ submit করা হয়নি**
+- Google Search Console-এ verify + sitemap submit না করা পর্যন্ত নতুন site index হতে weeks/months লাগে
 
-**2. Hook simplify (`src/hooks/useEconomicCalendar.ts`)**
-- API call সরিয়ে শুধু `calendar_events` table থেকে published events fetch
-- Stale/error states সরানো (আর দরকার নেই)
-- Realtime subscribe করা যাতে admin add করলে সাথে সাথে update হয়
+**3. SPA rendering** — minor; Google JS render করতে পারে, fix করার দরকার নেই
 
-**3. WeekNewsBoard (`src/components/calendar/WeekNewsBoard.tsx`)**
-- Duplicate fetch logic সরানো — শুধু hook ব্যবহার করবে
-- "Showing cached data" warning সরানো
-- খালি দিনে "—" placeholder থাকবে (already আছে)
+### কী কী fix করব (code side)
 
-**4. HomepageCalendarWidget (`src/components/sections/HomepageCalendarWidget.tsx`)**
-- একই hook ব্যবহার করবে, কোনো structural পরিবর্তন নেই
-- যদি আজকের কোনো high-impact event না থাকে, section hidden থাকবে (already আছে)
+**A. `src/components/SEO.tsx`**
+- `BASE_URL` change করব `https://www.notafugazitrader.com` → সব canonical, og:url, og:image link সঠিক domain-এ যাবে
 
-**5. Calendar page (`src/pages/Calendar.tsx`)**
-- Stale banner / API error message সরানো
-- Empty state: "No events scheduled — check back soon"
+**B. `public/sitemap.xml`**
+- প্রতিটা `<loc>` rewrite — `fugazi.lovable.app` → `www.notafugazitrader.com`
+- `lastmod` আজকের date-এ update
 
-### Admin workflow (আপনার জন্য)
-- `/admin/calendar` page-এ গিয়ে প্রতি সপ্তাহে events add করবেন:
-  - Title, Date, Time (UTC), Currency, Impact (high/medium), Forecast, Previous, Actual
-  - Status = `published` দিলে homepage + calendar page-এ দেখাবে
-- অথবা আপনি আমাকে info দিলে আমি database-এ direct insert করে দিব
+**C. `public/robots.txt`**
+- Sitemap line update → `https://www.notafugazitrader.com/sitemap.xml`
 
-### যা delete হবে
-- `JBLANKED_API_KEY` secret আর দরকার নেই (চাইলে রাখা যাবে, future-এ অন্য purpose-এ লাগতে পারে)
-- API fetching, caching logic, stale detection — সব gone
+**D. `index.html`**
+- `og:url` meta tag add `https://www.notafugazitrader.com/`
+- Default canonical link tag add (fallback যখন React mount-এর আগে crawler আসে)
 
-### Risk / Notes
-- পুরোপুরি admin-curated হলে data freshness আপনার উপর dependent
-- কোনো week-এ events add না করলে card-টা empty দেখাবে ("—")
-- Confirm করলে implement শুরু করি
+**E. Optional: dynamic sitemap entries**
+- এখন static, শুধু main pages আছে। চাইলে future-এ broker/news/promotion detail pages-ও যোগ করা যাবে — এই plan-এ skip, পরে আলাদা feature হিসেবে।
+
+### আপনি যা করবেন (Google side — code না)
+
+1. **Google Search Console** (https://search.google.com/search-console) এ যান
+2. **Property add** → `https://www.notafugazitrader.com` (URL prefix) দিন
+3. **Verify** — সবচেয়ে সহজ method: **DNS TXT record** (আপনার domain যেখানে কেনা সেখানে add) অথবা **HTML tag** (verification meta tag দিলে আমি `index.html` এ paste করে দিব)
+4. Verify হলে left menu → **Sitemaps** → submit: `sitemap.xml`
+5. **URL Inspection** → `https://www.notafugazitrader.com/` লিখে → **Request Indexing**
+6. Important pages (brokers, signals, scam-alerts) প্রতিটার জন্য আলাদা request indexing
+7. ১-৭ দিন wait — তারপর Google-এ `site:notafugazitrader.com` search করে check করুন
+
+### Deepseek-এর Step 7 (Next.js migrate) সম্পর্কে
+দরকার **নেই** এখনো। Google JS-rendered SPA index করতে পারে। ১-২ মাস ভালোভাবে SEO চলার পরও যদি ranking না আসে তখন SSR consider করা যাবে। আগে domain fix + Search Console submit করে দেখি।
+
+### Confirm করলে A–D implement করি
+Verification meta tag পেলে সাথে সাথে paste করে দিব।
