@@ -95,10 +95,14 @@ const Compare = () => {
   return (
     <MainLayout>
       <SEO
-        title="Compare Brokers"
-        description="Compare forex brokers side-by-side. Regulation, spreads, leverage, deposits, scores — see how they stack up."
+        title="Compare Brokers — Side-by-Side Forex Broker Comparison"
+        description="Compare up to 4 forex brokers side-by-side: regulation, spreads, leverage, deposits, and trust scores. Share the link to save your comparison."
         path="/compare"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Compare", path: "/compare" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

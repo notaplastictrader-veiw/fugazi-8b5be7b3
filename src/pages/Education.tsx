@@ -83,10 +83,14 @@ const Education = () => {
   return (
     <MainLayout>
       <SEO
-        title="Trading Education"
-        description="Free trading courses from beginner to advanced. Learn forex, crypto, prop firm strategies, and trader psychology."
+        title="Trading Education — Free Forex, Crypto & Prop Firm Courses"
+        description="Free trading courses from beginner to advanced. Learn forex, crypto, prop firm strategies, risk management, and trader psychology — no fluff."
         path="/education"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Education", path: "/education" },
+      ])} />
       <section className="max-w-5xl mx-auto px-4 pt-6 pb-24">
         {/* Hero */}
         <div className="text-center mb-12">

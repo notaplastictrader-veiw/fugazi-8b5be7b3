@@ -122,10 +122,14 @@ const News = () => {
   return (
     <MainLayout>
       <SEO
-        title="Market News"
-        description="Live forex market news from trusted sources, auto-refreshed every 5 minutes."
+        title="Forex Market News — Live Updates from Trusted Sources"
+        description="Live forex market news aggregated from trusted sources, refreshed every 5 minutes. Stay ahead of central bank decisions, NFP, and market moves."
         path="/news"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "News", path: "/news" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

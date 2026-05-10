@@ -57,10 +57,14 @@ const ScamAlerts = () => {
   return (
     <MainLayout>
       <SEO
-        title="Scam Alerts"
-        description="Verified forex scam alerts and warnings. Protect yourself from fraudulent brokers, Ponzi schemes, and fake signal providers."
+        title="Forex Scam Alerts — Verified Broker Warnings & Fraud Reports"
+        description="Browse verified forex scam alerts, broker warnings, and fraud reports. Updated daily — protect yourself from withdrawal refusals and Ponzi schemes."
         path="/scam-alerts"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Scam Alerts", path: "/scam-alerts" },
+      ])} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// SCAM WATCH</span>

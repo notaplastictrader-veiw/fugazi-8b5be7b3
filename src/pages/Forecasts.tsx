@@ -76,7 +76,11 @@ const Forecasts = () => {
 
   return (
     <MainLayout>
-      <SEO title="Market Forecasts" description="Daily forex, gold, and crypto market forecasts. No paid promotions, no broker bias — just honest analysis." path="/forecasts" />
+      <SEO title="Daily Market Forecasts — Forex, Gold & Crypto Analysis" description="Daily forex, gold, and crypto market forecasts. No paid promotions, no broker bias — just honest, data-driven analysis from independent traders." path="/forecasts" />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Forecasts", path: "/forecasts" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
