@@ -63,7 +63,7 @@ const WeekNewsBoard = () => {
       });
     }
     return map;
-  }, [events, dbEvents, weekDates]);
+  }, [events, weekDates]);
 
   const headerRange = useMemo(
     () => `${formatDayNum(weekDates[0])} – ${formatDayNum(weekDates[4])}`,
