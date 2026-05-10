@@ -1,49 +1,32 @@
-## Plan: Google-এ site index করানোর জন্য SEO fix
+## Google Search Console Verification — Plan
 
-### আসল সমস্যা কী
+User-এর domain `https://www.notafugazitrader.com/` verify করার জন্য Google ২টা method দিয়েছে। দুটোই add করলে safest (একটা fail করলে আরেকটা backup)।
 
-**1. Wrong canonical domain everywhere** — এটাই main issue
-- `public/sitemap.xml` → সব URL `fugazi.lovable.app` দিয়ে দেওয়া
-- `public/robots.txt` → sitemap link `fugazi.lovable.app/sitemap.xml`
-- `src/components/SEO.tsx` → `BASE_URL = "https://naftreview.lovable.app"` (পুরোনো URL!)
-- ফলে Google যা index করছে সেটা `notafugazitrader.com` না, lovable subdomain → আপনার custom domain খুঁজলে পায় না
+### কী কী add করব
 
-**2. Site Google-এ submit করা হয়নি**
-- Google Search Console-এ verify + sitemap submit না করা পর্যন্ত নতুন site index হতে weeks/months লাগে
+**1. HTML file upload (primary method)**
+- User-uploaded file: `google7e7f94680e0cd202.html`
+- Copy করব → `public/google7e7f94680e0cd202.html`
+- Publish হলে accessible হবে: `https://www.notafugazitrader.com/google7e7f94680e0cd202.html`
 
-**3. SPA rendering** — minor; Google JS render করতে পারে, fix করার দরকার নেই
+**2. HTML meta tag (backup method)**
+- `index.html` এর `<head>` এ add করব:
+```html
+<meta name="google-site-verification" content="bZuAMwF5X-DiC7z_ZNcJUfqztMS7qfgnTAoHdg-sIdk" />
+```
+- Existing canonical/og tags এর কাছে রাখব।
 
-### কী কী fix করব (code side)
+### User যা করবেন (code না)
 
-**A. `src/components/SEO.tsx`**
-- `BASE_URL` change করব `https://www.notafugazitrader.com` → সব canonical, og:url, og:image link সঠিক domain-এ যাবে
-
-**B. `public/sitemap.xml`**
-- প্রতিটা `<loc>` rewrite — `fugazi.lovable.app` → `www.notafugazitrader.com`
-- `lastmod` আজকের date-এ update
-
-**C. `public/robots.txt`**
-- Sitemap line update → `https://www.notafugazitrader.com/sitemap.xml`
-
-**D. `index.html`**
-- `og:url` meta tag add `https://www.notafugazitrader.com/`
-- Default canonical link tag add (fallback যখন React mount-এর আগে crawler আসে)
-
-**E. Optional: dynamic sitemap entries**
-- এখন static, শুধু main pages আছে। চাইলে future-এ broker/news/promotion detail pages-ও যোগ করা যাবে — এই plan-এ skip, পরে আলাদা feature হিসেবে।
-
-### আপনি যা করবেন (Google side — code না)
-
-1. **Google Search Console** (https://search.google.com/search-console) এ যান
-2. **Property add** → `https://www.notafugazitrader.com` (URL prefix) দিন
-3. **Verify** — সবচেয়ে সহজ method: **DNS TXT record** (আপনার domain যেখানে কেনা সেখানে add) অথবা **HTML tag** (verification meta tag দিলে আমি `index.html` এ paste করে দিব)
+1. **Publish** button ক্লিক করে app update করুন (frontend changes live করতে হবে)
+2. Browser এ check: `https://www.notafugazitrader.com/google7e7f94680e0cd202.html` খুললে শুধু একটা line দেখাবে: `google-site-verification: google7e7f94680e0cd202.html`
+3. Google Search Console এ গিয়ে **Verify** button click করুন
 4. Verify হলে left menu → **Sitemaps** → submit: `sitemap.xml`
-5. **URL Inspection** → `https://www.notafugazitrader.com/` লিখে → **Request Indexing**
-6. Important pages (brokers, signals, scam-alerts) প্রতিটার জন্য আলাদা request indexing
-7. ১-৭ দিন wait — তারপর Google-এ `site:notafugazitrader.com` search করে check করুন
+5. **URL Inspection** → homepage + main pages → **Request Indexing**
 
-### Deepseek-এর Step 7 (Next.js migrate) সম্পর্কে
-দরকার **নেই** এখনো। Google JS-rendered SPA index করতে পারে। ১-২ মাস ভালোভাবে SEO চলার পরও যদি ranking না আসে তখন SSR consider করা যাবে। আগে domain fix + Search Console submit করে দেখি।
+### Note
 
-### Confirm করলে A–D implement করি
-Verification meta tag পেলে সাথে সাথে paste করে দিব।
+- Verification file/tag কখনো remove করবেন না — Google periodically re-check করে। Remove করলে property unverified হয়ে যাবে।
+- Both methods add করলে double safety — একটা fail করলেও অন্যটা কাজ করবে।
+
+### Confirm করলে implement করি
