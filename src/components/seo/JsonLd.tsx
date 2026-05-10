@@ -25,17 +25,17 @@ export default JsonLd;
 export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "NAFT",
+  name: "Not A Fugazi Trader",
   url: "https://naftreview.lovable.app",
   logo: "https://naftreview.lovable.app/favicon.ico",
-  sameAs: ["https://twitter.com/naftreviews"],
+  sameAs: ["https://twitter.com/notafugazitrader"],
   description: "The world's most transparent broker review platform. Real reviews, real complaints, real withdrawal proof.",
 };
 
 export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "NAFT",
+  name: "Not A Fugazi Trader",
   url: "https://naftreview.lovable.app",
   potentialAction: {
     "@type": "SearchAction",

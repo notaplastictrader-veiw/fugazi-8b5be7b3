@@ -76,7 +76,7 @@ const Login = () => {
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-4">
               <span className="text-xl font-bold text-foreground">
-                NAFT <span className="text-primary">Reviews</span>
+                Not A Fugazi <span className="text-primary">Trader</span>
               </span>
             </Link>
             <h1 className="text-2xl font-display font-extrabold text-foreground">{t("login.title")}</h1>

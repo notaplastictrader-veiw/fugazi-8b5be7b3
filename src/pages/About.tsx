@@ -13,7 +13,7 @@ const About = () => (
   <MainLayout>
     <SEO
       title="About Us"
-      description="Learn about NAFT — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
+      description="Learn about Not A Fugazi Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
       path="/about"
     />
     <section className="max-w-4xl mx-auto px-4 pt-6 pb-24">
@@ -38,7 +38,7 @@ const About = () => (
           Traders lose — not because they traded badly, but because they trusted the wrong people.
         </p>
         <p>
-          <strong className="text-foreground">NAFT</strong> was built to fix that.
+          <strong className="text-foreground">Not A Fugazi Trader</strong> was built to fix that.
         </p>
         <p>
           We started as traders ourselves. We experienced withdrawal delays, manipulated spreads, fake "regulated" brokers,

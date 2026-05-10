@@ -10,7 +10,7 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultEyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "Fake Brokers", suffix: "", color: "hsl(var(--primary))" },
+  { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
   { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
   { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
   { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
@@ -118,7 +118,7 @@ const HeroSection = () => {
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              NAFT Verified
+              Not a Fugazi Trader
             </span>
           </div>
         </div>

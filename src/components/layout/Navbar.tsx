@@ -155,7 +155,7 @@ const Navbar = () => {
             />
             <div className="flex flex-col leading-none">
               <span className="text-lg font-bold tracking-tight text-foreground">
-                NAFT <span className="text-primary">Reviews</span>
+                Not A Fugazi <span className="text-primary">Trader</span>
               </span>
               <span className="text-[9px] font-mono tracking-[0.15em] text-muted-foreground uppercase">
                 {t("nav.brokerReviews")}

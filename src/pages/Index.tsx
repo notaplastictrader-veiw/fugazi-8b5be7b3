@@ -18,7 +18,7 @@ const Index = () => {
   return (
     <MainLayout>
       <SEO
-        title="NAFT — Broker Reviews That Actually Matter"
+        title="Not A Fugazi Trader — Broker Reviews & Signals"
         description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 280+ brokers, get verified signals, and avoid scams."
         path="/"
       />
