@@ -10,7 +10,7 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultEyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
+  { text: "Built for real traders, not ", highlight: "Fake Brokers", suffix: "", color: "hsl(var(--primary))" },
   { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
   { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
   { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
