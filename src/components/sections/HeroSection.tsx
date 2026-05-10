@@ -146,9 +146,14 @@ const HeroSection = () => {
           </h1>
         </div>
 
-        <p className="text-lg font-medium text-muted-foreground max-w-2xl mx-auto mb-5 leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "We Test Brokers. You Trade Smarter.")}
-        </p>
+        <div className="max-w-2xl mx-auto mb-5 animate-[fade-up_0.6s_ease_0.2s_both]">
+          <p className="text-lg md:text-xl font-semibold text-foreground leading-snug mb-1.5">
+            We Test Brokers. You Trade Smarter.
+          </p>
+          <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+            {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
+          </p>
+        </div>
 
         <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
           <div className="relative flex items-center rounded-[14px] overflow-hidden bg-card/40 border border-primary/20 backdrop-blur-xl focus-within:border-primary/50 focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.1)] transition-all">
