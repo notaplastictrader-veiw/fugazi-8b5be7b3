@@ -151,11 +151,6 @@ const Calendar = () => {
             Track high-impact events and ML-powered sentiment for the 8 majors. Plan trades around the data.
           </p>
           <p className="text-xs font-mono text-muted-foreground/70">{updatedAgo}</p>
-          {stale && (
-            <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-accent/15 text-accent border border-accent/30">
-              <AlertTriangle className="w-3 h-3" /> Showing cached data — live feed unavailable
-            </div>
-          )}
         </div>
 
         <WeekNewsBoard />
