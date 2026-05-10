@@ -147,10 +147,10 @@ const HeroSection = () => {
         </div>
 
         <div className="max-w-2xl mx-auto mb-5 animate-[fade-up_0.6s_ease_0.2s_both]">
-          <p className="text-lg md:text-xl font-semibold text-foreground leading-snug mb-1.5">
+          <p className="text-base md:text-lg font-medium text-muted-foreground leading-snug mb-1">
             We Test Brokers. You Trade Smarter.
           </p>
-          <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground/70 leading-relaxed">
             {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
           </p>
         </div>
