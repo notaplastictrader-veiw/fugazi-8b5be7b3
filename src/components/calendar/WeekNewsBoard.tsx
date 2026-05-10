@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useMemo, useState } from "react";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import { useTheme } from "@/hooks/useTheme";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
@@ -40,54 +39,13 @@ const WeekNewsBoard = () => {
   const { events, loading } = useEconomicCalendar();
   const { theme } = useTheme();
   const [selected, setSelected] = useState<EconomicCalendarEvent | null>(null);
-  const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
   const weekDates = useMemo(() => getCurrentWeekMonToFri(), []);
-
-  // Pull admin-curated events directly from calendar_events for the current week
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data, error } = await supabase
-        .from("calendar_events")
-        .select("id,title,event_date,event_time,impact,currency,category,description,actual_value,forecast_value,previous_value")
-        .eq("status", "published")
-        .gte("event_date", weekDates[0])
-        .lte("event_date", weekDates[4]);
-      if (cancelled || error || !data) return;
-      const mapped: EconomicCalendarEvent[] = data.map((r: any) => {
-        const time = r.event_time ? String(r.event_time).slice(0, 5) : null;
-        return {
-          id: `db-${r.id}`,
-          name: r.title,
-          title: r.title,
-          date: `${r.event_date}T${time ?? "00:00"}:00Z`,
-          event_date: r.event_date,
-          event_time: time,
-          impact: (r.impact as any) || "medium",
-          currency: r.currency || "",
-          category: r.category || "economic",
-          description: r.description || "",
-          actual: r.actual_value || "",
-          forecast: r.forecast_value || "",
-          previous: r.previous_value || "",
-          actual_value: r.actual_value || "",
-          forecast_value: r.forecast_value || "",
-          previous_value: r.previous_value || "",
-        };
-      });
-      setDbEvents(mapped);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [weekDates]);
 
   const byDay = useMemo(() => {
     const map: Record<string, EconomicCalendarEvent[]> = {};
     for (const d of weekDates) map[d] = [];
     const seen = new Set<string>();
-    const all = [...dbEvents, ...events];
-    for (const e of all) {
+    for (const e of events) {
       if (!map[e.event_date]) continue;
       if (e.impact !== "high" && e.impact !== "medium") continue;
       const key = `${e.event_date}|${e.event_time || "all"}|${e.currency}|${e.name}`;
@@ -105,7 +63,7 @@ const WeekNewsBoard = () => {
       });
     }
     return map;
-  }, [events, dbEvents, weekDates]);
+  }, [events, weekDates]);
 
   const headerRange = useMemo(
     () => `${formatDayNum(weekDates[0])} – ${formatDayNum(weekDates[4])}`,
