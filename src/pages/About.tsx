@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Shield, Eye, Users, Globe, Mail } from "lucide-react";
 
 const values = [

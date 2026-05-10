@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { CheckCircle, Users, BarChart3, TrendingUp } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { usePaginatedList } from "@/hooks/usePaginatedList";

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import ReportScamModal from "@/components/scam/ReportScamModal";
 import AuthModal from "@/components/modals/AuthModal";
