@@ -53,15 +53,13 @@ function compareColor(actual?: string | null, forecast?: string | null): string 
 }
 
 const Calendar = () => {
-  const [dbEvents, setDbEvents] = useState<EconomicCalendarEvent[]>([]);
-  const [loadingDb, setLoadingDb] = useState(true);
   const [impactFilter, setImpactFilter] = useState("high_med");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rangeFilter, setRangeFilter] = useState<"today" | "tomorrow" | "week">("week");
   const [timezone, setTimezone] = useState<"UTC" | "Local">("UTC");
   const [selected, setSelected] = useState<EconomicCalendarEvent | null>(null);
-  const { events: liveEvents, loading: loadingLive, lastUpdated, error: liveError, stale } = useEconomicCalendar();
+  const { events: merged, loading, lastUpdated } = useEconomicCalendar();
 
   // Restore tz preference
   useEffect(() => {
@@ -73,54 +71,6 @@ const Calendar = () => {
   useEffect(() => {
     try { localStorage.setItem(TZ_KEY, timezone); } catch {}
   }, [timezone]);
-
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("calendar_events")
-        .select("*")
-        .eq("status", "published")
-        .order("event_date", { ascending: true });
-      const mapped: EconomicCalendarEvent[] = (data ?? []).map((d: any) => ({
-        id: `db-${d.id}`,
-        name: d.title,
-        title: d.title,
-        date: d.event_time
-          ? `${d.event_date}T${d.event_time}:00.000Z`
-          : `${d.event_date}T00:00:00.000Z`,
-        event_date: d.event_date,
-        event_time: d.event_time,
-        impact: (d.impact ?? "low") as "high" | "medium" | "low",
-        currency: (d.currency ?? "").toUpperCase(),
-        category: d.category ?? "economic",
-        description: d.description ?? "",
-        actual: d.actual_value ?? "",
-        forecast: d.forecast_value ?? "",
-        previous: d.previous_value ?? "",
-        actual_value: d.actual_value ?? "",
-        forecast_value: d.forecast_value ?? "",
-        previous_value: d.previous_value ?? "",
-      }));
-      setDbEvents(mapped);
-      setLoadingDb(false);
-    };
-    load();
-  }, []);
-
-  // Merge — manual DB events win on duplicate (normalized title-keyword signature)
-  const merged = useMemo(() => {
-    const seen = new Set(dbEvents.map((e) => dedupeKey(e.event_date, e.currency, e.name)));
-    const out = [...dbEvents];
-    for (const e of liveEvents) {
-      const k = dedupeKey(e.event_date, e.currency, e.name);
-      if (seen.has(k)) continue;
-      seen.add(k);
-      out.push(e);
-    }
-    return out;
-  }, [dbEvents, liveEvents]);
-
-  const loading = loadingDb && loadingLive && merged.length === 0;
 
   const { grouped, dateKeys } = useMemo(() => {
     const todayUtc = new Date();
