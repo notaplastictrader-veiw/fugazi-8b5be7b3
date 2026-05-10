@@ -263,11 +263,11 @@ const Calendar = () => {
         ) : dateKeys.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground min-h-[400px]">
             <CalendarDays className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            {liveError && merged.length === 0 ? (
+            {merged.length === 0 ? (
               <>
-                <p className="font-semibold text-foreground mb-1">Live calendar feed temporarily unavailable</p>
+                <p className="font-semibold text-foreground mb-1">No events scheduled yet</p>
                 <p className="text-xs max-w-md mx-auto">
-                  Our data provider's daily quota is exhausted. The feed will refresh automatically within 12 hours, or an admin can publish events manually from the dashboard.
+                  Check back soon — our team publishes weekly high-impact events here.
                 </p>
               </>
             ) : (
