@@ -118,7 +118,7 @@ const HeroSection = () => {
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              Not a Fugazi Trader
+              NAFT Verified
             </span>
           </div>
         </div>
