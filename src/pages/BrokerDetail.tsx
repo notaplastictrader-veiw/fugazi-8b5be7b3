@@ -6,6 +6,7 @@ import { brokers as localBrokers } from "@/data/brokers";
 import { useToast } from "@/hooks/use-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema, brokerReviewSchema } from "@/components/seo/JsonLd";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -337,10 +338,24 @@ const BrokerDetail = () => {
   return (
     <MainLayout>
       <SEO
-        title={`${broker.name} Review — Full A-Z Broker Analysis`}
-        description={`Read the full ${broker.name} review — regulation, spreads, deposits, and real trader feedback. Score: ${broker.score}/10.`}
+        title={`${broker.name} Review ${new Date().getFullYear()} — Spreads, Regulation & Real User Feedback`}
+        description={`In-depth ${broker.name} review: regulation (${(broker.regulation || []).join(", ") || "N/A"}), spreads ${broker.avg_spread || "N/A"}, ${broker.review_count || 0}+ trader reviews. Trust score: ${broker.score}/10.`}
         path={`/brokers/${broker.slug}`}
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Brokers", path: "/brokers" },
+        { name: broker.name, path: `/brokers/${broker.slug}` },
+      ])} />
+      <JsonLd data={brokerReviewSchema({
+        name: broker.name,
+        slug: broker.slug,
+        score: broker.score,
+        stars: broker.stars,
+        reviewCount: broker.review_count,
+        description: broker.description,
+        logoUrl: broker.logo_url || undefined,
+      })} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
           <Link to="/brokers" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
