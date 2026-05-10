@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import { supabase } from "@/integrations/supabase/client";
-import { CalendarDays, Clock, Globe, AlertTriangle } from "lucide-react";
+import { CalendarDays, Clock, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEconomicCalendar, type EconomicCalendarEvent } from "@/hooks/useEconomicCalendar";
 import EventDetailModal from "@/components/calendar/EventDetailModal";
 import WeekNewsBoard from "@/components/calendar/WeekNewsBoard";
-import { dedupeKey, categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
+import { categoryBucket, CATEGORY_LABELS } from "@/lib/calendarDedupe";
 
 const MAJORS = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
 const CATEGORIES = ["all", "central_bank", "inflation", "employment", "gdp", "manufacturing", "consumer", "housing", "other"];
