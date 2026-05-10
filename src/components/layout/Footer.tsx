@@ -98,7 +98,7 @@ const Footer = () => {
   const aboutLabel = cms.about_label || "About Us";
   const contactLabel = cms.contact_label || "Contact Us";
   const riskWarningLabel = cms.risk_warning_label || "⚠ Risk & Liability Disclaimer:";
-  const riskWarning = cms.risk_warning || "Not A Fugazi Trader (NAFT) is an independent information and review platform — not a broker, advisor, signal provider, or bookmaker. All content (broker listings, signals, forecasts, sports predictions, news) is for informational and educational purposes only and is not financial, legal, or betting advice. Trading and gambling carry substantial risk of loss; you are solely responsible for verifying that any third-party service is lawful and regulated in your jurisdiction. NAFT accepts no liability for any losses arising from use of this site or third-party services.";
+  const riskWarning = cms.risk_warning || "NAFT is an independent information and review platform — not a broker, advisor, signal provider, or bookmaker. All content (broker listings, signals, forecasts, sports predictions, news) is for informational and educational purposes only and is not financial, legal, or betting advice. Trading and gambling carry substantial risk of loss; you are solely responsible for verifying that any third-party service is lawful and regulated in your jurisdiction. NAFT accepts no liability for any losses arising from use of this site or third-party services.";
   const copyrightSuffix = cms.copyright_suffix || t("footer.rights", "All rights reserved.");
 
   return (
