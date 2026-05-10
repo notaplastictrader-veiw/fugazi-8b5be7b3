@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema, articleSchema } from "@/components/seo/JsonLd";
 import { educationArticles as staticArticles, getArticleBySlug, getNextArticle } from "@/data/educationArticles";
 import { ChevronRight, Clock, User, ArrowRight, Lock, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -89,7 +90,17 @@ const EducationArticle = () => {
 
   return (
     <MainLayout>
-      <SEO title={article.title} description={article.keyTakeaway} path={`/education/${slug}`} />
+      <SEO title={article.title} description={article.keyTakeaway || `Read ${article.title} — ${trackLabels[article.track]} trading lesson on Not A Fugazi Trader.`} path={`/education/${slug}`} />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Education", path: "/education" },
+        { name: article.title, path: `/education/${slug}` },
+      ])} />
+      <JsonLd data={articleSchema({
+        title: article.title,
+        description: article.keyTakeaway || article.title,
+        path: `/education/${slug}`,
+      })} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6 font-mono">

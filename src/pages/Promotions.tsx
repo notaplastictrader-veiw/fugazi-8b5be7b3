@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { ExternalLink, Clock, Star, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { fallbackPromos, promoTypes, PromotionDetail } from "@/data/promotionsData";
@@ -81,10 +82,14 @@ const Promotions = () => {
   return (
     <MainLayout>
       <SEO
-        title="Broker Promotions & Bonuses"
-        description="Latest forex broker promotions, deposit bonuses, cashback offers, and trading contests. Curated and verified deals."
+        title="Broker Promotions & Bonuses — Verified Forex Deals"
+        description="Latest forex broker promotions: deposit bonuses, cashback offers, and trading contests. Curated and verified — no scam offers, no fine print traps."
         path="/promotions"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Promotions", path: "/promotions" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-20">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

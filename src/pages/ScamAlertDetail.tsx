@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema, articleSchema } from "@/components/seo/JsonLd";
 import { AlertTriangle, ArrowLeft, ShieldAlert, ExternalLink } from "lucide-react";
 
 interface ScamAlertFull {
@@ -106,10 +107,21 @@ const ScamAlertDetail = () => {
   return (
     <MainLayout>
       <SEO
-        title={`${alert.title} — Scam Alert`}
-        description={alert.description || ""}
+        title={`${alert.title} — Scam Alert & Investigation Report`}
+        description={alert.description || `Verified scam alert and investigation report for ${alert.title}. Severity: ${alert.severity}.`}
         path={`/scam-alerts/${id}`}
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Scam Alerts", path: "/scam-alerts" },
+        { name: alert.title, path: `/scam-alerts/${id}` },
+      ])} />
+      <JsonLd data={articleSchema({
+        title: `${alert.title} — Scam Alert`,
+        description: alert.description || `Verified scam alert for ${alert.title}.`,
+        path: `/scam-alerts/${id}`,
+        datePublished: alert.created_at,
+      })} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-3xl mx-auto">
           <Link to="/scam-alerts" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">

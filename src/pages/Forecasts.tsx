@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { TrendingUp, TrendingDown, Clock, BarChart3 } from "lucide-react";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
@@ -75,7 +76,11 @@ const Forecasts = () => {
 
   return (
     <MainLayout>
-      <SEO title="Market Forecasts" description="Daily forex, gold, and crypto market forecasts. No paid promotions, no broker bias — just honest analysis." path="/forecasts" />
+      <SEO title="Daily Market Forecasts — Forex, Gold & Crypto Analysis" description="Daily forex, gold, and crypto market forecasts. No paid promotions, no broker bias — just honest, data-driven analysis from independent traders." path="/forecasts" />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Forecasts", path: "/forecasts" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-10">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

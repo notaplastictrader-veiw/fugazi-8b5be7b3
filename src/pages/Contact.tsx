@@ -1,6 +1,7 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,10 +42,14 @@ const Contact = () => {
   return (
     <MainLayout>
       <SEO
-        title="Contact Us"
-        description="Get in touch with Not A Fugazi Trader. Report scams, submit complaints, request broker reviews, or partner with us."
+        title="Contact Us — Report Scams & Submit Complaints"
+        description="Get in touch with Not A Fugazi Trader. Report scams, submit complaints, request a broker review, or partner with us. Reply within 24 hours."
         path="/contact"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Contact", path: "/contact" },
+      ])} />
       <section className="max-w-6xl mx-auto px-4 pt-6 pb-24">
         <div className="text-center mb-12">
           <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">

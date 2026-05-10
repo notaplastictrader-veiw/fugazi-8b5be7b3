@@ -1,5 +1,6 @@
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Shield, Eye, Users, Globe, Mail } from "lucide-react";
 
 const values = [
@@ -12,10 +13,14 @@ const values = [
 const About = () => (
   <MainLayout>
     <SEO
-      title="About Us"
-      description="Learn about Not A Fugazi Trader — the most transparent broker review platform built by traders, for traders. Independent, community-first, and South Asia focused."
+      title="About Us — Independent Broker Reviews Built by Traders"
+      description="Not A Fugazi Trader is the most transparent broker review platform — independent, community-first, South Asia focused. Real reviews, real complaints."
       path="/about"
     />
+    <JsonLd data={breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "About", path: "/about" },
+    ])} />
     <section className="max-w-4xl mx-auto px-4 pt-6 pb-24">
       {/* Hero */}
       <div className="text-center mb-16">

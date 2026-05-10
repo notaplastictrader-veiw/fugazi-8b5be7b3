@@ -10,6 +10,7 @@
   <url><loc>https://www.notafugazitrader.com/promotions</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.notafugazitrader.com/calendar</loc><lastmod>2026-05-10</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.notafugazitrader.com/forecasts</loc><lastmod>2026-05-10</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.notafugazitrader.com/ideas</loc><lastmod>2026-05-10</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
   <url><loc>https://www.notafugazitrader.com/education</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.notafugazitrader.com/compare</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://www.notafugazitrader.com/partnership</loc><lastmod>2026-05-10</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
@@ -20,4 +21,11 @@
   <url><loc>https://www.notafugazitrader.com/privacy</loc><lastmod>2026-05-10</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://www.notafugazitrader.com/disclaimer</loc><lastmod>2026-05-10</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://www.notafugazitrader.com/cookies</loc><lastmod>2026-05-10</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <!-- Broker detail pages -->
+  <url><loc>https://www.notafugazitrader.com/brokers/exness</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.notafugazitrader.com/brokers/ic-markets</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.notafugazitrader.com/brokers/xm-global</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.notafugazitrader.com/brokers/quotex</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.notafugazitrader.com/brokers/pepperstone</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.notafugazitrader.com/brokers/ftmo</loc><lastmod>2026-05-10</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
