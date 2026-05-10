@@ -1,32 +1,54 @@
-## Google Search Console Verification — Plan
+## Technical SEO Improvements Plan
 
-User-এর domain `https://www.notafugazitrader.com/` verify করার জন্য Google ২টা method দিয়েছে। দুটোই add করলে safest (একটা fail করলে আরেকটা backup)।
+Verification ar Sitemap done. Ekhon sitewide SEO quality barano hobe — Google jate site bhalo bujhte pare ar SPA hoyeo ranking pay.
 
-### কী কী add করব
+### Current state (already good)
 
-**1. HTML file upload (primary method)**
-- User-uploaded file: `google7e7f94680e0cd202.html`
-- Copy করব → `public/google7e7f94680e0cd202.html`
-- Publish হলে accessible হবে: `https://www.notafugazitrader.com/google7e7f94680e0cd202.html`
+- ✅ `robots.txt` correct, sitemap reference ache
+- ✅ `sitemap.xml` 20 pages list ache
+- ✅ Canonical tags `<SEO>` component diye prottek page e set hocche
+- ✅ OG/Twitter meta tags set ache
+- ✅ JSON-LD framework ache (`JsonLd.tsx`)
 
-**2. HTML meta tag (backup method)**
-- `index.html` এর `<head>` এ add করব:
-```html
-<meta name="google-site-verification" content="bZuAMwF5X-DiC7z_ZNcJUfqztMS7qfgnTAoHdg-sIdk" />
-```
-- Existing canonical/og tags এর কাছে রাখব।
+### Problems to fix
 
-### User যা করবেন (code না)
+**1. JSON-LD e wrong URL (CRITICAL)**
+`src/components/seo/JsonLd.tsx` e Organization + WebSite schema er URL `naftreview.lovable.app` — eta old Lovable subdomain. Sob jaygaay change kore `https://www.notafugazitrader.com` korbo. Logo URL o proper logo file e point korbo.
 
-1. **Publish** button ক্লিক করে app update করুন (frontend changes live করতে হবে)
-2. Browser এ check: `https://www.notafugazitrader.com/google7e7f94680e0cd202.html` খুললে শুধু একটা line দেখাবে: `google-site-verification: google7e7f94680e0cd202.html`
-3. Google Search Console এ গিয়ে **Verify** button click করুন
-4. Verify হলে left menu → **Sitemaps** → submit: `sitemap.xml`
-5. **URL Inspection** → homepage + main pages → **Request Indexing**
+**2. JSON-LD coverage komo**
+Sudhu homepage e Organization + WebSite schema ache. Add korbo:
+- `BreadcrumbList` schema — sob inner page e (better SERP display)
+- `Review` / `AggregateRating` schema — Broker detail pages e (rich snippets — stars in Google results)
+- `Article` schema — News/Education detail pages e
+- `FAQPage` schema — homepage bottom e common questions ("Is XYZ broker safe?" etc.)
 
-### Note
+**3. Sitemap dynamic noy**
+Currently static 20 URLs only. Brokers, scam alerts, news, education articles individual pages sitemap e nei. Initial step e dynamic broker URLs add korbo (top 50-100) `data/brokers.ts` theke.
 
-- Verification file/tag কখনো remove করবেন না — Google periodically re-check করে। Remove করলে property unverified হয়ে যাবে।
-- Both methods add করলে double safety — একটা fail করলেও অন্যটা কাজ করবে।
+**4. Meta description per page weak**
+Kichu page e generic description. Audit kore unique 150-char description likhbo important pages e (Brokers, Signals, Scam Alerts, News, Calendar, Forecasts, Education).
 
-### Confirm করলে implement করি
+**5. SPA prerender hint**
+`index.html` e fallback content add korbo (h1 + brief description) jate Google er JS render fail korleo basic content paay. Eta crawl efficiency baray.
+
+### Implementation steps
+
+1. Fix `JsonLd.tsx` — replace all `naftreview.lovable.app` → `https://www.notafugazitrader.com`, fix logo path
+2. Create reusable `BreadcrumbJsonLd` helper, add to all main inner pages (Brokers, Signals, ScamAlerts, News, Calendar, Forecasts, Education, About, Contact)
+3. Add `Review`/`AggregateRating` schema to `BrokerDetail.tsx` (uses existing review data)
+4. Add `Article` schema to `EducationArticle.tsx` ar `ScamAlertDetail.tsx`
+5. Add `FAQPage` schema in homepage with 5-6 common questions
+6. Audit + improve unique meta descriptions on top 10 pages
+7. Expand `sitemap.xml` with broker detail URLs (from static `data/brokers.ts`)
+8. Add SEO-friendly fallback content to `index.html` `<noscript>` + initial loading skeleton with H1
+
+### Out of scope
+
+- Full SSR/Next.js migration (separate larger project)
+- Multilingual hreflang tags (separate i18n SEO work)
+- Image optimization / Core Web Vitals (Option 3 e alada)
+
+### What user needs to do after
+
+- Publish app
+- Search Console e few days wait kore "Enhancement" reports check korun (Breadcrumbs, Reviews, FAQ rich results dekhbe)
