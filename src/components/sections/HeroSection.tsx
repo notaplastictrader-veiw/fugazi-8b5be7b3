@@ -2,6 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
+
+const formatCount = (n: number | null): string => {
+  if (n === null) return "—";
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M+`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K+`;
+  if (n >= 100) return `${n}+`;
+  return `${n}`;
+};
 
 const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
