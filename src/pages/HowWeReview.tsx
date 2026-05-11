@@ -14,8 +14,8 @@ const weights = [
 ];
 
 const principles = [
-  { icon: CheckCircle2, title: "Independent & unpaid", text: "We are not a broker, IB, or affiliate of any reviewed broker. Sponsored placements are clearly labelled and never affect a broker's score." },
-  { icon: RefreshCw, title: "Continuously updated", text: "Scores recalculate as new reviews, complaints, and regulator updates come in. Each listing carries a 'Last verified' date." },
+  { icon: CheckCircle2, title: "Scores you can't buy", text: "No broker can pay to raise their Trust Score, hide complaints, or escape a scam alert. Scoring is driven entirely by regulator data, user reviews, and complaint history — not commercial relationships." },
+  { icon: RefreshCw, title: "Continuously updated", text: "Scores recalculate as new reviews, complaints, and regulator updates come in. The picture you see is always the latest one." },
   { icon: Scale, title: "Right of reply", text: "Brokers can claim their profile and respond to reviews publicly. We never delete user reviews to favour brokers." },
 ];
 
@@ -74,8 +74,7 @@ const HowWeReview = () => (
       <section className="mb-16">
         <h2 className="text-2xl font-display font-bold text-foreground mb-6">Update cadence</h2>
         <p className="text-sm text-muted-foreground">
-          Trust Scores recalculate automatically whenever a new review, complaint, or regulatory change is recorded.
-          Every broker page also displays a <strong className="text-foreground">"Last verified"</strong> timestamp so you know how fresh the data is.
+          Trust Scores recalculate automatically whenever a new review, complaint, or regulatory change is recorded — so the score you see today reflects the most recent signals from our community.
         </p>
       </section>
 
@@ -93,11 +92,11 @@ const HowWeReview = () => (
       </section>
 
       <section>
-        <h2 className="text-2xl font-display font-bold text-foreground mb-4">Conflict-of-interest policy</h2>
+        <h2 className="text-2xl font-display font-bold text-foreground mb-4">Editorial firewall</h2>
         <div className="glass-card rounded-xl p-6 text-sm text-muted-foreground space-y-2">
-          <p>NAFT earns revenue from clearly-labelled sponsorships, advertising placements, and tier upgrades for claimed broker profiles.</p>
-          <p><strong className="text-foreground">None of these affect a broker's Trust Score, ranking position, or visibility in scam alerts.</strong> Sponsored content is always tagged "Sponsored" or "Featured".</p>
-          <p>If you spot a conflict, email <a href="mailto:hello@notafugazitrader.com" className="text-primary hover:underline">hello@notafugazitrader.com</a> — we publish corrections.</p>
+          <p>NAFT operates a strict separation between commercial activity and editorial scoring. Whatever commercial arrangements exist on the platform, <strong className="text-foreground">none of them affect a broker's Trust Score, ranking position, or visibility in scam alerts.</strong></p>
+          <p>Sponsored placements — when they appear — are clearly labelled "Sponsored" or "Featured" and are visually distinct from organic listings.</p>
+          <p>If you ever feel a listing looks unfair or compromised, email <a href="mailto:hello@notafugazitrader.com" className="text-primary hover:underline">hello@notafugazitrader.com</a>. We investigate every report and publish corrections.</p>
         </div>
       </section>
     </div>
