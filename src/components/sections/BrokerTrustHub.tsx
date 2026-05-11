@@ -201,14 +201,15 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
-        <StarRating value={firm.stars} size={14} />
-        <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <StarRating value={firm.stars} size={14} />
+          <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
+        </div>
+        <Link to={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline font-medium">
+          Read Full Review <ExternalLink className="w-3 h-3" />
+        </Link>
       </div>
-
-      <Link to={`/brokers/${firm.slug}`} className="mt-3 flex items-center justify-center gap-1 w-full py-2 text-sm font-medium text-center border border-border text-foreground rounded-lg hover:bg-secondary hover:border-border/60 transition-colors">
-        Read Full Review <ExternalLink className="w-3.5 h-3.5" />
-      </Link>
     </div>
   );
 };
