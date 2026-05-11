@@ -582,6 +582,7 @@ export type Database = {
           id: string
           impact: string
           previous_value: string | null
+          specs: Json
           status: Database["public"]["Enums"]["content_status"]
           title: string
           updated_at: string
@@ -599,6 +600,7 @@ export type Database = {
           id?: string
           impact?: string
           previous_value?: string | null
+          specs?: Json
           status?: Database["public"]["Enums"]["content_status"]
           title: string
           updated_at?: string
@@ -616,6 +618,7 @@ export type Database = {
           id?: string
           impact?: string
           previous_value?: string | null
+          specs?: Json
           status?: Database["public"]["Enums"]["content_status"]
           title?: string
           updated_at?: string
