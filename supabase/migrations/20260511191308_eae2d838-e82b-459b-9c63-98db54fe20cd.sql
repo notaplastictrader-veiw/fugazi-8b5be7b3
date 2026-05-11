@@ -1,0 +1,2 @@
+ALTER TABLE public.brokers ADD COLUMN IF NOT EXISTS last_verified_at timestamptz;
+UPDATE public.brokers SET last_verified_at = COALESCE(updated_at, created_at, now()) WHERE last_verified_at IS NULL AND status = 'published';
