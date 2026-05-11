@@ -1,43 +1,80 @@
 ## Goal
-Image-er weekly news events (May 11–15) calendar database-e add kora, jate `/calendar` page-er "This Week's Important News" card-e automatically dekhay. Sathe time label "UTC" theke "GMT" e change kora.
+Image-er real Forex Factory data (May 11–15, 2026) diye `calendar_events` table refresh kora. Red flag = HIGH impact, Orange flag = MEDIUM impact. Sathe protek event card e ekta "Details" button add kora — click korle modal khulbe je event-er full specs dekhabe (Source, Measures, Usual Effect, Frequency, Next Release, FF Notes, Why Traders Care, Also Called).
 
-## Events to insert (calendar_events table, all status=published)
+## Step 1 — Database refresh
 
-All from image, current week Mon May 11 – Fri May 15, 2026:
+**Delete** age insert kora May 11–15, 2026 events:
+```
+DELETE FROM calendar_events WHERE event_date BETWEEN '2026-05-11' AND '2026-05-15';
+```
 
-**MON May 11**
-- 15:00 USD — Existing Home Sales (Apr) — high
+**Insert** image-er exact events (time = GMT/UTC, image-e "Etc/UTC GMT+0" diye dewa):
 
-**TUE May 12**
-- 13:30 USD — CPI (MoM) (Apr) — high
-- 13:30 USD — CPI (YoY) (Apr) — high
-- 13:30 USD — Core CPI (MoM) (Apr) — high
-- 18:00 USD — 10-Year Note Auction — medium
+| Date | Time | Cur | Impact | Event | Forecast | Previous | Actual |
+|---|---|---|---|---|---|---|---|
+| May 11 Mon | 01:30 | CNY | medium | CPI y/y | 0.9% | 1.0% | 1.2% |
+| May 11 Mon | 01:30 | CNY | medium | PPI y/y | 1.7% | 0.5% | 2.8% |
+| May 12 Tue | 12:30 | USD | high | Core CPI m/m | 0.3% | 0.2% | — |
+| May 12 Tue | 12:30 | USD | high | CPI m/m | 0.6% | 0.9% | — |
+| May 12 Tue | 12:30 | USD | high | CPI y/y | 3.7% | 3.3% | — |
+| May 12 Tue | (Tentative) | USD | high | Fed Chair Nomination Vote | Pass | — | — |
+| May 13 Wed | 01:30 | AUD | medium | Wage Price Index q/q | 0.8% | 0.8% | — |
+| May 13 Wed | 12:30 | USD | high | Core PPI m/m | 0.3% | 0.1% | — |
+| May 13 Wed | 12:30 | USD | high | PPI m/m | 0.5% | 0.5% | — |
+| May 14 Thu | 06:00 | GBP | high | GDP m/m | -0.2% | 0.5% | — |
+| May 14 Thu | 06:00 | GBP | medium | Prelim GDP q/q | 0.6% | 0.1% | — |
+| May 14 Thu | 12:30 | USD | high | Core Retail Sales m/m | 0.6% | 1.9% | — |
+| May 14 Thu | 12:30 | USD | high | Retail Sales m/m | 0.6% | 1.7% | — |
+| May 14 Thu | 12:30 | USD | medium | Unemployment Claims | 206K | 200K | — |
 
-**WED May 13**
-- 13:30 USD — PPI (MoM) (Apr) — high
-- 18:00 USD — 30-Year Bond Auction — medium
+Each row e `description` field e ekta short event description rakhbo (e.g. "Change in the price of goods purchased by consumers"). All `status='published'`.
 
-**THU May 14**
-- 07:00 GBP — GDP (YoY) (Q1) — high
-- 07:00 GBP — GDP (MoM) (Mar) — high
-- 07:00 GBP — GDP (QoQ) (Q1) — high
-- 13:30 USD — Retail Sales (MoM) (Apr) — high
-- 13:30 USD — Core Retail Sales (MoM) (Apr) — high
-- 13:30 USD — Initial Jobless Claims — high
+## Step 2 — Add "specs" detail field
 
-**FRI May 15** — (image-e khali, kichu add hobe na)
+`calendar_events` table e ekta notun column add korte hobe — `specs jsonb` — jaate per-event detail page-er moto info rakhte pari (Source, Measures, Usual Effect, Frequency, Next Release, FF Notes, Why Traders Care, Also Called). Default `'{}'::jsonb`. Migration tool diye add hobe.
 
-Total: 13 events. Inserted via Supabase insert tool (data change, not schema).
+Insert-er shomoy proti event-er specs JSON populate korbo, e.g. Unemployment Claims er jonno:
+```json
+{
+  "source": "Department of Labor (latest release)",
+  "measures": "The number of individuals who filed for unemployment insurance for the first time during the past week",
+  "usualEffect": "'Actual' less than 'Forecast' is good for currency",
+  "frequency": "Released weekly, usually on the first Thursday after the week ends",
+  "nextRelease": "May 21, 2026",
+  "ffNotes": "This is the nation's earliest economic data...",
+  "whyTradersCare": "Although it's generally viewed as a lagging indicator...",
+  "alsoCalled": "Jobless Claims, Initial Claims",
+  "ffUrl": "https://www.forexfactory.com/calendar"
+}
+```
 
-## UI tweak
-`src/components/calendar/WeekNewsBoard.tsx` e:
-- Header text "*All times are in UTC." → "*All times are in GMT."
-- `EventDetailModal` e `timezone="UTC"` → `timezone="GMT"`
+Other events-er jonno o similar specs (compact version) populate korbo standard FF descriptions diye.
 
-(Card design already image-er kachakachi — header, blue/primary day band, time+flag+name card layout shob ache. Tai bigger redesign lagbe na.)
+## Step 3 — UI changes
+
+**`src/hooks/useEconomicCalendar.ts`** — `EconomicCalendarEvent` type e `specs` field add (optional jsonb).
+
+**`src/components/calendar/WeekNewsBoard.tsx`** — proti event card-er nicche ekta chhoto "Details →" button add kora (full card already clickable, but explicit button user-er request anujayi). Click korle existing `EventDetailModal` opens.
+
+**`src/components/calendar/EventDetailModal.tsx`** — current modal e Previous/Forecast/Actual already ache. Tar nicche notun "Specs" section add kora — `event.specs` thakle render korbe ekta clean definition list e:
+- Source
+- Measures
+- Usual Effect
+- Frequency
+- Next Release
+- FF Notes
+- Why Traders Care
+- Also Called
+
+Footer e existing "View on Forex Factory" link thakbe (specs.ffUrl thakle eta priority pabe).
+
+Styling: glass-card, semantic tokens (bg-secondary/30, border-border, text-muted-foreground for labels, text-foreground for values), font-mono labels — overall aesthetic-er sathe match korbe.
 
 ## Out of scope
-- Database schema change na
-- Card layout redesign na (already match korche)
-- "Bull Waves" branding/logo copy na — apnar NAFT logo thakbe
+- Card layout-er bigger redesign na
+- Header/branding change na
+- Sports/news data unchanged
+
+## Approval needed
+- DB migration (add `specs` column) — migration tool diye
+- DB data refresh (delete + insert 14 events) — insert tool diye
