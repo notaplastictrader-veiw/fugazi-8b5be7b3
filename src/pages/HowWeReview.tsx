@@ -24,7 +24,6 @@ const HowWeReview = () => (
     <SEO
       title="How We Review Brokers | NAFT Methodology"
       description="The NAFT scoring methodology — regulation 30%, user reviews 25%, withdrawal speed 25%, complaint history 20%. Independent, transparent, continuously updated."
-      keywords="broker review methodology, how naft scores brokers, broker trust score, forex broker rating system"
     />
 
     <div className="max-w-4xl mx-auto px-4 py-16">
