@@ -91,7 +91,7 @@ const WeekNewsBoard = () => {
               ({headerRange})
             </p>
             <p className="text-xs text-muted-foreground/70 font-mono mt-2">
-              *All times are in UTC.
+              *All times are in GMT.
             </p>
           </div>
         </div>
