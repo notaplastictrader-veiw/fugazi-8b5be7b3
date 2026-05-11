@@ -19,6 +19,19 @@ export interface EconomicCalendarEvent {
   forecast_value: string;
   previous_value: string;
   ml_prediction?: "Bullish" | "Bearish" | "Neutral";
+  specs?: EventSpecs | null;
+}
+
+export interface EventSpecs {
+  source?: string;
+  measures?: string;
+  usualEffect?: string;
+  frequency?: string;
+  nextRelease?: string;
+  ffNotes?: string;
+  whyTradersCare?: string;
+  alsoCalled?: string;
+  ffUrl?: string;
 }
 
 let sharedEvents: EconomicCalendarEvent[] = [];
