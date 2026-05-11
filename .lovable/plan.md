@@ -1,22 +1,11 @@
-## Goal
-Keep the top "This Week's Important News" board (`WeekNewsBoard`) exactly as-is. Remove only the section **below** it on `/calendar` — the sticky filter bar (range/timezone/impact/currency/category) and the grouped events list (mobile cards + desktop table + empty/loading states).
+## Issue
+The board header says "*All times are in GMT." but the event detail modal displays times like `Tue, May 12, 12:00 AM UTC`. GMT and UTC are functionally identical, but the label mismatch is confusing.
 
-## Changes
+## Fix
+Make the modal display the timezone label as **GMT** to match the board, while still computing the time in the UTC zone (no time math change).
 
-**File: `src/pages/Calendar.tsx`** (only file touched)
-
-Remove:
-- Filter state: `impactFilter`, `currencyFilter`, `categoryFilter`, `rangeFilter`, `timezone`, `selected`
-- `useEconomicCalendar` hook usage and the `grouped`/`dateKeys`/`updatedAgo` memos
-- Helpers: `adjustForTz`, `parseNum`, `compareColor`, `impactStyles`, `MAJORS`, `CATEGORIES`, `TZ_KEY`, `formatDateHeader`, `clearFilters`, `filtersActive`
-- Timezone localStorage `useEffect`s
-- JSX: sticky filter bar, loading skeletons, empty state, mobile cards, desktop table, `<EventDetailModal>` (modal already lives inside `WeekNewsBoard`)
-- Now-unused imports: `useEffect`, `useMemo`, `useState`, `Clock`, `Globe`, `Badge`, `Skeleton`, `useEconomicCalendar`, `EconomicCalendarEvent`, `EventDetailModal`, `categoryBucket`, `CATEGORY_LABELS`. Remove `CalendarDays` too if only used by the empty state.
-
-Keep untouched:
-- `MainLayout`, `SEO`, `JsonLd` breadcrumb
-- Header block (badge, H1 "Market Calendar", subtitle) — drop the `updatedAgo` line since the hook is gone
-- `<WeekNewsBoard />` — exactly as-is
+**File: `src/components/calendar/EventDetailModal.tsx`**
+- In `formatTime(iso, tz)`, when `tz === "UTC"`, append `" GMT"` instead of relying on `timeZoneName: "short"` (which renders "UTC"). Concretely: drop `timeZoneName` from the `Intl.DateTimeFormat` options for the UTC branch and append `" GMT"` to the returned string. Local-time branch stays unchanged.
 
 ## Out of scope
-No changes to `WeekNewsBoard`, `EventDetailModal`, `useEconomicCalendar`, DB, or admin tools.
+No changes to `WeekNewsBoard`, the board header, the `timezone` prop name/type, the hook, or DB.
