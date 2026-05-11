@@ -1120,7 +1120,7 @@ const BrokerDetail = () => {
           onSuccess={fetchData}
         />
       )}
-      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </MainLayout>
   );
 };
