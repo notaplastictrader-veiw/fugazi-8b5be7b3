@@ -54,7 +54,20 @@ interface Broker {
   withdrawal_time?: string;
   withdrawal_fee?: string;
   warning_note?: string;
+  last_verified_at?: string | null;
 }
+
+const formatVerifiedAgo = (iso?: string | null) => {
+  if (!iso) return null;
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return "today";
+  if (days === 1) return "1 day ago";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return months === 1 ? "1 month ago" : `${months} months ago`;
+  const years = Math.floor(months / 12);
+  return years === 1 ? "1 year ago" : `${years} years ago`;
+};
 
 interface ReviewReply {
   id: string;
