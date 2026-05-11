@@ -106,10 +106,10 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       <div className="mb-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-muted-foreground">Trust Score</span>
-          <span className="text-sm font-mono font-bold text-foreground">{broker.score}/10</span>
+          <span className="text-sm font-mono font-semibold text-muted-foreground">{broker.score}/10</span>
         </div>
         <div className="score-bar">
-          <div className={`score-bar-fill ${scoreColor} transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
+          <div className={`score-bar-fill ${scoreColor} opacity-70 transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
         </div>
       </div>
 
@@ -118,27 +118,16 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
           <StarRating value={broker.stars} size={14} />
           <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
         </div>
-        <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
-          Full review <ExternalLink className="w-3 h-3" />
-        </Link>
-      </div>
-
-      <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition-colors">
-        View Profile →
-      </Link>
-
-      <div className="mt-3 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-        {verifiedAgoShort(broker.last_verified_at) ? (
-          <span className="inline-flex items-center gap-1 text-primary">
-            <CheckCircle className="w-3 h-3" /> Verified {verifiedAgoShort(broker.last_verified_at)}
-          </span>
-        ) : <span />}
         {(broker.complaints || 0) > 20 && (
-          <span className="inline-flex items-center gap-1 text-destructive">
+          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-destructive">
             <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
           </span>
         )}
       </div>
+
+      <Link to={`/brokers/${broker.slug}`} className="mt-3 flex items-center justify-center gap-1 w-full py-2 text-sm font-medium text-center border border-border text-foreground rounded-lg hover:bg-secondary hover:border-border/60 transition-colors">
+        Read Full Review <ExternalLink className="w-3.5 h-3.5" />
+      </Link>
     </div>
   );
 };
@@ -205,25 +194,20 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
       <div className="mb-3">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-muted-foreground">Trust Score</span>
-          <span className="text-sm font-mono font-bold text-foreground">{firm.score}/10</span>
+          <span className="text-sm font-mono font-semibold text-muted-foreground">{firm.score}/10</span>
         </div>
         <div className="score-bar">
-          <div className={`score-bar-fill ${scoreColor} transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
+          <div className={`score-bar-fill ${scoreColor} opacity-70 transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <StarRating value={firm.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
-        </div>
-        <Link to={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">
-          Full review <ExternalLink className="w-3 h-3" />
-        </Link>
+      <div className="flex items-center gap-1">
+        <StarRating value={firm.stars} size={14} />
+        <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
       </div>
 
-      <Link to={`/brokers/${firm.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-accent/30 text-accent rounded-lg hover:bg-accent/10 transition-colors">
-        View Profile →
+      <Link to={`/brokers/${firm.slug}`} className="mt-3 flex items-center justify-center gap-1 w-full py-2 text-sm font-medium text-center border border-border text-foreground rounded-lg hover:bg-secondary hover:border-border/60 transition-colors">
+        Read Full Review <ExternalLink className="w-3.5 h-3.5" />
       </Link>
     </div>
   );
