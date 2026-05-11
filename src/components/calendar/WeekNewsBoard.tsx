@@ -169,7 +169,7 @@ const WeekNewsBoard = () => {
         event={selected}
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}
-        timezone="GMT"
+        timezone="UTC"
       />
     </section>
   );
