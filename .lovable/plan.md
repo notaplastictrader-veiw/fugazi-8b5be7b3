@@ -1,18 +1,17 @@
-## Problem
+## Change
 
-Footer code e "How We Review" link ache (Company column e), kintu actual footer rendered hocche `site_settings` table er `footer` key theke. Database er saved footer config e "How We Review" link nei, tai user dekhte pacche na.
+Footer er 3rd column er title rename: **"Signals & More" → "Resources"**.
 
-## Fix
+Reason: legal safety — column e "Our Signal Channel" / signal-related links ache, "Resources" more neutral.
 
-Ekta migration cholabo ja `site_settings` row (key = `footer`) er JSON `value.columns` array er moddhe "Company" titled column khujbe ar "Partnership" entry er thik pore "How We Review" → `/how-we-review` entry insert korbe (already thaklename idempotent — duplicate add hobe na).
+## Implementation
 
-## Technical
+`site_settings` table er `footer` row er JSON `value.columns[2].title` update kora — `"Signals & More"` theke `"Resources"`.
 
-- Table: `public.site_settings`, row: `key = 'footer'`, JSONB column: `value`
-- SQL: `jsonb_set` diye `columns` array er Company object er `links` array update kora; check kore jodi already "How We Review" thake to skip.
-- No code/file change. Frontend automatic refresh hobe (useSiteSettings hook).
+Links unchanged thakbe (Signal Groups, Our Signal Channel, Forex Forecasts, Crypto Forecasts, Affiliate Program, Become an IB).
 
 ## Out of scope
 
-- Footer code (already correct)
-- Onno kono column / link
+- Footer code change nai
+- Onno column / link change nai
+- Disclaimer text already ache, kichu add hocche na
