@@ -1110,6 +1110,17 @@ const BrokerDetail = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {broker && (
+        <FileComplaintModal
+          open={showComplaintModal}
+          onOpenChange={setShowComplaintModal}
+          brokerId={broker.id}
+          brokerName={broker.name}
+          onSuccess={fetchData}
+        />
+      )}
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </MainLayout>
   );
 };
