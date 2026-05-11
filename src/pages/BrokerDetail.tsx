@@ -447,6 +447,11 @@ const BrokerDetail = () => {
                     <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
                     <span>Leverage: <strong className="text-foreground">{broker.leverage}</strong></span>
                   </div>
+                  {formatVerifiedAgo(broker.last_verified_at) && (
+                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-full border border-primary/30 bg-primary/5 text-primary">
+                      <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
+                    </div>
+                  )}
                 </div>
               </div>
 
