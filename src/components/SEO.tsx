@@ -10,7 +10,7 @@ interface SEOProps {
 
 const SITE_NAME = "Not A Fugazi Trader";
 const BASE_URL = "https://www.notafugazitrader.com";
-const DEFAULT_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e64d26b8-bc9d-42ad-a0a1-58801cd0cc62/id-preview-9cb5f809--e0516a8c-d13a-42ba-85a7-c1e4005fdfae.lovable.app-1775705655972.png";
+const DEFAULT_IMAGE = "https://www.notafugazitrader.com/og-image.jpg";
 
 const setMeta = (attr: string, key: string, content: string) => {
   let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;

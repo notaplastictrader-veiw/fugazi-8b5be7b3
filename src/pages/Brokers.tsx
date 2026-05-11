@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -151,8 +151,9 @@ const Brokers = () => {
                       <StarRating value={broker.stars} size={14} />
                       <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
                     </div>
-                    <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">Full review <ExternalLink className="w-3 h-3" /></a>
+                    <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">Full review <ExternalLink className="w-3 h-3" /></Link>
                   </div>
+                  <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition-colors">View Profile →</Link>
                   {(broker.complaints || 0) > 20 && <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive"><AlertTriangle className="w-3.5 h-3.5" /> {broker.complaints} complaints</div>}
                 </div>
               ))}

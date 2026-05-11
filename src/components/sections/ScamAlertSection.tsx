@@ -80,7 +80,7 @@ const ScamAlertSection = () => {
               );
             })}
             <div className="mt-4">
-              <a href="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">{ctaText}</a>
+              <Link to="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">{ctaText}</Link>
             </div>
           </div>
 

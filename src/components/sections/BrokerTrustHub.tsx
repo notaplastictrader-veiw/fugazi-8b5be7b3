@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
@@ -107,10 +108,14 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
           <StarRating value={broker.stars} size={14} />
           <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
         </div>
-        <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
+        <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">
           Full review <ExternalLink className="w-3 h-3" />
-        </a>
+        </Link>
       </div>
+
+      <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition-colors">
+        View Profile →
+      </Link>
 
       {(broker.complaints || 0) > 20 && (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive">
@@ -195,10 +200,14 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           <StarRating value={firm.stars} size={14} />
           <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
         </div>
-        <a href={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">
+        <Link to={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">
           Full review <ExternalLink className="w-3 h-3" />
-        </a>
+        </Link>
       </div>
+
+      <Link to={`/brokers/${firm.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-accent/30 text-accent rounded-lg hover:bg-accent/10 transition-colors">
+        View Profile →
+      </Link>
     </div>
   );
 };
@@ -306,7 +315,7 @@ const BrokerTrustHub = () => {
         </div>
 
         <div className="mt-6">
-          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</a>
+          <Link to="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</Link>
         </div>
 
         {/* Prop Firms Section */}
@@ -328,7 +337,7 @@ const BrokerTrustHub = () => {
           </div>
 
           <div className="mt-6">
-            <a href="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</a>
+            <Link to="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</Link>
           </div>
         </div>
       </div>
