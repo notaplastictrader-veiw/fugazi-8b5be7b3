@@ -41,7 +41,7 @@ function formatTime(iso: string, tz: "UTC" | "Local") {
       timeZone: tz === "UTC" ? "UTC" : undefined,
       ...(tz === "UTC" ? {} : { timeZoneName: "short" }),
     }).format(d);
-    return tz === "UTC" ? `${formatted} GMT` : formatted;
+    return tz === "UTC" ? `${formatted} (GMT+00:00) UTC` : formatted;
   } catch {
     return iso;
   }
