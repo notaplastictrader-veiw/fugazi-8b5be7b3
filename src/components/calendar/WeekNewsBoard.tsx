@@ -198,6 +198,7 @@ const WeekNewsBoard = () => {
             );
           })}
         </div>
+        )}
       </div>
 
       <EventDetailModal
