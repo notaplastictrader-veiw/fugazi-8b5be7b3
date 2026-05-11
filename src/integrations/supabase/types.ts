@@ -462,6 +462,7 @@ export type Database = {
           headquarters: string | null
           homepage_position: number | null
           id: string
+          last_verified_at: string | null
           leverage: string | null
           license_number: string | null
           logo_url: string | null
@@ -501,6 +502,7 @@ export type Database = {
           headquarters?: string | null
           homepage_position?: number | null
           id?: string
+          last_verified_at?: string | null
           leverage?: string | null
           license_number?: string | null
           logo_url?: string | null
@@ -540,6 +542,7 @@ export type Database = {
           headquarters?: string | null
           homepage_position?: number | null
           id?: string
+          last_verified_at?: string | null
           leverage?: string | null
           license_number?: string | null
           logo_url?: string | null

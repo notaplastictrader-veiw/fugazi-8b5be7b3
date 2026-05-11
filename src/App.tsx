@@ -48,6 +48,7 @@ const CookiesPage = lazy(() => import("./pages/Cookies"));
 const Disclaimer = lazy(() => import("./pages/Disclaimer"));
 const Advertise = lazy(() => import("./pages/Advertise"));
 const Forecasts = lazy(() => import("./pages/Forecasts"));
+const HowWeReview = lazy(() => import("./pages/HowWeReview"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const BrokerClaimProfile = lazy(() => import("./pages/BrokerClaimProfile"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -203,6 +204,7 @@ const AppContent = () => {
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
+          <Route path="/how-we-review" element={<HowWeReview />} />
           <Route path="/profile/:username" element={<UserProfile />} />
           <Route path="/claim-broker" element={<BrokerClaimProfile />} />
 

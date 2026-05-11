@@ -22,7 +22,17 @@ interface Broker {
   complaints: number;
   badge: string;
   logo_url?: string | null;
+  last_verified_at?: string | null;
 }
+
+const verifiedAgoShort = (iso?: string | null) => {
+  if (!iso) return null;
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return "today";
+  if (days < 30) return `${days}d ago`;
+  const m = Math.floor(days / 30);
+  return m < 12 ? `${m}mo ago` : `${Math.floor(m / 12)}y ago`;
+};
 
 const brokerFilters = ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"];
 const propFirmFilters = ["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"];
@@ -117,11 +127,18 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
         View Profile →
       </Link>
 
-      {(broker.complaints || 0) > 20 && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive">
-          <AlertTriangle className="w-3.5 h-3.5" /> {broker.complaints} complaints filed
-        </div>
-      )}
+      <div className="mt-3 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+        {verifiedAgoShort(broker.last_verified_at) ? (
+          <span className="inline-flex items-center gap-1 text-primary">
+            <CheckCircle className="w-3 h-3" /> Verified {verifiedAgoShort(broker.last_verified_at)}
+          </span>
+        ) : <span />}
+        {(broker.complaints || 0) > 20 && (
+          <span className="inline-flex items-center gap-1 text-destructive">
+            <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
+          </span>
+        )}
+      </div>
     </div>
   );
 };

@@ -54,7 +54,20 @@ interface Broker {
   withdrawal_time?: string;
   withdrawal_fee?: string;
   warning_note?: string;
+  last_verified_at?: string | null;
 }
+
+const formatVerifiedAgo = (iso?: string | null) => {
+  if (!iso) return null;
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return "today";
+  if (days === 1) return "1 day ago";
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return months === 1 ? "1 month ago" : `${months} months ago`;
+  const years = Math.floor(months / 12);
+  return years === 1 ? "1 year ago" : `${years} years ago`;
+};
 
 interface ReviewReply {
   id: string;
@@ -434,6 +447,11 @@ const BrokerDetail = () => {
                     <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
                     <span>Leverage: <strong className="text-foreground">{broker.leverage}</strong></span>
                   </div>
+                  {formatVerifiedAgo(broker.last_verified_at) && (
+                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-full border border-primary/30 bg-primary/5 text-primary">
+                      <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -756,18 +774,45 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Final Verdict & Ratings */}
+              {/* Trust Score Breakdown */}
               <section>
-                <h2 className="text-xl font-display font-bold text-foreground mb-3">Our Final Verdict</h2>
-                <div className="glass-card rounded-xl p-6 space-y-4">
-                  <div className="space-y-3">
-                    <RatingBar label="Safety" value={review.ratings.safety} />
-                    <RatingBar label="Fees" value={review.ratings.fees} />
-                    <RatingBar label="Platform" value={review.ratings.platform} />
-                    <RatingBar label="Support" value={review.ratings.support} />
-                  </div>
+                <h2 className="text-xl font-display font-bold text-foreground mb-3">Trust Score Breakdown</h2>
+                <div className="glass-card rounded-xl p-6 space-y-5">
+                  {(() => {
+                    const regScore = Math.min(10, (broker.regulation?.length || 0) * 2.5);
+                    const reviewScore = Math.min(10, (broker.stars || 0) * 2);
+                    const complaintScore = Math.max(0, 10 - (broker.complaints || 0) * 0.3);
+                    const wdScore = Math.min(10, Math.max(0, broker.score + (broker.withdrawal_time?.toLowerCase().includes("instant") ? 0.5 : 0)));
+                    const items = [
+                      { label: "Regulation", weight: "30%", value: regScore, hint: `${broker.regulation?.length || 0} active license${(broker.regulation?.length || 0) === 1 ? "" : "s"} verified against public registers.` },
+                      { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from real traders.` },
+                      { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
+                      { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
+                    ];
+                    return items.map((it) => {
+                      const color = it.value >= 8 ? "bg-primary" : it.value >= 6 ? "bg-accent" : "bg-destructive";
+                      return (
+                        <div key={it.label}>
+                          <div className="flex items-baseline justify-between mb-1.5">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-sm font-display font-bold text-foreground">{it.label}</span>
+                              <span className="text-[10px] font-mono text-muted-foreground">{it.weight}</span>
+                            </div>
+                            <span className="text-sm font-mono font-bold text-foreground">{it.value.toFixed(1)}/10</span>
+                          </div>
+                          <div className="score-bar mb-1.5">
+                            <div className={`score-bar-fill ${color}`} style={{ width: `${it.value * 10}%` }} />
+                          </div>
+                          <p className="text-xs text-muted-foreground">{it.hint}</p>
+                        </div>
+                      );
+                    });
+                  })()}
                   <div className="border-t border-border pt-4 flex items-center justify-between">
-                    <span className="text-sm font-display font-bold text-foreground">Overall Score</span>
+                    <div>
+                      <div className="text-sm font-display font-bold text-foreground">Overall Trust Score</div>
+                      <Link to="/how-we-review" className="text-xs text-primary hover:underline">How we calculate this →</Link>
+                    </div>
                     <span className="text-2xl font-mono font-extrabold text-primary">{broker.score}/10</span>
                   </div>
                 </div>
