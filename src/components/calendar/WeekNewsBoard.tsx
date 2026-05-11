@@ -133,15 +133,21 @@ const WeekNewsBoard = () => {
                 {dayEvents.map((e) => {
                   const flag = FLAGS[e.currency] || "🏳️";
                   const isAllDay = !e.event_time;
+                  const impactDot =
+                    e.impact === "high"
+                      ? "bg-destructive"
+                      : e.impact === "medium"
+                      ? "bg-orange-500"
+                      : "bg-muted-foreground";
+                  const impactLabel = e.impact === "high" ? "HIGH" : e.impact === "medium" ? "MED" : "LOW";
                   return (
-                    <button
+                    <div
                       key={e.id}
-                      onClick={() => setSelected(e)}
-                      className="w-full text-left bg-card border border-border rounded-xl px-3 py-2.5 hover:border-primary/50 hover:bg-card/80 transition-all group"
+                      className="bg-card border border-border rounded-xl px-3 py-2.5 hover:border-primary/50 transition-all group"
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="font-mono font-bold text-sm text-foreground">
-                          {isAllDay ? "All day" : e.event_time}
+                          {isAllDay ? "Tentative" : e.event_time}
                         </span>
                         <span className="text-base leading-none" aria-label={e.currency}>
                           {flag}
@@ -150,13 +156,22 @@ const WeekNewsBoard = () => {
                       <div className="text-xs text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                         {e.name}
                       </div>
-                      <div className="text-[10px] font-mono text-muted-foreground mt-1">
-                        {e.currency}
-                        {e.impact === "high" && (
-                          <span className="ml-1.5 text-destructive">● HIGH</span>
-                        )}
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-muted-foreground">
+                          <span>{e.currency}</span>
+                          <span className={`inline-block w-1.5 h-1.5 rounded-full ${impactDot}`} />
+                          <span className={e.impact === "high" ? "text-destructive" : e.impact === "medium" ? "text-orange-500" : ""}>
+                            {impactLabel}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setSelected(e)}
+                          className="text-[10px] font-mono font-bold text-primary hover:underline"
+                        >
+                          Details →
+                        </button>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
