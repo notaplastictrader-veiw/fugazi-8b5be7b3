@@ -1,6 +1,4 @@
 ## Change
-Update the modal time label to Forex Factory style: `Tue, May 12, 12:00 AM (GMT+00:00) UTC`.
-
-**File: `src/components/calendar/EventDetailModal.tsx`** — `formatTime(iso, tz)` UTC branch returns `${formatted} (GMT+00:00) UTC`. Local branch unchanged.
+In `src/components/calendar/WeekNewsBoard.tsx` (line 94), update the header note from `*All times are in GMT.` to `*All times are in (GMT+00:00) UTC.` to match the modal label.
 
 No other files affected.
