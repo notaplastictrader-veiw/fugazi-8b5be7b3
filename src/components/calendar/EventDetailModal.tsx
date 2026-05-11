@@ -108,8 +108,37 @@ export default function EventDetailModal({ event, open, onOpenChange, timezone }
             </div>
           </div>
 
+          {event.specs && Object.values(event.specs).some(Boolean) && (
+            <div className="rounded-lg border border-border bg-secondary/20 p-4 space-y-3 mt-2">
+              <div className="text-[11px] uppercase font-mono tracking-wider text-primary font-bold">
+                Event Specs
+              </div>
+              <dl className="space-y-2.5 text-sm">
+                {[
+                  ["Source", event.specs.source],
+                  ["Measures", event.specs.measures],
+                  ["Usual Effect", event.specs.usualEffect],
+                  ["Frequency", event.specs.frequency],
+                  ["Next Release", event.specs.nextRelease],
+                  ["FF Notes", event.specs.ffNotes],
+                  ["Why Traders Care", event.specs.whyTradersCare],
+                  ["Also Called", event.specs.alsoCalled],
+                ]
+                  .filter(([, v]) => !!v)
+                  .map(([label, value]) => (
+                    <div key={label as string} className="grid grid-cols-[110px_1fr] gap-3">
+                      <dt className="text-[11px] uppercase font-mono text-muted-foreground pt-0.5">
+                        {label}
+                      </dt>
+                      <dd className="text-foreground leading-relaxed">{value}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </div>
+          )}
+
           <a
-            href={ffSearchUrl}
+            href={event.specs?.ffUrl || ffSearchUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline pt-2"
