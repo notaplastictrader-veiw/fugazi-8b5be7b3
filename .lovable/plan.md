@@ -1,17 +1,18 @@
 ## Change
 
-Footer er 3rd column er title rename: **"Signals & More" → "Resources"**.
+Navbar logo er niche subtitle text replace kora:
 
-Reason: legal safety — column e "Our Signal Channel" / signal-related links ache, "Resources" more neutral.
+- **Old:** `Built by Traders, for Traders`
+- **New:** `We worked for brokers. Now we work for you.`
 
 ## Implementation
 
-`site_settings` table er `footer` row er JSON `value.columns[2].title` update kora — `"Signals & More"` theke `"Resources"`.
+`src/components/layout/Navbar.tsx` line 161 — text content swap.
 
-Links unchanged thakbe (Signal Groups, Our Signal Channel, Forex Forecasts, Crypto Forecasts, Affiliate Program, Become an IB).
+Tagline ektu lomba (43 chars vs 30), tai existing styling (`text-[9px] font-mono tracking-[0.15em] uppercase`) thik thakbe — uppercase + mono e fit korbe single line. Mobile e logo er pashe space tight thakle ektu chap pore, kintu existing class structure already handle korbe (`leading-none` + `flex-col`).
 
 ## Out of scope
 
-- Footer code change nai
-- Onno column / link change nai
-- Disclaimer text already ache, kichu add hocche na
+- Footer e logo subtitle nei (footer e brand description ache, separate text — change kora hocche na)
+- About page er "Built by traders, for traders" (different context — community value prop, untouched)
+- Hero headline (alada decision)
