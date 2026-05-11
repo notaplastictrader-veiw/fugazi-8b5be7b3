@@ -70,6 +70,12 @@ const WeekNewsBoard = () => {
     [weekDates]
   );
 
+  const totalEvents = useMemo(
+    () => weekDates.reduce((sum, d) => sum + (byDay[d]?.length || 0), 0),
+    [byDay, weekDates]
+  );
+  const showEmptyWeek = !loading && totalEvents === 0;
+
   const logoSrc = themeLogoMap[theme] || themeLogoMap.dark;
 
   return (
