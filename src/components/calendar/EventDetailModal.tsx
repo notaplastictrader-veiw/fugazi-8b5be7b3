@@ -56,7 +56,7 @@ export default function EventDetailModal({ event, open, onOpenChange, timezone }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg glass-card">
+      <DialogContent className="max-w-lg glass-card max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 flex-wrap mb-2">
             <Badge className={`text-[10px] font-mono border ${impactColor[event.impact]}`}>
