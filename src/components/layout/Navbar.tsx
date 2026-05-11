@@ -157,8 +157,8 @@ const Navbar = () => {
               <span className="text-lg font-bold tracking-tight text-foreground">
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>
-              <span className="text-[9px] font-mono tracking-[0.15em] text-muted-foreground uppercase">
-                We worked for brokers. Now we work for you.
+              <span className="text-[11px] font-semibold tracking-[0.12em] text-foreground uppercase">
+                Worked inside
               </span>
             </div>
           </Link>
