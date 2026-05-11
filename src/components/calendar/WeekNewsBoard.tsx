@@ -119,7 +119,21 @@ const WeekNewsBoard = () => {
           ))}
         </div>
 
+        {/* Empty week state */}
+        {showEmptyWeek && (
+          <div className="px-6 py-12 text-center bg-background border-t border-border">
+            <div className="text-4xl mb-3">📅</div>
+            <h3 className="text-lg font-display font-bold text-foreground mb-1">
+              Calendar updating soon
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              No high or medium-impact events have been published for this week yet. Check back shortly — our editorial team updates the calendar weekly.
+            </p>
+          </div>
+        )}
+
         {/* Event grid */}
+        {!showEmptyWeek && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 bg-background">
           {weekDates.map((iso) => {
             const dayEvents = byDay[iso] || [];
