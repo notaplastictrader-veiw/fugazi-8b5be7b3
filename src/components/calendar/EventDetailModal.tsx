@@ -32,15 +32,16 @@ const mlIcon = {
 function formatTime(iso: string, tz: "UTC" | "Local") {
   try {
     const d = new Date(iso);
-    return new Intl.DateTimeFormat(undefined, {
+    const formatted = new Intl.DateTimeFormat(undefined, {
       weekday: "short",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
       timeZone: tz === "UTC" ? "UTC" : undefined,
-      timeZoneName: "short",
+      ...(tz === "UTC" ? {} : { timeZoneName: "short" }),
     }).format(d);
+    return tz === "UTC" ? `${formatted} GMT` : formatted;
   } catch {
     return iso;
   }
