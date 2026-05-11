@@ -59,6 +59,7 @@ function mapRow(r: any): EconomicCalendarEvent {
     actual_value: r.actual_value || "",
     forecast_value: r.forecast_value || "",
     previous_value: r.previous_value || "",
+    specs: r.specs && typeof r.specs === "object" ? (r.specs as EventSpecs) : null,
   };
 }
 
