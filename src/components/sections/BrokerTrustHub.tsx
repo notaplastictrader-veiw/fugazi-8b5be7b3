@@ -315,7 +315,7 @@ const BrokerTrustHub = () => {
         </div>
 
         <div className="mt-6">
-          <a href="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</a>
+          <Link to="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</Link>
         </div>
 
         {/* Prop Firms Section */}
@@ -337,7 +337,7 @@ const BrokerTrustHub = () => {
           </div>
 
           <div className="mt-6">
-            <a href="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</a>
+            <Link to="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</Link>
           </div>
         </div>
       </div>
