@@ -51,7 +51,32 @@ const HeroSection = () => {
         items: Array.isArray(g.items) ? g.items : (typeof g.items === "string" ? g.items.split("\n").map((s: string) => s.trim()).filter(Boolean) : []),
       }))
     : defaultChipGroups) as typeof defaultChipGroups;
-  const stats = (cms.stats?.length ? cms.stats : defaultStats) as typeof defaultStats;
+  const cmsStats = (cms.stats?.length ? cms.stats : null) as typeof defaultStats | null;
+
+  const [liveStats, setLiveStats] = useState<typeof defaultStats | null>(null);
+
+  useEffect(() => {
+    if (cmsStats) return; // CMS override takes precedence
+    let cancelled = false;
+    (async () => {
+      const [reviews, brokers, scams, profiles] = await Promise.all([
+        supabase.from("reviews").select("*", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("brokers").select("*", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("scam_alerts").select("*", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+      ]);
+      if (cancelled) return;
+      setLiveStats([
+        { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
+        { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
+        { value: formatCount(scams.count ?? 0), label: "Scam alerts issued" },
+        { value: formatCount(profiles.count ?? 0), label: "Active traders" },
+      ]);
+    })();
+    return () => { cancelled = true; };
+  }, [cmsStats]);
+
+  const stats = (cmsStats ?? liveStats ?? defaultStats.map(s => ({ ...s, value: "—" }))) as typeof defaultStats;
 
   const [eyebrowIndex, setEyebrowIndex] = useState(0);
   const [chipGroupIndex, setChipGroupIndex] = useState(0);
