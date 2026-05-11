@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import StarRating from "@/components/reviews/StarRating";
+import FileComplaintModal from "@/components/modals/FileComplaintModal";
+import AuthModal from "@/components/modals/AuthModal";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
@@ -152,6 +154,8 @@ const BrokerDetail = () => {
   const [replySaving, setReplySaving] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [scamAlerts, setScamAlerts] = useState<ScamAlertRow[]>([]);
+  const [showComplaintModal, setShowComplaintModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -457,6 +461,20 @@ const BrokerDetail = () => {
                   )}
                   <Button size="sm" variant="outline" onClick={() => { setActiveTab("reviews"); setShowReviewForm(true); }}>
                     Add Review
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => user ? setShowComplaintModal(true) : setShowAuthModal(true)}
+                  >
+                    <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
+                    File Complaint
+                    {(broker.complaints || 0) > 0 && (
+                      <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-mono bg-destructive/20 text-destructive rounded">
+                        {broker.complaints}
+                      </span>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -1092,6 +1110,17 @@ const BrokerDetail = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {broker && (
+        <FileComplaintModal
+          open={showComplaintModal}
+          onOpenChange={setShowComplaintModal}
+          brokerId={broker.id}
+          brokerName={broker.name}
+          onSuccess={fetchData}
+        />
+      )}
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </MainLayout>
   );
 };
