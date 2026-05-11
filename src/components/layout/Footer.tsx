@@ -64,6 +64,7 @@ const defaultColumns = [
     title: "Company",
     links: [
       { label: "Partnership", href: "/partnership" },
+      { label: "How We Review", href: "/how-we-review" },
       { label: "Advertise", href: "/advertise" },
       { label: "Terms & Conditions", href: "/terms" },
       { label: "Disclaimer", href: "/disclaimer" },
