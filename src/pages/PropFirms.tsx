@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -108,8 +109,9 @@ const PropFirms = () => {
                       <StarRating value={broker.stars} size={14} />
                       <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
                     </div>
-                    <a href={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">Full review <ExternalLink className="w-3 h-3" /></a>
+                    <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">Full review <ExternalLink className="w-3 h-3" /></Link>
                   </div>
+                  <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-accent/30 text-accent rounded-lg hover:bg-accent/10 transition-colors">View Profile →</Link>
                 </div>
               ))}
             </div>
