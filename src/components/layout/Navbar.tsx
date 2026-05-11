@@ -158,7 +158,7 @@ const Navbar = () => {
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>
               <span className="text-[11px] font-semibold tracking-[0.12em] text-foreground uppercase">
-                Worked inside
+                Once a broker insider.
               </span>
             </div>
           </Link>
