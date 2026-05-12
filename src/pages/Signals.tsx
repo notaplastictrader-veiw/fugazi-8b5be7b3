@@ -88,7 +88,7 @@ const Signals = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {visibleItems.map(group => (
-                <div key={group.id} className="glass-card rounded-xl p-6 hover:border-primary/20 transition-all">
+                <NeonCard key={group.id} accent={group.win_rate >= 80 ? "primary" : "accent"} glow={group.win_rate >= 80 ? "lg" : "md"} className="p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <h3 className="text-lg font-bold text-foreground">{group.name}</h3>
                     {group.verified && <CheckCircle className="w-4 h-4 text-primary" />}
