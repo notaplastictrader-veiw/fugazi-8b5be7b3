@@ -275,6 +275,122 @@ export type Database = {
         }
         Relationships: []
       }
+      award_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          slug: string
+          title: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          slug: string
+          title: string
+          year?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      award_nominees: {
+        Row: {
+          broker_id: string | null
+          category_id: string
+          created_at: string
+          display_order: number
+          id: string
+          logo_url: string | null
+          subtitle: string | null
+          title: string
+          vote_count: number
+        }
+        Insert: {
+          broker_id?: string | null
+          category_id: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          subtitle?: string | null
+          title: string
+          vote_count?: number
+        }
+        Update: {
+          broker_id?: string | null
+          category_id?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          logo_url?: string | null
+          subtitle?: string | null
+          title?: string
+          vote_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "award_nominees_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "award_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      award_votes: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          nominee_id: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          nominee_id: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          nominee_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "award_votes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "award_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "award_votes_nominee_id_fkey"
+            columns: ["nominee_id"]
+            isOneToOne: false
+            referencedRelation: "award_nominees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       betting_profiles: {
         Row: {
           account_manager_contact: string | null
@@ -821,6 +937,89 @@ export type Database = {
           status?: Database["public"]["Enums"]["content_status"]
           updated_at?: string
           updated_label?: string | null
+        }
+        Relationships: []
+      }
+      forum_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          thread_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          thread_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_replies_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_threads: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          id: string
+          last_reply_at: string
+          locked: boolean
+          pinned: boolean
+          reply_count: number
+          slug: string
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number
+        }
+        Insert: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          last_reply_at?: string
+          locked?: boolean
+          pinned?: boolean
+          reply_count?: number
+          slug: string
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          id?: string
+          last_reply_at?: string
+          locked?: boolean
+          pinned?: boolean
+          reply_count?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number
         }
         Relationships: []
       }
@@ -1818,6 +2017,7 @@ export type Database = {
         Args: { code_id: string }
         Returns: undefined
       }
+      is_verified_trader: { Args: { _user_id: string }; Returns: boolean }
       submit_application: {
         Args: {
           _application_data: Json
