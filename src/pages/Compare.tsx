@@ -143,10 +143,10 @@ const Compare = () => {
 
         {/* Table */}
         {compared.length >= 2 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-xl border border-primary/20 shadow-[0_0_30px_hsl(var(--primary)/0.10)] bg-card/40 backdrop-blur-sm">
             <table className="w-full border-collapse">
-              <thead>
-                <tr>
+              <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-md">
+                <tr className="border-b border-primary/20">
                   <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider w-[160px]">Feature</th>
                   {compared.map(b => (
                     <th key={b.id} className="p-4 text-center">
