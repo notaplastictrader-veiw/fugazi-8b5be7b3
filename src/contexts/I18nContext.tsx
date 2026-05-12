@@ -132,6 +132,10 @@ const translations: Record<string, Translations> = {
     "referral.clicks": "النقرات",
     "referral.conversions": "التحويلات",
     "referral.earnings": "الأرباح",
+    "forum.title": "منتدى المتداولين الموثقين",
+    "forum.report": "إبلاغ",
+    "awards.title": "جوائز NAFT",
+    "awards.viewResults": "عرض الفائزين",
   },
   bn: {
     "nav.brokerReviews": "ব্রোকার রিভিউ",
