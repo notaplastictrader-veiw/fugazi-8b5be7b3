@@ -17,6 +17,7 @@ import {
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
+import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
 import StarRating from "@/components/reviews/StarRating";
 import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
@@ -89,6 +90,9 @@ interface Review {
   role: string;
   created_at: string;
   photo_urls?: string[] | null;
+  verified_account?: boolean | null;
+  account_proof_url?: string | null;
+  account_id_masked?: string | null;
 }
 
 interface ScamAlertRow {
@@ -179,7 +183,7 @@ const BrokerDetail = () => {
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
       const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }, { data: alerts }] = await Promise.all([
-        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
+        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls, verified_account, account_proof_url, account_id_masked").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("complaints").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
@@ -907,12 +911,19 @@ const BrokerDetail = () => {
                     const isEditing = !!replyOpen[r.id];
                     return (
                       <div key={r.id} className="glass-card rounded-xl p-5">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <span className="font-semibold text-foreground">{r.author}</span>
-                            <span className="text-xs text-muted-foreground ml-2">{r.role}</span>
+                        <div className="flex items-start justify-between mb-2 gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-foreground">{r.author}</span>
+                              <VerifiedDepositorBadge
+                                verified={!!r.verified_account}
+                                hasProof={!!r.account_proof_url}
+                                hasAccountId={!!r.account_id_masked}
+                              />
+                            </div>
+                            <span className="text-xs text-muted-foreground">{r.role}</span>
                           </div>
-                          <div className="flex items-center gap-0.5">
+                          <div className="flex items-center gap-0.5 shrink-0">
                             {Array.from({ length: 5 }).map((_, i) => (
                               <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
                             ))}

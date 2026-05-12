@@ -91,15 +91,27 @@ const ReviewSubmissionForm = ({ onSuccess, defaultBrokerId }: Props) => {
     }
 
     setSubmitting(true);
+    // Mask account ID for public display: keep first 1 + last 2 chars
+    const maskAccountId = (id: string) => {
+      const t = id.trim();
+      if (!t) return "";
+      if (t.length <= 3) return t.replace(/./g, "*");
+      return `${t[0]}${"*".repeat(Math.max(1, t.length - 3))}${t.slice(-2)}`;
+    };
+    const masked = maskAccountId(mt4Id);
+    const firstProof = photos.find((p) => p.url)?.url || "";
+
     const { error } = await supabase.from("reviews").insert({
       author: name.trim(),
       content: content.trim(),
       rating,
-      role: mt4Id.trim() ? `MT4/MT5: ${mt4Id.trim()}` : "Trader",
+      role: mt4Id.trim() ? `MT4/MT5: ${masked}` : "Trader",
       broker_id: brokerId || null,
       user_id: user.id,
       status: "pending" as const,
       photo_urls: photos.map((p) => p.url),
+      account_id_masked: masked,
+      account_proof_url: firstProof,
     });
 
     setSubmitting(false);

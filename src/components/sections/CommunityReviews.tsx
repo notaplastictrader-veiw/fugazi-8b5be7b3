@@ -4,6 +4,7 @@ import { Star, X } from "lucide-react";
 import PlatformReviewForm from "@/components/PlatformReviewForm";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
 
 interface Review {
   id: string;
@@ -13,6 +14,9 @@ interface Review {
   content: string;
   role: string;
   photo_urls?: string[];
+  verified_account?: boolean;
+  account_proof_url?: string;
+  account_id_masked?: string;
 }
 
 const CommunityReviews = () => {
@@ -153,11 +157,20 @@ const CommunityReviews = () => {
                     {isAnonymous ? "?" : initials}
                   </div>
                 )}
-                <div>
-                  <div className="text-sm font-semibold text-foreground">{isAnonymous ? "Anonymous Trader" : review.author}</div>
-                  <div className="text-[10px] text-muted-foreground">{review.role}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground truncate">{isAnonymous ? "Anonymous Trader" : review.author}</div>
+                  <div className="text-[10px] text-muted-foreground truncate">{review.role}</div>
                 </div>
               </div>
+              {(review.verified_account || review.account_proof_url || review.account_id_masked) && (
+                <div className="mb-2">
+                  <VerifiedDepositorBadge
+                    verified={review.verified_account}
+                    hasProof={!!review.account_proof_url}
+                    hasAccountId={!!review.account_id_masked}
+                  />
+                </div>
+              )}
               <p className="text-sm text-muted-foreground mb-3 line-clamp-2 whitespace-normal">{review.content}</p>
               {review.photo_urls && review.photo_urls.length > 0 && (
                 <div className="flex gap-1.5 mb-3">

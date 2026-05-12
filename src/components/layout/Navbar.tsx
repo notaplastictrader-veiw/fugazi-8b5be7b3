@@ -110,6 +110,7 @@ const Navbar = () => {
           { label: "ECN Brokers", href: "/brokers?type=ecn" },
           { label: "Broker Comparison", href: "/compare" },
           { label: "AI Broker Matcher", href: "/match", highlight: true },
+          { label: "Ask NAFT AI", href: "/ask", highlight: true },
         ],
       },
       { label: t("nav.propFirms"), href: "/prop-firms" },

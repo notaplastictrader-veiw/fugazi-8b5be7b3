@@ -15,6 +15,7 @@ import LatestForexNews from "@/components/sections/LatestForexNews";
 import HowItWorks from "@/components/sections/HowItWorks";
 import CommunityReviews from "@/components/sections/CommunityReviews";
 import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
+import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
 
 const Index = () => {
   return (
@@ -57,6 +58,7 @@ const Index = () => {
       <TrustStrip />
       <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
+      <AIMatcherTeaser />
       <ScamAlertSection />
       <SignalChannel />
       <SignalHub />
