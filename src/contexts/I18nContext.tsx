@@ -160,6 +160,10 @@ const translations: Record<string, Translations> = {
     "referral.clicks": "ক্লিক",
     "referral.conversions": "কনভার্সন",
     "referral.earnings": "আয়",
+    "forum.title": "ভেরিফাইড ট্রেডার ফোরাম",
+    "forum.report": "রিপোর্ট",
+    "awards.title": "NAFT অ্যাওয়ার্ডস",
+    "awards.viewResults": "বিজয়ী দেখুন",
   },
   hi: {
     "nav.brokerReviews": "ब्रोकर समीक्षा",
