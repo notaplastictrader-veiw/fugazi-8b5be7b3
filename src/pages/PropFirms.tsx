@@ -16,8 +16,8 @@ interface Broker {
   min_deposit: string; stars: number; review_count: number; complaints: number; badge: string;
 }
 
-const filters = ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "Discount Offers", "Crypto Funded", "No Time Limit"];
-const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Funding": "instant-funding", "1-Step Challenge": "1-step", "2-Step Challenge": "2-step", "Discount Offers": "discount", "Crypto Funded": "crypto-funded", "No Time Limit": "no-time-limit" };
+const filters = ["All Prop Firms", "Instant Funding", "1-Step Challenge", "2-Step Challenge", "No Time Limit", "Discount Offers"];
+const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Funding": "instant-funding", "1-Step Challenge": "1-step", "2-Step Challenge": "2-step", "No Time Limit": "no-time-limit", "Discount Offers": "discount" };
 
 const PropFirms = () => {
   const [firms, setFirms] = useState<Broker[]>([]);

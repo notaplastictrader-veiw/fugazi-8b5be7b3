@@ -4,7 +4,6 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import NewsletterSponsorFooter from "@/components/sponsored/NewsletterSponsorFooter";
-import ValueProp from "@/components/common/ValueProp";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -115,7 +114,6 @@ const Footer = () => {
                 {brandName} <span className="text-primary">{brandAccent}</span>
               </span>
             </Link>
-            <ValueProp variant="inline" className="mb-2" />
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
               {brandDescription}
             </p>
