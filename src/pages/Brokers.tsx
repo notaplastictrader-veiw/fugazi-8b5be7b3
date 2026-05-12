@@ -11,6 +11,8 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import NeonCard from "@/components/ui/NeonCard";
+import GlowFilterPills from "@/components/ui/GlowFilterPills";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -97,12 +99,8 @@ const Brokers = () => {
             Complete list of all verified brokers with trust scores, regulation info, and real user reviews.
           </p>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filters.map(f => (
-              <button key={f} onClick={() => handleFilterClick(f)}
-                className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${filter === f ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground border-border hover:border-primary/40"}`}>{f}</button>
-            ))}
-          </div>
+          <GlowFilterPills options={filters} value={filter} onChange={handleFilterClick} className="mb-4" />
+
 
           <ListingToolbar
             query={query}
@@ -123,7 +121,7 @@ const Brokers = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {visibleItems.map(broker => (
-                <div key={broker.id} className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
+                <NeonCard key={broker.id} accent={broker.score >= 8 ? "primary" : broker.score >= 6 ? "accent" : "destructive"} className="p-5 group">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
@@ -155,7 +153,7 @@ const Brokers = () => {
                   </div>
                   <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition-colors">View Profile →</Link>
                   {(broker.complaints || 0) > 20 && <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive"><AlertTriangle className="w-3.5 h-3.5" /> {broker.complaints} complaints</div>}
-                </div>
+                </NeonCard>
               ))}
             </div>
           )}

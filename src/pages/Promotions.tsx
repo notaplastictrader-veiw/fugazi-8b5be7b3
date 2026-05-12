@@ -11,6 +11,8 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import NeonCard from "@/components/ui/NeonCard";
+import DiscountChip from "@/components/ui/DiscountChip";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
@@ -154,13 +156,20 @@ const PromoCard = ({ promo, featured }: { promo: PromotionDetail; featured?: boo
   const claimUrl = promo.link_url;
   const canClaim = !!claimUrl && !isExpired;
 
+  // Try to extract a percentage out of bonus_amount for the DiscountChip
+  const pctMatch = (promo.bonus_amount || "").match(/(\d{1,3})\s*%/);
+  const pct = pctMatch ? parseInt(pctMatch[1], 10) : 0;
+
   return (
-    <div className={`glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/30 ${featured ? "border-accent/30 shadow-[0_0_20px_hsl(var(--accent)/0.08)]" : ""} ${isExpired ? "opacity-50" : ""}`}>
+    <NeonCard accent={featured ? "accent" : "primary"} glow={featured ? "lg" : "md"} className={`p-6 flex flex-col gap-4 ${isExpired ? "opacity-50" : ""}`}>
       <div className="flex items-center justify-between">
         <Badge className={`text-[10px] font-mono uppercase ${typeColors[promo.promo_type] || "bg-muted text-muted-foreground"}`}>
           {promo.promo_type.replace("-", " ")}
         </Badge>
-        {featured && <Star className="w-4 h-4 text-accent fill-accent" />}
+        <div className="flex items-center gap-2">
+          {pct > 0 && <DiscountChip pct={pct} />}
+          {featured && <Star className="w-4 h-4 text-accent fill-accent" />}
+        </div>
       </div>
 
       <div className="flex-1">
@@ -189,7 +198,7 @@ const PromoCard = ({ promo, featured }: { promo: PromotionDetail; featured?: boo
         </Link>
         {canClaim ? (
           <a href={claimUrl} target="_blank" rel="noopener noreferrer sponsored" className="flex-1">
-            <button className="w-full text-xs font-semibold py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center justify-center gap-1">
+            <button className="w-full text-xs font-semibold py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all flex items-center justify-center gap-1 shadow-[0_0_18px_hsl(var(--primary)/0.35)]">
               Claim Offer <ExternalLink className="w-3 h-3" />
             </button>
           </a>
@@ -199,7 +208,7 @@ const PromoCard = ({ promo, featured }: { promo: PromotionDetail; featured?: boo
           </button>
         )}
       </div>
-    </div>
+    </NeonCard>
   );
 };
 
