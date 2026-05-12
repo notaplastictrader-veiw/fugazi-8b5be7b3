@@ -2,6 +2,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { organizationSchema, websiteSchema, faqSchema } from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
+import TrustStrip from "@/components/sections/TrustStrip";
 import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
@@ -51,6 +52,7 @@ const Index = () => {
         },
       ])} />
       <HeroSection />
+      <TrustStrip />
       <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
       <ScamAlertSection />
