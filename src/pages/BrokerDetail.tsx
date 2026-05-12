@@ -89,6 +89,9 @@ interface Review {
   role: string;
   created_at: string;
   photo_urls?: string[] | null;
+  verified_account?: boolean | null;
+  account_proof_url?: string | null;
+  account_id_masked?: string | null;
 }
 
 interface ScamAlertRow {
@@ -179,7 +182,7 @@ const BrokerDetail = () => {
     const { data: b } = await supabase.from("brokers").select("*").eq("slug", slug).eq("status", "published").maybeSingle();
     if (b) {
       const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }, { data: alerts }] = await Promise.all([
-        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
+        supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls, verified_account, account_proof_url, account_id_masked").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
         supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("complaints").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
