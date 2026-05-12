@@ -97,30 +97,30 @@ export default function ReactionBar({ targetType, targetId }: Props) {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <Btn r="like" label="Like" />
-      <Btn r="fire" label="Fire" />
-      <Btn r="flag" label="Flag agree" />
+      <Btn r="like" label={t("forum.reactions.like")} />
+      <Btn r="fire" label={t("forum.reactions.fire")} />
+      <Btn r="flag" label={t("forum.reactions.flag")} />
       <Dialog open={reportOpen} onOpenChange={setReportOpen}>
         <DialogTrigger asChild>
           <button
             onClick={(e) => { e.stopPropagation(); }}
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono border border-border text-muted-foreground hover:border-destructive/40 hover:text-destructive transition"
           >
-            <Flag className="w-3.5 h-3.5" /> Report
+            <Flag className="w-3.5 h-3.5" /> {t("forum.report")}
           </button>
         </DialogTrigger>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Report this {targetType}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("forum.reportTitle")} {targetType}</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
             <Textarea
-              placeholder="Why is this harmful, spam, or misleading? (optional)"
+              placeholder={t("forum.reportPlaceholder")}
               rows={4}
               value={reason}
               onChange={e => setReason(e.target.value)}
               maxLength={500}
             />
             <Button onClick={submitReport} disabled={submitting} className="w-full" variant="destructive">
-              {submitting ? "Sending…" : "Send report"}
+              {submitting ? t("forum.sending") : t("forum.send")}
             </Button>
           </div>
         </DialogContent>
