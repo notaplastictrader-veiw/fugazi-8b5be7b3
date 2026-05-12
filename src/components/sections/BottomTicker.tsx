@@ -14,18 +14,18 @@ const BottomTicker = () => {
         <span className="relative flex h-1.5 w-1.5">
           <span
             className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
-              showFallback ? "bg-yellow-500" : "bg-primary"
+              showFallback ? "bg-accent" : "bg-primary"
             }`}
           />
           <span
             className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-              showFallback ? "bg-yellow-500" : "bg-primary"
+              showFallback ? "bg-accent" : "bg-primary"
             }`}
           />
         </span>
         <span
           className={`text-[10px] font-mono font-bold tracking-wider ${
-            showFallback ? "text-yellow-500" : "text-primary"
+            showFallback ? "text-accent" : "text-primary"
           }`}
         >
           {showFallback ? "WAIT" : "LIVE"}

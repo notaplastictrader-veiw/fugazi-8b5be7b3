@@ -9,8 +9,8 @@ const TickerBar = () => {
   // Chip stays LIVE whenever data is flowing — per-pair "CLOSED" badges
   // already convey forex weekend status.
   const status: "LIVE" | "WAIT" = showFallback ? "WAIT" : "LIVE";
-  const dotClass = status === "LIVE" ? "bg-primary" : "bg-yellow-500";
-  const textClass = status === "LIVE" ? "text-primary" : "text-yellow-500";
+  const dotClass = status === "LIVE" ? "bg-primary" : "bg-accent";
+  const textClass = status === "LIVE" ? "text-primary" : "text-accent";
   const label = status;
   const tooltip =
     status === "WAIT"
