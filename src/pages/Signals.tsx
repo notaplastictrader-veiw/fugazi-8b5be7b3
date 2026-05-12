@@ -105,7 +105,7 @@ const Signals = () => {
                       <button className="px-4 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">View Group</button>
                     </Link>
                   </div>
-                </div>
+                </NeonCard>
               ))}
             </div>
           )}
