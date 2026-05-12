@@ -178,6 +178,10 @@ const translations: Record<string, Translations> = {
     "hero.title": "हम ब्रोकर्स की जांच करते हैं। आप स्मार्ट ट्रेड करें।",
     "dashboard.referrals": "रेफरल",
     "referral.title": "रेफरल कार्यक्रम",
+    "forum.title": "सत्यापित ट्रेडर फ़ोरम",
+    "forum.report": "रिपोर्ट",
+    "awards.title": "NAFT पुरस्कार",
+    "awards.viewResults": "विजेता देखें",
   },
   ur: {
     "nav.brokerReviews": "بروکر ریویوز",
