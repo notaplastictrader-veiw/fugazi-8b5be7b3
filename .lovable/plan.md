@@ -1,68 +1,101 @@
-# Finish the Remaining Sequence
+# Reality Check + 9.5/10 Push Plan
 
-Two items left from the original research: **Pro paywall** and **complete i18n**. Doing #3 first, then #4.
+## Part 1 — What the research missed (already built ✅)
 
----
+The research scored NAFT against generic competitors but didn't see what's actually shipped. Verified in code:
 
-## Step 3 — Pro Paywall (Stripe)
+| Research said "missing" | Actual NAFT status |
+|---|---|
+| AI broker assistant / chatbot | ✅ `AIChatButton` + `naft-assistant` edge function |
+| AI personalised broker matching | ✅ `/match` page + `broker-matcher` edge function with quiz |
+| Verified trader community / forum | ✅ `Forum` + `ForumThread` + reactions + reports |
+| Side-by-side comparator | ✅ `/compare` (up to 4 brokers) |
+| Annual awards program | ✅ `Awards` + `AwardsResults` + admin |
+| Multi-language support | ✅ 15 languages with RTL |
+| Verified signal groups | ✅ Audited win-rates in Signals service |
+| Real withdrawal proof + scam alerts | ✅ MT4/MT5 ID + photo upload, scam alert system |
+| Live data (prices, news, sports) | ✅ 3 edge functions live |
+| Mobile install (PWA) | ✅ `InstallAppPrompt` |
 
-**Pricing (already decided):** $49/mo, $399/yr
-
-### Backend (Lovable Cloud)
-- Add Stripe secret key via secrets tool (`STRIPE_SECRET_KEY`).
-- New table `subscribers`:
-  - `user_id`, `email`, `stripe_customer_id`, `subscribed` (bool), `subscription_tier` ('monthly' | 'yearly'), `subscription_end` (timestamptz)
-  - RLS: user can read own row; edge functions write via service role.
-- Three edge functions (all `verify_jwt = false` for Stripe webhooks; checkout/portal verify JWT inside):
-  1. `create-checkout` — creates Stripe Checkout session for monthly or yearly price; returns URL (open in new tab).
-  2. `check-subscription` — queries Stripe for current user, upserts `subscribers` row, returns `{ subscribed, tier, end }`.
-  3. `customer-portal` — opens Stripe billing portal for managing/cancelling.
-
-### Frontend
-- New page `/pricing` with two-tier card UI (Monthly / Yearly — highlight yearly "Save 32%"), themed via existing tokens, **Subscribe** buttons → call `create-checkout`.
-- New hook `useSubscription()` — calls `check-subscription` on mount + every 60s; exposes `{ isPro, tier, loading, refresh }`.
-- Wrap Pro-only routes/sections with existing `<ProtectedSection>` pattern, but gated on `isPro` instead of role:
-  - **Premium signals** (already have free/premium tier in Signals service)
-  - **Forecast Engine — advanced category** (optional; confirm scope)
-- Add **Upgrade to Pro** CTA in user dashboard sidebar + locked-state banners on premium signals cards.
-- Success redirect → `/dashboard?upgraded=1` triggers `refresh()` + toast.
-- Add `/pricing` link to Navbar (between Awards and Join Free).
+**Honest re-score:** NAFT today is closer to **78/100**, not 61. The big remaining gaps are **visibility** (trust badges hidden), **monetisation** (Pro pending), and **polish** (mobile + speed).
 
 ---
 
-## Step 4 — Complete i18n for Forum + Awards (15 languages)
+## Part 2 — 9.5/10 Push (what to actually build)
 
-Currently only 7 languages have `nav.forum` / `nav.awards`. Need to add for the remaining **8 languages** plus expand keys beyond just nav labels.
+Five focused workstreams. Each maps directly to a low-scoring research category.
 
-### Languages to fill in
-DE, IT, PT, RU, ZH, JA, ID, TR (the 8 missing from the 15-language set).
+### Workstream A — Trust Visibility (research: trust 70 → 95)
+Make the moat *visible* without inventing new infra.
 
-### Keys to add for Forum + Awards (all 15 languages, not just nav)
-- `nav.forum`, `nav.awards`
-- **Forum:** `forum.title`, `forum.newThread`, `forum.reply`, `forum.report`, `forum.reportReason`, `forum.reactions.like|fire|flag`, `forum.verifiedOnly`, `forum.empty`
-- **Awards:** `awards.title`, `awards.vote`, `awards.voted`, `awards.viewResults`, `awards.winner`, `awards.runnerUp`, `awards.votes`, `awards.closed`
+- **"Verified Depositor" chip** on reviews where MT4/MT5 ID + screenshot exist (already in DB). Auto-derived; no new schema.
+- **Trust Score breakdown popover** on broker cards: Regulation / Reviews / Complaints / Last Verified — pulled from existing `brokers` columns.
+- **"Last verified [date]"** stamp on every broker card (column exists: `last_verified_at`).
+- **Withdrawal Proof Wall** section on `BrokerDetail` listing review screenshots tagged as proof.
 
-### Files to touch
-- `src/contexts/I18nContext.tsx` — add the new keys for all 15 locale dictionaries.
-- `src/components/forum/ReactionBar.tsx` — replace hardcoded English with `t('forum.reactions.*')`, `t('forum.report')`, etc.
-- `src/pages/ForumThread.tsx`, `src/pages/Forum.tsx` — replace hardcoded strings.
-- `src/pages/Awards.tsx`, `src/pages/AwardsResults.tsx` — replace hardcoded strings.
-- RTL check: AR + UR Forum thread layout (reactions row, report dialog) — use existing `dir="rtl"` aware classes.
+### Workstream B — Broker Sentiment + Health Strip (research: data tools 40 → 75)
+Lite version, no external scraping.
+
+- **Sentiment chip** per broker, computed from internal signals: avg review rating (last 90d), complaint velocity, scam alert count. Display: 🟢 Bullish / 🟡 Mixed / 🔴 Cooling. Pure SQL view.
+- **Health strip** on `BrokerDetail`: Reviews (30d), Complaints (30d), Avg Rating Δ vs prior 30d, Last verified. All from existing tables.
+- New DB view `broker_health_metrics` (read-only, RLS public-select).
+
+### Workstream C — Mobile + Visual Polish (research: design 58 → 90, mobile 48 → 85)
+Frontend only, no backend churn.
+
+- Audit all top-3 routes (`/`, `/brokers`, `/brokers/:slug`) at 375px viewport — fix overflow, tap targets, sticky CTAs.
+- Hero: stronger contrast badge, better headline rhythm, animated trust counter ("12,483 verified reviews · 287 brokers tested · $4.2M in withdrawal proofs").
+- Broker cards: redesign to surface trust score + sentiment + last-verified chip in one glance.
+- Add subtle glass-card depth + grain texture on dark theme; tighten light-theme spacing.
+- Mobile bottom nav for top 4 routes.
+
+### Workstream D — AI Discoverability (research: UX 62 → 85)
+The AI tools exist but no one finds them.
+
+- Promote **AI Broker Matcher** to a hero-adjacent CTA on `/` ("Find my broker in 60 seconds").
+- Add **suggested prompts** to `AIChatSheet` ("Best broker for $500 scalping in UK", "Is XM regulated in my country?").
+- New `/ask` landing page that embeds the chat full-screen + showcases sample Q&As — SEO target for "best broker for X" long-tail.
+- Persistent "Ask NAFT AI" pill on `BrokerDetail` pages: "Ask anything about [Broker]".
+
+### Workstream E — SEO + Speed (research: SEO 55 → 85, speed 45 → 85)
+Technical hygiene pass.
+
+- JSON-LD `Review`, `AggregateRating`, `Organization`, `BreadcrumbList` on broker/promo/scam-alert pages.
+- Sitemap.xml generator (edge function or static at build) with all broker/promo/article slugs.
+- `<link rel="preconnect">` for Supabase + image CDNs in `index.html`.
+- Convert hero/broker logos to `loading="lazy"` + explicit width/height to kill CLS.
+- Route-level chunk audit: ensure dashboard + admin chunks aren't pulled on public pages.
+- OpenGraph image generator (edge function returning dynamic PNG per broker/article).
+
+### Workstream F — (Deferred) Pro Paywall
+You rejected Stripe last time. Still open whenever you want monetisation 35 → 80. Not in this build cycle.
 
 ---
 
 ## Order of execution
-1. Stripe migration (`subscribers` table + RLS).
-2. Add `STRIPE_SECRET_KEY` secret.
-3. Deploy 3 edge functions.
-4. Build `/pricing` page + `useSubscription` hook + Pro gates.
-5. Expand i18n dictionaries (15 langs × ~12 keys).
-6. Swap hardcoded strings in Forum/Awards components.
-7. Smoke test: subscribe flow (test mode), reactions in AR (RTL), AwardsResults in JA.
+
+```text
+Day 1   A. Trust Visibility (DB view + chips)
+Day 1   B. Sentiment + Health strip
+Day 2   C. Mobile + visual polish (hero, cards, bottom nav)
+Day 2   D. AI discoverability (Match CTA, /ask page, prompt chips)
+Day 3   E. SEO + speed (JSON-LD, sitemap, OG generator)
+```
+
+No new auth, no new Stripe, no new external APIs. Everything builds on existing tables and edge functions.
 
 ---
 
-## Open questions before I start
-- **Stripe mode:** test keys first, or go straight to live? (Recommend test.)
-- **What exactly is gated behind Pro?** Confirm: Premium Signals only — or also Forecast advanced + something else?
-- **Yearly discount badge copy:** "Save 32%" / "2 months free" / custom?
+## What this plan does NOT include
+
+- Pro paywall / Stripe (you rejected it — flag remains open)
+- Native iOS/Android apps (Lovable is web; PWA already exists)
+- On-chain reputation, voice search, spatial/VR charts, biometric login (speculative — not 25-year worthwhile in 2026)
+- Sentiment scraping from Twitter/Reddit (needs paid APIs + legal review — defer)
+- Video reviews (needs storage + moderation pipeline — separate phase)
+
+---
+
+## Open question before I build
+
+**Workstream priority** — should I do all five (A→E) sequentially in one go, or pick the top 2 first so you can review impact before continuing? Top-2 recommendation if cherry-picking: **A (Trust Visibility) + C (Mobile + Visual Polish)** — biggest perceived-quality lift per hour of work.
