@@ -153,7 +153,7 @@ const Navbar = () => {
               alt="NAFT Logo"
               className="w-8 h-8"
             />
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col items-center leading-none">
               <span className="text-lg font-bold tracking-tight text-foreground">
                 Not A Fugazi <span className="text-primary">Trader</span>
               </span>
