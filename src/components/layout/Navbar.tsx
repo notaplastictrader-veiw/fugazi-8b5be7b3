@@ -68,8 +68,8 @@ const Navbar = () => {
   const navLinks = useMemo(() => {
     const injectExtras = (items: any[]) => {
       const EXTRAS = [
-        { label: "Forum", href: "/forum" },
-        { label: "NAFT Awards", href: "/awards" },
+        { label: t("nav.forum", "Forum"), href: "/forum" },
+        { label: t("nav.awards", "NAFT Awards"), href: "/awards" },
       ];
       const out = [...items];
       const moreIdx = out.findIndex(i => /more/i.test(i.label || ""));
