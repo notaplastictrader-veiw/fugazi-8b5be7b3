@@ -232,6 +232,10 @@ const translations: Record<string, Translations> = {
     "hero.title": "Nous Testons les Courtiers. Vous Tradez Plus Intelligemment.",
     "dashboard.referrals": "Parrainages",
     "referral.title": "Programme de Parrainage",
+    "forum.title": "Forum des Traders Vérifiés",
+    "forum.report": "Signaler",
+    "awards.title": "Prix NAFT",
+    "awards.viewResults": "Voir les gagnants",
   },
   ms: {
     "nav.brokerReviews": "Ulasan Broker",
