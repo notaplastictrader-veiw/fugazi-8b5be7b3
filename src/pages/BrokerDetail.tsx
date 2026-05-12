@@ -17,6 +17,7 @@ import {
   TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
+import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
 import StarRating from "@/components/reviews/StarRating";
 import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
