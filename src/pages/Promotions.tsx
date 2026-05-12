@@ -11,6 +11,8 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import NeonCard from "@/components/ui/NeonCard";
+import DiscountChip from "@/components/ui/DiscountChip";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
