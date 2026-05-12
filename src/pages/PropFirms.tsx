@@ -9,6 +9,10 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import NeonCard from "@/components/ui/NeonCard";
+import GlowFilterPills from "@/components/ui/GlowFilterPills";
+import TopFirmsRail from "@/components/sections/TopFirmsRail";
+import TrustLight from "@/components/broker/TrustLight";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -65,59 +69,67 @@ const PropFirms = () => {
             Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.
           </p>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filters.map(f => (
-              <button key={f} onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${filter === f ? "bg-accent text-accent-foreground border-accent" : "text-muted-foreground border-border hover:border-accent/40"}`}>{f}</button>
-            ))}
-          </div>
+          <GlowFilterPills options={filters} value={filter} onChange={setFilter} accent="accent" className="mb-4" />
 
-          <ListingToolbar
-            query={query}
-            onQueryChange={setQuery}
-            sort={sort}
-            onSortChange={setSort}
-            sortOptions={sortOptions}
-            rangeStart={rangeStart}
-            rangeEnd={rangeEnd}
-            totalFiltered={totalFiltered}
-            totalAll={totalAll}
-            itemLabel="prop firms"
-            searchPlaceholder="Search prop firms by name..."
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
+            <div>
+              <ListingToolbar
+                query={query}
+                onQueryChange={setQuery}
+                sort={sort}
+                onSortChange={setSort}
+                sortOptions={sortOptions}
+                rangeStart={rangeStart}
+                rangeEnd={rangeEnd}
+                totalFiltered={totalFiltered}
+                totalAll={totalAll}
+                itemLabel="prop firms"
+                searchPlaceholder="Search prop firms by name..."
+              />
 
-          {totalFiltered === 0 ? (
-            <EmptyResults query={query} onReset={reset} message={query ? undefined : "No prop firms in this category yet."} />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleItems.map(broker => (
-                <div key={broker.id} className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all group">
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
-                    {broker.badge === "verified" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20"><Shield className="w-3 h-3" /> Verified</span>}
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-                    <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
-                    <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{broker.leverage}</div></div>
-                    <div><div className="text-xs text-muted-foreground">Score</div><div className="text-sm font-mono font-semibold text-foreground">{broker.score}/10</div></div>
-                  </div>
-                  <div className="mb-3">
-                    <div className="score-bar"><div className={`score-bar-fill ${scoreColor(broker.score)}`} style={{ width: `${broker.score * 10}%` }} /></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <StarRating value={broker.stars} size={14} />
-                      <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
-                    </div>
-                    <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">Full review <ExternalLink className="w-3 h-3" /></Link>
-                  </div>
-                  <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-accent/30 text-accent rounded-lg hover:bg-accent/10 transition-colors">View Profile →</Link>
+              {totalFiltered === 0 ? (
+                <EmptyResults query={query} onReset={reset} message={query ? undefined : "No prop firms in this category yet."} />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {visibleItems.map(broker => (
+                    <NeonCard key={broker.id} accent="accent" className="p-5">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
+                          <TrustLight score={broker.score} complaints={broker.complaints} className="mt-1" />
+                        </div>
+                        {broker.badge === "verified" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20"><Shield className="w-3 h-3" /> Verified</span>}
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 mb-4 text-center">
+                        <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{broker.leverage}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Score</div><div className="text-sm font-mono font-semibold text-foreground">{broker.score}/10</div></div>
+                      </div>
+                      <div className="mb-3">
+                        <div className="score-bar"><div className={`score-bar-fill ${scoreColor(broker.score)}`} style={{ width: `${broker.score * 10}%` }} /></div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1">
+                          <StarRating value={broker.stars} size={14} />
+                          <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
+                        </div>
+                        <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline">Full review <ExternalLink className="w-3 h-3" /></Link>
+                      </div>
+                      <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-accent/30 text-accent rounded-lg hover:bg-accent/10 transition-colors">View Profile →</Link>
+                    </NeonCard>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              )}
 
-          <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+              <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+            </div>
+
+            <aside className="hidden lg:block">
+              <div className="sticky top-28">
+                <TopFirmsRail variant="prop-firm" limit={7} title="Top Prop Firms" />
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
     </MainLayout>

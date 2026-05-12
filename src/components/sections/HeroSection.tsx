@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, Sparkles } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
