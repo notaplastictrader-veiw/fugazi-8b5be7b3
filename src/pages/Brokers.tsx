@@ -99,12 +99,8 @@ const Brokers = () => {
             Complete list of all verified brokers with trust scores, regulation info, and real user reviews.
           </p>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filters.map(f => (
-              <button key={f} onClick={() => handleFilterClick(f)}
-                className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${filter === f ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground border-border hover:border-primary/40"}`}>{f}</button>
-            ))}
-          </div>
+          <GlowFilterPills options={filters} value={filter} onChange={handleFilterClick} className="mb-4" />
+
 
           <ListingToolbar
             query={query}
