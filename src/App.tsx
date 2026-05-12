@@ -54,6 +54,9 @@ const UserProfile = lazy(() => import("./pages/UserProfile"));
 const BrokerClaimProfile = lazy(() => import("./pages/BrokerClaimProfile"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Match = lazy(() => import("./pages/Match"));
+const Forum = lazy(() => import("./pages/Forum"));
+const ForumThread = lazy(() => import("./pages/ForumThread"));
+const Awards = lazy(() => import("./pages/Awards"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -193,6 +196,9 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/match" element={<Match />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route path="/forum/:slug" element={<ForumThread />} />
+          <Route path="/awards" element={<Awards />} />
           <Route path="/education" element={<Education />} />
           <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />
