@@ -214,6 +214,10 @@ const translations: Record<string, Translations> = {
     "hero.title": "Probamos Brokers. Tú Operas Mejor.",
     "dashboard.referrals": "Referencias",
     "referral.title": "Programa de Referencias",
+    "forum.title": "Foro de Traders Verificados",
+    "forum.report": "Reportar",
+    "awards.title": "Premios NAFT",
+    "awards.viewResults": "Ver ganadores",
   },
   fr: {
     "nav.brokerReviews": "Avis Courtiers",
