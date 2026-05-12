@@ -46,7 +46,7 @@ export default function ReactionBar({ targetType, targetId }: Props) {
   }
 
   async function toggle(r: Reaction) {
-    if (!user) { toast.error("Sign in to react"); return; }
+    if (!user) { toast.error(t("forum.signInReact")); return; }
     if (mine.has(r)) {
       await supabase.from("forum_reactions")
         .delete()
@@ -64,14 +64,14 @@ export default function ReactionBar({ targetType, targetId }: Props) {
   }
 
   async function submitReport() {
-    if (!user) { toast.error("Sign in to report"); return; }
+    if (!user) { toast.error(t("forum.signInReport")); return; }
     setSubmitting(true);
     const { error } = await supabase.from("forum_reports").insert({
       reporter_id: user.id, target_type: targetType, target_id: targetId, reason: reason.trim(),
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
-    toast.success("Reported. Mods will review.");
+    toast.success(t("forum.reported"));
     setReportOpen(false); setReason("");
   }
 
