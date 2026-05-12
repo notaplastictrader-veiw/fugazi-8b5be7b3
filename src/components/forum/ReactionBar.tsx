@@ -21,6 +21,7 @@ interface Props {
 
 export default function ReactionBar({ targetType, targetId }: Props) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [counts, setCounts] = useState<Record<Reaction, number>>({ like: 0, fire: 0, flag: 0 });
   const [mine, setMine] = useState<Set<Reaction>>(new Set());
   const [reportOpen, setReportOpen] = useState(false);
