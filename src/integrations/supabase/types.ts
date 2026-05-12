@@ -1588,6 +1588,8 @@ export type Database = {
       }
       reviews: {
         Row: {
+          account_id_masked: string | null
+          account_proof_url: string | null
           author: string | null
           avatar: string | null
           broker_id: string | null
@@ -1599,8 +1601,11 @@ export type Database = {
           role: string | null
           status: Database["public"]["Enums"]["content_status"]
           user_id: string | null
+          verified_account: boolean
         }
         Insert: {
+          account_id_masked?: string | null
+          account_proof_url?: string | null
           author?: string | null
           avatar?: string | null
           broker_id?: string | null
@@ -1612,8 +1617,11 @@ export type Database = {
           role?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           user_id?: string | null
+          verified_account?: boolean
         }
         Update: {
+          account_id_masked?: string | null
+          account_proof_url?: string | null
           author?: string | null
           avatar?: string | null
           broker_id?: string | null
@@ -1625,6 +1633,7 @@ export type Database = {
           role?: string | null
           status?: Database["public"]["Enums"]["content_status"]
           user_id?: string | null
+          verified_account?: boolean
         }
         Relationships: [
           {
