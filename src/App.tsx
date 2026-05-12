@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/contexts/I18nContext";
 import CookieConsent from "@/components/CookieConsent";
 import LiveChatButton from "@/components/LiveChatButton";
+import AIChatButton from "@/components/AIChatButton";
 import SearchPalette from "@/components/search/SearchPalette";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import InstallAppPrompt from "@/components/InstallAppPrompt";
@@ -52,6 +53,7 @@ const HowWeReview = lazy(() => import("./pages/HowWeReview"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const BrokerClaimProfile = lazy(() => import("./pages/BrokerClaimProfile"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const Match = lazy(() => import("./pages/Match"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -155,6 +157,7 @@ const AppContent = () => {
       <CookieConsent />
       <InstallAppPrompt />
       <LiveChatButton />
+      <AIChatButton />
       <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} initialQuery={searchQuery} />
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -189,6 +192,7 @@ const AppContent = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/match" element={<Match />} />
           <Route path="/education" element={<Education />} />
           <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />

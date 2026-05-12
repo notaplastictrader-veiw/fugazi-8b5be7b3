@@ -2,6 +2,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { organizationSchema, websiteSchema, faqSchema } from "@/components/seo/JsonLd";
 import HeroSection from "@/components/sections/HeroSection";
+import FeaturedOffersCarousel from "@/components/sections/FeaturedOffersCarousel";
 import TrustStrip from "@/components/sections/TrustStrip";
 import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
@@ -51,6 +52,7 @@ const Index = () => {
           answer: "No. Sponsored placements are clearly labeled and never affect trust scores or rankings. Independence is the entire reason this platform exists.",
         },
       ])} />
+      <FeaturedOffersCarousel />
       <HeroSection />
       <TrustStrip />
       <SponsoredBanner placement="homepage-banner" />
