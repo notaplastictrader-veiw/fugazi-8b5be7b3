@@ -58,6 +58,7 @@ const Forum = lazy(() => import("./pages/Forum"));
 const ForumThread = lazy(() => import("./pages/ForumThread"));
 const Awards = lazy(() => import("./pages/Awards"));
 const AwardsResults = lazy(() => import("./pages/AwardsResults"));
+const Ask = lazy(() => import("./pages/Ask"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -199,6 +200,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/match" element={<Match />} />
+          <Route path="/ask" element={<Ask />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/:slug" element={<ForumThread />} />
           <Route path="/awards" element={<Awards />} />
