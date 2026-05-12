@@ -121,7 +121,7 @@ const Brokers = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {visibleItems.map(broker => (
-                <div key={broker.id} className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
+                <NeonCard key={broker.id} accent={broker.score >= 8 ? "primary" : broker.score >= 6 ? "accent" : "destructive"} className="p-5 group">
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
