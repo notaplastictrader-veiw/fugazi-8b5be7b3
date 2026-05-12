@@ -181,12 +181,21 @@ const HeroSection = () => {
         </div>
 
         <div className="max-w-2xl mx-auto mb-5 animate-[fade-up_0.6s_ease_0.2s_both]">
-          <p className="text-base md:text-lg font-medium text-muted-foreground leading-snug mb-1">
-            We Test Brokers. You Trade Smarter.
+          <p className="text-base md:text-lg font-display font-semibold leading-snug mb-1.5">
+            <span className="text-foreground">We Test Brokers.</span>{" "}
+            <span className="text-primary">You Trade Smarter.</span>
           </p>
-          <p className="text-sm text-muted-foreground/70 leading-relaxed">
-            {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t("hero.subtitle", "We stress-test every broker — withdrawals, spreads, regulation & scam history — so you never trade blind.")}
           </p>
+          <div className="mt-3 flex justify-center">
+            <a
+              href="/how-we-review"
+              className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold tracking-wider uppercase text-primary hover:text-primary/80 transition-colors border-b border-primary/40 hover:border-primary pb-0.5"
+            >
+              See How We Test <span aria-hidden>→</span>
+            </a>
+          </div>
         </div>
 
         <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
