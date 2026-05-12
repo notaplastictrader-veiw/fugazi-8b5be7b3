@@ -213,6 +213,15 @@ const HeroSection = () => {
               Search
             </button>
           </div>
+          <div className="mt-3 flex justify-center">
+            <Link
+              to="/match"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/70 transition-all shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+            >
+              <Sparkles className="w-3 h-3" />
+              Try the AI Broker Matcher →
+            </Link>
+          </div>
         </div>
 
         <div className="mb-6 animate-[fade-up_0.6s_ease_0.4s_both]">
