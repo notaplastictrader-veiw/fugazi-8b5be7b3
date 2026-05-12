@@ -20,6 +20,8 @@ import ReviewReactions from "@/components/reviews/ReviewReactions";
 import StarRating from "@/components/reviews/StarRating";
 import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
+import TrustLight from "@/components/broker/TrustLight";
+import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
@@ -442,6 +444,7 @@ const BrokerDetail = () => {
                     <StarRating value={broker.stars} size={16} />
                     <span className="text-sm font-medium text-foreground">{broker.stars}</span>
                     <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
+                    <TrustLight score={broker.score} complaints={broker.complaints} showLabel />
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                     <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
