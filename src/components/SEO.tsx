@@ -9,8 +9,8 @@ interface SEOProps {
 }
 
 const SITE_NAME = "Not A Fugazi Trader";
-const BASE_URL = "https://www.notafugazitrader.com";
-const DEFAULT_IMAGE = "https://www.notafugazitrader.com/og-image.jpg";
+const BASE_URL = "https://fugazi.lovable.app";
+const DEFAULT_IMAGE = "https://fugazi.lovable.app/og-image.jpg";
 
 const setMeta = (attr: string, key: string, content: string) => {
   let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
