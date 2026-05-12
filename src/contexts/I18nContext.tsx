@@ -196,6 +196,10 @@ const translations: Record<string, Translations> = {
     "hero.title": "ہم بروکرز کی جانچ کرتے ہیں۔ آپ ذہانت سے ٹریڈ کریں۔",
     "dashboard.referrals": "ریفرل",
     "referral.title": "ریفرل پروگرام",
+    "forum.title": "تصدیق شدہ تاجر فورم",
+    "forum.report": "رپورٹ",
+    "awards.title": "NAFT ایوارڈز",
+    "awards.viewResults": "فاتحین دیکھیں",
   },
   es: {
     "nav.brokerReviews": "Reseñas de Brokers",
