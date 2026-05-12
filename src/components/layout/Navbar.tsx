@@ -87,6 +87,7 @@ const Navbar = () => {
           { label: "Binary Options", href: "/brokers?type=binary" },
           { label: "ECN Brokers", href: "/brokers?type=ecn" },
           { label: "Broker Comparison", href: "/compare" },
+          { label: "AI Broker Matcher", href: "/match", highlight: true },
         ],
       },
       { label: t("nav.propFirms"), href: "/prop-firms" },
