@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ThumbsUp, Flame, Flag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useI18n } from "@/contexts/I18nContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
