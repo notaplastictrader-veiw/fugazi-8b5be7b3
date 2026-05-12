@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import ReactionBar from "@/components/forum/ReactionBar";
 
 export default function ForumThread() {
   const { slug } = useParams();
@@ -71,7 +72,8 @@ export default function ForumThread() {
               <span className="text-xs text-muted-foreground ml-auto">{new Date(thread.created_at).toLocaleString()}</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground mb-3">{thread.title}</h1>
-            <p className="text-foreground/90 whitespace-pre-wrap leading-relaxed">{thread.body}</p>
+            <p className="text-foreground/90 whitespace-pre-wrap leading-relaxed mb-4">{thread.body}</p>
+            <ReactionBar targetType="thread" targetId={thread.id} />
           </article>
 
           <h2 className="text-sm font-mono uppercase tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
@@ -82,7 +84,8 @@ export default function ForumThread() {
             {replies.map(r => (
               <div key={r.id} className="p-4 rounded-lg border border-border bg-card/60">
                 <div className="text-xs text-muted-foreground font-mono mb-2">{new Date(r.created_at).toLocaleString()}</div>
-                <p className="text-sm text-foreground/90 whitespace-pre-wrap">{r.body}</p>
+                <p className="text-sm text-foreground/90 whitespace-pre-wrap mb-3">{r.body}</p>
+                <ReactionBar targetType="reply" targetId={r.id} />
               </div>
             ))}
           </div>

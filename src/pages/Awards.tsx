@@ -82,6 +82,12 @@ export default function Awards() {
               The only broker awards voted by the people who actually trade.
               No pay-to-play. No sponsored picks. One vote, one trader.
             </p>
+            <Link
+              to="/awards/results"
+              className="inline-flex items-center gap-2 mt-4 text-sm text-primary hover:underline font-mono uppercase tracking-wider"
+            >
+              View live winners →
+            </Link>
           </div>
 
           {loading ? (

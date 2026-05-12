@@ -57,6 +57,7 @@ const Match = lazy(() => import("./pages/Match"));
 const Forum = lazy(() => import("./pages/Forum"));
 const ForumThread = lazy(() => import("./pages/ForumThread"));
 const Awards = lazy(() => import("./pages/Awards"));
+const AwardsResults = lazy(() => import("./pages/AwardsResults"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -201,6 +202,7 @@ const AppContent = () => {
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/:slug" element={<ForumThread />} />
           <Route path="/awards" element={<Awards />} />
+          <Route path="/awards/results" element={<AwardsResults />} />
           <Route path="/education" element={<Education />} />
           <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />
