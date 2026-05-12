@@ -10,6 +10,7 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import NeonCard from "@/components/ui/NeonCard";
 
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
