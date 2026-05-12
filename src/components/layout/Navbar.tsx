@@ -66,9 +66,30 @@ const Navbar = () => {
   const navCms = useSiteSettings<Record<string, any>>("navbar", {});
 
   const navLinks = useMemo(() => {
+    const injectExtras = (items: any[]) => {
+      const EXTRAS = [
+        { label: "Forum", href: "/forum" },
+        { label: "NAFT Awards", href: "/awards" },
+      ];
+      const out = [...items];
+      const moreIdx = out.findIndex(i => /more/i.test(i.label || ""));
+      if (moreIdx >= 0) {
+        const existing = out[moreIdx].children || [];
+        const have = new Set(existing.map((c: any) => c.href));
+        out[moreIdx] = {
+          ...out[moreIdx],
+          children: [...EXTRAS.filter(e => !have.has(e.href)), ...existing],
+        };
+      } else {
+        const haveTop = new Set(out.map(i => i.href));
+        EXTRAS.forEach(e => { if (!haveTop.has(e.href)) out.push({ ...e, highlight: true }); });
+      }
+      return out;
+    };
+
     const items = navCms.menu_items;
     if (Array.isArray(items) && items.length > 0) {
-      return items.map((item: any) => ({
+      const mapped = items.map((item: any) => ({
         label: item.label,
         href: item.href || item.url || "#",
         highlight: !!item.highlight,
@@ -76,6 +97,7 @@ const Navbar = () => {
           ? item.children.map((c: any) => ({ label: c.label, href: c.href || c.url || "#" }))
           : undefined,
       }));
+      return injectExtras(mapped);
     }
     return [
       {
