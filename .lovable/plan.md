@@ -1,56 +1,68 @@
-## Phase 2 — Polish & Make It Usable
+# Finish the Remaining Sequence
 
-The Forum + Awards pages are live, but two things are blocking real usage:
+Two items left from the original research: **Pro paywall** and **complete i18n**. Doing #3 first, then #4.
 
-1. **More menu doesn't show them** — the navbar reads from `site_settings.navbar` (CMS). When CMS data is present, the hardcoded fallback list is ignored. So users can't reach `/forum` or `/awards` from the menu.
-2. **Awards page is empty** — no categories or nominees exist yet, and there's no admin panel to add them.
+---
 
-### What I'll do
+## Step 3 — Pro Paywall (Stripe)
 
-**1. Make Forum + Awards always appear in nav**
-- Patch `Navbar.tsx` so that even when CMS items are loaded, we **inject** Forum + Awards into the "More" group (or append as top-level if no More group exists), without overwriting the admin's CMS choices for everything else.
-- Same fix applied to mobile nav.
+**Pricing (already decided):** $49/mo, $399/yr
 
-**2. Forum admin panel** (`/admin/forum`)
-- Table view of all threads with search, category filter
-- Toggle pinned / locked, delete spam, soft-moderate replies
-- Quick stats: total threads, replies, top categories
-- Add link in admin sidebar
+### Backend (Lovable Cloud)
+- Add Stripe secret key via secrets tool (`STRIPE_SECRET_KEY`).
+- New table `subscribers`:
+  - `user_id`, `email`, `stripe_customer_id`, `subscribed` (bool), `subscription_tier` ('monthly' | 'yearly'), `subscription_end` (timestamptz)
+  - RLS: user can read own row; edge functions write via service role.
+- Three edge functions (all `verify_jwt = false` for Stripe webhooks; checkout/portal verify JWT inside):
+  1. `create-checkout` — creates Stripe Checkout session for monthly or yearly price; returns URL (open in new tab).
+  2. `check-subscription` — queries Stripe for current user, upserts `subscribers` row, returns `{ subscribed, tier, end }`.
+  3. `customer-portal` — opens Stripe billing portal for managing/cancelling.
 
-**3. Awards admin panel** (`/admin/awards`)
-- Manage `award_categories` (create/edit/reorder/activate per year)
-- Manage `award_nominees` per category — pick from existing brokers OR enter custom title/logo
-- Live vote counts visible
-- Add link in admin sidebar
+### Frontend
+- New page `/pricing` with two-tier card UI (Monthly / Yearly — highlight yearly "Save 32%"), themed via existing tokens, **Subscribe** buttons → call `create-checkout`.
+- New hook `useSubscription()` — calls `check-subscription` on mount + every 60s; exposes `{ isPro, tier, loading, refresh }`.
+- Wrap Pro-only routes/sections with existing `<ProtectedSection>` pattern, but gated on `isPro` instead of role:
+  - **Premium signals** (already have free/premium tier in Signals service)
+  - **Forecast Engine — advanced category** (optional; confirm scope)
+- Add **Upgrade to Pro** CTA in user dashboard sidebar + locked-state banners on premium signals cards.
+- Success redirect → `/dashboard?upgraded=1` triggers `refresh()` + toast.
+- Add `/pricing` link to Navbar (between Awards and Join Free).
 
-**4. Seed 2026 awards** (data migration)
-Six launch categories with 4 nominees each, drawn from existing top-rated published brokers:
-- Best Overall Broker 2026
-- Best for Beginners
-- Best Low-Spread ECN
-- Best Crypto Exchange
-- Best Customer Support
-- Most Trusted (Voted by Community)
+---
 
-So `/awards` looks alive on day one.
+## Step 4 — Complete i18n for Forum + Awards (15 languages)
 
-### Out of scope (defer)
-- Pro paywall (you already chose to skip; pricing $49/mo + $399/yr saved)
-- Forum reply threading / nested replies
-- Award winners announcement page (post-vote)
-- Email notifications for thread replies
+Currently only 7 languages have `nav.forum` / `nav.awards`. Need to add for the remaining **8 languages** plus expand keys beyond just nav labels.
 
-### Technical details
-- Nav fix: add a `mergeForumAwards(items)` helper inside the `useMemo`. Looks for label match `/more/i` in CMS items and appends; otherwise pushes a new top-level item.
-- ForumAdmin: lazy route, uses `forum_threads` + `forum_replies` directly with super_admin RLS already in place.
-- AwardsAdmin: lazy route, two-pane layout (categories list left, nominees grid right). Brokers picker uses existing `brokers` table (`status='published'`).
-- Seed data via `supabase--insert` after migration is approved (one-time script picking top 4 brokers by `score` for each category).
-- No new tables. No new edge functions.
+### Languages to fill in
+DE, IT, PT, RU, ZH, JA, ID, TR (the 8 missing from the 15-language set).
 
-### Files I'll touch
-- `src/components/layout/Navbar.tsx` — inject Forum + Awards
-- `src/components/admin/AdminSidebar.tsx` — add 2 menu items
-- `src/App.tsx` — 2 new lazy admin routes
-- `src/pages/admin/ForumAdmin.tsx` — new
-- `src/pages/admin/AwardsAdmin.tsx` — new
-- One data insert (seed categories + nominees)
+### Keys to add for Forum + Awards (all 15 languages, not just nav)
+- `nav.forum`, `nav.awards`
+- **Forum:** `forum.title`, `forum.newThread`, `forum.reply`, `forum.report`, `forum.reportReason`, `forum.reactions.like|fire|flag`, `forum.verifiedOnly`, `forum.empty`
+- **Awards:** `awards.title`, `awards.vote`, `awards.voted`, `awards.viewResults`, `awards.winner`, `awards.runnerUp`, `awards.votes`, `awards.closed`
+
+### Files to touch
+- `src/contexts/I18nContext.tsx` — add the new keys for all 15 locale dictionaries.
+- `src/components/forum/ReactionBar.tsx` — replace hardcoded English with `t('forum.reactions.*')`, `t('forum.report')`, etc.
+- `src/pages/ForumThread.tsx`, `src/pages/Forum.tsx` — replace hardcoded strings.
+- `src/pages/Awards.tsx`, `src/pages/AwardsResults.tsx` — replace hardcoded strings.
+- RTL check: AR + UR Forum thread layout (reactions row, report dialog) — use existing `dir="rtl"` aware classes.
+
+---
+
+## Order of execution
+1. Stripe migration (`subscribers` table + RLS).
+2. Add `STRIPE_SECRET_KEY` secret.
+3. Deploy 3 edge functions.
+4. Build `/pricing` page + `useSubscription` hook + Pro gates.
+5. Expand i18n dictionaries (15 langs × ~12 keys).
+6. Swap hardcoded strings in Forum/Awards components.
+7. Smoke test: subscribe flow (test mode), reactions in AR (RTL), AwardsResults in JA.
+
+---
+
+## Open questions before I start
+- **Stripe mode:** test keys first, or go straight to live? (Recommend test.)
+- **What exactly is gated behind Pro?** Confirm: Premium Signals only — or also Forecast advanced + something else?
+- **Yearly discount badge copy:** "Save 32%" / "2 months free" / custom?
