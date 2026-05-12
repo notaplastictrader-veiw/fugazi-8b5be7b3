@@ -503,7 +503,19 @@ const BrokerDetail = () => {
             </div>
           </div>
 
-          {/* ===== ACTIVE INVESTIGATIONS ===== */}
+          {/* ===== TRUST AMPLIFIERS ===== */}
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="md:col-span-2">
+              <BeforeYouDepositChecklist brokerName={broker.name} />
+            </div>
+            <SentimentSparkline
+              score={broker.score}
+              reviewCount={broker.review_count || 0}
+              complaints={broker.complaints || 0}
+            />
+          </div>
+
+
           {scamAlerts.length > 0 && (
             <section id="investigations" className="mb-6 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-5 md:p-6 scroll-mt-24">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
