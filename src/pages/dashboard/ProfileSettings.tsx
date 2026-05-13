@@ -356,6 +356,14 @@ const ProfileSettings = () => {
               </div>
               <Switch checked={showComplaints} onCheckedChange={setShowComplaints} />
             </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-foreground">Show Trade Journal Stats</p>
+                <p className="text-xs text-muted-foreground">Publish your win rate, P&amp;L, and trade count on your public profile</p>
+              </div>
+              <Switch checked={showJournalStats} onCheckedChange={setShowJournalStats} />
+            </div>
           </div>
         )}
 
