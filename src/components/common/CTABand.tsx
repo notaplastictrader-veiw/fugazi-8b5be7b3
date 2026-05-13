@@ -64,11 +64,11 @@ const CTABand = ({
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <Link to={primaryTo}>
-            <Button className={`${buttonVariants[variant]} font-semibold gap-1`}>
-              {primaryLabel} <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          {primaryTo && !onPrimaryClick ? (
+            <Link to={primaryTo}>{PrimaryButton}</Link>
+          ) : (
+            PrimaryButton
+          )}
           {secondaryLabel && secondaryTo && (
             <Link
               to={secondaryTo}
