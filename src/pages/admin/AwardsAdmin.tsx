@@ -229,6 +229,13 @@ export default function AwardsAdmin() {
               <div><Label>Display Order</Label><Input type="number" value={catForm.display_order} onChange={e => setCatForm({ ...catForm, display_order: Number(e.target.value) })} /></div>
               <div className="flex items-end gap-2"><Switch checked={catForm.is_active} onCheckedChange={v => setCatForm({ ...catForm, is_active: v })} /><Label>Active</Label></div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Voting opens</Label><Input type="datetime-local" value={catForm.voting_starts_at} onChange={e => setCatForm({ ...catForm, voting_starts_at: e.target.value })} /></div>
+              <div><Label>Voting closes</Label><Input type="datetime-local" value={catForm.voting_ends_at} onChange={e => setCatForm({ ...catForm, voting_ends_at: e.target.value })} /></div>
+            </div>
+            <div className="flex items-center gap-2"><Switch checked={catForm.nominations_open} onCheckedChange={v => setCatForm({ ...catForm, nominations_open: v })} /><Label>Open community nominations</Label></div>
+            <div className="hidden">
+            </div>
             <Button onClick={saveCat} className="w-full gap-2"><Save className="w-4 h-4" /> Save</Button>
           </div>
         </DialogContent>
