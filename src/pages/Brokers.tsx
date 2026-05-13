@@ -13,6 +13,8 @@ import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
 import NeonCard from "@/components/ui/NeonCard";
 import GlowFilterPills from "@/components/ui/GlowFilterPills";
+import CTABand from "@/components/common/CTABand";
+import { Sparkles } from "lucide-react";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -98,6 +100,17 @@ const Brokers = () => {
           <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
             Complete list of all verified brokers with trust scores, regulation info, and real user reviews.
           </p>
+
+          <CTABand
+            eyebrow="Not sure where to start?"
+            title="Match me with the safest broker for my style"
+            description="Answer 6 quick questions — get a personalised shortlist of regulated, low-cost brokers in 60 seconds."
+            primaryLabel="Find My Broker"
+            primaryTo="/match"
+            secondaryLabel="Compare manually →"
+            secondaryTo="/compare"
+            icon={Sparkles}
+          />
 
           <GlowFilterPills options={filters} value={filter} onChange={handleFilterClick} className="mb-4" />
 

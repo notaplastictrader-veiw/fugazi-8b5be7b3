@@ -13,6 +13,7 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import CTABand from "@/components/common/CTABand";
 
 interface ScamAlert {
   id: string; title: string; description: string; severity: string; created_at: string;
@@ -72,6 +73,18 @@ const ScamAlerts = () => {
             Scam <span className="text-destructive">Alerts</span>
           </h1>
           <p className="text-sm text-muted-foreground mb-6 max-w-2xl">All verified scam alerts issued by our team and community. Stay safe.</p>
+
+          <CTABand
+            eyebrow="Lost money to a broker?"
+            title="Report a scam — we'll investigate within 48 hours"
+            description="Submit your case with deposit proof. Our team escalates verified complaints publicly and tries to mediate recovery where possible."
+            primaryLabel="Report a Scam"
+            primaryTo="#"
+            secondaryLabel="How we verify →"
+            secondaryTo="/how-we-review"
+            icon={ShieldAlert}
+            variant="destructive"
+          />
 
           <div className="flex justify-end mb-4">
             <Button onClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
