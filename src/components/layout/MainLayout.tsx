@@ -4,6 +4,7 @@ import PromoTicker from "@/components/sections/PromoTicker";
 import TickerBar from "@/components/sections/TickerBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import MobileBottomNav from "./MobileBottomNav";
 
 const routeNames: Record<string, string> = {
   brokers: "Broker Reviews",
@@ -52,7 +53,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <PromoTicker />
       </div>
       <Navbar />
-      <main className="flex-1 pb-[32px]" style={{ paddingTop: "92px" }}>
+      <main className="flex-1 pb-[90px] md:pb-[32px]" style={{ paddingTop: "92px" }}>
         {!isHome && (
           <div className="bg-secondary/40 backdrop-blur-sm border-b border-border/50">
             <div className="container mx-auto px-4 flex items-center gap-2 h-8 text-xs">
