@@ -234,8 +234,6 @@ export default function AwardsAdmin() {
               <div><Label>Voting closes</Label><Input type="datetime-local" value={catForm.voting_ends_at} onChange={e => setCatForm({ ...catForm, voting_ends_at: e.target.value })} /></div>
             </div>
             <div className="flex items-center gap-2"><Switch checked={catForm.nominations_open} onCheckedChange={v => setCatForm({ ...catForm, nominations_open: v })} /><Label>Open community nominations</Label></div>
-            <div className="hidden">
-            </div>
             <Button onClick={saveCat} className="w-full gap-2"><Save className="w-4 h-4" /> Save</Button>
           </div>
         </DialogContent>
