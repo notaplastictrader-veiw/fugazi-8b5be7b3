@@ -2,6 +2,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const SITE_URL = "https://www.notafugazitrader.com";
 
+// Static regulator slugs (kept in sync with src/data/regulators.ts)
+const REGULATOR_SLUGS = ["fca","asic","cysec","nfa","finma","fsa-jp","bafin","mas","dfsa","fsca","ifsc","fsc-bvi","fsa-svg","ifmrrc"];
+
+// Static country guide slugs (kept in sync with src/data/countryGuides.ts)
+const COUNTRY_SLUGS = ["bangladesh","india","pakistan","uae","saudi-arabia","indonesia","malaysia","nigeria","south-africa","uk","australia","philippines","vietnam"];
+
+// Static glossary slugs (kept in sync with src/data/glossary.ts)
+const GLOSSARY_SLUGS = ["pip","spread","leverage","margin","margin-call","stop-out","negative-balance-protection","lot-size","ecn","stp","market-maker","slippage","swap","islamic-account","regulation-tier","segregated-funds","metatrader-4","metatrader-5","ctrader","demo-account","prop-firm","drawdown","challenge","scalping","withdrawal-proof","kyc","aml","stop-loss","take-profit","risk-reward","signal","scam-broker"];
+
 const STATIC_URLS: { loc: string; changefreq: string; priority: string }[] = [
   { loc: "/", changefreq: "daily", priority: "1.0" },
   { loc: "/brokers", changefreq: "daily", priority: "0.9" },
@@ -19,6 +28,8 @@ const STATIC_URLS: { loc: string; changefreq: string; priority: string }[] = [
   { loc: "/match", changefreq: "weekly", priority: "0.7" },
   { loc: "/forum", changefreq: "daily", priority: "0.7" },
   { loc: "/awards", changefreq: "weekly", priority: "0.6" },
+  { loc: "/regulators", changefreq: "monthly", priority: "0.7" },
+  { loc: "/glossary", changefreq: "monthly", priority: "0.6" },
   { loc: "/about", changefreq: "monthly", priority: "0.5" },
   { loc: "/contact", changefreq: "monthly", priority: "0.5" },
   { loc: "/partnership", changefreq: "monthly", priority: "0.5" },
@@ -28,6 +39,9 @@ const STATIC_URLS: { loc: string; changefreq: string; priority: string }[] = [
   { loc: "/privacy", changefreq: "monthly", priority: "0.4" },
   { loc: "/cookies", changefreq: "monthly", priority: "0.4" },
   { loc: "/disclaimer", changefreq: "monthly", priority: "0.4" },
+  ...REGULATOR_SLUGS.map(s => ({ loc: `/regulators/${s}`, changefreq: "monthly", priority: "0.6" })),
+  ...COUNTRY_SLUGS.map(s => ({ loc: `/brokers/country/${s}`, changefreq: "weekly", priority: "0.7" })),
+  ...GLOSSARY_SLUGS.map(s => ({ loc: `/glossary/${s}`, changefreq: "monthly", priority: "0.5" })),
 ];
 
 const xmlEscape = (s: string) =>
