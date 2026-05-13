@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import MainLayout from "@/components/layout/MainLayout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import FollowButton from "@/components/profile/FollowButton";
+import JournalStatsPanel from "@/components/profile/JournalStatsPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, MessageSquare, AlertTriangle, TrendingUp, User } from "lucide-react";
+import { Lock, MessageSquare, AlertTriangle, TrendingUp, User, Users } from "lucide-react";
+import { useState } from "react";
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
