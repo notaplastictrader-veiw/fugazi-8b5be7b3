@@ -102,11 +102,23 @@ Deno.serve(async (req) => {
       ),
     ]);
 
+    const brokerSlugs: string[] = [];
     for (const b of brokers) {
       if (!b?.slug) continue;
+      brokerSlugs.push(b.slug);
       urls.push(
         `<url><loc>${SITE_URL}/brokers/${xmlEscape(b.slug)}</loc><lastmod>${fmtDate(b.updated_at)}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
       );
+    }
+    // Programmatic comparison pages — top 12 brokers paired with each other (head-to-head matrix)
+    const topForCompare = brokerSlugs.slice(0, 12);
+    for (let i = 0; i < topForCompare.length; i++) {
+      for (let j = i + 1; j < topForCompare.length; j++) {
+        const slug = `${topForCompare[i]}-vs-${topForCompare[j]}`;
+        urls.push(
+          `<url><loc>${SITE_URL}/compare/${xmlEscape(slug)}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
+        );
+      }
     }
     for (const a of scamAlerts) {
       if (!a?.id) continue;
