@@ -282,8 +282,11 @@ export type Database = {
           display_order: number
           id: string
           is_active: boolean
+          nominations_open: boolean
           slug: string
           title: string
+          voting_ends_at: string | null
+          voting_starts_at: string | null
           year: number
         }
         Insert: {
@@ -292,8 +295,11 @@ export type Database = {
           display_order?: number
           id?: string
           is_active?: boolean
+          nominations_open?: boolean
           slug: string
           title: string
+          voting_ends_at?: string | null
+          voting_starts_at?: string | null
           year?: number
         }
         Update: {
@@ -302,9 +308,54 @@ export type Database = {
           display_order?: number
           id?: string
           is_active?: boolean
+          nominations_open?: boolean
           slug?: string
           title?: string
+          voting_ends_at?: string | null
+          voting_starts_at?: string | null
           year?: number
+        }
+        Relationships: []
+      }
+      award_nominations: {
+        Row: {
+          broker_id: string | null
+          category_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          subtitle: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          broker_id?: string | null
+          category_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subtitle?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string | null
+          category_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          subtitle?: string | null
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }

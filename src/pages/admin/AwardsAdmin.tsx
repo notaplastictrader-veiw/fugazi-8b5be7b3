@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-type Cat = { id: string; year: number; slug: string; title: string; description: string; display_order: number; is_active: boolean };
+type Cat = { id: string; year: number; slug: string; title: string; description: string; display_order: number; is_active: boolean; voting_starts_at: string | null; voting_ends_at: string | null; nominations_open: boolean };
 type Nom = { id: string; category_id: string; broker_id: string | null; title: string; subtitle: string; logo_url: string; vote_count: number; display_order: number };
 type Broker = { id: string; name: string; logo_url: string | null; slug: string };
 
@@ -27,11 +27,12 @@ export default function AwardsAdmin() {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingNoms, setPendingNoms] = useState<any[]>([]);
 
   // category dialog
   const [catOpen, setCatOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<Cat | null>(null);
-  const [catForm, setCatForm] = useState({ title: "", description: "", display_order: 0, is_active: true });
+  const [catForm, setCatForm] = useState({ title: "", description: "", display_order: 0, is_active: true, voting_starts_at: "", voting_ends_at: "", nominations_open: false });
 
   // nominee dialog
   const [nomOpen, setNomOpen] = useState(false);
@@ -41,10 +42,12 @@ export default function AwardsAdmin() {
 
   async function load() {
     setLoading(true);
-    const [catsRes, brokersRes] = await Promise.all([
+    const [catsRes, brokersRes, pendingRes] = await Promise.all([
       supabase.from("award_categories").select("*").eq("year", year).order("display_order"),
       supabase.from("brokers").select("id, name, logo_url, slug").eq("status", "published").order("score", { ascending: false }).limit(200),
+      supabase.from("award_nominations").select("*").eq("status", "pending").order("created_at", { ascending: false }),
     ]);
+    setPendingNoms(pendingRes.data || []);
     const catList = (catsRes.data || []) as Cat[];
     setCats(catList);
     setBrokers((brokersRes.data || []) as Broker[]);
@@ -62,9 +65,10 @@ export default function AwardsAdmin() {
 
   function openCatDialog(cat?: Cat) {
     setEditingCat(cat || null);
+    const toLocal = (iso: string | null) => iso ? new Date(iso).toISOString().slice(0, 16) : "";
     setCatForm(cat
-      ? { title: cat.title, description: cat.description || "", display_order: cat.display_order, is_active: cat.is_active }
-      : { title: "", description: "", display_order: cats.length, is_active: true });
+      ? { title: cat.title, description: cat.description || "", display_order: cat.display_order, is_active: cat.is_active, voting_starts_at: toLocal(cat.voting_starts_at), voting_ends_at: toLocal(cat.voting_ends_at), nominations_open: cat.nominations_open }
+      : { title: "", description: "", display_order: cats.length, is_active: true, voting_starts_at: "", voting_ends_at: "", nominations_open: false });
     setCatOpen(true);
   }
 
@@ -74,6 +78,9 @@ export default function AwardsAdmin() {
       year, title: catForm.title.trim(), description: catForm.description,
       display_order: catForm.display_order, is_active: catForm.is_active,
       slug: slugify(catForm.title.trim()),
+      voting_starts_at: catForm.voting_starts_at ? new Date(catForm.voting_starts_at).toISOString() : null,
+      voting_ends_at: catForm.voting_ends_at ? new Date(catForm.voting_ends_at).toISOString() : null,
+      nominations_open: catForm.nominations_open,
     };
     const { error } = editingCat
       ? await supabase.from("award_categories").update(payload).eq("id", editingCat.id)
@@ -119,6 +126,23 @@ export default function AwardsAdmin() {
     toast.success("Removed"); load();
   }
 
+  async function reviewNomination(id: string, status: "approved" | "rejected", n?: any) {
+    const { error } = await supabase.from("award_nominations").update({
+      status, reviewed_at: new Date().toISOString(),
+    }).eq("id", id);
+    if (error) return toast.error(error.message);
+    if (status === "approved" && n) {
+      const list = noms.filter(x => x.category_id === n.category_id);
+      await supabase.from("award_nominees").insert({
+        category_id: n.category_id, broker_id: n.broker_id,
+        title: n.title, subtitle: n.subtitle || "", logo_url: "",
+        display_order: list.length,
+      });
+    }
+    toast.success(`Nomination ${status}`);
+    load();
+  }
+
   const currentNoms = noms.filter(n => n.category_id === activeCat);
   const currentCat = cats.find(c => c.id === activeCat);
 
@@ -139,6 +163,32 @@ export default function AwardsAdmin() {
           <Button onClick={() => openCatDialog()} className="gap-2"><Plus className="w-4 h-4" /> New Category</Button>
         </div>
       </div>
+
+      {pendingNoms.length > 0 && (
+        <div className="rounded-xl border border-primary/40 bg-primary/5 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-foreground">Pending community nominations <span className="text-xs font-mono text-primary ml-2">{pendingNoms.length}</span></h2>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {pendingNoms.map(n => {
+              const cat = cats.find(c => c.id === n.category_id);
+              return (
+                <div key={n.id} className="p-3 rounded-lg bg-card border border-border flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{n.title}</div>
+                    <div className="text-[11px] text-muted-foreground">in <strong>{cat?.title || "—"}</strong></div>
+                    {n.reason && <div className="text-xs text-muted-foreground mt-1 line-clamp-2">"{n.reason}"</div>}
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Button size="sm" onClick={() => reviewNomination(n.id, "approved", n)} className="gap-1"><Save className="w-3 h-3" /> Approve</Button>
+                    <Button size="sm" variant="outline" onClick={() => reviewNomination(n.id, "rejected")} className="text-destructive"><X className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
@@ -225,6 +275,11 @@ export default function AwardsAdmin() {
               <div><Label>Display Order</Label><Input type="number" value={catForm.display_order} onChange={e => setCatForm({ ...catForm, display_order: Number(e.target.value) })} /></div>
               <div className="flex items-end gap-2"><Switch checked={catForm.is_active} onCheckedChange={v => setCatForm({ ...catForm, is_active: v })} /><Label>Active</Label></div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Voting opens</Label><Input type="datetime-local" value={catForm.voting_starts_at} onChange={e => setCatForm({ ...catForm, voting_starts_at: e.target.value })} /></div>
+              <div><Label>Voting closes</Label><Input type="datetime-local" value={catForm.voting_ends_at} onChange={e => setCatForm({ ...catForm, voting_ends_at: e.target.value })} /></div>
+            </div>
+            <div className="flex items-center gap-2"><Switch checked={catForm.nominations_open} onCheckedChange={v => setCatForm({ ...catForm, nominations_open: v })} /><Label>Open community nominations</Label></div>
             <Button onClick={saveCat} className="w-full gap-2"><Save className="w-4 h-4" /> Save</Button>
           </div>
         </DialogContent>

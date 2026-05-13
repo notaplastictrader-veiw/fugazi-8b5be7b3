@@ -57,6 +57,7 @@ const Forum = lazy(() => import("./pages/Forum"));
 const ForumThread = lazy(() => import("./pages/ForumThread"));
 const Awards = lazy(() => import("./pages/Awards"));
 const AwardsResults = lazy(() => import("./pages/AwardsResults"));
+const AnnualReport = lazy(() => import("./pages/AnnualReport"));
 const Ask = lazy(() => import("./pages/Ask"));
 const RegulatorsIndex = lazy(() => import("./pages/RegulatorsIndex"));
 const RegulatorDetail = lazy(() => import("./pages/RegulatorDetail"));
@@ -215,6 +216,8 @@ const AppContent = () => {
           <Route path="/forum/:slug" element={<ForumThread />} />
           <Route path="/awards" element={<Awards />} />
           <Route path="/awards/results" element={<AwardsResults />} />
+          <Route path="/reports/:year" element={<AnnualReport />} />
+          <Route path="/reports" element={<AnnualReport />} />
           <Route path="/education" element={<Education />} />
           <Route path="/education/:slug" element={<EducationArticle />} />
           <Route path="/promotions" element={<Promotions />} />

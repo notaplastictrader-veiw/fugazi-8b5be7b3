@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Loader2, Check, Sparkles } from "lucide-react";
+import { Trophy, Loader2, Check, Sparkles, Lock, Clock, Send } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-type Category = { id: string; slug: string; title: string; description: string; year: number };
+type Category = { id: string; slug: string; title: string; description: string; year: number; voting_starts_at: string | null; voting_ends_at: string | null; nominations_open: boolean };
 type Nominee = { id: string; category_id: string; broker_id: string | null; title: string; subtitle: string; logo_url: string; vote_count: number };
 
 const YEAR = new Date().getFullYear();
+
+function windowState(c: Category): "upcoming" | "open" | "closed" {
+  const now = Date.now();
+  if (c.voting_starts_at && now < new Date(c.voting_starts_at).getTime()) return "upcoming";
+  if (c.voting_ends_at && now > new Date(c.voting_ends_at).getTime()) return "closed";
+  return "open";
+}
 
 export default function Awards() {
   const { user } = useAuth();
@@ -82,12 +93,15 @@ export default function Awards() {
               The only broker awards voted by the people who actually trade.
               No pay-to-play. No sponsored picks. One vote, one trader.
             </p>
-            <Link
-              to="/awards/results"
-              className="inline-flex items-center gap-2 mt-4 text-sm text-primary hover:underline font-mono uppercase tracking-wider"
-            >
-              View live winners →
-            </Link>
+            <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
+              <Link to="/awards/results" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+                Live winners →
+              </Link>
+              <Link to={`/reports/${YEAR}`} className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+                State of brokers {YEAR} →
+              </Link>
+              <NominateButton categories={categories.filter(c => c.nominations_open)} />
+            </div>
           </div>
 
           {loading ? (
@@ -104,12 +118,30 @@ export default function Awards() {
                 const noms = nominees.filter(n => n.category_id === cat.id);
                 const totalVotes = noms.reduce((s, n) => s + n.vote_count, 0);
                 const myVote = myVotes[cat.id];
+                const state = windowState(cat);
+                const closed = state === "closed";
+                const upcoming = state === "upcoming";
                 return (
                   <div key={cat.id}>
                     <div className="mb-5">
-                      <div className="flex items-center gap-3 mb-1">
+                      <div className="flex items-center gap-3 mb-1 flex-wrap">
                         <Trophy className="w-5 h-5 text-primary" />
                         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground">{cat.title}</h2>
+                        {upcoming && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                            <Clock className="w-3 h-3" /> Opens {new Date(cat.voting_starts_at!).toLocaleDateString()}
+                          </span>
+                        )}
+                        {closed && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                            <Lock className="w-3 h-3" /> Voting closed
+                          </span>
+                        )}
+                        {state === "open" && cat.voting_ends_at && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-xs font-mono uppercase tracking-wider text-primary">
+                            <Clock className="w-3 h-3" /> Closes {new Date(cat.voting_ends_at).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
                       {cat.description && <p className="text-sm text-muted-foreground ml-8">{cat.description}</p>}
                       <p className="text-xs font-mono text-muted-foreground ml-8 mt-1 uppercase tracking-wider">
@@ -145,7 +177,6 @@ export default function Awards() {
                                 </div>
                               </div>
 
-                              {/* Vote bar */}
                               <div className="mb-3">
                                 <div className="flex justify-between text-xs font-mono text-muted-foreground mb-1">
                                   <span>{n.vote_count} votes</span>
@@ -159,12 +190,14 @@ export default function Awards() {
                               <Button
                                 size="sm"
                                 variant={voted ? "default" : "outline"}
-                                disabled={!!myVote || voting === n.id}
+                                disabled={!!myVote || voting === n.id || closed || upcoming}
                                 onClick={() => vote(cat.id, n.id)}
                                 className="w-full gap-2"
                               >
                                 {voting === n.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
                                  voted ? <><Check className="w-3.5 h-3.5" /> Your Vote</> :
+                                 closed ? "Voting closed" :
+                                 upcoming ? "Not yet open" :
                                  myVote ? "Voted in this category" : "Vote"}
                               </Button>
                             </div>
@@ -186,5 +219,60 @@ export default function Awards() {
         </div>
       </section>
     </MainLayout>
+  );
+}
+
+function NominateButton({ categories }: { categories: Category[] }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ category_id: "", title: "", subtitle: "", reason: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!categories.length) return null;
+
+  async function submit() {
+    if (!user) { toast.error("Sign in to nominate"); return; }
+    if (!form.category_id || !form.title.trim()) { toast.error("Pick a category and enter a name"); return; }
+    setSubmitting(true);
+    const { error } = await supabase.from("award_nominations").insert({
+      user_id: user.id,
+      category_id: form.category_id,
+      title: form.title.trim(),
+      subtitle: form.subtitle.trim(),
+      reason: form.reason.trim(),
+    });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Nomination submitted — admins will review it");
+    setForm({ category_id: "", title: "", subtitle: "", reason: "" });
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+          <Send className="w-3.5 h-3.5" /> Nominate a broker →
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Nominate a broker</DialogTitle></DialogHeader>
+        <div className="space-y-3 py-2">
+          <Select value={form.category_id} onValueChange={v => setForm({ ...form, category_id: v })}>
+            <SelectTrigger><SelectValue placeholder="Pick a category" /></SelectTrigger>
+            <SelectContent>
+              {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Broker name" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+          <Input placeholder="Tagline (optional)" value={form.subtitle} onChange={e => setForm({ ...form, subtitle: e.target.value })} />
+          <Textarea rows={3} placeholder="Why does this broker deserve it?" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} />
+          <Button onClick={submit} disabled={submitting} className="w-full gap-2">
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Submit nomination
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
