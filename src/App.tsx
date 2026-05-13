@@ -58,6 +58,12 @@ const ForumThread = lazy(() => import("./pages/ForumThread"));
 const Awards = lazy(() => import("./pages/Awards"));
 const AwardsResults = lazy(() => import("./pages/AwardsResults"));
 const Ask = lazy(() => import("./pages/Ask"));
+const RegulatorsIndex = lazy(() => import("./pages/RegulatorsIndex"));
+const RegulatorDetail = lazy(() => import("./pages/RegulatorDetail"));
+const CountryBrokers = lazy(() => import("./pages/CountryBrokers"));
+const GlossaryIndex = lazy(() => import("./pages/GlossaryIndex"));
+const GlossaryDetail = lazy(() => import("./pages/GlossaryDetail"));
+const CompareVs = lazy(() => import("./pages/CompareVs"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -188,6 +194,12 @@ const AppContent = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/compare/:vsSlug" element={<CompareVs />} />
+          <Route path="/regulators" element={<RegulatorsIndex />} />
+          <Route path="/regulators/:slug" element={<RegulatorDetail />} />
+          <Route path="/brokers/country/:slug" element={<CountryBrokers />} />
+          <Route path="/glossary" element={<GlossaryIndex />} />
+          <Route path="/glossary/:slug" element={<GlossaryDetail />} />
           <Route path="/match" element={<Match />} />
           <Route path="/ask" element={<Ask />} />
           <Route path="/forum" element={<Forum />} />
