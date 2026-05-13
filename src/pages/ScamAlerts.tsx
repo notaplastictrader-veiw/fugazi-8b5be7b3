@@ -138,6 +138,9 @@ const ScamAlerts = () => {
           )}
 
           <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+
+          <div className="mt-8"><SponsoredBanner placement="scam-alerts-mid" /></div>
+          <div className="mt-8 max-w-3xl mx-auto"><BecomeSponsorCard variant="inline" context="Scam Alerts" /></div>
         </div>
       </section>
       <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />

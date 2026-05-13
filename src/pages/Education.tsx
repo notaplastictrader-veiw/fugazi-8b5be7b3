@@ -14,6 +14,8 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
+import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 
 interface Track {
   id: string;
@@ -260,6 +262,8 @@ const Education = () => {
               </div>
             ))}
           </div>
+          <div className="mt-10"><SponsoredBanner placement="education-mid" /></div>
+          <div className="mt-8"><BecomeSponsorCard variant="inline" context="the Education Hub" /></div>
         </div>
       </section>
 
