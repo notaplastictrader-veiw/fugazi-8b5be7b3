@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Loader2, Lock, Pin, Send } from "lucide-react";
+import { ArrowLeft, MessageSquare, Loader2, Lock, Pin, Send, Award, Check } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
