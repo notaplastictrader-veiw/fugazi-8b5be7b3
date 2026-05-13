@@ -75,6 +75,8 @@ const Watchlist = lazy(() => import("./pages/dashboard/Watchlist"));
 const ProfileSettings = lazy(() => import("./pages/dashboard/ProfileSettings"));
 const Referrals = lazy(() => import("./pages/dashboard/Referrals"));
 const Journal = lazy(() => import("./pages/dashboard/Journal"));
+const SavedMatches = lazy(() => import("./pages/dashboard/SavedMatches"));
+const NotificationPreferences = lazy(() => import("./pages/dashboard/NotificationPreferences"));
 
 // Admin (lazy chunk)
 const ProtectedAdminRoute = lazy(() => import("./components/admin/ProtectedAdminRoute"));
@@ -173,6 +175,8 @@ const AppContent = () => {
           <Route path="/dashboard/settings" element={<DashboardLayout><ProfileSettings /></DashboardLayout>} />
           <Route path="/dashboard/referrals" element={<DashboardLayout><Referrals /></DashboardLayout>} />
           <Route path="/dashboard/journal" element={<DashboardLayout><Journal /></DashboardLayout>} />
+          <Route path="/dashboard/matches" element={<DashboardLayout><SavedMatches /></DashboardLayout>} />
+          <Route path="/dashboard/notifications" element={<DashboardLayout><NotificationPreferences /></DashboardLayout>} />
 
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
