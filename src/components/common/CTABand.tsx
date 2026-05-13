@@ -7,7 +7,8 @@ interface CTABandProps {
   title: string;
   description?: string;
   primaryLabel: string;
-  primaryTo: string;
+  primaryTo?: string;
+  onPrimaryClick?: () => void;
   secondaryLabel?: string;
   secondaryTo?: string;
   icon?: LucideIcon;
@@ -32,11 +33,17 @@ const CTABand = ({
   description,
   primaryLabel,
   primaryTo,
+  onPrimaryClick,
   secondaryLabel,
   secondaryTo,
   icon: Icon,
   variant = "primary",
 }: CTABandProps) => {
+  const PrimaryButton = (
+    <Button className={`${buttonVariants[variant]} font-semibold gap-1`} onClick={onPrimaryClick}>
+      {primaryLabel} <ArrowRight className="w-4 h-4" />
+    </Button>
+  );
   return (
     <div
       className={`relative rounded-2xl border bg-gradient-to-r ${variantStyles[variant]} px-5 py-5 md:px-7 md:py-6 mb-8 overflow-hidden`}
