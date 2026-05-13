@@ -126,6 +126,23 @@ export default function AwardsAdmin() {
     toast.success("Removed"); load();
   }
 
+  async function reviewNomination(id: string, status: "approved" | "rejected", n?: any) {
+    const { error } = await supabase.from("award_nominations").update({
+      status, reviewed_at: new Date().toISOString(),
+    }).eq("id", id);
+    if (error) return toast.error(error.message);
+    if (status === "approved" && n) {
+      const list = noms.filter(x => x.category_id === n.category_id);
+      await supabase.from("award_nominees").insert({
+        category_id: n.category_id, broker_id: n.broker_id,
+        title: n.title, subtitle: n.subtitle || "", logo_url: "",
+        display_order: list.length,
+      });
+    }
+    toast.success(`Nomination ${status}`);
+    load();
+  }
+
   const currentNoms = noms.filter(n => n.category_id === activeCat);
   const currentCat = cats.find(c => c.id === activeCat);
 
