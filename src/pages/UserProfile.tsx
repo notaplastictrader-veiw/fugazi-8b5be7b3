@@ -12,7 +12,7 @@ import { useState } from "react";
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
-
+  const [followerDelta, setFollowerDelta] = useState(0);
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async () => {
