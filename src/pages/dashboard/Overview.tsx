@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import { Star, AlertTriangle, Bookmark, Activity } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import TraderLevelCard from "@/components/dashboard/TraderLevelCard";
 
 const StatCard = ({ icon: Icon, label, value }: { icon: typeof Star; label: string; value: string | number }) => (
   <div className="glass-card rounded-xl p-5">
@@ -77,6 +78,8 @@ const Overview = () => {
       <SEO title="Dashboard" description="Your personal trading dashboard." path="/dashboard" />
       <h1 className="text-2xl font-display font-extrabold text-foreground mb-1">Dashboard</h1>
       <p className="text-sm text-muted-foreground mb-6">Welcome back, {fullName.split(" ")[0]}.</p>
+
+      <TraderLevelCard />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Star} label="Reviews" value={reviewCount} />

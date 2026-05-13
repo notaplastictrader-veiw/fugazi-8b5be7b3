@@ -73,6 +73,7 @@ const MyComplaints = lazy(() => import("./pages/dashboard/MyComplaints"));
 const Watchlist = lazy(() => import("./pages/dashboard/Watchlist"));
 const ProfileSettings = lazy(() => import("./pages/dashboard/ProfileSettings"));
 const Referrals = lazy(() => import("./pages/dashboard/Referrals"));
+const Journal = lazy(() => import("./pages/dashboard/Journal"));
 
 // Admin (lazy chunk)
 const ProtectedAdminRoute = lazy(() => import("./components/admin/ProtectedAdminRoute"));
@@ -170,6 +171,7 @@ const AppContent = () => {
           <Route path="/dashboard/watchlist" element={<DashboardLayout><Watchlist /></DashboardLayout>} />
           <Route path="/dashboard/settings" element={<DashboardLayout><ProfileSettings /></DashboardLayout>} />
           <Route path="/dashboard/referrals" element={<DashboardLayout><Referrals /></DashboardLayout>} />
+          <Route path="/dashboard/journal" element={<DashboardLayout><Journal /></DashboardLayout>} />
 
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
