@@ -221,3 +221,58 @@ export default function Awards() {
     </MainLayout>
   );
 }
+
+function NominateButton({ categories }: { categories: Category[] }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ category_id: "", title: "", subtitle: "", reason: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  if (!categories.length) return null;
+
+  async function submit() {
+    if (!user) { toast.error("Sign in to nominate"); return; }
+    if (!form.category_id || !form.title.trim()) { toast.error("Pick a category and enter a name"); return; }
+    setSubmitting(true);
+    const { error } = await supabase.from("award_nominations").insert({
+      user_id: user.id,
+      category_id: form.category_id,
+      title: form.title.trim(),
+      subtitle: form.subtitle.trim(),
+      reason: form.reason.trim(),
+    });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Nomination submitted — admins will review it");
+    setForm({ category_id: "", title: "", subtitle: "", reason: "" });
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+          <Send className="w-3.5 h-3.5" /> Nominate a broker →
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Nominate a broker</DialogTitle></DialogHeader>
+        <div className="space-y-3 py-2">
+          <Select value={form.category_id} onValueChange={v => setForm({ ...form, category_id: v })}>
+            <SelectTrigger><SelectValue placeholder="Pick a category" /></SelectTrigger>
+            <SelectContent>
+              {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Input placeholder="Broker name" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+          <Input placeholder="Tagline (optional)" value={form.subtitle} onChange={e => setForm({ ...form, subtitle: e.target.value })} />
+          <Textarea rows={3} placeholder="Why does this broker deserve it?" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} />
+          <Button onClick={submit} disabled={submitting} className="w-full gap-2">
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Submit nomination
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
