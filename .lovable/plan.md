@@ -1,59 +1,82 @@
+## Phases 7 → 10 — "Ace" Sprint Plan
 
-# Phase 1 Execution Sprint — Critical Fixes Only
+The roadmap doc only defines phases 2–6. Phases 4 (affiliate + paywall) was deferred and several items from the original Phase 5/6 (community depth, awards, AI matcher, digests, perf) are still open. I'm packaging the remaining high-impact work into four focused phases. Each phase is self-contained — you can stop after any one.
 
-Scope: Implement the 10 critical items from the audit. Strategy/SEO-moat/monetisation roadmaps will be delivered as a separate document AFTER code lands, so we ship value first instead of writing essays.
+---
 
-## What I'll build (in this order)
+### PHASE 7 — Community Depth & Verified Profiles v2
 
-### 1. `/brokers` skeleton-without-navbar fix
-- Move loading skeleton INSIDE `MainLayout` (currently `Brokers.tsx` returns brokers in layout already — verify other listing pages don't return early before layout). Audit `BrokerDetail`, `Signals`, `PropFirms`, `ScamAlerts` for the same race; wrap their early returns in `<MainLayout>`.
-- Impact: kills 400ms layout flash, prevents CLS penalty.
+Make NAFT a place users return to daily.
 
-### 2. Hero CTA + Trust-count chips
-- Add a primary "Find My Broker in 60s →" CTA button (links to `/match`) directly under the headline, before the search bar. Demote the existing Sparkles "AI Matcher" pill to a secondary text link.
-- Add trust-count chip row under the search: `🛡 280+ Reviewed · ⚖ 14 Regulators · 💰 $2.3M Recovered · 👥 47K Verified Traders` (live from Supabase counts where possible, fallback static).
-- Mobile: stack CTA full-width, chips wrap.
+- **Public Trader Profile v2** (`/profile/:username`)
+  - Pinned reviews, journal stats (win rate, total trades, best pair) — opt-in
+  - Badge showcase + reputation tier prominent
+  - Follower system (`profile_follows` table) with follower count
+- **Forum upgrades**
+  - Pin/lock controls for mods, "Best answer" marking by thread author
+  - Trending threads widget on `/forum`
+- **Trader of the Month** rail on homepage (top reputation, last 30d)
+- **Reputation v2:** add weight for forum helpfulness votes, decay inactive scores
 
-### 3. Hero density / above-the-fold
-- Reduce hero `min-h-[85vh]` → `min-h-[72vh]`; tighten `mt-[-8px]` paddings and gap between badge/eyebrow.
-- Move `FeaturedOffersCarousel` BELOW hero (currently above — pushes hero down).
+Tables: `profile_follows`, `forum_thread_best_answer` (column).
 
-### 4. Carousel scrollbar
-- `FeaturedOffersCarousel`: already has `scrollbar-hide` but verify the utility exists in `index.css`; add `[&::-webkit-scrollbar]:hidden` + `scrollbar-width:none`. Add left/right arrow controls that scroll by card width.
+---
 
-### 5. Review + AggregateRating + BreadcrumbList JSON-LD on broker pages
-- `BrokerDetail.tsx` already imports `brokerReviewSchema` + `breadcrumbSchema` — verify both are emitted with real review data; add per-review `Review` items (top 5 published reviews with author, rating, date) into the schema for richer SERP stars.
+### PHASE 8 — AI Matcher v2 + Saved Searches + Digests
 
-### 6. Hreflang in `SEO.tsx`
-- Loop the 15 supported locales and emit `<link rel="alternate" hreflang="xx" href="...">` + `x-default`. Read locale list from `I18nContext`.
+Retention loop powered by personalisation.
 
-### 7. Dynamic sitemap
-- Add Supabase edge function `sitemap` that queries `brokers`, `scam_alerts`, `news`, `promotions`, `education_articles`, `forum_threads` (published only) and returns XML with proper `lastmod`.
-- Add `vercel.json` rewrite `/sitemap.xml → /functions/v1/sitemap` (keep static fallback at `/sitemap-static.xml`).
+- **Matcher v2:** smarter quiz scoring (deposit/leverage/regulator weighted), result diversity, "why this broker?" explanation per match
+- **Saved Matches:** logged-in users save a match set, get notified when a new broker enters their criteria
+- **Saved Searches:** save filtered broker/scam-alert queries
+- **Weekly Digest** (edge function, cron): top brokers, new scam alerts, signal performance, personalised matches → email via Resend (will need RESEND_API_KEY) or in-app notification only as fallback
+- **Notification preferences** page in dashboard settings
 
-### 8. Mobile bottom-nav
-- New `MobileBottomNav.tsx`: 5 items — Home, Brokers, Match (center, elevated), Signals, Account. Visible `<md:hidden`, fixed bottom above `TickerBar` (z-[180]).
-- Add bottom padding to main on mobile to prevent overlap.
+Tables: `saved_matches`, `saved_searches`, `notification_preferences`.
 
-### 9. FAB consolidation
-- Merge `LiveChatButton` (Telegram) + `AIChatButton` into one `FloatingActions.tsx` — single primary FAB that expands radially to 2 actions on tap. Bottom-right, above bottom-nav on mobile.
+---
 
-### 10. Cleanup
-- Delete unused `src/App.css` (Vite default leftover).
+### PHASE 9 — Awards Engine + Annual Report
 
-## Files touched
-- New: `src/components/layout/MobileBottomNav.tsx`, `src/components/FloatingActions.tsx`, `supabase/functions/sitemap/index.ts`
-- Edited: `src/pages/Brokers.tsx`, `BrokerDetail.tsx`, `Signals.tsx`, `PropFirms.tsx`, `ScamAlerts.tsx` (layout race), `src/components/sections/HeroSection.tsx`, `FeaturedOffersCarousel.tsx`, `src/components/SEO.tsx`, `src/components/seo/JsonLd.tsx`, `src/components/layout/MainLayout.tsx`, `src/pages/Index.tsx`, `vercel.json`
-- Removed: `src/components/AIChatButton.tsx`, `src/components/LiveChatButton.tsx` (replaced), `src/App.css`
+Authority play.
 
-## Out of scope for this sprint (delivered as written roadmap doc after)
-- Homepage section reordering beyond hero/carousel swap
-- Full mobile redesign of every card
-- Glossary, programmatic SEO, newsletter, paywall
-- Trust/monetisation infrastructure builds
+- **Awards 2026 cycle:** open nominations, voting windows, results page
+- **Category management** in admin (already have `awards` admin — extend with cycle/window controls)
+- **Voting integrity:** 1 vote per user per category, captcha on submit
+- **Results page:** winner showcase, permanent badge on broker cards
+- **"State of Brokers" annual report** generator: edge function builds a public report page from aggregate scores → static `/reports/2026` page
 
-## What you do in parallel
-- Confirm real numbers for trust chips (or I'll use live Supabase counts + "$2.3M Recovered" as configurable site_setting).
-- Confirm Telegram URL for FAB (re-use existing).
+Tables: extend `award_cycles`, add `voting_windows` if missing.
 
-Ready to execute on approval.
+---
+
+### PHASE 10 — Performance, SEO Polish & Reliability
+
+Ship-ready hardening.
+
+- **Image pipeline:** swap remaining `<img>` for lazy-loaded responsive variants, add `loading="lazy"` audit, generate WebP for hero/broker logos
+- **Lighthouse pass:** code-split heavy admin chunks, defer analytics, preconnect critical origins
+- **JSON-LD audit:** Organization, BreadcrumbList everywhere, Product/Review on broker pages, FAQPage on glossary
+- **Sitemap regen** trigger on broker/scam publish
+- **Sentry-style error capture** lite: edge function `log-client-error` + global error boundary reporting
+- **Rate limiting** on public edge functions (`naft-assistant`, `broker-matcher`) using IP hash + Postgres counter
+
+Tables: `client_error_log`, `edge_rate_limits`.
+
+---
+
+### What I will NOT touch (still deferred per your earlier call)
+
+- Stripe paywall + paid signal subscriptions (Phase 4.2 / 4.5)
+- Affiliate link tracking system (Phase 4.1)
+- Education paid courses with payment
+
+These stay parked until you say "go monetisation."
+
+---
+
+### Order of execution
+
+I'll build Phase 7 → 8 → 9 → 10 in sequence, one migration set per phase, each shipped with admin controls where relevant. After each phase I'll pause briefly so you can sanity-check before the next one starts.
+
+Confirm and I'll start with Phase 7.
