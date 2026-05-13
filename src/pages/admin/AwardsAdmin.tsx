@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
-type Cat = { id: string; year: number; slug: string; title: string; description: string; display_order: number; is_active: boolean };
+type Cat = { id: string; year: number; slug: string; title: string; description: string; display_order: number; is_active: boolean; voting_starts_at: string | null; voting_ends_at: string | null; nominations_open: boolean };
 type Nom = { id: string; category_id: string; broker_id: string | null; title: string; subtitle: string; logo_url: string; vote_count: number; display_order: number };
 type Broker = { id: string; name: string; logo_url: string | null; slug: string };
 
@@ -31,7 +31,7 @@ export default function AwardsAdmin() {
   // category dialog
   const [catOpen, setCatOpen] = useState(false);
   const [editingCat, setEditingCat] = useState<Cat | null>(null);
-  const [catForm, setCatForm] = useState({ title: "", description: "", display_order: 0, is_active: true });
+  const [catForm, setCatForm] = useState({ title: "", description: "", display_order: 0, is_active: true, voting_starts_at: "", voting_ends_at: "", nominations_open: false });
 
   // nominee dialog
   const [nomOpen, setNomOpen] = useState(false);
@@ -62,9 +62,10 @@ export default function AwardsAdmin() {
 
   function openCatDialog(cat?: Cat) {
     setEditingCat(cat || null);
+    const toLocal = (iso: string | null) => iso ? new Date(iso).toISOString().slice(0, 16) : "";
     setCatForm(cat
-      ? { title: cat.title, description: cat.description || "", display_order: cat.display_order, is_active: cat.is_active }
-      : { title: "", description: "", display_order: cats.length, is_active: true });
+      ? { title: cat.title, description: cat.description || "", display_order: cat.display_order, is_active: cat.is_active, voting_starts_at: toLocal(cat.voting_starts_at), voting_ends_at: toLocal(cat.voting_ends_at), nominations_open: cat.nominations_open }
+      : { title: "", description: "", display_order: cats.length, is_active: true, voting_starts_at: "", voting_ends_at: "", nominations_open: false });
     setCatOpen(true);
   }
 
@@ -74,6 +75,9 @@ export default function AwardsAdmin() {
       year, title: catForm.title.trim(), description: catForm.description,
       display_order: catForm.display_order, is_active: catForm.is_active,
       slug: slugify(catForm.title.trim()),
+      voting_starts_at: catForm.voting_starts_at ? new Date(catForm.voting_starts_at).toISOString() : null,
+      voting_ends_at: catForm.voting_ends_at ? new Date(catForm.voting_ends_at).toISOString() : null,
+      nominations_open: catForm.nominations_open,
     };
     const { error } = editingCat
       ? await supabase.from("award_categories").update(payload).eq("id", editingCat.id)
