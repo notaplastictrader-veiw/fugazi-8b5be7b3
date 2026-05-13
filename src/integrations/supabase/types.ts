@@ -1994,6 +1994,63 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_journal: {
+        Row: {
+          broker_id: string | null
+          closed_at: string | null
+          created_at: string
+          entry_price: number | null
+          exit_price: number | null
+          id: string
+          notes: string | null
+          opened_at: string
+          outcome: string | null
+          pnl: number | null
+          rr: number | null
+          side: string
+          size: number | null
+          symbol: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          broker_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          entry_price?: number | null
+          exit_price?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          outcome?: string | null
+          pnl?: number | null
+          rr?: number | null
+          side: string
+          size?: number | null
+          symbol: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          broker_id?: string | null
+          closed_at?: string | null
+          created_at?: string
+          entry_price?: number | null
+          exit_price?: number | null
+          id?: string
+          notes?: string | null
+          opened_at?: string
+          outcome?: string | null
+          pnl?: number | null
+          rr?: number | null
+          side?: string
+          size?: number | null
+          symbol?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_activity: {
         Row: {
           action_type: string

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2, Home, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Star, AlertTriangle, Bookmark, Settings, Link2, Home, ArrowLeft, BookOpen } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, Link } from "react-router-dom";
 import { useI18n } from "@/contexts/I18nContext";
@@ -19,6 +19,7 @@ const DashboardSidebar = () => {
   const { t } = useI18n();
   const items = [
     { title: t("dashboard.overview"), url: "/dashboard", icon: LayoutDashboard },
+    { title: "Trade Journal", url: "/dashboard/journal", icon: BookOpen },
     { title: t("dashboard.reviews"), url: "/dashboard/reviews", icon: Star },
     { title: t("dashboard.complaints"), url: "/dashboard/complaints", icon: AlertTriangle },
     { title: t("dashboard.watchlist"), url: "/dashboard/watchlist", icon: Bookmark },
