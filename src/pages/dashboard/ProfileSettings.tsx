@@ -46,6 +46,7 @@ const ProfileSettings = () => {
   const [showRealName, setShowRealName] = useState(true);
   const [showCountry, setShowCountry] = useState(true);
   const [showComplaints, setShowComplaints] = useState(true);
+  const [showJournalStats, setShowJournalStats] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
 
   const { data: profile } = useQuery({
