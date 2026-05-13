@@ -41,6 +41,14 @@ const sections: SidebarSection[] = [
     ],
   },
   {
+    label: "RESEARCH TOOLS",
+    icon: Sparkles,
+    items: [
+      { title: "Research Prompts", url: "/admin/research-prompts", icon: Sparkles },
+      { title: "Import JSON", url: "/admin/import-json", icon: FileText },
+    ],
+  },
+  {
     label: "SITE CONTENT",
     icon: Globe,
     items: [
