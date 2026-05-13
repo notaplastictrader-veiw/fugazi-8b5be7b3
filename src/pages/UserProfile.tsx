@@ -148,6 +148,18 @@ const UserProfile = () => {
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <ProfileHeader profile={profile as any} stats={stats} />
 
+        <div className="flex flex-wrap items-center justify-between gap-3 -mt-3 px-1">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="font-mono"><span className="text-foreground font-semibold">{(followerCount ?? 0) + followerDelta}</span> followers</span>
+          </div>
+          <FollowButton targetUserId={profile.user_id} onCountChange={(d) => setFollowerDelta((p) => p + d)} />
+        </div>
+
+        {(profile as any).show_journal_stats && (
+          <JournalStatsPanel userId={profile.user_id} />
+        )}
+
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="w-full justify-start bg-card border border-border rounded-xl p-1 gap-1">
             <TabsTrigger value="overview" className="rounded-lg text-xs">Overview</TabsTrigger>
