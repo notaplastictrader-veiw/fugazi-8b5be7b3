@@ -15,6 +15,8 @@ import NeonCard from "@/components/ui/NeonCard";
 import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import CTABand from "@/components/common/CTABand";
 import { Sparkles } from "lucide-react";
+import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
+import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -133,6 +135,7 @@ const Brokers = () => {
             <EmptyResults query={query} onReset={reset} message={query ? undefined : "No brokers in this category yet."} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {page === 1 && <SponsoredBrokerCard />}
               {visibleItems.map(broker => (
                 <NeonCard key={broker.id} accent={broker.score >= 8 ? "primary" : broker.score >= 6 ? "accent" : "destructive"} className="p-5 group">
                   <div className="flex items-start justify-between mb-4">
@@ -172,6 +175,10 @@ const Brokers = () => {
           )}
 
           <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+
+          <div className="mt-10 max-w-3xl mx-auto">
+            <BecomeSponsorCard context="the broker directory" />
+          </div>
         </div>
       </section>
     </MainLayout>
