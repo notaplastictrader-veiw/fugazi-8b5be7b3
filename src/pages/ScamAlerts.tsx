@@ -79,7 +79,12 @@ const ScamAlerts = () => {
             title="Report a scam — we'll investigate within 48 hours"
             description="Submit your case with deposit proof. Our team escalates verified complaints publicly and tries to mediate recovery where possible."
             primaryLabel="Report a Scam"
-            primaryTo="#"
+            onPrimaryClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
+            secondaryLabel="How we verify →"
+            secondaryTo="/how-we-review"
+            icon={ShieldAlert}
+            variant="destructive"
+          />
             secondaryLabel="How we verify →"
             secondaryTo="/how-we-review"
             icon={ShieldAlert}
