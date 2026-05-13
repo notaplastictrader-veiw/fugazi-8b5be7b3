@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, Shield, Scale, Wallet, Users, ArrowRight } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,7 +141,7 @@ const HeroSection = () => {
   const currentChips = chipGroups[chipGroupIndex];
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[72vh] flex items-center justify-center overflow-hidden py-8">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
@@ -213,14 +213,39 @@ const HeroSection = () => {
               Search
             </button>
           </div>
-          <div className="mt-3 flex justify-center">
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to="/match"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/70 transition-all shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
+              className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold tracking-wide uppercase text-sm shadow-[0_4px_24px_hsl(var(--primary)/0.35)] hover:shadow-[0_6px_32px_hsl(var(--primary)/0.55)] hover:scale-[1.02] transition-all"
             >
-              <Sparkles className="w-3 h-3" />
-              Try the AI Broker Matcher →
+              <Sparkles className="w-4 h-4" />
+              Find My Broker in 60s
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
+            <Link
+              to="/brokers"
+              className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-5 py-3 rounded-xl border border-border bg-card/40 backdrop-blur-sm text-sm font-display font-semibold text-foreground hover:border-primary/40 hover:text-primary transition-colors"
+            >
+              Browse 280+ Brokers
+            </Link>
+          </div>
+
+          {/* Trust-count chips */}
+          <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px] font-mono text-muted-foreground">
+            {[
+              { Icon: Shield, label: `${stats[1]?.value || "280+"} Reviewed`, color: "text-primary" },
+              { Icon: Scale, label: "14 Regulators Tracked", color: "text-accent" },
+              { Icon: Wallet, label: "$2.3M Recovered", color: "text-[hsl(var(--teal))]" },
+              { Icon: Users, label: `${stats[3]?.value || "47K+"} Verified Traders`, color: "text-primary" },
+            ].map(({ Icon, label, color }) => (
+              <span
+                key={label}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/50 bg-card/40 backdrop-blur-sm"
+              >
+                <Icon className={`w-3 h-3 ${color}`} />
+                {label}
+              </span>
+            ))}
           </div>
         </div>
 
