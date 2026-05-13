@@ -77,6 +77,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="fixed bottom-0 left-0 right-0 z-[200]">
         <TickerBar />
       </div>
+      {!isDashboard && <MobileBottomNav />}
     </div>
   );
 };
