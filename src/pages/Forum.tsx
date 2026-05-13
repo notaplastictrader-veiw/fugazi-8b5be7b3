@@ -178,7 +178,9 @@ export default function Forum() {
             ))}
           </div>
 
-          {/* Threads */}
+          {/* Threads + sidebar */}
+          <div className="grid lg:grid-cols-[1fr_280px] gap-6 items-start">
+            <div>
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
