@@ -262,6 +262,7 @@ const AppContent = () => {
             <Route path="user-dashboard" element={<UserDashboardAdmin />} />
             <Route path="referrals" element={<ReferralAnalyticsAdmin />} />
             <Route path="audit-log" element={<AuditLog />} />
+            <Route path="errors" element={<ErrorLogAdmin />} />
             <Route path="education" element={<EducationAdmin />} />
             <Route path="courses" element={<CoursesAdmin />} />
             <Route path="trading-ideas" element={<TradingIdeasAdmin />} />

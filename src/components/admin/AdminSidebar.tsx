@@ -37,6 +37,7 @@ const sections: SidebarSection[] = [
       { title: "Command Center", url: "/admin", icon: LayoutDashboard },
       { title: "Approval Queue", url: "/admin/approvals", icon: CheckCircle },
       { title: "Audit Log", url: "/admin/audit-log", icon: ScrollText },
+      { title: "Error Log", url: "/admin/errors", icon: ScrollText },
     ],
   },
   {
