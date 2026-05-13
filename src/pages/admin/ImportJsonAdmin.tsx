@@ -33,7 +33,7 @@ const ImportJsonAdmin = () => {
     setPreviews(null);
     setParseError(null);
     const parsed = tryParseJson(jsonText);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       setParseError(parsed.error);
       return;
     }
