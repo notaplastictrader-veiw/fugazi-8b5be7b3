@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Shield, ArrowUpRight, RotateCw } from "lucide-react";
+import { Sparkles, Shield, ArrowUpRight, RotateCw, Bookmark, Loader2 } from "lucide-react";
 import NeonCard from "@/components/ui/NeonCard";
 import TrustLight from "@/components/broker/TrustLight";
 import StarRating from "@/components/reviews/StarRating";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface Match {
   id: string;
@@ -11,9 +15,29 @@ interface Match {
   match_score: number;
   reasoning: string;
   broker: any;
+  why_tags?: string[];
 }
 
-const MatchResults = ({ matches, onReset }: { matches: Match[]; onReset: () => void }) => {
+const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset: () => void; answers?: any }) => {
+  const { user } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function saveMatch() {
+    if (!user) { toast.error("Sign in to save matches"); return; }
+    setSaving(true);
+    const { error } = await supabase.from("saved_matches").insert({
+      user_id: user.id,
+      name: `Match — ${new Date().toLocaleDateString()}`,
+      answers: answers || {},
+      result: matches.map((m) => ({ id: m.id, slug: m.slug, name: m.name, match_score: m.match_score })),
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    setSaved(true);
+    toast.success("Match saved to your dashboard");
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
@@ -58,9 +82,20 @@ const MatchResults = ({ matches, onReset }: { matches: Match[]; onReset: () => v
                   <span>· min {m.broker.min_deposit}</span>
                 </div>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  <span className="text-primary font-mono text-[10px] uppercase tracking-widest mr-2">Why</span>
                   {m.reasoning}
                 </p>
+
+                {m.why_tags && m.why_tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {m.why_tags.map((t) => (
+                      <span key={t} className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
+                        {t.replace(/-/g, " ")}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-2">
                   <Link
@@ -82,13 +117,21 @@ const MatchResults = ({ matches, onReset }: { matches: Match[]; onReset: () => v
         ))}
       </div>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+        <button
+          onClick={saveMatch}
+          disabled={saving || saved}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-primary/40 text-primary hover:bg-primary/10 disabled:opacity-50 transition"
+        >
+          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />}
+          {saved ? "Saved to dashboard" : "Save this match"}
+        </button>
         <button
           onClick={onReset}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           <RotateCw className="w-4 h-4" />
-          Run again with different answers
+          Run again
         </button>
       </div>
     </div>

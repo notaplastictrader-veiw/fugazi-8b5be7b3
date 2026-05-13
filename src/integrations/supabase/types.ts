@@ -1145,6 +1145,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_enabled: boolean
+          forum_replies: boolean
+          id: string
+          inapp_enabled: boolean
+          last_digest_sent_at: string | null
+          new_match_alerts: boolean
+          scam_alerts: boolean
+          updated_at: string
+          user_id: string
+          weekly_digest: boolean
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean
+          forum_replies?: boolean
+          id?: string
+          inapp_enabled?: boolean
+          last_digest_sent_at?: string | null
+          new_match_alerts?: boolean
+          scam_alerts?: boolean
+          updated_at?: string
+          user_id: string
+          weekly_digest?: boolean
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean
+          forum_replies?: boolean
+          id?: string
+          inapp_enabled?: boolean
+          last_digest_sent_at?: string | null
+          new_match_alerts?: boolean
+          scam_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+          weekly_digest?: boolean
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1679,6 +1721,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_matches: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          name: string
+          notify_on_new: boolean
+          result: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          notify_on_new?: boolean
+          result?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          notify_on_new?: boolean
+          result?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          name: string
+          notify_on_new: boolean
+          scope: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          notify_on_new?: boolean
+          scope?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          name?: string
+          notify_on_new?: boolean
+          scope?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       scam_alerts: {
         Row: {
