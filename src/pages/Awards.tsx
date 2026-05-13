@@ -1,17 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Loader2, Check, Sparkles } from "lucide-react";
+import { Trophy, Loader2, Check, Sparkles, Lock, Clock, Send } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-type Category = { id: string; slug: string; title: string; description: string; year: number };
+type Category = { id: string; slug: string; title: string; description: string; year: number; voting_starts_at: string | null; voting_ends_at: string | null; nominations_open: boolean };
 type Nominee = { id: string; category_id: string; broker_id: string | null; title: string; subtitle: string; logo_url: string; vote_count: number };
 
 const YEAR = new Date().getFullYear();
+
+function windowState(c: Category): "upcoming" | "open" | "closed" {
+  const now = Date.now();
+  if (c.voting_starts_at && now < new Date(c.voting_starts_at).getTime()) return "upcoming";
+  if (c.voting_ends_at && now > new Date(c.voting_ends_at).getTime()) return "closed";
+  return "open";
+}
 
 export default function Awards() {
   const { user } = useAuth();
