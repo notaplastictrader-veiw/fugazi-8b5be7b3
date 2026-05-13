@@ -25,7 +25,7 @@ const ResearchPromptsAdmin = () => {
 
   return (
     <div className="space-y-6">
-      <SEO title="Research Prompts | NAFT Admin" />
+      <SEO title="Research Prompts | NAFT Admin" description="Copy strict-JSON research prompts for content entities." />
 
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
