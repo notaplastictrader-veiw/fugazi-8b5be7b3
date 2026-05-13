@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import TopTradersRail from "@/components/forum/TopTradersRail";
 
 const CATEGORIES = ["general", "broker-talk", "scam-watch", "strategy", "psychology", "off-topic"];
 
@@ -177,7 +178,9 @@ export default function Forum() {
             ))}
           </div>
 
-          {/* Threads */}
+          {/* Threads + sidebar */}
+          <div className="grid lg:grid-cols-[1fr_280px] gap-6 items-start">
+            <div>
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -218,6 +221,11 @@ export default function Forum() {
               ))}
             </div>
           )}
+            </div>
+            <div className="hidden lg:block sticky top-24">
+              <TopTradersRail />
+            </div>
+          </div>
         </div>
       </section>
     </MainLayout>

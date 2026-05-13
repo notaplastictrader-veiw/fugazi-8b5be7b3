@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MessageSquare, Loader2, Lock, Pin, Send } from "lucide-react";
+import { ArrowLeft, MessageSquare, Loader2, Lock, Pin, Send, Award, Check } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,17 @@ export default function ForumThread() {
     load();
   }
 
+  async function markBestAnswer(replyId: string) {
+    if (!thread || !user || user.id !== thread.user_id) return;
+    const next = thread.best_reply_id === replyId ? null : replyId;
+    const { error } = await supabase
+      .from("forum_threads")
+      .update({ best_reply_id: next })
+      .eq("id", thread.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Marked as best answer" : "Unmarked");
+    setThread({ ...thread, best_reply_id: next });
+  }
   if (loading) return <MainLayout><div className="flex justify-center py-32"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div></MainLayout>;
   if (!thread) return <MainLayout><div className="text-center py-32 text-muted-foreground">Thread not found.</div></MainLayout>;
 
@@ -81,13 +92,38 @@ export default function ForumThread() {
           </h2>
 
           <div className="space-y-3 mb-8">
-            {replies.map(r => (
-              <div key={r.id} className="p-4 rounded-lg border border-border bg-card/60">
-                <div className="text-xs text-muted-foreground font-mono mb-2">{new Date(r.created_at).toLocaleString()}</div>
-                <p className="text-sm text-foreground/90 whitespace-pre-wrap mb-3">{r.body}</p>
-                <ReactionBar targetType="reply" targetId={r.id} />
-              </div>
-            ))}
+            {[...replies].sort((a, b) => {
+              if (a.id === thread.best_reply_id) return -1;
+              if (b.id === thread.best_reply_id) return 1;
+              return 0;
+            }).map(r => {
+              const isBest = r.id === thread.best_reply_id;
+              const isAuthor = user && user.id === thread.user_id;
+              return (
+                <div key={r.id} className={`p-4 rounded-lg border ${isBest ? "border-primary bg-primary/5" : "border-border bg-card/60"}`}>
+                  {isBest && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary mb-2">
+                      <Award className="w-3.5 h-3.5" /> Best Answer
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground font-mono mb-2">{new Date(r.created_at).toLocaleString()}</div>
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap mb-3">{r.body}</p>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <ReactionBar targetType="reply" targetId={r.id} />
+                    {isAuthor && (
+                      <button
+                        onClick={() => markBestAnswer(r.id)}
+                        className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded border transition flex items-center gap-1 ${
+                          isBest ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+                        }`}
+                      >
+                        <Check className="w-3 h-3" /> {isBest ? "Best Answer" : "Mark Best"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {thread.locked ? (

@@ -4,12 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import MainLayout from "@/components/layout/MainLayout";
 import ProfileHeader from "@/components/profile/ProfileHeader";
+import FollowButton from "@/components/profile/FollowButton";
+import JournalStatsPanel from "@/components/profile/JournalStatsPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, MessageSquare, AlertTriangle, TrendingUp, User } from "lucide-react";
+import { Lock, MessageSquare, AlertTriangle, TrendingUp, User, Users } from "lucide-react";
+import { useState } from "react";
 
 const UserProfile = () => {
   const { username } = useParams<{ username: string }>();
-
+  const [followerDelta, setFollowerDelta] = useState(0);
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async () => {
@@ -78,6 +81,18 @@ const UserProfile = () => {
     enabled: !!profile?.user_id && profile?.show_complaints,
   });
 
+  const { data: followerCount } = useQuery({
+    queryKey: ["profile-followers", profile?.user_id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("profile_follows")
+        .select("*", { count: "exact", head: true })
+        .eq("followed_id", profile!.user_id);
+      return count ?? 0;
+    },
+    enabled: !!profile?.user_id,
+  });
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -132,6 +147,18 @@ const UserProfile = () => {
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <ProfileHeader profile={profile as any} stats={stats} />
+
+        <div className="flex flex-wrap items-center justify-between gap-3 -mt-3 px-1">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="font-mono"><span className="text-foreground font-semibold">{(followerCount ?? 0) + followerDelta}</span> followers</span>
+          </div>
+          <FollowButton targetUserId={profile.user_id} onCountChange={(d) => setFollowerDelta((p) => p + d)} />
+        </div>
+
+        {(profile as any).show_journal_stats && (
+          <JournalStatsPanel userId={profile.user_id} />
+        )}
 
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="w-full justify-start bg-card border border-border rounded-xl p-1 gap-1">

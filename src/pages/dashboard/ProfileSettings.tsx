@@ -46,6 +46,7 @@ const ProfileSettings = () => {
   const [showRealName, setShowRealName] = useState(true);
   const [showCountry, setShowCountry] = useState(true);
   const [showComplaints, setShowComplaints] = useState(true);
+  const [showJournalStats, setShowJournalStats] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
 
   const { data: profile } = useQuery({
@@ -81,6 +82,7 @@ const ProfileSettings = () => {
       setShowRealName(profile.show_real_name ?? true);
       setShowCountry(profile.show_country ?? true);
       setShowComplaints(profile.show_complaints ?? true);
+      setShowJournalStats((profile as any).show_journal_stats ?? false);
       setAvatarUrl(profile.avatar_url || "");
     }
   }, [profile]);
@@ -97,6 +99,7 @@ const ProfileSettings = () => {
         show_real_name: showRealName,
         show_country: showCountry,
         show_complaints: showComplaints,
+        show_journal_stats: showJournalStats,
         avatar_url: avatarUrl || null,
       };
 
@@ -352,6 +355,14 @@ const ProfileSettings = () => {
                 <p className="text-xs text-muted-foreground">Display complaints on public profile</p>
               </div>
               <Switch checked={showComplaints} onCheckedChange={setShowComplaints} />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-foreground">Show Trade Journal Stats</p>
+                <p className="text-xs text-muted-foreground">Publish your win rate, P&amp;L, and trade count on your public profile</p>
+              </div>
+              <Switch checked={showJournalStats} onCheckedChange={setShowJournalStats} />
             </div>
           </div>
         )}
