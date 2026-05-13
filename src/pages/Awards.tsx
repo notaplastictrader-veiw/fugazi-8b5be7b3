@@ -93,12 +93,15 @@ export default function Awards() {
               The only broker awards voted by the people who actually trade.
               No pay-to-play. No sponsored picks. One vote, one trader.
             </p>
-            <Link
-              to="/awards/results"
-              className="inline-flex items-center gap-2 mt-4 text-sm text-primary hover:underline font-mono uppercase tracking-wider"
-            >
-              View live winners →
-            </Link>
+            <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
+              <Link to="/awards/results" className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+                Live winners →
+              </Link>
+              <Link to={`/reports/${YEAR}`} className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-mono uppercase tracking-wider">
+                State of brokers {YEAR} →
+              </Link>
+              <NominateButton categories={categories.filter(c => c.nominations_open)} />
+            </div>
           </div>
 
           {loading ? (
