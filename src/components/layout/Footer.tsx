@@ -61,6 +61,17 @@ const defaultColumns = [
     ],
   },
   {
+    title: "Resources",
+    links: [
+      { label: "Trading Glossary", href: "/glossary" },
+      { label: "Regulators Explained", href: "/regulators" },
+      { label: "Brokers in Bangladesh", href: "/brokers/country/bangladesh" },
+      { label: "Brokers in India", href: "/brokers/country/india" },
+      { label: "Brokers in Pakistan", href: "/brokers/country/pakistan" },
+      { label: "Brokers in UAE", href: "/brokers/country/uae" },
+    ],
+  },
+  {
     title: "Company",
     links: [
       { label: "Partnership", href: "/partnership" },
