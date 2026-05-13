@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, ArrowUpRight } from "lucide-react";
+import { Sparkles, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import NeonCard from "@/components/ui/NeonCard";
 import DiscountChip from "@/components/ui/DiscountChip";
 
@@ -23,6 +23,13 @@ const parsePct = (s?: string): number => {
 
 const FeaturedOffersCarousel = () => {
   const [offers, setOffers] = useState<FeaturedOffer[]>([]);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollBy = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * (el.clientWidth * 0.85), behavior: "smooth" });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -61,11 +68,33 @@ const FeaturedOffersCarousel = () => {
             Exclusive Offers · Updated Today
           </span>
         </div>
-        <Link to="/promotions" className="text-xs text-primary hover:underline font-mono">
-          See all →
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Scroll offers left"
+            onClick={() => scrollBy(-1)}
+            className="hidden md:flex w-7 h-7 rounded-full border border-border bg-card/60 items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Scroll offers right"
+            onClick={() => scrollBy(1)}
+            className="hidden md:flex w-7 h-7 rounded-full border border-border bg-card/60 items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <Link to="/promotions" className="text-xs text-primary hover:underline font-mono">
+            See all →
+          </Link>
+        </div>
       </div>
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory">
+      <div
+        ref={scrollerRef}
+        className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
+      >
         {offers.map((offer) => {
           const pct = parsePct(offer.bonus_amount);
           const card = (
