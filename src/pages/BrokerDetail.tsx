@@ -1195,7 +1195,7 @@ const BrokerDetail = () => {
             <DialogDescription>Enlarged review photo</DialogDescription>
           </DialogHeader>
           {lightboxUrl && (
-            <img src={lightboxUrl} alt="Review photo" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
+            <img loading="lazy" decoding="async" src={lightboxUrl} alt="Review photo" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
           )}
         </DialogContent>
       </Dialog>

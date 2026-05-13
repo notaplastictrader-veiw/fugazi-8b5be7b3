@@ -13,6 +13,7 @@ import AnalyticsTracker from "@/components/AnalyticsTracker";
 import InstallAppPrompt from "@/components/InstallAppPrompt";
 import { useReferralTracking } from "@/hooks/useReferralTracking";
 import LayoutSkeleton from "@/components/layout/LayoutSkeleton";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Eager-loaded pages (critical path)
 import Index from "./pages/Index";
@@ -123,6 +124,7 @@ const AdvertiseEnquiriesAdmin = lazy(() => import("./pages/admin/AdvertiseEnquir
 const AdvertiseCampaignsAdmin = lazy(() => import("./pages/admin/AdvertiseCampaignsAdmin"));
 const ForumAdmin = lazy(() => import("./pages/admin/ForumAdmin"));
 const AwardsAdmin = lazy(() => import("./pages/admin/AwardsAdmin"));
+const ErrorLogAdmin = lazy(() => import("./pages/admin/ErrorLogAdmin"));
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
@@ -260,6 +262,7 @@ const AppContent = () => {
             <Route path="user-dashboard" element={<UserDashboardAdmin />} />
             <Route path="referrals" element={<ReferralAnalyticsAdmin />} />
             <Route path="audit-log" element={<AuditLog />} />
+            <Route path="errors" element={<ErrorLogAdmin />} />
             <Route path="education" element={<EducationAdmin />} />
             <Route path="courses" element={<CoursesAdmin />} />
             <Route path="trading-ideas" element={<TradingIdeasAdmin />} />
@@ -311,19 +314,21 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
-        <AuthProvider>
-          <I18nProvider>
-            <AppContent />
-          </I18nProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+          <AuthProvider>
+            <I18nProvider>
+              <AppContent />
+            </I18nProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

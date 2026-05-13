@@ -164,7 +164,7 @@ function BrokerCard({ rank, broker, stat, flagged }: { rank: number; broker: any
       <div className="flex items-center gap-3">
         <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-mono font-bold ${flagged ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"}`}>{rank}</div>
         {broker.logo_url ? (
-          <img src={broker.logo_url} alt={broker.name} className="w-10 h-10 rounded object-contain bg-muted/40 p-1" />
+          <img loading="lazy" decoding="async" src={broker.logo_url} alt={broker.name} className="w-10 h-10 rounded object-contain bg-muted/40 p-1" />
         ) : (
           <div className="w-10 h-10 rounded bg-muted flex items-center justify-center text-primary font-bold">{broker.name?.charAt(0)}</div>
         )}

@@ -165,7 +165,7 @@ export default function Awards() {
                             >
                               <div className="flex items-start gap-3 mb-3">
                                 {n.logo_url ? (
-                                  <img src={n.logo_url} alt={n.title} className="w-12 h-12 rounded-lg object-contain bg-muted/40 p-1" />
+                                  <img loading="lazy" decoding="async" src={n.logo_url} alt={n.title} className="w-12 h-12 rounded-lg object-contain bg-muted/40 p-1" />
                                 ) : (
                                   <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-primary font-display font-bold">
                                     {n.title.charAt(0)}

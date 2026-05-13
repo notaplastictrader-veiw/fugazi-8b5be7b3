@@ -13,7 +13,7 @@ const SponsoredBy = ({ placement, label = "Powered by" }: { placement: string; l
     >
       <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
       {top.sponsor_logo_url && (
-        <img src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-6 h-6 rounded object-cover" />
+        <img loading="lazy" decoding="async" src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-6 h-6 rounded object-cover" />
       )}
       <span className="text-sm font-display font-bold text-foreground group-hover:text-accent transition-colors">{top.sponsor_name}</span>
     </a>

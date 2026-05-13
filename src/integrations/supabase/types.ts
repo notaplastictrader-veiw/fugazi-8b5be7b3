@@ -795,6 +795,42 @@ export type Database = {
         }
         Relationships: []
       }
+      client_error_log: {
+        Row: {
+          app_version: string | null
+          created_at: string
+          id: string
+          message: string
+          route: string | null
+          severity: string
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          route?: string | null
+          severity?: string
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          route?: string | null
+          severity?: string
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       complaints: {
         Row: {
           broker_id: string | null

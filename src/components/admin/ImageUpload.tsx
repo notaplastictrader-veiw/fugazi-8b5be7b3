@@ -63,7 +63,7 @@ export const ImageUpload = ({
       <div className="flex items-start gap-3">
         {value ? (
           <div className="relative w-20 h-20 rounded-md border border-border overflow-hidden bg-muted/30 flex-shrink-0">
-            <img src={value} alt="" className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={value} alt="" className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => onChange("")}

@@ -24,7 +24,7 @@ const NotFound = () => {
       <div className="flex min-h-[70vh] items-center justify-center px-4 py-16">
         <div className="text-center max-w-xl">
           <div className="flex justify-center mb-6">
-            <img src={logoSrc} alt="NAFT" className="w-16 h-16 drop-shadow-[0_0_16px_hsl(var(--primary)/0.3)]" />
+            <img loading="lazy" decoding="async" src={logoSrc} alt="NAFT" className="w-16 h-16 drop-shadow-[0_0_16px_hsl(var(--primary)/0.3)]" />
           </div>
           <h1 className="mb-3 text-7xl font-display font-black text-foreground tracking-tight">404</h1>
           <p className="mb-2 text-lg text-foreground font-semibold">This page is a Fugazi.</p>

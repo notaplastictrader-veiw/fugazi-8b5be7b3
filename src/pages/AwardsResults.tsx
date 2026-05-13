@@ -80,7 +80,7 @@ export default function AwardsResults() {
                     <div className="p-6 flex items-center gap-4 border-b border-border">
                       <div className="relative shrink-0">
                         {winner.logo_url ? (
-                          <img src={winner.logo_url} alt={winner.title} className="w-16 h-16 rounded-xl object-contain bg-background p-2 ring-2 ring-primary/40" />
+                          <img loading="lazy" decoding="async" src={winner.logo_url} alt={winner.title} className="w-16 h-16 rounded-xl object-contain bg-background p-2 ring-2 ring-primary/40" />
                         ) : (
                           <div className="w-16 h-16 rounded-xl bg-primary/15 flex items-center justify-center text-primary text-2xl font-display font-extrabold ring-2 ring-primary/40">{winner.title.charAt(0)}</div>
                         )}
@@ -103,7 +103,7 @@ export default function AwardsResults() {
                           <div key={n.id} className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border">
                             <Medal className={`w-4 h-4 shrink-0 ${i === 0 ? "text-foreground/70" : "text-amber-600"}`} />
                             {n.logo_url ? (
-                              <img src={n.logo_url} alt={n.title} className="w-8 h-8 rounded object-contain bg-muted/40 p-1 shrink-0" />
+                              <img loading="lazy" decoding="async" src={n.logo_url} alt={n.title} className="w-8 h-8 rounded object-contain bg-muted/40 p-1 shrink-0" />
                             ) : (
                               <div className="w-8 h-8 rounded bg-muted shrink-0" />
                             )}
