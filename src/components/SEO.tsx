@@ -41,7 +41,7 @@ const upsertLink = (rel: string, href: string, hreflang?: string) => {
   el.setAttribute("href", href);
 };
 
-const SEO = ({ title, description, path = "/", image, type = "website" }: SEOProps) => {
+const SEO = ({ title, description, path = "/", image, type = "website", jsonLd, breadcrumbs }: SEOProps) => {
   const fullTitle = path === "/" ? title : `${title} | ${SITE_NAME}`;
   const canonical = `${BASE_URL}${path}`;
   const ogImage = image || DEFAULT_IMAGE;
@@ -75,7 +75,34 @@ const SEO = ({ title, description, path = "/", image, type = "website" }: SEOPro
     setMeta("name", "twitter:description", description);
     setMeta("name", "twitter:image", ogImage);
     setMeta("name", "twitter:site", "@notafugazitrader");
-  }, [fullTitle, description, canonical, ogImage, type, path]);
+
+    // JSON-LD: clear previous per-route schemas, then inject
+    document.querySelectorAll('script[data-seo-jsonld="route"]').forEach((n) => n.remove());
+
+    const schemas: Record<string, any>[] = [];
+    if (jsonLd) {
+      Array.isArray(jsonLd) ? schemas.push(...jsonLd) : schemas.push(jsonLd);
+    }
+    if (breadcrumbs && breadcrumbs.length > 0) {
+      schemas.push({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumbs.map((b, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: b.name,
+          item: b.url.startsWith("http") ? b.url : `${BASE_URL}${b.url}`,
+        })),
+      });
+    }
+    schemas.forEach((schema) => {
+      const s = document.createElement("script");
+      s.type = "application/ld+json";
+      s.setAttribute("data-seo-jsonld", "route");
+      s.text = JSON.stringify(schema);
+      document.head.appendChild(s);
+    });
+  }, [fullTitle, description, canonical, ogImage, type, path, jsonLd, breadcrumbs]);
 
   return null;
 };
