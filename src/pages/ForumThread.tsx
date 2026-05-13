@@ -92,13 +92,38 @@ export default function ForumThread() {
           </h2>
 
           <div className="space-y-3 mb-8">
-            {replies.map(r => (
-              <div key={r.id} className="p-4 rounded-lg border border-border bg-card/60">
-                <div className="text-xs text-muted-foreground font-mono mb-2">{new Date(r.created_at).toLocaleString()}</div>
-                <p className="text-sm text-foreground/90 whitespace-pre-wrap mb-3">{r.body}</p>
-                <ReactionBar targetType="reply" targetId={r.id} />
-              </div>
-            ))}
+            {[...replies].sort((a, b) => {
+              if (a.id === thread.best_reply_id) return -1;
+              if (b.id === thread.best_reply_id) return 1;
+              return 0;
+            }).map(r => {
+              const isBest = r.id === thread.best_reply_id;
+              const isAuthor = user && user.id === thread.user_id;
+              return (
+                <div key={r.id} className={`p-4 rounded-lg border ${isBest ? "border-primary bg-primary/5" : "border-border bg-card/60"}`}>
+                  {isBest && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-primary mb-2">
+                      <Award className="w-3.5 h-3.5" /> Best Answer
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground font-mono mb-2">{new Date(r.created_at).toLocaleString()}</div>
+                  <p className="text-sm text-foreground/90 whitespace-pre-wrap mb-3">{r.body}</p>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <ReactionBar targetType="reply" targetId={r.id} />
+                    {isAuthor && (
+                      <button
+                        onClick={() => markBestAnswer(r.id)}
+                        className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded border transition flex items-center gap-1 ${
+                          isBest ? "border-primary text-primary" : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+                        }`}
+                      >
+                        <Check className="w-3 h-3" /> {isBest ? "Best Answer" : "Mark Best"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {thread.locked ? (
