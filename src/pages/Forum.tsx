@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import TopTradersRail from "@/components/forum/TopTradersRail";
 
 const CATEGORIES = ["general", "broker-talk", "scam-watch", "strategy", "psychology", "off-topic"];
 
