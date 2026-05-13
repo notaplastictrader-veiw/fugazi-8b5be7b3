@@ -63,6 +63,7 @@ const defaultColumns = [
   {
     title: "Resources",
     links: [
+      { label: "Trading Calculators", href: "/calculators" },
       { label: "Trading Glossary", href: "/glossary" },
       { label: "Regulators Explained", href: "/regulators" },
       { label: "Brokers in Bangladesh", href: "/brokers/country/bangladesh" },
