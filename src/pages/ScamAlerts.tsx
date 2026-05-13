@@ -13,6 +13,8 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
+import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 import CTABand from "@/components/common/CTABand";
 
 interface ScamAlert {
@@ -136,6 +138,9 @@ const ScamAlerts = () => {
           )}
 
           <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+
+          <div className="mt-8"><SponsoredBanner placement="scam-alerts-mid" /></div>
+          <div className="mt-8 max-w-3xl mx-auto"><BecomeSponsorCard variant="inline" context="Scam Alerts" /></div>
         </div>
       </section>
       <ReportScamModal open={reportOpen} onOpenChange={setReportOpen} />

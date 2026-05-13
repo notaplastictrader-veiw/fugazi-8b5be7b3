@@ -13,6 +13,9 @@ import { EmptyResults } from "@/components/common/EmptyResults";
 import NeonCard from "@/components/ui/NeonCard";
 import CTABand from "@/components/common/CTABand";
 import { Radio } from "lucide-react";
+import PremiumSignalsTier from "@/components/sections/PremiumSignalsTier";
+import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
+import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
@@ -124,6 +127,14 @@ const Signals = () => {
           )}
 
           <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+
+          <div className="mt-8"><SponsoredBanner placement="signals-mid" /></div>
+
+          <PremiumSignalsTier />
+
+          <div className="mt-12 max-w-4xl mx-auto">
+            <BecomeSponsorCard context="the Signals hub" />
+          </div>
         </div>
       </section>
     </MainLayout>
