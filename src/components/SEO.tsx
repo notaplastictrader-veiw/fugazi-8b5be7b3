@@ -6,6 +6,10 @@ interface SEOProps {
   path?: string;
   image?: string;
   type?: string;
+  /** Optional JSON-LD schema(s). Pass a single object or array. Auto-injects/cleans. */
+  jsonLd?: Record<string, any> | Record<string, any>[];
+  /** Convenience: list of {name, url} for BreadcrumbList schema */
+  breadcrumbs?: { name: string; url: string }[];
 }
 
 const SITE_NAME = "Not A Fugazi Trader";
