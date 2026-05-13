@@ -6,6 +6,7 @@ import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, X, Star, Shield, AlertTriangle } from "lucide-react";
+import CostCalculator from "@/components/calculators/CostCalculator";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null; score: number | null;
@@ -140,6 +141,9 @@ const Compare = () => {
             </Select>
           )}
         </div>
+
+        {/* Cost Calculator */}
+        {compared.length >= 2 && <CostCalculator brokers={compared} />}
 
         {/* Table */}
         {compared.length >= 2 ? (

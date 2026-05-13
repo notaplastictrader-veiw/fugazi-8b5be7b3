@@ -24,6 +24,7 @@ import AuthModal from "@/components/modals/AuthModal";
 import TrustLight from "@/components/broker/TrustLight";
 import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
+import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
@@ -1064,7 +1065,7 @@ const BrokerDetail = () => {
             </TabsContent>
 
             {/* ===== COMPARISON TAB ===== */}
-            <TabsContent value="comparison" className="mt-6">
+            <TabsContent value="comparison" className="mt-6 space-y-6">
               <div className="glass-card rounded-xl p-8 text-center">
                 <GitCompare className="w-10 h-10 text-primary mx-auto mb-3" />
                 <h2 className="text-xl font-display font-bold text-foreground mb-2">Compare {broker.name}</h2>
@@ -1077,6 +1078,16 @@ const BrokerDetail = () => {
                     Start Comparison
                   </Link>
                 </Button>
+              </div>
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="font-display font-bold text-lg mb-1">Position Size Calculator</h3>
+                <p className="text-xs text-muted-foreground mb-4">Size your trade on {broker.name} based on your account risk.</p>
+                <PositionSizeCalculator compact />
+                <div className="text-center mt-4">
+                  <Link to="/calculators" className="text-xs font-mono text-primary hover:underline">
+                    Open full calculators →
+                  </Link>
+                </div>
               </div>
             </TabsContent>
 

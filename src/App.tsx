@@ -64,6 +64,7 @@ const CountryBrokers = lazy(() => import("./pages/CountryBrokers"));
 const GlossaryIndex = lazy(() => import("./pages/GlossaryIndex"));
 const GlossaryDetail = lazy(() => import("./pages/GlossaryDetail"));
 const CompareVs = lazy(() => import("./pages/CompareVs"));
+const Calculators = lazy(() => import("./pages/Calculators"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -198,6 +199,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/compare/:vsSlug" element={<CompareVs />} />
+          <Route path="/calculators" element={<Calculators />} />
           <Route path="/regulators" element={<RegulatorsIndex />} />
           <Route path="/regulators/:slug" element={<RegulatorDetail />} />
           <Route path="/glossary" element={<GlossaryIndex />} />
