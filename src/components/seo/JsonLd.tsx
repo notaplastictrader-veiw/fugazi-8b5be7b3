@@ -84,7 +84,8 @@ export const faqSchema = (
   })),
 });
 
-// Aggregate broker review (rich result with stars)
+// Aggregate broker review (rich result with stars). Optional `reviews` array
+// emits per-review Review entries for richer SERP eligibility.
 export const brokerReviewSchema = (broker: {
   name: string;
   slug: string;
@@ -93,21 +94,9 @@ export const brokerReviewSchema = (broker: {
   reviewCount: number;
   description?: string;
   logoUrl?: string;
-}) => ({
-  "@context": "https://schema.org",
-  "@type": "FinancialService",
-  name: broker.name,
-  url: `${SITE_URL}/brokers/${broker.slug}`,
-  ...(broker.logoUrl ? { image: broker.logoUrl } : {}),
-  ...(broker.description ? { description: broker.description } : {}),
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: broker.stars.toFixed(1),
-    bestRating: "5",
-    worstRating: "1",
-    ratingCount: Math.max(broker.reviewCount, 1),
-  },
-  review: {
+  reviews?: { author: string; rating: number; content: string; date: string }[];
+}) => {
+  const editorialReview = {
     "@type": "Review",
     author: { "@type": "Organization", name: SITE_NAME },
     reviewRating: {
@@ -117,8 +106,39 @@ export const brokerReviewSchema = (broker: {
       worstRating: "1",
     },
     publisher: { "@type": "Organization", name: SITE_NAME },
-  },
-});
+  };
+
+  const userReviews = (broker.reviews ?? []).slice(0, 5).map((r) => ({
+    "@type": "Review",
+    author: { "@type": "Person", name: r.author || "Verified Trader" },
+    datePublished: r.date,
+    reviewBody: (r.content || "").slice(0, 500),
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: Math.max(1, Math.min(5, r.rating || 3)).toString(),
+      bestRating: "5",
+      worstRating: "1",
+    },
+  }));
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FinancialService",
+    name: broker.name,
+    url: `${SITE_URL}/brokers/${broker.slug}`,
+    ...(broker.logoUrl ? { image: broker.logoUrl } : {}),
+    ...(broker.description ? { description: broker.description } : {}),
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: (broker.stars || broker.score / 2).toFixed(1),
+      bestRating: "5",
+      worstRating: "1",
+      ratingCount: Math.max(broker.reviewCount, 1),
+      reviewCount: Math.max(broker.reviewCount, 1),
+    },
+    review: [editorialReview, ...userReviews],
+  };
+};
 
 // Article schema for news / education / scam alert detail pages
 export const articleSchema = (article: {
