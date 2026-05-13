@@ -1040,6 +1040,7 @@ export type Database = {
       }
       forum_threads: {
         Row: {
+          best_reply_id: string | null
           body: string
           category: string
           created_at: string
@@ -1055,6 +1056,7 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          best_reply_id?: string | null
           body?: string
           category?: string
           created_at?: string
@@ -1070,6 +1072,7 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          best_reply_id?: string | null
           body?: string
           category?: string
           created_at?: string
@@ -1084,7 +1087,15 @@ export type Database = {
           user_id?: string
           view_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "forum_threads_best_reply_id_fkey"
+            columns: ["best_reply_id"]
+            isOneToOne: false
+            referencedRelation: "forum_replies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       news_articles: {
         Row: {
@@ -1209,6 +1220,27 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_follows: {
+        Row: {
+          created_at: string
+          followed_id: string
+          follower_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_id: string
+          follower_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          followed_id?: string
+          follower_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1225,6 +1257,7 @@ export type Database = {
           reputation_tier: string | null
           show_complaints: boolean | null
           show_country: boolean | null
+          show_journal_stats: boolean
           show_real_name: boolean | null
           social_facebook: string | null
           social_instagram: string | null
@@ -1253,6 +1286,7 @@ export type Database = {
           reputation_tier?: string | null
           show_complaints?: boolean | null
           show_country?: boolean | null
+          show_journal_stats?: boolean
           show_real_name?: boolean | null
           social_facebook?: string | null
           social_instagram?: string | null
@@ -1281,6 +1315,7 @@ export type Database = {
           reputation_tier?: string | null
           show_complaints?: boolean | null
           show_country?: boolean | null
+          show_journal_stats?: boolean
           show_real_name?: boolean | null
           social_facebook?: string | null
           social_instagram?: string | null
