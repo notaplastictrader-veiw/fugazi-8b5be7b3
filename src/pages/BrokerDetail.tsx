@@ -379,6 +379,12 @@ const BrokerDetail = () => {
         reviewCount: broker.review_count,
         description: broker.description,
         logoUrl: broker.logo_url || undefined,
+        reviews: reviews.slice(0, 5).map(r => ({
+          author: r.author || "Verified Trader",
+          rating: r.rating || 3,
+          content: r.content || "",
+          date: (r.created_at || new Date().toISOString()).slice(0, 10),
+        })),
       })} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
