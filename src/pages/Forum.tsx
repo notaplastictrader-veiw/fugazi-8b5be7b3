@@ -221,6 +221,11 @@ export default function Forum() {
               ))}
             </div>
           )}
+            </div>
+            <div className="hidden lg:block sticky top-24">
+              <TopTradersRail />
+            </div>
+          </div>
         </div>
       </section>
     </MainLayout>
