@@ -11,6 +11,8 @@ import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
 import NeonCard from "@/components/ui/NeonCard";
+import CTABand from "@/components/common/CTABand";
+import { Radio } from "lucide-react";
 
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
@@ -68,6 +70,17 @@ const Signals = () => {
             Verified Signal <span className="text-primary">Groups</span>
           </h1>
           <p className="text-sm text-muted-foreground mb-6 max-w-2xl">Every Telegram group listed, reviewed and rated by real traders.</p>
+
+          <CTABand
+            eyebrow="Free for everyone"
+            title="Join the NAFT broadcast — verified signals, zero spam"
+            description="Daily verified setups across Forex, Gold, and Crypto — straight from our analyst desk to your Telegram."
+            primaryLabel="Join Free Channel"
+            primaryTo="/signals/naft-broadcast"
+            secondaryLabel="Browse all groups ↓"
+            secondaryTo="#all-groups"
+            icon={Radio}
+          />
 
           <ListingToolbar
             query={query}

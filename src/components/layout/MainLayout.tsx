@@ -5,6 +5,7 @@ import TickerBar from "@/components/sections/TickerBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import MobileBottomNav from "./MobileBottomNav";
+import ExitIntentModal from "@/components/ExitIntentModal";
 
 const routeNames: Record<string, string> = {
   brokers: "Broker Reviews",
@@ -78,6 +79,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <TickerBar />
       </div>
       {!isDashboard && <MobileBottomNav />}
+      {!isDashboard && <ExitIntentModal />}
     </div>
   );
 };
