@@ -56,17 +56,17 @@ const Index = () => {
       <HeroSection />
       <FeaturedOffersCarousel />
       <TrustStrip />
+      <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
       <AIMatcherTeaser />
-      <ScamAlertSection />
+      <HomepageCalendarWidget />
+      <LatestForexNews />
       <SignalChannel />
       <SignalHub />
       <ForecastSection />
-      <HomepageCalendarWidget />
-      <LatestForexNews />
-      <HowItWorks />
       <CommunityReviews />
+      <HowItWorks />
       <BrokerJoinSection />
     </MainLayout>
   );
