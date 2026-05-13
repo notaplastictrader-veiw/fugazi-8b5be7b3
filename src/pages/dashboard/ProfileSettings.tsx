@@ -99,6 +99,7 @@ const ProfileSettings = () => {
         show_real_name: showRealName,
         show_country: showCountry,
         show_complaints: showComplaints,
+        show_journal_stats: showJournalStats,
         avatar_url: avatarUrl || null,
       };
 
