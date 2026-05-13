@@ -1,1 +1,4 @@
 project_id = "jclmhealhirenkyonyjp"
+
+[functions.sitemap]
+verify_jwt = false
