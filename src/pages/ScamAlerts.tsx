@@ -85,18 +85,7 @@ const ScamAlerts = () => {
             icon={ShieldAlert}
             variant="destructive"
           />
-            secondaryLabel="How we verify →"
-            secondaryTo="/how-we-review"
-            icon={ShieldAlert}
-            variant="destructive"
-          />
 
-          <div className="flex justify-end mb-4">
-            <Button onClick={() => user ? setReportOpen(true) : setAuthOpen(true)}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-2">
-              <Plus className="w-4 h-4" /> Report a Scam
-            </Button>
-          </div>
 
           <ListingToolbar
             query={query}
