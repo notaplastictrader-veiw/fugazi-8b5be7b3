@@ -1,8 +1,12 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Shield, ArrowUpRight, RotateCw } from "lucide-react";
+import { Sparkles, Shield, ArrowUpRight, RotateCw, Bookmark, Loader2 } from "lucide-react";
 import NeonCard from "@/components/ui/NeonCard";
 import TrustLight from "@/components/broker/TrustLight";
 import StarRating from "@/components/reviews/StarRating";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface Match {
   id: string;
@@ -11,9 +15,29 @@ interface Match {
   match_score: number;
   reasoning: string;
   broker: any;
+  why_tags?: string[];
 }
 
-const MatchResults = ({ matches, onReset }: { matches: Match[]; onReset: () => void }) => {
+const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset: () => void; answers?: any }) => {
+  const { user } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function saveMatch() {
+    if (!user) { toast.error("Sign in to save matches"); return; }
+    setSaving(true);
+    const { error } = await supabase.from("saved_matches").insert({
+      user_id: user.id,
+      name: `Match — ${new Date().toLocaleDateString()}`,
+      answers: answers || {},
+      result: matches.map((m) => ({ id: m.id, slug: m.slug, name: m.name, match_score: m.match_score })),
+    });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    setSaved(true);
+    toast.success("Match saved to your dashboard");
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
