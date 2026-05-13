@@ -9,8 +9,11 @@ interface SEOProps {
 }
 
 const SITE_NAME = "Not A Fugazi Trader";
-const BASE_URL = "https://fugazi.lovable.app";
-const DEFAULT_IMAGE = "https://fugazi.lovable.app/og-image.jpg";
+const BASE_URL = "https://www.notafugazitrader.com";
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
+
+// Locales supported by I18nContext (keep in sync)
+const LOCALES = ["en", "ar", "bn", "hi", "ur", "es", "fr", "ms", "id", "pt", "tr", "ru", "zh", "de", "ja"];
 
 const setMeta = (attr: string, key: string, content: string) => {
   let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -20,6 +23,18 @@ const setMeta = (attr: string, key: string, content: string) => {
     document.head.appendChild(el);
   }
   el.setAttribute("content", content);
+};
+
+const upsertLink = (rel: string, href: string, hreflang?: string) => {
+  const selector = hreflang ? `link[rel="${rel}"][hreflang="${hreflang}"]` : `link[rel="${rel}"]:not([hreflang])`;
+  let el = document.querySelector(selector) as HTMLLinkElement | null;
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    if (hreflang) el.setAttribute("hreflang", hreflang);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
 };
 
 const SEO = ({ title, description, path = "/", image, type = "website" }: SEOProps) => {
@@ -33,13 +48,14 @@ const SEO = ({ title, description, path = "/", image, type = "website" }: SEOPro
     setMeta("name", "description", description);
 
     // Canonical
-    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!link) {
-      link = document.createElement("link");
-      link.setAttribute("rel", "canonical");
-      document.head.appendChild(link);
-    }
-    link.setAttribute("href", canonical);
+    upsertLink("canonical", canonical);
+
+    // Hreflang alternates (15 locales + x-default)
+    LOCALES.forEach((loc) => {
+      const href = `${BASE_URL}${path}${path.includes("?") ? "&" : "?"}lang=${loc}`;
+      upsertLink("alternate", href, loc);
+    });
+    upsertLink("alternate", canonical, "x-default");
 
     // Open Graph
     setMeta("property", "og:type", type);
@@ -55,7 +71,7 @@ const SEO = ({ title, description, path = "/", image, type = "website" }: SEOPro
     setMeta("name", "twitter:description", description);
     setMeta("name", "twitter:image", ogImage);
     setMeta("name", "twitter:site", "@notafugazitrader");
-  }, [fullTitle, description, canonical, ogImage, type]);
+  }, [fullTitle, description, canonical, ogImage, type, path]);
 
   return null;
 };
