@@ -138,7 +138,7 @@ const PostIdeaModal = ({ open, onClose }: Props) => {
             />
             {chartPreview ? (
               <div className="relative rounded-lg overflow-hidden border border-border">
-                <img src={chartPreview} alt="Chart preview" className="w-full max-h-48 object-cover" />
+                <img loading="lazy" decoding="async" src={chartPreview} alt="Chart preview" className="w-full max-h-48 object-cover" />
                 <button
                   onClick={() => { setChartImage(null); setChartPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
                   className="absolute top-2 right-2 px-2 py-1 text-xs bg-destructive text-destructive-foreground rounded"

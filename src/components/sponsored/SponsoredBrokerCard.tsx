@@ -18,7 +18,7 @@ const SponsoredBrokerCard = () => {
       <div className="flex items-start gap-3 mb-4">
         <div className="w-12 h-12 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center shrink-0 overflow-hidden">
           {top.sponsor_logo_url ? (
-            <img src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-full h-full object-cover" />
           ) : (
             <span className="text-lg font-display font-extrabold text-accent">{top.sponsor_name.charAt(0)}</span>
           )}

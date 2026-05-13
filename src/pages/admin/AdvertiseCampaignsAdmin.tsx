@@ -158,7 +158,7 @@ const AdvertiseCampaignsAdmin = () => {
           {campaigns.map((c) => (
             <Card key={c.id} className="p-4 flex items-start gap-4">
               {c.sponsor_logo_url && (
-                <img src={c.sponsor_logo_url} alt={c.sponsor_name} className="w-14 h-14 rounded-lg object-cover border border-border shrink-0" />
+                <img loading="lazy" decoding="async" src={c.sponsor_logo_url} alt={c.sponsor_name} className="w-14 h-14 rounded-lg object-cover border border-border shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">

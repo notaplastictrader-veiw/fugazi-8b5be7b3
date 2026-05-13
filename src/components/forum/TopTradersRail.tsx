@@ -47,7 +47,7 @@ const TopTradersRail = () => {
               >
                 <span className="text-xs font-mono text-muted-foreground w-4">{i + 1}</span>
                 {t.avatar_url ? (
-                  <img src={t.avatar_url} alt={name} className="w-8 h-8 rounded-full object-cover border border-border" />
+                  <img loading="lazy" decoding="async" src={t.avatar_url} alt={name} className="w-8 h-8 rounded-full object-cover border border-border" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-[11px] font-display font-bold text-primary">
                     {initials}

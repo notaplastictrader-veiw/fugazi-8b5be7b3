@@ -167,7 +167,7 @@ const PlatformReviewForm = ({ onSuccess }: Props) => {
           <div className="flex flex-wrap gap-2">
             {photos.map((p, i) => (
               <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border">
-                <img src={p.url} alt="" className={`w-full h-full object-cover ${p.uploading ? "opacity-50" : ""}`} />
+                <img loading="lazy" decoding="async" src={p.url} alt="" className={`w-full h-full object-cover ${p.uploading ? "opacity-50" : ""}`} />
                 {p.uploading && (
                   <div className="absolute inset-0 flex items-center justify-center text-[10px] text-foreground bg-background/40">…</div>
                 )}

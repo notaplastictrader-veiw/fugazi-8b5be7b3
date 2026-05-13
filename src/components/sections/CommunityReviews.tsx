@@ -149,7 +149,7 @@ const CommunityReviews = () => {
             <div key={i} className="w-[340px] glass-card rounded-xl p-5">
               <div className="flex items-center gap-3 mb-3">
                 {review.avatar ? (
-                  <img src={review.avatar} alt={review.author} draggable={false} className="w-10 h-10 rounded-full object-cover pointer-events-none" />
+                  <img loading="lazy" decoding="async" src={review.avatar} alt={review.author} draggable={false} className="w-10 h-10 rounded-full object-cover pointer-events-none" />
                 ) : (
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
                     isComplaint ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
@@ -181,7 +181,7 @@ const CommunityReviews = () => {
                       onClick={(e) => { e.stopPropagation(); setLightbox(url); }}
                       className="w-12 h-12 rounded-md overflow-hidden border border-border hover:border-primary transition-colors flex-shrink-0"
                     >
-                      <img src={url} alt={`Review photo ${idx + 1}`} draggable={false} className="w-full h-full object-cover pointer-events-none" />
+                      <img loading="lazy" decoding="async" src={url} alt={`Review photo ${idx + 1}`} draggable={false} className="w-full h-full object-cover pointer-events-none" />
                     </button>
                   ))}
                   {review.photo_urls.length > 4 && (
@@ -212,7 +212,7 @@ const CommunityReviews = () => {
       <Dialog open={!!lightbox} onOpenChange={(o) => !o && setLightbox(null)}>
         <DialogContent className="max-w-3xl p-0 bg-transparent border-0 shadow-none">
           {lightbox && (
-            <img src={lightbox} alt="Review photo" className="w-full h-auto max-h-[85vh] object-contain rounded-lg" />
+            <img loading="lazy" decoding="async" src={lightbox} alt="Review photo" className="w-full h-auto max-h-[85vh] object-contain rounded-lg" />
           )}
         </DialogContent>
       </Dialog>

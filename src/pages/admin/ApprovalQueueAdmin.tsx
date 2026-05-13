@@ -765,7 +765,7 @@ const ApprovalQueueAdmin = () => {
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-muted border border-border overflow-hidden flex items-center justify-center shrink-0">
                     {item.submitter_avatar ? (
-                      <img src={item.submitter_avatar} alt={displayName} className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={item.submitter_avatar} alt={displayName} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-xs font-mono font-semibold text-foreground">{initials}</span>
                     )}
@@ -835,7 +835,7 @@ const ApprovalQueueAdmin = () => {
                       rel="noopener noreferrer"
                       className="block w-20 h-20 rounded-md overflow-hidden border border-border hover:border-primary/40 transition-colors"
                     >
-                      <img src={url} alt={`Review photo ${i + 1}`} className="w-full h-full object-cover" />
+                      <img loading="lazy" decoding="async" src={url} alt={`Review photo ${i + 1}`} className="w-full h-full object-cover" />
                     </a>
                   ))}
                 </div>

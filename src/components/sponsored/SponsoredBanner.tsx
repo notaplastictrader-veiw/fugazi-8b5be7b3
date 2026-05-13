@@ -18,7 +18,7 @@ const SponsoredBanner = ({ placement = "homepage-banner" }: { placement?: string
             <Sparkles className="w-3 h-3" /> Sponsored
           </span>
           {top.sponsor_logo_url && (
-            <img src={top.sponsor_logo_url} alt={`${top.sponsor_name} logo`} className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover bg-background border border-border shrink-0" />
+            <img loading="lazy" decoding="async" src={top.sponsor_logo_url} alt={`${top.sponsor_name} logo`} className="w-14 h-14 md:w-16 md:h-16 rounded-xl object-cover bg-background border border-border shrink-0" />
           )}
           <div className="flex-1 min-w-0">
             <div className="text-[10px] font-mono uppercase tracking-widest text-primary mb-1">{top.sponsor_name}</div>

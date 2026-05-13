@@ -35,7 +35,7 @@ const ProfileHeader = ({ profile, stats }: ProfileHeaderProps) => {
       <div className="flex flex-col sm:flex-row items-start gap-5">
         {/* Avatar */}
         {profile.avatar_url ? (
-          <img src={profile.avatar_url} alt={displayName || ""} className="w-20 h-20 rounded-full object-cover border-2 border-primary/30" />
+          <img loading="lazy" decoding="async" src={profile.avatar_url} alt={displayName || ""} className="w-20 h-20 rounded-full object-cover border-2 border-primary/30" />
         ) : (
           <div className="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center text-2xl font-display font-bold text-primary">
             {initials}

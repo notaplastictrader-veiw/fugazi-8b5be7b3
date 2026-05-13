@@ -14,7 +14,7 @@ const NewsletterSponsorFooter = () => {
       >
         <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Sponsored:</span>
         {top.sponsor_logo_url && (
-          <img src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-7 h-7 rounded object-cover" />
+          <img loading="lazy" decoding="async" src={top.sponsor_logo_url} alt={top.sponsor_name} className="w-7 h-7 rounded object-cover" />
         )}
         <span className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
           {top.headline} {top.subtext && <span className="text-foreground/60">— {top.subtext}</span>}

@@ -121,7 +121,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
-              <img src={logoSrc} alt="NAFT Logo" className="w-9 h-9" />
+              <img loading="lazy" decoding="async" src={logoSrc} alt="NAFT Logo" className="w-9 h-9" />
               <span className="text-xl font-bold text-foreground">
                 {brandName} <span className="text-primary">{brandAccent}</span>
               </span>
