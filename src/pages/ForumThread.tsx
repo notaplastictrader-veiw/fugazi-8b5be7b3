@@ -52,6 +52,17 @@ export default function ForumThread() {
     load();
   }
 
+  async function markBestAnswer(replyId: string) {
+    if (!thread || !user || user.id !== thread.user_id) return;
+    const next = thread.best_reply_id === replyId ? null : replyId;
+    const { error } = await supabase
+      .from("forum_threads")
+      .update({ best_reply_id: next })
+      .eq("id", thread.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Marked as best answer" : "Unmarked");
+    setThread({ ...thread, best_reply_id: next });
+  }
   if (loading) return <MainLayout><div className="flex justify-center py-32"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div></MainLayout>;
   if (!thread) return <MainLayout><div className="text-center py-32 text-muted-foreground">Thread not found.</div></MainLayout>;
 
