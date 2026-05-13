@@ -82,6 +82,7 @@ const ProfileSettings = () => {
       setShowRealName(profile.show_real_name ?? true);
       setShowCountry(profile.show_country ?? true);
       setShowComplaints(profile.show_complaints ?? true);
+      setShowJournalStats((profile as any).show_journal_stats ?? false);
       setAvatarUrl(profile.avatar_url || "");
     }
   }, [profile]);
