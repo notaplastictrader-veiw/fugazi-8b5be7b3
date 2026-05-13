@@ -82,9 +82,20 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
                   <span>· min {m.broker.min_deposit}</span>
                 </div>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  <span className="text-primary font-mono text-[10px] uppercase tracking-widest mr-2">Why</span>
                   {m.reasoning}
                 </p>
+
+                {m.why_tags && m.why_tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {m.why_tags.map((t) => (
+                      <span key={t} className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
+                        {t.replace(/-/g, " ")}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-2">
                   <Link
@@ -106,13 +117,21 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
         ))}
       </div>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+        <button
+          onClick={saveMatch}
+          disabled={saving || saved}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-primary/40 text-primary hover:bg-primary/10 disabled:opacity-50 transition"
+        >
+          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />}
+          {saved ? "Saved to dashboard" : "Save this match"}
+        </button>
         <button
           onClick={onReset}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
           <RotateCw className="w-4 h-4" />
-          Run again with different answers
+          Run again
         </button>
       </div>
     </div>
