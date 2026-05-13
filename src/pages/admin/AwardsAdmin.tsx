@@ -164,6 +164,32 @@ export default function AwardsAdmin() {
         </div>
       </div>
 
+      {pendingNoms.length > 0 && (
+        <div className="rounded-xl border border-primary/40 bg-primary/5 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display font-bold text-foreground">Pending community nominations <span className="text-xs font-mono text-primary ml-2">{pendingNoms.length}</span></h2>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {pendingNoms.map(n => {
+              const cat = cats.find(c => c.id === n.category_id);
+              return (
+                <div key={n.id} className="p-3 rounded-lg bg-card border border-border flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{n.title}</div>
+                    <div className="text-[11px] text-muted-foreground">in <strong>{cat?.title || "—"}</strong></div>
+                    {n.reason && <div className="text-xs text-muted-foreground mt-1 line-clamp-2">"{n.reason}"</div>}
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Button size="sm" onClick={() => reviewNomination(n.id, "approved", n)} className="gap-1"><Save className="w-3 h-3" /> Approve</Button>
+                    <Button size="sm" variant="outline" onClick={() => reviewNomination(n.id, "rejected")} className="text-destructive"><X className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
       ) : cats.length === 0 ? (
