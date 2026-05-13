@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://jclmhealhirenkyonyjp.supabase.co/functions/v1/sitemap"
+    },
+    {
       "source": "/((?!robots\\.txt|sitemap\\.xml|favicon\\.svg|favicon\\.ico|manifest\\.webmanifest|og-image\\.jpg|google.*\\.html|images/.*|icons/.*|assets/.*).*)",
       "destination": "/index.html"
     }

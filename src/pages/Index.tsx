@@ -53,8 +53,8 @@ const Index = () => {
           answer: "No. Sponsored placements are clearly labeled and never affect trust scores or rankings. Independence is the entire reason this platform exists.",
         },
       ])} />
-      <FeaturedOffersCarousel />
       <HeroSection />
+      <FeaturedOffersCarousel />
       <TrustStrip />
       <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />

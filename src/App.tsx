@@ -7,13 +7,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/contexts/I18nContext";
 import CookieConsent from "@/components/CookieConsent";
-import LiveChatButton from "@/components/LiveChatButton";
-import AIChatButton from "@/components/AIChatButton";
+import FloatingActions from "@/components/FloatingActions";
 import SearchPalette from "@/components/search/SearchPalette";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import InstallAppPrompt from "@/components/InstallAppPrompt";
 import { useReferralTracking } from "@/hooks/useReferralTracking";
-import { Skeleton } from "@/components/ui/skeleton";
+import LayoutSkeleton from "@/components/layout/LayoutSkeleton";
 
 // Eager-loaded pages (critical path)
 import Index from "./pages/Index";
@@ -121,16 +120,7 @@ const PortalMyListing = lazy(() => import("./pages/portal/MyListing"));
 
 const queryClient = new QueryClient();
 
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="space-y-4 w-full max-w-md px-4">
-      <Skeleton className="h-8 w-3/4" />
-      <Skeleton className="h-4 w-full" />
-      <Skeleton className="h-4 w-5/6" />
-      <Skeleton className="h-32 w-full rounded-xl" />
-    </div>
-  </div>
-);
+const PageLoader = () => <LayoutSkeleton />;
 
 const AppContent = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -163,8 +153,7 @@ const AppContent = () => {
       <AnalyticsTracker />
       <CookieConsent />
       <InstallAppPrompt />
-      <LiveChatButton />
-      <AIChatButton />
+      <FloatingActions />
       <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} initialQuery={searchQuery} />
       <Suspense fallback={<PageLoader />}>
         <Routes>

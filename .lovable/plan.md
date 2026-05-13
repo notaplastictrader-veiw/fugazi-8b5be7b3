@@ -1,101 +1,59 @@
-# Reality Check + 9.5/10 Push Plan
 
-## Part 1 — What the research missed (already built ✅)
+# Phase 1 Execution Sprint — Critical Fixes Only
 
-The research scored NAFT against generic competitors but didn't see what's actually shipped. Verified in code:
+Scope: Implement the 10 critical items from the audit. Strategy/SEO-moat/monetisation roadmaps will be delivered as a separate document AFTER code lands, so we ship value first instead of writing essays.
 
-| Research said "missing" | Actual NAFT status |
-|---|---|
-| AI broker assistant / chatbot | ✅ `AIChatButton` + `naft-assistant` edge function |
-| AI personalised broker matching | ✅ `/match` page + `broker-matcher` edge function with quiz |
-| Verified trader community / forum | ✅ `Forum` + `ForumThread` + reactions + reports |
-| Side-by-side comparator | ✅ `/compare` (up to 4 brokers) |
-| Annual awards program | ✅ `Awards` + `AwardsResults` + admin |
-| Multi-language support | ✅ 15 languages with RTL |
-| Verified signal groups | ✅ Audited win-rates in Signals service |
-| Real withdrawal proof + scam alerts | ✅ MT4/MT5 ID + photo upload, scam alert system |
-| Live data (prices, news, sports) | ✅ 3 edge functions live |
-| Mobile install (PWA) | ✅ `InstallAppPrompt` |
+## What I'll build (in this order)
 
-**Honest re-score:** NAFT today is closer to **78/100**, not 61. The big remaining gaps are **visibility** (trust badges hidden), **monetisation** (Pro pending), and **polish** (mobile + speed).
+### 1. `/brokers` skeleton-without-navbar fix
+- Move loading skeleton INSIDE `MainLayout` (currently `Brokers.tsx` returns brokers in layout already — verify other listing pages don't return early before layout). Audit `BrokerDetail`, `Signals`, `PropFirms`, `ScamAlerts` for the same race; wrap their early returns in `<MainLayout>`.
+- Impact: kills 400ms layout flash, prevents CLS penalty.
 
----
+### 2. Hero CTA + Trust-count chips
+- Add a primary "Find My Broker in 60s →" CTA button (links to `/match`) directly under the headline, before the search bar. Demote the existing Sparkles "AI Matcher" pill to a secondary text link.
+- Add trust-count chip row under the search: `🛡 280+ Reviewed · ⚖ 14 Regulators · 💰 $2.3M Recovered · 👥 47K Verified Traders` (live from Supabase counts where possible, fallback static).
+- Mobile: stack CTA full-width, chips wrap.
 
-## Part 2 — 9.5/10 Push (what to actually build)
+### 3. Hero density / above-the-fold
+- Reduce hero `min-h-[85vh]` → `min-h-[72vh]`; tighten `mt-[-8px]` paddings and gap between badge/eyebrow.
+- Move `FeaturedOffersCarousel` BELOW hero (currently above — pushes hero down).
 
-Five focused workstreams. Each maps directly to a low-scoring research category.
+### 4. Carousel scrollbar
+- `FeaturedOffersCarousel`: already has `scrollbar-hide` but verify the utility exists in `index.css`; add `[&::-webkit-scrollbar]:hidden` + `scrollbar-width:none`. Add left/right arrow controls that scroll by card width.
 
-### Workstream A — Trust Visibility (research: trust 70 → 95)
-Make the moat *visible* without inventing new infra.
+### 5. Review + AggregateRating + BreadcrumbList JSON-LD on broker pages
+- `BrokerDetail.tsx` already imports `brokerReviewSchema` + `breadcrumbSchema` — verify both are emitted with real review data; add per-review `Review` items (top 5 published reviews with author, rating, date) into the schema for richer SERP stars.
 
-- **"Verified Depositor" chip** on reviews where MT4/MT5 ID + screenshot exist (already in DB). Auto-derived; no new schema.
-- **Trust Score breakdown popover** on broker cards: Regulation / Reviews / Complaints / Last Verified — pulled from existing `brokers` columns.
-- **"Last verified [date]"** stamp on every broker card (column exists: `last_verified_at`).
-- **Withdrawal Proof Wall** section on `BrokerDetail` listing review screenshots tagged as proof.
+### 6. Hreflang in `SEO.tsx`
+- Loop the 15 supported locales and emit `<link rel="alternate" hreflang="xx" href="...">` + `x-default`. Read locale list from `I18nContext`.
 
-### Workstream B — Broker Sentiment + Health Strip (research: data tools 40 → 75)
-Lite version, no external scraping.
+### 7. Dynamic sitemap
+- Add Supabase edge function `sitemap` that queries `brokers`, `scam_alerts`, `news`, `promotions`, `education_articles`, `forum_threads` (published only) and returns XML with proper `lastmod`.
+- Add `vercel.json` rewrite `/sitemap.xml → /functions/v1/sitemap` (keep static fallback at `/sitemap-static.xml`).
 
-- **Sentiment chip** per broker, computed from internal signals: avg review rating (last 90d), complaint velocity, scam alert count. Display: 🟢 Bullish / 🟡 Mixed / 🔴 Cooling. Pure SQL view.
-- **Health strip** on `BrokerDetail`: Reviews (30d), Complaints (30d), Avg Rating Δ vs prior 30d, Last verified. All from existing tables.
-- New DB view `broker_health_metrics` (read-only, RLS public-select).
+### 8. Mobile bottom-nav
+- New `MobileBottomNav.tsx`: 5 items — Home, Brokers, Match (center, elevated), Signals, Account. Visible `<md:hidden`, fixed bottom above `TickerBar` (z-[180]).
+- Add bottom padding to main on mobile to prevent overlap.
 
-### Workstream C — Mobile + Visual Polish (research: design 58 → 90, mobile 48 → 85)
-Frontend only, no backend churn.
+### 9. FAB consolidation
+- Merge `LiveChatButton` (Telegram) + `AIChatButton` into one `FloatingActions.tsx` — single primary FAB that expands radially to 2 actions on tap. Bottom-right, above bottom-nav on mobile.
 
-- Audit all top-3 routes (`/`, `/brokers`, `/brokers/:slug`) at 375px viewport — fix overflow, tap targets, sticky CTAs.
-- Hero: stronger contrast badge, better headline rhythm, animated trust counter ("12,483 verified reviews · 287 brokers tested · $4.2M in withdrawal proofs").
-- Broker cards: redesign to surface trust score + sentiment + last-verified chip in one glance.
-- Add subtle glass-card depth + grain texture on dark theme; tighten light-theme spacing.
-- Mobile bottom nav for top 4 routes.
+### 10. Cleanup
+- Delete unused `src/App.css` (Vite default leftover).
 
-### Workstream D — AI Discoverability (research: UX 62 → 85)
-The AI tools exist but no one finds them.
+## Files touched
+- New: `src/components/layout/MobileBottomNav.tsx`, `src/components/FloatingActions.tsx`, `supabase/functions/sitemap/index.ts`
+- Edited: `src/pages/Brokers.tsx`, `BrokerDetail.tsx`, `Signals.tsx`, `PropFirms.tsx`, `ScamAlerts.tsx` (layout race), `src/components/sections/HeroSection.tsx`, `FeaturedOffersCarousel.tsx`, `src/components/SEO.tsx`, `src/components/seo/JsonLd.tsx`, `src/components/layout/MainLayout.tsx`, `src/pages/Index.tsx`, `vercel.json`
+- Removed: `src/components/AIChatButton.tsx`, `src/components/LiveChatButton.tsx` (replaced), `src/App.css`
 
-- Promote **AI Broker Matcher** to a hero-adjacent CTA on `/` ("Find my broker in 60 seconds").
-- Add **suggested prompts** to `AIChatSheet` ("Best broker for $500 scalping in UK", "Is XM regulated in my country?").
-- New `/ask` landing page that embeds the chat full-screen + showcases sample Q&As — SEO target for "best broker for X" long-tail.
-- Persistent "Ask NAFT AI" pill on `BrokerDetail` pages: "Ask anything about [Broker]".
+## Out of scope for this sprint (delivered as written roadmap doc after)
+- Homepage section reordering beyond hero/carousel swap
+- Full mobile redesign of every card
+- Glossary, programmatic SEO, newsletter, paywall
+- Trust/monetisation infrastructure builds
 
-### Workstream E — SEO + Speed (research: SEO 55 → 85, speed 45 → 85)
-Technical hygiene pass.
+## What you do in parallel
+- Confirm real numbers for trust chips (or I'll use live Supabase counts + "$2.3M Recovered" as configurable site_setting).
+- Confirm Telegram URL for FAB (re-use existing).
 
-- JSON-LD `Review`, `AggregateRating`, `Organization`, `BreadcrumbList` on broker/promo/scam-alert pages.
-- Sitemap.xml generator (edge function or static at build) with all broker/promo/article slugs.
-- `<link rel="preconnect">` for Supabase + image CDNs in `index.html`.
-- Convert hero/broker logos to `loading="lazy"` + explicit width/height to kill CLS.
-- Route-level chunk audit: ensure dashboard + admin chunks aren't pulled on public pages.
-- OpenGraph image generator (edge function returning dynamic PNG per broker/article).
-
-### Workstream F — (Deferred) Pro Paywall
-You rejected Stripe last time. Still open whenever you want monetisation 35 → 80. Not in this build cycle.
-
----
-
-## Order of execution
-
-```text
-Day 1   A. Trust Visibility (DB view + chips)
-Day 1   B. Sentiment + Health strip
-Day 2   C. Mobile + visual polish (hero, cards, bottom nav)
-Day 2   D. AI discoverability (Match CTA, /ask page, prompt chips)
-Day 3   E. SEO + speed (JSON-LD, sitemap, OG generator)
-```
-
-No new auth, no new Stripe, no new external APIs. Everything builds on existing tables and edge functions.
-
----
-
-## What this plan does NOT include
-
-- Pro paywall / Stripe (you rejected it — flag remains open)
-- Native iOS/Android apps (Lovable is web; PWA already exists)
-- On-chain reputation, voice search, spatial/VR charts, biometric login (speculative — not 25-year worthwhile in 2026)
-- Sentiment scraping from Twitter/Reddit (needs paid APIs + legal review — defer)
-- Video reviews (needs storage + moderation pipeline — separate phase)
-
----
-
-## Open question before I build
-
-**Workstream priority** — should I do all five (A→E) sequentially in one go, or pick the top 2 first so you can review impact before continuing? Top-2 recommendation if cherry-picking: **A (Trust Visibility) + C (Mobile + Visual Polish)** — biggest perceived-quality lift per hour of work.
+Ready to execute on approval.
