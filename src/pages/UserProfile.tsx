@@ -81,6 +81,18 @@ const UserProfile = () => {
     enabled: !!profile?.user_id && profile?.show_complaints,
   });
 
+  const { data: followerCount } = useQuery({
+    queryKey: ["profile-followers", profile?.user_id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("profile_follows")
+        .select("*", { count: "exact", head: true })
+        .eq("followed_id", profile!.user_id);
+      return count ?? 0;
+    },
+    enabled: !!profile?.user_id,
+  });
+
   if (isLoading) {
     return (
       <MainLayout>
