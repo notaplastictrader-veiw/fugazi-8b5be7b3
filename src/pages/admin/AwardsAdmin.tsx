@@ -27,6 +27,7 @@ export default function AwardsAdmin() {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [activeCat, setActiveCat] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingNoms, setPendingNoms] = useState<any[]>([]);
 
   // category dialog
   const [catOpen, setCatOpen] = useState(false);
@@ -41,10 +42,12 @@ export default function AwardsAdmin() {
 
   async function load() {
     setLoading(true);
-    const [catsRes, brokersRes] = await Promise.all([
+    const [catsRes, brokersRes, pendingRes] = await Promise.all([
       supabase.from("award_categories").select("*").eq("year", year).order("display_order"),
       supabase.from("brokers").select("id, name, logo_url, slug").eq("status", "published").order("score", { ascending: false }).limit(200),
+      supabase.from("award_nominations").select("*").eq("status", "pending").order("created_at", { ascending: false }),
     ]);
+    setPendingNoms(pendingRes.data || []);
     const catList = (catsRes.data || []) as Cat[];
     setCats(catList);
     setBrokers((brokersRes.data || []) as Broker[]);
