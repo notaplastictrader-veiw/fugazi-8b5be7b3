@@ -125,6 +125,8 @@ const AdvertiseCampaignsAdmin = lazy(() => import("./pages/admin/AdvertiseCampai
 const ForumAdmin = lazy(() => import("./pages/admin/ForumAdmin"));
 const AwardsAdmin = lazy(() => import("./pages/admin/AwardsAdmin"));
 const ErrorLogAdmin = lazy(() => import("./pages/admin/ErrorLogAdmin"));
+const ResearchPromptsAdmin = lazy(() => import("./pages/admin/ResearchPromptsAdmin"));
+const ImportJsonAdmin = lazy(() => import("./pages/admin/ImportJsonAdmin"));
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
@@ -287,6 +289,8 @@ const AppContent = () => {
             <Route path="advertise/campaigns" element={<AdvertiseCampaignsAdmin />} />
             <Route path="forum" element={<ForumAdmin />} />
             <Route path="awards" element={<AwardsAdmin />} />
+            <Route path="research-prompts" element={<ResearchPromptsAdmin />} />
+            <Route path="import-json" element={<ImportJsonAdmin />} />
           </Route>
 
           {/* Provider Portals */}
