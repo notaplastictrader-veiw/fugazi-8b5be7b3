@@ -289,6 +289,8 @@ const AppContent = () => {
             <Route path="advertise/campaigns" element={<AdvertiseCampaignsAdmin />} />
             <Route path="forum" element={<ForumAdmin />} />
             <Route path="awards" element={<AwardsAdmin />} />
+            <Route path="research-prompts" element={<ResearchPromptsAdmin />} />
+            <Route path="import-json" element={<ImportJsonAdmin />} />
           </Route>
 
           {/* Provider Portals */}
