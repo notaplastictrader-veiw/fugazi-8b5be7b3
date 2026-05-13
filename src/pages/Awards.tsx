@@ -118,12 +118,30 @@ export default function Awards() {
                 const noms = nominees.filter(n => n.category_id === cat.id);
                 const totalVotes = noms.reduce((s, n) => s + n.vote_count, 0);
                 const myVote = myVotes[cat.id];
+                const state = windowState(cat);
+                const closed = state === "closed";
+                const upcoming = state === "upcoming";
                 return (
                   <div key={cat.id}>
                     <div className="mb-5">
-                      <div className="flex items-center gap-3 mb-1">
+                      <div className="flex items-center gap-3 mb-1 flex-wrap">
                         <Trophy className="w-5 h-5 text-primary" />
                         <h2 className="font-display font-extrabold text-2xl md:text-3xl text-foreground">{cat.title}</h2>
+                        {upcoming && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                            <Clock className="w-3 h-3" /> Opens {new Date(cat.voting_starts_at!).toLocaleDateString()}
+                          </span>
+                        )}
+                        {closed && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                            <Lock className="w-3 h-3" /> Voting closed
+                          </span>
+                        )}
+                        {state === "open" && cat.voting_ends_at && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-xs font-mono uppercase tracking-wider text-primary">
+                            <Clock className="w-3 h-3" /> Closes {new Date(cat.voting_ends_at).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
                       {cat.description && <p className="text-sm text-muted-foreground ml-8">{cat.description}</p>}
                       <p className="text-xs font-mono text-muted-foreground ml-8 mt-1 uppercase tracking-wider">
@@ -159,7 +177,6 @@ export default function Awards() {
                                 </div>
                               </div>
 
-                              {/* Vote bar */}
                               <div className="mb-3">
                                 <div className="flex justify-between text-xs font-mono text-muted-foreground mb-1">
                                   <span>{n.vote_count} votes</span>
@@ -173,12 +190,14 @@ export default function Awards() {
                               <Button
                                 size="sm"
                                 variant={voted ? "default" : "outline"}
-                                disabled={!!myVote || voting === n.id}
+                                disabled={!!myVote || voting === n.id || closed || upcoming}
                                 onClick={() => vote(cat.id, n.id)}
                                 className="w-full gap-2"
                               >
                                 {voting === n.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
                                  voted ? <><Check className="w-3.5 h-3.5" /> Your Vote</> :
+                                 closed ? "Voting closed" :
+                                 upcoming ? "Not yet open" :
                                  myVote ? "Voted in this category" : "Vote"}
                               </Button>
                             </div>
