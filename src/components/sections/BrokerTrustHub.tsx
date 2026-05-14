@@ -77,12 +77,21 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
               <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
             )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {broker.regulation?.map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
+              {broker.regulation?.slice(0, 3).map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
               ))}
+              {(broker.regulation?.length || 0) > 3 && (
+                <Link
+                  to={`/brokers/${broker.slug}`}
+                  className="text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-primary/20 transition-colors"
+                  title={broker.regulation!.slice(3).join(", ")}
+                >
+                  +{broker.regulation!.length - 3} more
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -101,9 +110,9 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground">{broker.avg_spread}</div></div>
-        <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{broker.leverage}</div></div>
-        <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{broker.avg_spread}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{broker.leverage}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.min_deposit}>{broker.min_deposit}</div></div>
       </div>
 
       <div className="mb-3">
@@ -161,12 +170,21 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
               <span className="text-lg font-display font-extrabold text-accent">{firm.name.charAt(0)}</span>
             )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {firm.regulation?.map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
+              {firm.regulation?.slice(0, 3).map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
               ))}
+              {(firm.regulation?.length || 0) > 3 && (
+                <Link
+                  to={`/brokers/${firm.slug}`}
+                  className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-accent/20 transition-colors"
+                  title={firm.regulation!.slice(3).join(", ")}
+                >
+                  +{firm.regulation!.length - 3} more
+                </Link>
+              )}
             </div>
           </div>
         </div>
