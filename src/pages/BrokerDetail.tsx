@@ -112,16 +112,14 @@ interface ScamAlertRow {
 const getPlaceholderReview = (broker: Broker) => ({
   verdict: `${broker.name} is a well-established broker with a strong regulatory framework and competitive trading conditions. ${broker.score >= 8 ? "We recommend it for both beginners and experienced traders." : broker.score >= 6 ? "Suitable for intermediate traders who understand the risks." : "Exercise caution — read the full review carefully before committing funds."}`,
   keyFacts: [
-    { label: "Regulation", value: broker.regulation?.join(", ") || "N/A" },
-    { label: "Avg. Spread", value: broker.avg_spread || "N/A" },
-    { label: "Max Leverage", value: broker.leverage || "N/A" },
-    { label: "Min. Deposit", value: broker.min_deposit || "N/A" },
     { label: "Platforms", value: broker.platforms && broker.platforms.length > 0 ? broker.platforms.join(", ") : "MT4, MT5, Web Trader" },
     { label: "Headquarters", value: broker.headquarters || "—" },
     { label: "Founded", value: broker.founded_year ? String(broker.founded_year) : "—" },
+    { label: "License No.", value: broker.license_number || "—" },
+    { label: "Withdrawal Time", value: broker.withdrawal_time || "—" },
     { label: "Deposit Methods", value: broker.payment_methods && broker.payment_methods.length > 0 ? broker.payment_methods.join(", ") : "Bank, Card, Crypto, E-wallets" },
     { label: "Customer Support", value: broker.support_email || broker.support_phone ? [broker.support_email, broker.support_phone].filter(Boolean).join(" / ") : "24/5 Live Chat, Email" },
-  ],
+  ].filter(f => f.value && f.value !== "—"),
   pros: broker.pros && broker.pros.length > 0 ? broker.pros : [
     "Regulated by tier-1 authorities",
     "Competitive spreads and low fees",
