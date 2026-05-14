@@ -90,8 +90,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
       {!isDashboard && <Footer />}
-      {/* Fixed bottom ticker */}
-      <div className="fixed bottom-0 left-0 right-0 z-[200]">
+      {/* Fixed bottom ticker — desktop only; mobile uses bottom nav */}
+      <div className="hidden md:block fixed bottom-0 left-0 right-0 z-[200]">
         <TickerBar />
       </div>
       {!isDashboard && <MobileBottomNav />}

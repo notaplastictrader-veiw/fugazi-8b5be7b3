@@ -16,7 +16,7 @@ const MobileBottomNav = () => {
     <nav
       aria-label="Primary"
       className="md:hidden fixed left-0 right-0 z-[180] bg-background/95 backdrop-blur-xl border-t border-border"
-      style={{ bottom: "32px" /* sits above TickerBar */ }}
+      style={{ bottom: "0px" }}
     >
       <ul className="flex items-stretch justify-around h-[58px]">
         {items.map(({ to, label, icon: Icon, primary }) => {
