@@ -91,8 +91,8 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 min-w-0">
           {broker.logo_url ? (
-            <div className="w-11 h-11 rounded-lg shrink-0 overflow-hidden">
-              <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-cover" loading="lazy" />
+            <div className="w-11 h-11 shrink-0 flex items-center justify-center">
+              <img src={broker.logo_url} alt={`${broker.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
             </div>
           ) : (
             <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
@@ -186,8 +186,8 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 min-w-0">
           {firm.logo_url ? (
-            <div className="w-11 h-11 rounded-lg shrink-0 overflow-hidden">
-              <img src={firm.logo_url} alt={`${firm.name} logo`} className="w-full h-full object-cover" loading="lazy" />
+            <div className="w-11 h-11 shrink-0 flex items-center justify-center">
+              <img src={firm.logo_url} alt={`${firm.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
             </div>
           ) : (
             <div className="w-11 h-11 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
