@@ -90,13 +90,15 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
     <div className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 min-w-0">
-          <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
-            {broker.logo_url ? (
+          {broker.logo_url ? (
+            <div className="w-11 h-11 rounded-lg bg-white shrink-0 overflow-hidden flex items-center justify-center">
               <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
-            ) : (
+            </div>
+          ) : (
+            <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
               <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
-            )}
-          </div>
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
             <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
