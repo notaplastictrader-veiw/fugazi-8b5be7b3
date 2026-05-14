@@ -2394,6 +2394,71 @@ export type Database = {
           },
         ]
       }
+      withdrawal_proofs: {
+        Row: {
+          amount: number | null
+          broker_id: string
+          created_at: string
+          currency: string | null
+          id: string
+          notes: string | null
+          payout_method: string | null
+          payout_time_hours: number | null
+          proof_url: string
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+          verified_by: string | null
+          withdrawal_date: string | null
+        }
+        Insert: {
+          amount?: number | null
+          broker_id: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          payout_method?: string | null
+          payout_time_hours?: number | null
+          proof_url: string
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
+          withdrawal_date?: string | null
+        }
+        Update: {
+          amount?: number | null
+          broker_id?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          notes?: string | null
+          payout_method?: string | null
+          payout_time_hours?: number | null
+          proof_url?: string
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          withdrawal_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_proofs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
