@@ -455,6 +455,18 @@ const BrokersAdmin = () => {
                   </div>
                 </div>
 
+                <div className="rounded-lg border border-accent/30 bg-accent/5 p-4 space-y-3">
+                  <div>
+                    <Label className="text-foreground text-base">Promo Offer (Card Rail)</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Shown on broker cards as a one-tap copy-code + claim strip. Leave blank to hide.</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div><Label className="text-xs">Offer Label</Label><Input value={form.promo_label} onChange={e => setForm({...form, promo_label: e.target.value})} placeholder="25% OFF / $50 BONUS" /></div>
+                    <div><Label className="text-xs">Promo Code</Label><Input value={form.promo_code} onChange={e => setForm({...form, promo_code: e.target.value})} placeholder="NAFT25" /></div>
+                    <div><Label className="text-xs">Affiliate URL</Label><Input value={form.affiliate_url} onChange={e => setForm({...form, affiliate_url: e.target.value})} placeholder="https://" /></div>
+                  </div>
+                </div>
+
                 <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
