@@ -127,6 +127,9 @@ const BrokersAdmin = () => {
       withdrawal_time: (b as any).withdrawal_time || "",
       withdrawal_fee: (b as any).withdrawal_fee || "",
       warning_note: (b as any).warning_note || "",
+      promo_code: (b as any).promo_code || "",
+      promo_label: (b as any).promo_label || "",
+      affiliate_url: (b as any).affiliate_url || "",
     });
     setModalOpen(true);
   };
