@@ -130,8 +130,8 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{broker.avg_spread}</div></div>
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{broker.leverage}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</div></div>
         <div className="min-w-0"><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.min_deposit}>{broker.min_deposit}</div></div>
       </div>
 
