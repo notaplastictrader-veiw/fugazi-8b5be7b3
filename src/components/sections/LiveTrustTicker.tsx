@@ -91,7 +91,7 @@ const LiveTrustTicker = () => {
             Live Trust Activity · Real platform events
           </span>
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {items.map((it) => (
             <Link
               key={it.id}
