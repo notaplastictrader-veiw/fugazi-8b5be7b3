@@ -5,6 +5,7 @@ import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
+import OfferRail from "@/components/common/OfferRail";
 
 interface Broker {
   id: string;
