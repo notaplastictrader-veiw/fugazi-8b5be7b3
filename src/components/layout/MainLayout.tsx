@@ -67,8 +67,16 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
               </button>
               <span className="text-border">|</span>
               <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
-              <ChevronRight className="w-3 h-3 text-muted-foreground" />
-              <span className="text-foreground font-medium">{getPageName()}</span>
+              {crumbs.map((c, i) => (
+                <span key={c.path} className="flex items-center gap-2">
+                  <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                  {i === crumbs.length - 1 ? (
+                    <span className="text-foreground font-medium truncate max-w-[200px]">{c.name}</span>
+                  ) : (
+                    <Link to={c.path} className="text-muted-foreground hover:text-primary transition-colors truncate max-w-[160px]">{c.name}</Link>
+                  )}
+                </span>
+              ))}
             </div>
           </div>
         )}
