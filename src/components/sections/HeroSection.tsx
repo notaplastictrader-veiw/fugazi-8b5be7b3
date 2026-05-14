@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles, Shield, Scale, Wallet, Users, ArrowRight } from "lucide-react";
+import { Search, Sparkles, ArrowRight, ShieldCheck, AlertTriangle, Activity } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,45 +19,22 @@ const defaultTypewriterTexts = [
   "Search Crypto, Forecasts, Reviews...",
 ];
 
-const defaultEyebrowItems = [
-  { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
-  { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
-  { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
-  { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
-  { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
-];
-
-const defaultChipGroups = [
-  { label: "Top Brokers", items: ["Exness", "IC Markets", "Pepperstone", "XM Global", "FBS"] },
-  { label: "Top Prop Firms", items: ["FTMO", "MyForexFunds", "The5ers", "True Forex Funds", "Funded Next"] },
-  { label: "Top Crypto", items: ["Binance", "Bybit", "OKX", "Coinbase", "Kraken"] },
-];
-
 const defaultStats = [
-  { value: "4.8K+", label: "Verified reviews" },
-  { value: "280+", label: "Brokers listed" },
-  { value: "61+", label: "Scam alerts issued" },
-  { value: "120K+", label: "Registered members" },
+  { value: "—", label: "Brokers reviewed" },
+  { value: "—", label: "Scam alerts" },
+  { value: "—", label: "Verified reviews" },
+  { value: "—", label: "Members" },
 ];
 
 const HeroSection = () => {
   const cms = useSiteSettings<Record<string, any>>("hero_section", {});
-
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
-  const eyebrowItems = (cms.eyebrow_items?.length ? cms.eyebrow_items : defaultEyebrowItems) as typeof defaultEyebrowItems;
-  // chip_groups now editable from CMS — supports both array-of-strings and newline-text from textarea
-  const chipGroups = (Array.isArray(cms.chip_groups) && cms.chip_groups.length > 0
-    ? cms.chip_groups.map((g: any) => ({
-        label: g.label || "",
-        items: Array.isArray(g.items) ? g.items : (typeof g.items === "string" ? g.items.split("\n").map((s: string) => s.trim()).filter(Boolean) : []),
-      }))
-    : defaultChipGroups) as typeof defaultChipGroups;
   const cmsStats = (cms.stats?.length ? cms.stats : null) as typeof defaultStats | null;
 
   const [liveStats, setLiveStats] = useState<typeof defaultStats | null>(null);
 
   useEffect(() => {
-    if (cmsStats) return; // CMS override takes precedence
+    if (cmsStats) return;
     let cancelled = false;
     (async () => {
       const [reviews, brokers, scams, profiles] = await Promise.all([
@@ -68,47 +45,21 @@ const HeroSection = () => {
       ]);
       if (cancelled) return;
       setLiveStats([
+        { value: formatCount(brokers.count ?? 0), label: "Brokers reviewed" },
+        { value: formatCount(scams.count ?? 0), label: "Scam alerts" },
         { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
-        { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
-        { value: formatCount(scams.count ?? 0), label: "Scam alerts issued" },
-        { value: formatCount(profiles.count ?? 0), label: "Registered members" },
+        { value: formatCount(profiles.count ?? 0), label: "Members" },
       ]);
     })();
     return () => { cancelled = true; };
   }, [cmsStats]);
 
-  const stats = (cmsStats ?? liveStats ?? defaultStats.map(s => ({ ...s, value: "—" }))) as typeof defaultStats;
+  const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
-  const [eyebrowIndex, setEyebrowIndex] = useState(0);
-  const [chipGroupIndex, setChipGroupIndex] = useState(0);
-  const [chipFade, setChipFade] = useState(true);
-  const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setEyebrowAnim("out");
-      setTimeout(() => {
-        setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
-        setEyebrowAnim("in");
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [eyebrowItems.length]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setChipFade(false);
-      setTimeout(() => {
-        setChipGroupIndex((i) => (i + 1) % chipGroups.length);
-        setChipFade(true);
-      }, 300);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [chipGroups.length]);
 
   useEffect(() => {
     const ref = typewriterRef.current;
@@ -137,59 +88,40 @@ const HeroSection = () => {
     return () => clearTimeout(timer);
   }, [typewriterTexts]);
 
-  const eyebrow = eyebrowItems[eyebrowIndex];
-  const currentChips = chipGroups[chipGroupIndex];
-
   return (
-    <section className="relative min-h-[72vh] flex items-center justify-center overflow-hidden py-8">
+    <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
 
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
-        <div className="flex justify-center mt-[-8px] mb-3">
+        {/* 1. Brand badge */}
+        <div className="flex justify-center mb-4">
           <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/30 bg-primary/8 text-xs text-primary font-mono font-semibold tracking-wider uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              Not a Fugazi Trader
+              Built by ex-broker insiders. Not paid by brokers.
             </span>
           </div>
         </div>
 
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 overflow-hidden h-[30px]">
-          <span
-            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
-              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
-            }`}
-          >
-            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color || "hsl(var(--primary))" }} />
-            {eyebrow.text}
-            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color || "hsl(var(--primary))"}20`, color: eyebrow.color || "hsl(var(--primary))", textShadow: `0 0 8px ${eyebrow.color || "hsl(var(--primary))"}40` }}>
-              {eyebrow.highlight}
-            </span>
-            {eyebrow.suffix}
-          </span>
-        </div>
-
+        {/* 2. Headline */}
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
-            <span className="grunge-text grunge-high">{cms.headline || "Broker Reviews"}</span>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.05] mb-4 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(40px, 6.4vw, 76px)" }}>
+            <span className="grunge-text grunge-high">{cms.headline || "Find Brokers"}</span>
             <br />
-            <span className="grunge-text-accent grunge-high">{cms.subheadline || "That Actually Matter."}</span>
+            <span className="grunge-text-accent grunge-high">{cms.subheadline || "You Can Actually Trust."}</span>
           </h1>
         </div>
 
-        <div className="max-w-2xl mx-auto mb-5 animate-[fade-up_0.6s_ease_0.2s_both]">
-          <p className="text-sm md:text-base text-muted-foreground font-medium leading-snug mb-1.5">
-            We Test Brokers. You Trade Smarter.
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {t("hero.subtitle", "We stress-test every broker — withdrawals, spreads, regulation & scam history — so you never trade blind.")}
-          </p>
-        </div>
+        {/* 3. One-line subheadline */}
+        <p className="max-w-xl mx-auto mb-6 text-sm md:text-base text-muted-foreground leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
+          {t("hero.subtitle", "We stress-test withdrawals, spreads, regulation and scam history — so you never trade blind.")}
+        </p>
 
+        {/* 4. Search */}
         <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
           <div className="relative flex items-center rounded-[14px] overflow-hidden bg-card/40 border border-primary/20 backdrop-blur-xl focus-within:border-primary/50 focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.1)] transition-all">
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
@@ -205,6 +137,7 @@ const HeroSection = () => {
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder=""
               className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground font-mono outline-none"
+              aria-label="Search brokers, scams, signals"
             />
             <button
               onClick={() => (window as any).__openGlobalSearch?.(searchValue)}
@@ -213,66 +146,53 @@ const HeroSection = () => {
               Search
             </button>
           </div>
-          <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link
-              to="/match"
-              className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold tracking-wide uppercase text-sm shadow-[0_4px_24px_hsl(var(--primary)/0.35)] hover:shadow-[0_6px_32px_hsl(var(--primary)/0.55)] hover:scale-[1.02] transition-all"
-            >
-              <Sparkles className="w-4 h-4" />
-              Find My Broker in 60s
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              to="/brokers"
-              className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-5 py-3 rounded-xl border border-border bg-card/40 backdrop-blur-sm text-sm font-display font-semibold text-foreground hover:border-primary/40 hover:text-primary transition-colors"
-            >
-              Browse 280+ Brokers
-            </Link>
-          </div>
-
-          {/* Trust-count chips */}
-          <div className="mt-4 flex flex-wrap justify-center gap-2 text-[11px] font-mono text-muted-foreground">
-            {[
-              { Icon: Shield, label: `${stats[1]?.value || "280+"} Reviewed`, color: "text-primary" },
-              { Icon: Scale, label: "14 Regulators Tracked", color: "text-accent" },
-              { Icon: Wallet, label: "$2.3M Recovered", color: "text-[hsl(var(--teal))]" },
-              { Icon: Users, label: `${stats[3]?.value || "47K+"} Verified Traders`, color: "text-primary" },
-            ].map(({ Icon, label, color }) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/50 bg-card/40 backdrop-blur-sm"
-              >
-                <Icon className={`w-3 h-3 ${color}`} />
-                {label}
-              </span>
-            ))}
-          </div>
         </div>
 
-        <div className="mb-6 animate-[fade-up_0.6s_ease_0.4s_both]">
-          <div className={`transition-all duration-300 ${chipFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}>
-            <div className="text-[10px] font-mono text-muted-foreground mb-2 tracking-widest uppercase">{currentChips.label}</div>
-            <div className="flex flex-wrap justify-center gap-2">
-              {currentChips.items.map((chip) => (
-                <button
-                  key={chip}
-                  onClick={() => setSearchValue(chip)}
-                  className="px-3 py-1 text-xs text-muted-foreground border border-border rounded-full hover:border-primary/40 hover:text-primary transition-colors"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* 5. Single primary CTA + secondary */}
+        <div className="mb-6 flex flex-col sm:flex-row items-center justify-center gap-3 animate-[fade-up_0.6s_ease_0.35s_both]">
+          <Link
+            to="/match"
+            className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 rounded-xl bg-primary text-primary-foreground font-display font-bold tracking-wide uppercase text-sm shadow-[0_4px_24px_hsl(var(--primary)/0.35)] hover:shadow-[0_6px_32px_hsl(var(--primary)/0.55)] hover:scale-[1.02] transition-all"
+          >
+            <Sparkles className="w-4 h-4" />
+            Find My Broker in 60s
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+          <Link
+            to="/brokers"
+            className="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-5 py-3 rounded-xl border border-border bg-card/40 backdrop-blur-sm text-sm font-display font-semibold text-foreground hover:border-primary/40 hover:text-primary transition-colors"
+          >
+            Browse all brokers
+          </Link>
         </div>
 
-        <div className="glass-card rounded-xl px-2 py-4 inline-flex flex-wrap items-center gap-0 divide-x divide-border animate-[fade-up_0.6s_ease_0.5s_both]">
-          {stats.map((stat) => (
-            <div key={stat.label} className="px-5 md:px-8 text-center">
-              <div className="text-xl md:text-2xl font-display font-extrabold text-foreground">{stat.value}</div>
-              <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{stat.label}</div>
-            </div>
-          ))}
+        {/* 6. Live Trust Panel — replaces multiple chips/groups */}
+        <div className="glass-card rounded-2xl px-3 py-3 inline-flex items-center gap-3 md:gap-5 animate-[fade-up_0.6s_ease_0.45s_both] flex-wrap justify-center">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
+            LIVE
+          </span>
+          <span className="hidden md:inline-block w-px h-4 bg-border" />
+          <span className="inline-flex items-center gap-1.5 text-xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+            <strong className="font-display font-extrabold text-foreground">{stats[0].value}</strong>
+            <span className="text-muted-foreground">{stats[0].label}</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs">
+            <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
+            <strong className="font-display font-extrabold text-foreground">{stats[1].value}</strong>
+            <span className="text-muted-foreground">{stats[1].label}</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs">
+            <Activity className="w-3.5 h-3.5 text-accent" />
+            <strong className="font-display font-extrabold text-foreground">{stats[2].value}</strong>
+            <span className="text-muted-foreground">{stats[2].label}</span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs">
+            <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--teal))]" />
+            <strong className="font-display font-extrabold text-foreground">{stats[3].value}</strong>
+            <span className="text-muted-foreground">{stats[3].label}</span>
+          </span>
         </div>
       </div>
     </section>

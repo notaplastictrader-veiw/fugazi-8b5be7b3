@@ -100,31 +100,22 @@ const Navbar = () => {
       return injectExtras(mapped);
     }
     return [
-      {
-        label: t("nav.brokerReviews"),
-        href: "#",
-        children: [
-          { label: "CFD / Forex Brokers", href: "/brokers" },
-          { label: "Crypto Exchanges", href: "/brokers?type=crypto" },
-          { label: "Binary Options", href: "/brokers?type=binary" },
-          { label: "ECN Brokers", href: "/brokers?type=ecn" },
-          { label: "Broker Comparison", href: "/compare" },
-          { label: "AI Broker Matcher", href: "/match", highlight: true },
-          { label: "Ask NAFT AI", href: "/ask", highlight: true },
-        ],
-      },
-      { label: t("nav.propFirms"), href: "/prop-firms" },
-      { label: t("nav.sports", "Sports"), href: "/sports" },
+      { label: t("nav.brokerReviews", "Broker Reviews"), href: "/brokers" },
+      { label: t("nav.propFirms", "Prop Firms"), href: "/prop-firms" },
+      { label: t("nav.scamAlerts", "Scam Alerts"), href: "/scam-alerts" },
+      { label: t("nav.compare", "Compare"), href: "/compare" },
+      { label: t("nav.aiMatch", "AI Match"), href: "/match", highlight: true },
       { label: t("nav.signals"), href: "/signals" },
       { label: t("nav.education"), href: "/education" },
       {
         label: t("nav.more"),
         href: "#",
-        highlight: true,
         children: [
-          { label: t("nav.promotions", "Promotions"), href: "/promotions" },
           { label: t("nav.forum", "Forum"), href: "/forum" },
           { label: t("nav.awards", "NAFT Awards"), href: "/awards" },
+          { label: "Ask NAFT AI", href: "/ask" },
+          { label: t("nav.promotions", "Promotions"), href: "/promotions" },
+          { label: t("nav.sports", "Sports"), href: "/sports" },
           { label: "Share Ideas", href: "/ideas" },
           { label: t("nav.calendar", "Calendar"), href: "/calendar" },
           { label: t("nav.news", "News"), href: "/news" },
