@@ -51,22 +51,25 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
 
   const isWide = variant === "wide";
 
-  // No code → single CTA button
+  // No code → single CTA button (used for brokers — bonus-only)
   if (!hasCode) {
+    const ctaText = label ? `Claim ${label}` : `Open Account`;
     return (
       <button
         type="button"
         onClick={claim}
         className={cn(
-          "group w-full inline-flex items-center justify-center gap-2 rounded-lg",
-          "border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/60",
-          "text-primary font-mono text-xs font-semibold tracking-wide uppercase",
-          "transition-all py-2 px-3",
+          "group relative w-full inline-flex items-center justify-center gap-2 rounded-lg overflow-hidden",
+          "border border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10",
+          "hover:border-primary hover:from-primary/20 hover:to-accent/20",
+          "text-primary font-display font-extrabold text-xs tracking-wide uppercase",
+          "transition-all py-2.5 px-3 shadow-[0_0_0_hsl(var(--primary)/0)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.25)]",
           isWide && "py-3 text-sm",
           className
         )}
       >
-        Visit {entityName}
+        {label && <Tag className={cn("text-accent shrink-0", isWide ? "w-4 h-4" : "w-3.5 h-3.5")} />}
+        <span>{ctaText}</span>
         <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </button>
     );
