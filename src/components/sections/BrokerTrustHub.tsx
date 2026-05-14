@@ -170,12 +170,21 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
               <span className="text-lg font-display font-extrabold text-accent">{firm.name.charAt(0)}</span>
             )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {firm.regulation?.map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
+              {firm.regulation?.slice(0, 3).map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
               ))}
+              {(firm.regulation?.length || 0) > 3 && (
+                <Link
+                  to={`/brokers/${firm.slug}`}
+                  className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-accent/20 transition-colors"
+                  title={firm.regulation!.slice(3).join(", ")}
+                >
+                  +{firm.regulation!.length - 3} more
+                </Link>
+              )}
             </div>
           </div>
         </div>
