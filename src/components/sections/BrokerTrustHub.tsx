@@ -277,18 +277,9 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <StarRating value={firm.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
-        </div>
-        <Link to={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline font-medium">
-          Read Full Review <ExternalLink className="w-3 h-3" />
-        </Link>
-      </div>
-
       {(firm.affiliate_url || firm.website_url) && (
-        <div className="mt-3">
+        <div className="mb-3">
+          {/* Prop firms → discount code rail */}
           <OfferRail
             code={firm.promo_code}
             label={firm.promo_label}
@@ -297,6 +288,19 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           />
         </div>
       )}
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1 min-w-0">
+          <StarRating value={firm.stars} size={14} />
+          <span className="text-xs text-muted-foreground ml-1 truncate">({firm.review_count})</span>
+        </div>
+        <Link
+          to={`/brokers/${firm.slug}`}
+          className="inline-flex items-center gap-1 text-xs font-bold text-accent px-2.5 py-1 rounded-md bg-accent/10 border border-accent/30 hover:bg-accent/20 hover:border-accent/60 transition-all shrink-0"
+        >
+          Read Full Review <ExternalLink className="w-3 h-3" />
+        </Link>
+      </div>
     </div>
   );
 };
