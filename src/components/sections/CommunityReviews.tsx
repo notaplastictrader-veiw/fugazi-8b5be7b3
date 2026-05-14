@@ -105,6 +105,9 @@ const CommunityReviews = () => {
     }
   };
 
+  // Honest empty-state: hide entire section until real reviews exist
+  if (reviews.length === 0) return null;
+
   const items = [...reviews, ...reviews];
 
   const renderStars = (rating: number) => {
