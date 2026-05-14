@@ -77,12 +77,21 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
               <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
             )}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              {broker.regulation?.map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>
+            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
+              {broker.regulation?.slice(0, 3).map((r) => (
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
               ))}
+              {(broker.regulation?.length || 0) > 3 && (
+                <Link
+                  to={`/brokers/${broker.slug}`}
+                  className="text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-primary/20 transition-colors"
+                  title={broker.regulation!.slice(3).join(", ")}
+                >
+                  +{broker.regulation!.length - 3} more
+                </Link>
+              )}
             </div>
           </div>
         </div>
