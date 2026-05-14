@@ -5,6 +5,7 @@ import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
+import OfferRail from "@/components/common/OfferRail";
 
 interface Broker {
   id: string;
@@ -23,6 +24,10 @@ interface Broker {
   badge: string;
   logo_url?: string | null;
   last_verified_at?: string | null;
+  promo_code?: string | null;
+  promo_label?: string | null;
+  affiliate_url?: string | null;
+  website_url?: string | null;
 }
 
 const formatSpread = (v?: string) => {
@@ -173,6 +178,17 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
           {viewers} viewing this week
         </span>
       </div>
+
+      {(broker.affiliate_url || broker.website_url) && (
+        <div className="mt-3">
+          <OfferRail
+            code={broker.promo_code}
+            label={broker.promo_label}
+            url={broker.affiliate_url || broker.website_url}
+            entityName={broker.name}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -266,6 +282,17 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           Read Full Review <ExternalLink className="w-3 h-3" />
         </Link>
       </div>
+
+      {(firm.affiliate_url || firm.website_url) && (
+        <div className="mt-3">
+          <OfferRail
+            code={firm.promo_code}
+            label={firm.promo_label}
+            url={firm.affiliate_url || firm.website_url}
+            entityName={firm.name}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -501,6 +501,7 @@ export type Database = {
       }
       betting_sites: {
         Row: {
+          affiliate_url: string | null
           bonus: string | null
           created_at: string
           display_order: number | null
@@ -510,6 +511,8 @@ export type Database = {
           logo: string | null
           min_deposit: string | null
           name: string
+          promo_code: string | null
+          promo_label: string | null
           rating: number | null
           slug: string
           sports: string[] | null
@@ -520,6 +523,7 @@ export type Database = {
           withdrawal_speed: string | null
         }
         Insert: {
+          affiliate_url?: string | null
           bonus?: string | null
           created_at?: string
           display_order?: number | null
@@ -529,6 +533,8 @@ export type Database = {
           logo?: string | null
           min_deposit?: string | null
           name: string
+          promo_code?: string | null
+          promo_label?: string | null
           rating?: number | null
           slug: string
           sports?: string[] | null
@@ -539,6 +545,7 @@ export type Database = {
           withdrawal_speed?: string | null
         }
         Update: {
+          affiliate_url?: string | null
           bonus?: string | null
           created_at?: string
           display_order?: number | null
@@ -548,6 +555,8 @@ export type Database = {
           logo?: string | null
           min_deposit?: string | null
           name?: string
+          promo_code?: string | null
+          promo_label?: string | null
           rating?: number | null
           slug?: string
           sports?: string[] | null
@@ -618,6 +627,7 @@ export type Database = {
       brokers: {
         Row: {
           account_types: Json | null
+          affiliate_url: string | null
           avg_spread: string | null
           badge: string | null
           complaints: number | null
@@ -638,6 +648,8 @@ export type Database = {
           payment_method_details: Json
           payment_methods: string[] | null
           platforms: string[] | null
+          promo_code: string | null
+          promo_label: string | null
           pros: string[] | null
           regulation: string[] | null
           review_count: number | null
@@ -658,6 +670,7 @@ export type Database = {
         }
         Insert: {
           account_types?: Json | null
+          affiliate_url?: string | null
           avg_spread?: string | null
           badge?: string | null
           complaints?: number | null
@@ -678,6 +691,8 @@ export type Database = {
           payment_method_details?: Json
           payment_methods?: string[] | null
           platforms?: string[] | null
+          promo_code?: string | null
+          promo_label?: string | null
           pros?: string[] | null
           regulation?: string[] | null
           review_count?: number | null
@@ -698,6 +713,7 @@ export type Database = {
         }
         Update: {
           account_types?: Json | null
+          affiliate_url?: string | null
           avg_spread?: string | null
           badge?: string | null
           complaints?: number | null
@@ -718,6 +734,8 @@ export type Database = {
           payment_method_details?: Json
           payment_methods?: string[] | null
           platforms?: string[] | null
+          promo_code?: string | null
+          promo_label?: string | null
           pros?: string[] | null
           regulation?: string[] | null
           review_count?: number | null
@@ -871,6 +889,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          affiliate_url: string | null
           created_at: string
           description: string | null
           display_order: number | null
@@ -881,6 +900,8 @@ export type Database = {
           note: string | null
           original_price: number | null
           price: number
+          promo_code: string | null
+          promo_label: string | null
           slug: string
           status: Database["public"]["Enums"]["content_status"]
           thumbnail_url: string | null
@@ -889,6 +910,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          affiliate_url?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
@@ -899,6 +921,8 @@ export type Database = {
           note?: string | null
           original_price?: number | null
           price?: number
+          promo_code?: string | null
+          promo_label?: string | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"]
           thumbnail_url?: string | null
@@ -907,6 +931,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          affiliate_url?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
@@ -917,6 +942,8 @@ export type Database = {
           note?: string | null
           original_price?: number | null
           price?: number
+          promo_code?: string | null
+          promo_label?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"]
           thumbnail_url?: string | null
@@ -1930,6 +1957,7 @@ export type Database = {
       }
       signal_groups: {
         Row: {
+          affiliate_url: string | null
           avg_rr: string | null
           categories: string[] | null
           created_at: string
@@ -1942,6 +1970,8 @@ export type Database = {
           monthly_signals: string | null
           name: string
           pricing_tiers: Json | null
+          promo_code: string | null
+          promo_label: string | null
           sample_signals: Json | null
           status: Database["public"]["Enums"]["content_status"]
           telegram_url: string | null
@@ -1951,6 +1981,7 @@ export type Database = {
           win_rate: number | null
         }
         Insert: {
+          affiliate_url?: string | null
           avg_rr?: string | null
           categories?: string[] | null
           created_at?: string
@@ -1963,6 +1994,8 @@ export type Database = {
           monthly_signals?: string | null
           name: string
           pricing_tiers?: Json | null
+          promo_code?: string | null
+          promo_label?: string | null
           sample_signals?: Json | null
           status?: Database["public"]["Enums"]["content_status"]
           telegram_url?: string | null
@@ -1972,6 +2005,7 @@ export type Database = {
           win_rate?: number | null
         }
         Update: {
+          affiliate_url?: string | null
           avg_rr?: string | null
           categories?: string[] | null
           created_at?: string
@@ -1984,6 +2018,8 @@ export type Database = {
           monthly_signals?: string | null
           name?: string
           pricing_tiers?: Json | null
+          promo_code?: string | null
+          promo_label?: string | null
           sample_signals?: Json | null
           status?: Database["public"]["Enums"]["content_status"]
           telegram_url?: string | null

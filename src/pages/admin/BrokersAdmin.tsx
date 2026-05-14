@@ -76,6 +76,7 @@ const emptyBroker = {
   website_url: "", support_email: "", support_phone: "",
   show_on_homepage: false, homepage_position: null as number | null,
   license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
+  promo_code: "", promo_label: "", affiliate_url: "",
 };
 
 const BrokersAdmin = () => {
@@ -126,6 +127,9 @@ const BrokersAdmin = () => {
       withdrawal_time: (b as any).withdrawal_time || "",
       withdrawal_fee: (b as any).withdrawal_fee || "",
       warning_note: (b as any).warning_note || "",
+      promo_code: (b as any).promo_code || "",
+      promo_label: (b as any).promo_label || "",
+      affiliate_url: (b as any).affiliate_url || "",
     });
     setModalOpen(true);
   };
@@ -448,6 +452,18 @@ const BrokersAdmin = () => {
                     <div><Label className="text-xs">Website URL</Label><Input value={form.website_url} onChange={e => setForm({...form, website_url: e.target.value})} placeholder="https://" /></div>
                     <div><Label className="text-xs">Support Email</Label><Input value={form.support_email} onChange={e => setForm({...form, support_email: e.target.value})} /></div>
                     <div><Label className="text-xs">Support Phone</Label><Input value={form.support_phone} onChange={e => setForm({...form, support_phone: e.target.value})} /></div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg border border-accent/30 bg-accent/5 p-4 space-y-3">
+                  <div>
+                    <Label className="text-foreground text-base">Promo Offer (Card Rail)</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Shown on broker cards as a one-tap copy-code + claim strip. Leave blank to hide.</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div><Label className="text-xs">Offer Label</Label><Input value={form.promo_label} onChange={e => setForm({...form, promo_label: e.target.value})} placeholder="25% OFF / $50 BONUS" /></div>
+                    <div><Label className="text-xs">Promo Code</Label><Input value={form.promo_code} onChange={e => setForm({...form, promo_code: e.target.value})} placeholder="NAFT25" /></div>
+                    <div><Label className="text-xs">Affiliate URL</Label><Input value={form.affiliate_url} onChange={e => setForm({...form, affiliate_url: e.target.value})} placeholder="https://" /></div>
                   </div>
                 </div>
 
