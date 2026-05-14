@@ -41,11 +41,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const isHome = pathSegments.length === 0;
   const isDashboard = pathSegments[0] === "dashboard";
 
-  const getPageName = () => {
-    if (pathSegments.length === 0) return "";
-    const first = pathSegments[0];
-    return routeNames[first] || first.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-  };
+  const titleize = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  const crumbs = pathSegments.map((seg, i) => {
+    const path = "/" + pathSegments.slice(0, i + 1).join("/");
+    const name = i === 0 ? (routeNames[seg] || titleize(seg)) : titleize(seg);
+    return { name, path };
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
