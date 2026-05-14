@@ -24,6 +24,10 @@ interface Broker {
   badge: string;
   logo_url?: string | null;
   last_verified_at?: string | null;
+  promo_code?: string | null;
+  promo_label?: string | null;
+  affiliate_url?: string | null;
+  website_url?: string | null;
 }
 
 const formatSpread = (v?: string) => {
