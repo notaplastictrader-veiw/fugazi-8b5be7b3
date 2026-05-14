@@ -37,7 +37,7 @@ const defaultStats = [
   { value: "4.8K+", label: "Verified reviews" },
   { value: "280+", label: "Brokers listed" },
   { value: "61+", label: "Scam alerts issued" },
-  { value: "120K+", label: "Active traders" },
+  { value: "120K+", label: "Registered members" },
 ];
 
 const HeroSection = () => {
@@ -71,7 +71,7 @@ const HeroSection = () => {
         { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
         { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
         { value: formatCount(scams.count ?? 0), label: "Scam alerts issued" },
-        { value: formatCount(profiles.count ?? 0), label: "Active traders" },
+        { value: formatCount(profiles.count ?? 0), label: "Registered members" },
       ]);
     })();
     return () => { cancelled = true; };
