@@ -91,6 +91,7 @@ const ReviewsAdmin = lazy(() => import("./pages/admin/ReviewsAdmin"));
 const ComplaintsAdmin = lazy(() => import("./pages/admin/ComplaintsAdmin"));
 const ScamAlertsAdmin = lazy(() => import("./pages/admin/ScamAlertsAdmin"));
 const ApprovalQueueAdmin = lazy(() => import("./pages/admin/ApprovalQueueAdmin"));
+const WithdrawalProofsAdmin = lazy(() => import("./pages/admin/WithdrawalProofsAdmin"));
 
 const UsersAdmin = lazy(() => import("./pages/admin/UsersAdmin"));
 const RevenueAdmin = lazy(() => import("./pages/admin/RevenueAdmin"));
@@ -238,6 +239,7 @@ const AppContent = () => {
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
           <Route path="/how-we-review" element={<HowWeReview />} />
+          <Route path="/methodology" element={<HowWeReview />} />
           <Route path="/profile/:username" element={<UserProfile />} />
           <Route path="/claim-broker" element={<BrokerClaimProfile />} />
 
@@ -251,6 +253,7 @@ const AppContent = () => {
             <Route path="complaints" element={<ComplaintsAdmin />} />
             <Route path="scam-alerts" element={<ScamAlertsAdmin />} />
             <Route path="approvals" element={<ApprovalQueueAdmin />} />
+            <Route path="withdrawal-proofs" element={<WithdrawalProofsAdmin />} />
             
             <Route path="users" element={<UsersAdmin />} />
             <Route path="revenue" element={<RevenueAdmin />} />
