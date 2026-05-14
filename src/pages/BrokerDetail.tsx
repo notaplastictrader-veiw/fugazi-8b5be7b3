@@ -6,7 +6,9 @@ import { brokers as localBrokers } from "@/data/brokers";
 import { useToast } from "@/hooks/use-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
-import JsonLd, { breadcrumbSchema, brokerReviewSchema } from "@/components/seo/JsonLd";
+import JsonLd, { breadcrumbSchema, brokerReviewSchema, faqSchema } from "@/components/seo/JsonLd";
+import StickyBrokerCTA from "@/components/broker/StickyBrokerCTA";
+import PeerBrokersRail from "@/components/broker/PeerBrokersRail";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -386,6 +388,14 @@ const BrokerDetail = () => {
           date: (r.created_at || new Date().toISOString()).slice(0, 10),
         })),
       })} />
+      <JsonLd data={faqSchema([
+        { question: `Is ${broker.name} regulated?`, answer: (broker.regulation && broker.regulation.length > 0)
+            ? `${broker.name} is regulated by ${broker.regulation.join(", ")}. Always verify the licence number on the regulator's official register before depositing.`
+            : `${broker.name} has no verified top-tier regulation on file. Treat this as elevated risk and start with a minimal deposit.` },
+        { question: `Is ${broker.name} safe for traders?`, answer: `Our independent trust score for ${broker.name} is ${Math.round((broker.score || 0) * 10)}/100, based on regulation, complaint history, withdrawal reliability and ${broker.review_count || 0} verified user reviews.` },
+        { question: `What is the minimum deposit at ${broker.name}?`, answer: broker.min_deposit ? `The minimum deposit at ${broker.name} starts from ${broker.min_deposit}.` : `Minimum deposit details for ${broker.name} are not published. Contact the broker before funding an account.` },
+        { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
+      ])} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
 
@@ -945,7 +955,7 @@ const BrokerDetail = () => {
             </TabsContent>
 
             {/* ===== REVIEWS TAB ===== */}
-            <TabsContent value="reviews" className="mt-6">
+            <TabsContent value="reviews" className="mt-6" id="reviews-anchor">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-display font-bold text-foreground">Community Reviews</h2>
                 <Button size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
@@ -1177,8 +1187,15 @@ const BrokerDetail = () => {
               </div>
             </TabsContent>
           </Tabs>
+
+          <PeerBrokersRail brokerId={broker.id} type={broker.type} />
         </div>
       </div>
+
+      <StickyBrokerCTA
+        broker={{ name: broker.name, slug: broker.slug, score: broker.score, website_url: broker.website_url, logo_url: broker.logo_url }}
+        onWriteReview={() => { setActiveTab("reviews"); setTimeout(() => document.getElementById("reviews-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50); }}
+      />
 
       {/* Claim Proof Modal */}
       <Dialog open={showClaimModal} onOpenChange={setShowClaimModal}>
