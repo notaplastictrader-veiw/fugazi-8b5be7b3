@@ -1,10 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
+import NoIndex from "@/components/seo/NoIndex";
 
 const AdminLayout = () => {
   return (
     <SidebarProvider>
+      <NoIndex />
       <div className="min-h-screen flex w-full bg-background hud-grid-bg">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-w-0">

@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "./DashboardSidebar";
 import MainLayout from "@/components/layout/MainLayout";
+import NoIndex from "@/components/seo/NoIndex";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -12,6 +13,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <MainLayout>
+      <NoIndex />
       <div className="pt-24 pb-20">
         <SidebarProvider>
           <div className="min-h-[calc(100vh-8rem)] flex w-full max-w-7xl mx-auto px-4">
