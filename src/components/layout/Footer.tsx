@@ -1,8 +1,10 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Linkedin, Youtube, Send, Facebook, Instagram } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { supabase } from "@/integrations/supabase/client";
 import NewsletterSponsorFooter from "@/components/sponsored/NewsletterSponsorFooter";
 
 const XIcon = () => (
@@ -44,9 +46,7 @@ const defaultColumns = [
     title: "Prop Firms",
     links: [
       { label: "Best Prop Firms", href: "/prop-firms" },
-      { label: "FTMO Review", href: "/brokers/ftmo" },
-      { label: "Maven Trading", href: "/brokers/maven" },
-      { label: "The5%ers", href: "/brokers/the5ers" },
+      // Top 3 are injected dynamically from DB at runtime (see useEffect below)
     ],
   },
   {
@@ -100,13 +100,38 @@ const Footer = () => {
   const { t } = useI18n();
   const { theme } = useTheme();
   const cms = useSiteSettings<Record<string, any>>("footer", {});
+  const [topProps, setTopProps] = useState<{ name: string; slug: string }[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("brokers")
+        .select("name, slug")
+        .eq("status", "published")
+        .eq("type", "prop-firm")
+        .order("score", { ascending: false })
+        .limit(3);
+      if (!cancelled && data) setTopProps(data as { name: string; slug: string }[]);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const logoSrc = theme === "light" ? "/images/naft-candlestick-light-green.svg" : theme === "sentinel" ? "/images/naft-candlestick-dark-red.svg" : "/images/naft-candlestick-dark-lime.svg";
 
   const brandName = cms.brand_name || "Not A Fugazi";
   const brandAccent = cms.brand_accent || "Trader";
   const brandDescription = cms.brand_description || "The world's most transparent broker review platform. Real reviews, real complaints, verified withdrawal proof.";
-  const columns = (Array.isArray(cms.columns) && cms.columns.length > 0 ? cms.columns : defaultColumns) as typeof defaultColumns;
+  const baseColumns = (Array.isArray(cms.columns) && cms.columns.length > 0 ? cms.columns : defaultColumns) as typeof defaultColumns;
+
+  // Inject top-3 prop firms dynamically into the "Prop Firms" column
+  const columns = useMemo(() => baseColumns.map((col: any) => {
+    if (col.title !== "Prop Firms") return col;
+    const dynamicLinks = topProps.map(p => ({ label: `${p.name} Review`, href: `/brokers/${p.slug}` }));
+    const baseLinks = (col.links || []).filter((l: any) => l?.href === "/prop-firms");
+    return { ...col, links: [...baseLinks, ...dynamicLinks] };
+  }), [baseColumns, topProps]);
+
   const socialLinks = (Array.isArray(cms.social_links) && cms.social_links.length > 0 ? cms.social_links : defaultSocial) as typeof defaultSocial;
   const aboutLabel = cms.about_label || "About Us";
   const contactLabel = cms.contact_label || "Contact Us";

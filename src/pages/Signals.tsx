@@ -22,22 +22,19 @@ interface SignalGroup {
   avg_rr: string; track_record: string; members: string; verified: boolean;
 }
 
-const fallbackGroups: SignalGroup[] = [
-  { id: "s1", name: "Gold Pulse Signals", win_rate: 81, monthly_signals: "35", avg_rr: "1:2.4", track_record: "14 months", members: "4,200", verified: true },
-  { id: "s2", name: "Asia FX Scalpers", win_rate: 84, monthly_signals: "48", avg_rr: "1:1.8", track_record: "22 months", members: "12,400", verified: true },
-  { id: "s3", name: "Prop Killer Trades", win_rate: 78, monthly_signals: "60+", avg_rr: "1:3.1", track_record: "9 months", members: "8,900", verified: true },
-];
+// Wave 0: removed fake "Gold Pulse / Asia FX Scalpers / Prop Killer" fallback
+// signal groups. Only real published groups from DB are shown now.
 
 const parseMembers = (m: string) => parseInt((m || "0").replace(/[^\d]/g, ""), 10) || 0;
 
 const Signals = () => {
-  const [groups, setGroups] = useState<SignalGroup[]>(fallbackGroups);
+  const [groups, setGroups] = useState<SignalGroup[]>([]);
   const { t } = useI18n();
 
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("signal_groups").select("*").eq("status", "published").order("win_rate", { ascending: false });
-      if (data && data.length > 0) setGroups(data as SignalGroup[]);
+      setGroups((data as SignalGroup[]) || []);
     };
     fetch();
   }, []);

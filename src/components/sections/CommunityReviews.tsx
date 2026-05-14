@@ -39,22 +39,17 @@ const CommunityReviews = () => {
   const ctaText = cms.cta_text || "Write a review →";
   const cancelText = cms.cancel_text || "Cancel";
 
-  const fallbackReviews: Review[] = [
-    { id: "r1", author: "Tyler Mather", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Fast withdrawals, excellent spreads. Been using for 2 years without any issues. Best broker I've tried.", role: "Exness · London, UK" },
-    { id: "r2", author: "Wei Wen Chin", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Raw spreads are incredible for scalping. Execution speed is top-tier. Highly recommended.", role: "IC Markets · Singapore" },
-    { id: "r3", author: "Claudio Pensa", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Passed the challenge on my second attempt. Payout was smooth via Deel. Legit prop firm.", role: "FTMO · Thailand" },
-    { id: "r4", author: "Omar Shazad", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face", rating: 1, content: "SCAM! Deposited $500, made profit to $1,200. They blocked my withdrawal and froze my account. Stay away!", role: "Quotex · Lahore, Pakistan" },
-    { id: "r5", author: "Erin Shafiqa", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face", rating: 4, content: "Good for beginners. Low deposit requirement. Spreads could be better though.", role: "XM Global · Kuala Lumpur" },
-    { id: "r6", author: "Cian Casey", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Switched from IC Markets. Razor account spreads are comparable. Great MT5 integration.", role: "Pepperstone · Adelaide, AU" },
-    { id: "r7", author: "Rashid Al-Fayed", avatar: "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=80&h=80&fit=crop&crop=face", rating: 1, content: "Fake regulation claims. They manipulated my trades and refused $8,000 withdrawal. Reported to authorities.", role: "TradeWave · Dubai, UAE" },
-    { id: "r8", author: "Priya Mehta", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=face", rating: 5, content: "Best ECN broker for Indian traders. cTrader platform is amazing. Zero issues in 3 years.", role: "IC Markets · Mumbai, India" },
-  ];
-
+  // Wave 0: NO fake-fallback. Render only real, published reviews from DB.
+  // If DB is empty, the section hides itself (return null below).
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("reviews").select("*").eq("status", "published").order("created_at", { ascending: false }).limit(displayCount);
-      if (data && data.length > 0) setReviews(data as Review[]);
-      else setReviews(fallbackReviews);
+      const { data } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(displayCount);
+      setReviews((data as Review[]) || []);
     };
     fetch();
   }, [displayCount]);
@@ -109,6 +104,9 @@ const CommunityReviews = () => {
       el.classList.remove("dragging");
     }
   };
+
+  // Honest empty-state: hide entire section until real reviews exist
+  if (reviews.length === 0) return null;
 
   const items = [...reviews, ...reviews];
 

@@ -134,8 +134,10 @@
   }
 }
 
-/* Body grid overlay — forex chart + candlestick pattern */
-body::before {
+/* Body grid overlay — forex chart + candlestick pattern.
+ * Wave 0: scoped to body[data-route="/"] (homepage) only — toggled by Index page.
+ * Other routes are clean for performance + visual focus. */
+body[data-route="/"]::before {
   content: '';
   position: fixed;
   inset: 0;
@@ -153,7 +155,7 @@ body::before {
 }
 
 /* Light theme — dark-stroke candlestick + green-tinted grid */
-[data-theme="light"] body::before {
+[data-theme="light"] body[data-route="/"]::before {
   background-image:
     url('/images/candlestick-pattern-dark.svg'),
     linear-gradient(hsl(30 20% 50% / 0.04) 1px, transparent 1px),
@@ -165,7 +167,7 @@ body::before {
 }
 
 /* Sentinel theme — red-tinted grid + candlestick */
-[data-theme="sentinel"] body::before {
+[data-theme="sentinel"] body[data-route="/"]::before {
   background-image:
     url('/images/candlestick-pattern.svg'),
     linear-gradient(hsl(2 80% 50% / 0.03) 1px, transparent 1px),

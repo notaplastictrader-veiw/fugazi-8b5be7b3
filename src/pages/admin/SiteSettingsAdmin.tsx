@@ -71,7 +71,7 @@ const settingsDefs: SettingDef[] = [
         { value: "4.8K+", label: "Verified reviews" },
         { value: "280+", label: "Brokers listed" },
         { value: "61+", label: "Scam alerts issued" },
-        { value: "120K+", label: "Active traders" },
+        { value: "120K+", label: "Registered members" },
       ],
     },
   },
