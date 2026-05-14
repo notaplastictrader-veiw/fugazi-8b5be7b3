@@ -194,7 +194,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
             <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
             <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
               {firm.regulation?.slice(0, 3).map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{formatRegulator(r)}</span>
               ))}
               {(firm.regulation?.length || 0) > 3 && (
                 <Link
