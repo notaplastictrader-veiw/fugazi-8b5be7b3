@@ -25,6 +25,7 @@ import TrustLight from "@/components/broker/TrustLight";
 import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
+import OfferRail from "@/components/common/OfferRail";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
