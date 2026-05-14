@@ -152,22 +152,6 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <StarRating value={broker.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
-        </div>
-        {(broker.complaints || 0) > 20 ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-destructive">
-            <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
-          </span>
-        ) : (
-          <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline font-medium">
-            Read Full Review <ExternalLink className="w-3 h-3" />
-          </Link>
-        )}
-      </div>
-
       <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <CheckCircle className="w-3 h-3 text-primary/70" />
@@ -181,14 +165,34 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
 
       {(broker.affiliate_url || broker.website_url) && (
         <div className="mt-3">
+          {/* Brokers → bonus-only (no promo code) */}
           <OfferRail
-            code={broker.promo_code}
+            code={null}
             label={broker.promo_label}
             url={broker.affiliate_url || broker.website_url}
             entityName={broker.name}
           />
         </div>
       )}
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1 min-w-0">
+          <StarRating value={broker.stars} size={14} />
+          <span className="text-xs text-muted-foreground ml-1 truncate">({broker.review_count})</span>
+        </div>
+        {(broker.complaints || 0) > 20 ? (
+          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-destructive shrink-0">
+            <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
+          </span>
+        ) : (
+          <Link
+            to={`/brokers/${broker.slug}`}
+            className="inline-flex items-center gap-1 text-xs font-bold text-primary px-2.5 py-1 rounded-md bg-primary/10 border border-primary/30 hover:bg-primary/20 hover:border-primary/60 transition-all shrink-0"
+          >
+            Read Full Review <ExternalLink className="w-3 h-3" />
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
@@ -273,18 +277,9 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <StarRating value={firm.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1">({firm.review_count})</span>
-        </div>
-        <Link to={`/brokers/${firm.slug}`} className="flex items-center gap-1 text-xs text-accent hover:underline font-medium">
-          Read Full Review <ExternalLink className="w-3 h-3" />
-        </Link>
-      </div>
-
       {(firm.affiliate_url || firm.website_url) && (
-        <div className="mt-3">
+        <div className="mb-3">
+          {/* Prop firms → discount code rail */}
           <OfferRail
             code={firm.promo_code}
             label={firm.promo_label}
@@ -293,6 +288,19 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           />
         </div>
       )}
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-1 min-w-0">
+          <StarRating value={firm.stars} size={14} />
+          <span className="text-xs text-muted-foreground ml-1 truncate">({firm.review_count})</span>
+        </div>
+        <Link
+          to={`/brokers/${firm.slug}`}
+          className="inline-flex items-center gap-1 text-xs font-bold text-accent px-2.5 py-1 rounded-md bg-accent/10 border border-accent/30 hover:bg-accent/20 hover:border-accent/60 transition-all shrink-0"
+        >
+          Read Full Review <ExternalLink className="w-3 h-3" />
+        </Link>
+      </div>
     </div>
   );
 };
