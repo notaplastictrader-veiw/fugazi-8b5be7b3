@@ -282,6 +282,17 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           Read Full Review <ExternalLink className="w-3 h-3" />
         </Link>
       </div>
+
+      {(firm.affiliate_url || firm.website_url) && (
+        <div className="mt-3">
+          <OfferRail
+            code={firm.promo_code}
+            label={firm.promo_label}
+            url={firm.affiliate_url || firm.website_url}
+            entityName={firm.name}
+          />
+        </div>
+      )}
     </div>
   );
 };
