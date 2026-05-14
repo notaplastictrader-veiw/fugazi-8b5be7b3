@@ -41,11 +41,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const isHome = pathSegments.length === 0;
   const isDashboard = pathSegments[0] === "dashboard";
 
-  const getPageName = () => {
-    if (pathSegments.length === 0) return "";
-    const first = pathSegments[0];
-    return routeNames[first] || first.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-  };
+  const titleize = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  const crumbs = pathSegments.map((seg, i) => {
+    const path = "/" + pathSegments.slice(0, i + 1).join("/");
+    const name = i === 0 ? (routeNames[seg] || titleize(seg)) : titleize(seg);
+    return { name, path };
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,8 +67,16 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
               </button>
               <span className="text-border">|</span>
               <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
-              <ChevronRight className="w-3 h-3 text-muted-foreground" />
-              <span className="text-foreground font-medium">{getPageName()}</span>
+              {crumbs.map((c, i) => (
+                <span key={c.path} className="flex items-center gap-2">
+                  <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                  {i === crumbs.length - 1 ? (
+                    <span className="text-foreground font-medium truncate max-w-[200px]">{c.name}</span>
+                  ) : (
+                    <Link to={c.path} className="text-muted-foreground hover:text-primary transition-colors truncate max-w-[160px]">{c.name}</Link>
+                  )}
+                </span>
+              ))}
             </div>
           </div>
         )}

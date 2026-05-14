@@ -388,9 +388,6 @@ const BrokerDetail = () => {
       })} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <Link to="/brokers" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="w-4 h-4" /> Back to Brokers
-          </Link>
 
           {/* ===== HEADER — at-a-glance ===== */}
           {(() => {
