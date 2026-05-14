@@ -178,6 +178,17 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
           {viewers} viewing this week
         </span>
       </div>
+
+      {(broker.affiliate_url || broker.website_url) && (
+        <div className="mt-3">
+          <OfferRail
+            code={broker.promo_code}
+            label={broker.promo_label}
+            url={broker.affiliate_url || broker.website_url}
+            entityName={broker.name}
+          />
+        </div>
+      )}
     </div>
   );
 };
