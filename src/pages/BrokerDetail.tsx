@@ -9,6 +9,7 @@ import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema, brokerReviewSchema, faqSchema } from "@/components/seo/JsonLd";
 import StickyBrokerCTA from "@/components/broker/StickyBrokerCTA";
 import PeerBrokersRail from "@/components/broker/PeerBrokersRail";
+import WithdrawalProofGallery from "@/components/broker/WithdrawalProofGallery";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -1188,6 +1189,7 @@ const BrokerDetail = () => {
             </TabsContent>
           </Tabs>
 
+          <WithdrawalProofGallery brokerId={broker.id} brokerName={broker.name} />
           <PeerBrokersRail brokerId={broker.id} type={broker.type} />
         </div>
       </div>

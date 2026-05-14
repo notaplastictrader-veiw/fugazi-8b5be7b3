@@ -238,6 +238,7 @@ const AppContent = () => {
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/forecasts" element={<Forecasts />} />
           <Route path="/how-we-review" element={<HowWeReview />} />
+          <Route path="/methodology" element={<HowWeReview />} />
           <Route path="/profile/:username" element={<UserProfile />} />
           <Route path="/claim-broker" element={<BrokerClaimProfile />} />
 
