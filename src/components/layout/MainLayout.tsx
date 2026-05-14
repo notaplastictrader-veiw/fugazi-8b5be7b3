@@ -39,6 +39,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathSegments = location.pathname.split("/").filter(Boolean);
+
+  // Wave 0: scope heavy candlestick body::before to homepage only
+  useEffect(() => {
+    document.body.setAttribute("data-route", location.pathname);
+    return () => { document.body.removeAttribute("data-route"); };
+  }, [location.pathname]);
   const isHome = pathSegments.length === 0;
   const isDashboard = pathSegments[0] === "dashboard";
 
