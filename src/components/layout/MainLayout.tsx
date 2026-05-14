@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import PromoTicker from "@/components/sections/PromoTicker";
