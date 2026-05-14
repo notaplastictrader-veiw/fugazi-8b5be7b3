@@ -1,30 +1,42 @@
 ## Goal
-Homepage broker cards (BrokerTrustHub) currently break visually when a broker has many regulators (e.g. Exness — 7 chips) or long spread/leverage strings (e.g. "0.3 pips (Standard), 0.0 pips (Raw/Zero)"). Make cards uniform and clean.
+Clean up homepage broker card display so values are short and uniform. Full details remain on the broker review page.
 
-## Changes (single file: `src/components/sections/BrokerTrustHub.tsx`)
+## Changes — single file: `src/components/sections/BrokerTrustHub.tsx`
 
-### 1. Cap regulation chips
-- Show **max 3** regulator chips inline.
-- If more, append a compact `+N more` chip linking to `/brokers/{slug}` (full review page).
-- Wrap chips in a single-line container (`flex-nowrap overflow-hidden`) so the header height stays consistent.
-- Apply same logic to both `BrokerCard` (line ~83) and the prop-firm card block (line ~167).
+Add three small pure formatting helpers at the top of the file (no data changes, display-only):
 
-### 2. Truncate long stat values
-- For `avg_spread`, `leverage`, `min_deposit` cells (line ~103-107):
-  - Force single-line: `truncate` + `title={value}` for hover tooltip.
-  - Reduce font to `text-xs` when value length > 10 chars (or just always `text-xs` for safety).
-- This prevents the 4-line wrap seen on Exness card.
+1. **`formatSpread(value)`** — strip units/labels, keep first number only.
+   - `"0.3 pips (Standard), 0.0 pips (Raw/Zero)"` → `"0.3"`
+   - `"1.6 pips"` → `"1.6"`
+   - `"0.02 pips"` → `"0.02"`
+   - Fallback: original value if no number found.
 
-### 3. Optional polish
-- Add `min-h-0` to the inner content wrapper so the score bar + footer always sit at a predictable height.
-- Card itself: keep current padding; no layout-grid changes.
+2. **`formatLeverage(value)`** — keep only the highest `1:N` ratio (or `Unlimited`).
+   - `"Unlimited (Pro), 1:2000 (Standard)"` → `"Unlimited"`
+   - `"1:500"` → `"1:500"`
+   - `"1:1000"` → `"1:1000"`
+   - Logic: if contains "unlimited" (case-insensitive) → `"Unlimited"`; else find all `1:\d+` matches, return the one with the largest N.
 
-## Result
-- Exness card: shows `FCA · CySEC · FSCA  +4 more` and one-line stats.
-- Cards across the homepage row align in height regardless of regulator count or stat verbosity.
-- Full details remain available one click away on the broker detail page.
+3. **`formatRegulator(value)`** — keep only the short code before any `(` or `—`/`-`.
+   - `"FCA (UK) — 730729"` → `"FCA"`
+   - `"CySEC (Cyprus) — 178/12"` → `"CySEC"`
+   - `"FSCA (South Africa)"` → `"FSCA"`
+   - Logic: split on `(`, `—`, `-`, take first token, trim.
+
+## Apply at render sites
+
+- **BrokerCard** (lines ~83 and ~104):
+  - Regulator chips: render `formatRegulator(r)` instead of `r`. Keep the existing 3-chip cap + `+N more`.
+  - Avg Spread cell: `{formatSpread(broker.avg_spread)}`
+  - Leverage cell: `{formatLeverage(broker.leverage)}`
+  - Min Deposit cell: leave as-is (already short).
+
+- **PropFirmCard** (lines ~167 and ~187):
+  - Regulator chips: `formatRegulator(r)`.
+  - Leverage cell: `{formatLeverage(firm.leverage)}`.
+  - Account Size / Start From: leave as-is.
 
 ## Out of scope
-- No data/schema changes.
-- No changes to `Brokers.tsx` listing page (different layout, can be done later if needed).
-- No new components.
+- No DB updates — full strings stay intact in Supabase, just trimmed at display.
+- No changes to Brokers listing page or Broker detail page.
+- No new components or libraries.

@@ -25,6 +25,26 @@ interface Broker {
   last_verified_at?: string | null;
 }
 
+const formatSpread = (v?: string) => {
+  if (!v) return "—";
+  const m = v.match(/[\d.]+/);
+  return m ? m[0] : v;
+};
+
+const formatLeverage = (v?: string) => {
+  if (!v) return "—";
+  if (/unlimited/i.test(v)) return "Unlimited";
+  const matches = [...v.matchAll(/1:(\d+)/g)];
+  if (!matches.length) return v;
+  const max = matches.reduce((a, b) => (parseInt(b[1]) > parseInt(a[1]) ? b : a));
+  return `1:${max[1]}`;
+};
+
+const formatRegulator = (v: string) => {
+  if (!v) return v;
+  return v.split(/[(\-—–]/)[0].trim();
+};
+
 const verifiedAgoShort = (iso?: string | null) => {
   if (!iso) return null;
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -81,7 +101,7 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
             <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
             <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
               {broker.regulation?.slice(0, 3).map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{formatRegulator(r)}</span>
               ))}
               {(broker.regulation?.length || 0) > 3 && (
                 <Link
@@ -110,8 +130,8 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       </div>
 
       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{broker.avg_spread}</div></div>
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{broker.leverage}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</div></div>
+        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</div></div>
         <div className="min-w-0"><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.min_deposit}>{broker.min_deposit}</div></div>
       </div>
 
@@ -174,7 +194,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
             <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
             <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
               {firm.regulation?.slice(0, 3).map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{r}</span>
+                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{formatRegulator(r)}</span>
               ))}
               {(firm.regulation?.length || 0) > 3 && (
                 <Link
@@ -202,7 +222,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Leverage</div>
-          <div className="text-sm font-mono font-semibold text-foreground">{firm.leverage}</div>
+          <div className="text-sm font-mono font-semibold text-foreground">{formatLeverage(firm.leverage)}</div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Start From</div>
