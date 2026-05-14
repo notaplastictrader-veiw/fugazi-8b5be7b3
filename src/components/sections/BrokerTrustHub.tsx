@@ -91,8 +91,8 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 min-w-0">
           {broker.logo_url ? (
-            <div className="w-11 h-11 rounded-lg bg-white shrink-0 overflow-hidden flex items-center justify-center">
-              <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
+            <div className="w-11 h-11 rounded-lg shrink-0 overflow-hidden">
+              <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-cover" loading="lazy" />
             </div>
           ) : (
             <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
