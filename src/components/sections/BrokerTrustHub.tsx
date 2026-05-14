@@ -222,7 +222,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Leverage</div>
-          <div className="text-sm font-mono font-semibold text-foreground">{firm.leverage}</div>
+          <div className="text-sm font-mono font-semibold text-foreground">{formatLeverage(firm.leverage)}</div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground">Start From</div>
