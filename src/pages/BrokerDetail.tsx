@@ -393,126 +393,183 @@ const BrokerDetail = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Brokers
           </Link>
 
-          {/* ===== HEADER ===== */}
-          <div className="glass-card rounded-xl p-6 md:p-8 mb-6">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-              <div className="flex items-start gap-4">
-                {/* Logo */}
-                <div className="w-16 h-16 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
-                  {broker.logo_url ? (
-                    <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain" loading="lazy" />
-                  ) : (
-                    <span className="text-2xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
-                  )}
-                </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{broker.name}</h1>
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    {broker.regulation?.map((r) => (
-                      <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">{r}</span>
-                    ))}
-                    {broker.badge === "verified" && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
-                        <Shield className="w-3 h-3" /> Verified
-                      </span>
-                    )}
-                    {broker.badge === "featured" && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20">
-                        <Award className="w-3 h-3" /> Featured
-                      </span>
-                    )}
-                    {broker.badge === "warning" && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-destructive bg-destructive/10 border-destructive/20">
-                        <AlertTriangle className="w-3 h-3" /> Warning
-                      </span>
-                    )}
-                    {claimStatus === "claimed" ? (
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
-                        <CheckCircle className="w-3 h-3" /> Claimed
-                      </span>
-                    ) : claimStatus === "pending" ? (
-                      <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20">
-                        <Clock className="w-3 h-3" /> Pending Review
-                      </span>
-                    ) : (
-                      <button
-                        onClick={handleClaimClick}
-                        disabled={claimLoading}
-                        className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20 hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-50"
-                      >
-                        <Shield className="w-3 h-3" /> Claim This Profile
-                      </button>
-                    )}
-                    {scamAlerts.length > 0 && (
-                      <a
-                        href="#investigations"
-                        className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border rounded-full text-destructive bg-destructive/10 border-destructive/30 hover:bg-destructive/20 transition-colors animate-pulse"
-                      >
-                        <ShieldAlert className="w-3 h-3" /> Under Investigation
-                      </a>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <StarRating value={broker.stars} size={16} />
-                    <span className="text-sm font-medium text-foreground">{broker.stars}</span>
-                    <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
-                    <TrustLight score={broker.score} complaints={broker.complaints} showLabel />
-                  </div>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                    <span>Min Deposit: <strong className="text-foreground">{broker.min_deposit}</strong></span>
-                    <span>Leverage: <strong className="text-foreground">{broker.leverage}</strong></span>
-                  </div>
-                  {formatVerifiedAgo(broker.last_verified_at) && (
-                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-full border border-primary/30 bg-primary/5 text-primary">
-                      <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
+          {/* ===== HEADER — at-a-glance ===== */}
+          {(() => {
+            const isProp = broker.type === "prop-firm";
+            const scoreOutOf100 = Math.round((broker.score || 0) * 10);
+            const scoreLabel = broker.score >= 8 ? "Excellent" : broker.score >= 6 ? "Average" : broker.score >= 4 ? "Caution" : "High Risk";
+            const stats = isProp
+              ? [
+                  { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
+                  { label: "Leverage", value: broker.leverage || "1:100" },
+                  { label: "Start From", value: broker.min_deposit || "$10" },
+                  { label: "Complaints", value: String(broker.complaints || 0) },
+                  { label: "Rating", value: `${broker.stars}/5` },
+                ]
+              : [
+                  { label: "Min Deposit", value: broker.min_deposit || "—" },
+                  { label: "Avg Spread", value: broker.avg_spread || "—" },
+                  { label: "Leverage", value: broker.leverage || "—" },
+                  { label: "Complaints", value: String(broker.complaints || 0) },
+                  { label: "Rating", value: `${broker.stars}/5` },
+                ];
+            return (
+              <div className="glass-card rounded-2xl p-5 md:p-7 mb-6 overflow-hidden relative">
+                {/* Top row: identity ←→ trust score panel */}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-start">
+                  {/* Identity */}
+                  <div className="flex items-start gap-4 min-w-0">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/25 flex items-center justify-center shrink-0 overflow-hidden">
+                      {broker.logo_url ? (
+                        <img src={broker.logo_url} alt={`${broker.name} logo`} className="w-full h-full object-contain p-1.5" loading="lazy" />
+                      ) : (
+                        <span className="text-3xl font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground truncate">{broker.name}</h1>
+                        {broker.badge === "verified" && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
+                            <Shield className="w-3 h-3" /> Verified
+                          </span>
+                        )}
+                        {broker.badge === "featured" && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20">
+                            <Award className="w-3 h-3" /> Featured
+                          </span>
+                        )}
+                        {broker.badge === "warning" && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-destructive bg-destructive/10 border-destructive/20">
+                            <AlertTriangle className="w-3 h-3" /> Warning
+                          </span>
+                        )}
+                        {scamAlerts.length > 0 && (
+                          <a href="#investigations" className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border rounded-full text-destructive bg-destructive/10 border-destructive/30 hover:bg-destructive/20 transition-colors animate-pulse">
+                            <ShieldAlert className="w-3 h-3" /> Under Investigation
+                          </a>
+                        )}
+                      </div>
 
-              {/* Right — Score + CTA */}
-              <div className="flex flex-col items-end gap-3 shrink-0">
-                <div className="text-center">
-                  <div className="text-xs font-mono text-muted-foreground mb-1">Trust Score</div>
-                  <div className={`w-20 h-20 rounded-xl flex items-center justify-center text-2xl font-mono font-extrabold text-primary-foreground ${scoreColor}`}>
-                    {broker.score}
+                      {/* Rating + reviews + trust light + type tag */}
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                        <StarRating value={broker.stars} size={14} />
+                        <span className="text-sm font-semibold text-foreground">{broker.stars}</span>
+                        <span className="text-xs text-muted-foreground">({reviews.length} review{reviews.length === 1 ? "" : "s"})</span>
+                        <span className="text-muted-foreground">|</span>
+                        <TrustLight score={broker.score} complaints={broker.complaints} showLabel />
+                        <span className="text-muted-foreground">|</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-border bg-secondary/50 text-foreground">
+                          {isProp ? "Prop Firm" : broker.type || "Broker"}
+                        </span>
+                      </div>
+
+                      {/* Regulation chips */}
+                      {broker.regulation?.length ? (
+                        <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                          {broker.regulation.map((r) => (
+                            <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">{r}</span>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {/* Claim + verified-ago row */}
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
+                        {claimStatus === "claimed" ? (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
+                            <CheckCircle className="w-3 h-3" /> Claimed
+                          </span>
+                        ) : claimStatus === "pending" ? (
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20">
+                            <Clock className="w-3 h-3" /> Pending Review
+                          </span>
+                        ) : (
+                          <button onClick={handleClaimClick} disabled={claimLoading} className="flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20 hover:bg-accent/20 transition-colors disabled:opacity-50">
+                            <Shield className="w-3 h-3" /> Claim This Profile
+                          </button>
+                        )}
+                        {formatVerifiedAgo(broker.last_verified_at) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-full border border-primary/30 bg-primary/5 text-primary">
+                            <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trust score panel + CTAs */}
+                  <div className="w-full lg:w-[260px] shrink-0">
+                    <div className="rounded-xl border border-border bg-background/60 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">NAFT Trust Score</span>
+                        <span className={`text-[10px] font-mono font-bold uppercase ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreLabel}</span>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className={`text-5xl font-display font-extrabold ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreOutOf100}</span>
+                        <span className="text-sm font-mono text-muted-foreground">/100</span>
+                      </div>
+                      <div className="score-bar mt-2">
+                        <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 mt-3">
+                      {broker.website_url ? (
+                        <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored" className="block">
+                          <Button size="sm" className="w-full font-display font-bold">
+                            <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Open Account
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button size="sm" className="w-full font-display font-bold" disabled>
+                          <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Coming Soon
+                        </Button>
+                      )}
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button size="sm" variant="outline" onClick={() => { setActiveTab("reviews"); setShowReviewForm(true); }}>
+                          Add Review
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => user ? setShowComplaintModal(true) : setShowAuthModal(true)}
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5 mr-1" /> Complaint
+                          {(broker.complaints || 0) > 0 && (
+                            <span className="ml-1 px-1 py-0.5 text-[9px] font-mono bg-destructive/20 text-destructive rounded">{broker.complaints}</span>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  {broker.website_url ? (
-                    <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored">
-                      <Button size="sm" className="font-display font-bold">
-                        <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                        Open Account
-                      </Button>
-                    </a>
-                  ) : (
-                    <Button size="sm" className="font-display font-bold" disabled title="Broker website not yet linked">
-                      <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
-                      Coming Soon
-                    </Button>
-                  )}
-                  <Button size="sm" variant="outline" onClick={() => { setActiveTab("reviews"); setShowReviewForm(true); }}>
-                    Add Review
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => user ? setShowComplaintModal(true) : setShowAuthModal(true)}
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
-                    File Complaint
-                    {(broker.complaints || 0) > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-mono bg-destructive/20 text-destructive rounded">
-                        {broker.complaints}
-                      </span>
-                    )}
-                  </Button>
+
+                {/* Offer rail */}
+                {(broker.website_url || (broker as any).affiliate_url) && (
+                  <div className="mt-5">
+                    <OfferRail
+                      code={isProp ? (broker as any).promo_code : null}
+                      label={(broker as any).promo_label}
+                      url={(broker as any).affiliate_url || broker.website_url}
+                      entityName={broker.name}
+                      variant="wide"
+                    />
+                  </div>
+                )}
+
+                {/* 5-tile stat strip */}
+                <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                  {stats.map((s) => (
+                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-3 text-center">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-1 truncate" title={s.value}>{s.value}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* ===== TRUST AMPLIFIERS ===== */}
           <div className="grid md:grid-cols-3 gap-4 mb-6">
