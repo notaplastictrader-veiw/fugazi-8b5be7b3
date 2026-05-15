@@ -45,10 +45,10 @@ const HeroSection = () => {
       ]);
       if (cancelled) return;
       setLiveStats([
-        { value: formatCount(brokers.count ?? 0), label: "Brokers reviewed" },
+        { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
         { value: formatCount(scams.count ?? 0), label: "Scam alerts" },
         { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
-        { value: "1.2M", label: "Monthly visitors" },
+        { value: "1.2M+", label: "Website visitors" },
       ]);
     })();
     return () => { cancelled = true; };
@@ -206,10 +206,10 @@ const HeroSection = () => {
 
         {/* 6. Stats — thin inline strip */}
         <div className="w-full mt-2 animate-[fade-up_0.6s_ease_0.45s_both]">
-          <div className="glass-card rounded-full px-4 py-2.5 md:px-5 md:py-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6">
-            <div className="flex items-center gap-2 pr-3 border-r border-border/40">
+          <div className="glass-card rounded-full px-3 py-2 md:px-4 md:py-2.5 flex items-center justify-start md:justify-center gap-3 md:gap-5 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex items-center gap-2 pr-3 border-r border-border/40 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground whitespace-nowrap">Live</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Live</span>
             </div>
             {[
               { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
@@ -219,10 +219,10 @@ const HeroSection = () => {
             ].map((s, i) => {
               const Icon = s.icon;
               return (
-                <div key={i} className="flex items-center gap-2 whitespace-nowrap">
+                <div key={i} className="flex items-center gap-1.5 shrink-0">
                   <Icon className={`w-3.5 h-3.5 ${s.accent}`} />
                   <span className={`font-display font-bold text-sm md:text-base ${s.accent}`}>{s.value}</span>
-                  <span className="text-[11px] md:text-xs font-mono uppercase tracking-wider text-foreground/70">{s.label}</span>
+                  <span className="text-[10px] md:text-xs font-mono uppercase tracking-wider text-foreground/70">{s.label}</span>
                 </div>
               );
             })}
