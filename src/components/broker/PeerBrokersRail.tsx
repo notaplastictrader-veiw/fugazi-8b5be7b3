@@ -51,7 +51,7 @@ const PeerBrokersRail = ({ brokerId, type }: { brokerId: string; type: string })
           >
             <div className="flex items-center gap-3 mb-2">
               {p.logo_url ? (
-                <img src={p.logo_url} alt={`${p.name} logo`} className="w-10 h-10 rounded-lg bg-background border border-border object-contain" />
+                <img src={p.logo_url} alt={`${p.name} logo`} loading="lazy" decoding="async" width={40} height={40} className="w-10 h-10 rounded-lg bg-background border border-border object-contain" />
               ) : (
                 <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-sm font-bold text-foreground">{p.name.charAt(0)}</div>
               )}
