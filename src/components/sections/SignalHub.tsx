@@ -135,9 +135,6 @@ const SignalHub = () => {
             </button>
           </div>
         )}
-            </>
-          );
-        })()}
       </div>
     </section>
   );
