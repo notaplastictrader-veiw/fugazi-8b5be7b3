@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ExternalLink, GitCompare, Star } from "lucide-react";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   broker: { name: string; slug: string; score: number; website_url?: string; logo_url?: string | null };
