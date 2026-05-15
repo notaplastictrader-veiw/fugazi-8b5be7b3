@@ -105,6 +105,9 @@ const ScamPulseRadar = () => {
 
   const data = pulses.length > 0 ? pulses : FALLBACK;
   const highCount = data.filter((p) => p.severity === "high").length;
+  const pageCount = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedData = data.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <section ref={ref} className="container mx-auto px-4 py-16">
