@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, ShieldCheck, AlertTriangle, Activity } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
@@ -57,11 +57,9 @@ const HeroSection = () => {
   const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
+  const [displayText, setDisplayText] = useState("");
+  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
-  // Pick one static placeholder on mount — no typewriter loop.
-  const [placeholderText] = useState(
-    () => typewriterTexts[Math.floor(Math.random() * typewriterTexts.length)]
-  );
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -78,6 +76,34 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, [eyebrowItems.length]);
   const eyebrow = eyebrowItems[eyebrowIndex];
+
+  /* ─── typewriter search placeholder ─── */
+  useEffect(() => {
+    const ref = typewriterRef.current;
+    const tick = () => {
+      const fullText = typewriterTexts[ref.textIndex];
+      if (ref.isDeleting) {
+        ref.charIndex--;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === 0) {
+          ref.isDeleting = false;
+          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
+          return setTimeout(tick, 600);          // pause before next word
+        }
+        return setTimeout(tick, 55);             // delete speed (slower)
+      } else {
+        ref.charIndex++;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === fullText.length) {
+          ref.isDeleting = true;
+          return setTimeout(tick, 2500);         // pause after full word
+        }
+        return setTimeout(tick, 110);            // type speed (slower)
+      }
+    };
+    const timer = setTimeout(tick, 800);
+    return () => clearTimeout(timer);
+  }, [typewriterTexts]);
 
 
   return (
@@ -139,7 +165,8 @@ const HeroSection = () => {
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             {!searchValue && (
               <span className="absolute left-12 right-[110px] text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-                {placeholderText}
+                {displayText}
+                <span className="inline-block w-[2px] h-[1em] bg-muted-foreground ml-[1px] align-middle animate-[pulse_1s_ease-in-out_infinite]" />
               </span>
             )}
             <input
