@@ -6,6 +6,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import NewsletterSponsorFooter from "@/components/sponsored/NewsletterSponsorFooter";
+import NewsletterSignup from "@/components/NewsletterSignup";
 
 const XIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
@@ -199,6 +200,19 @@ const Footer = () => {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Newsletter signup */}
+        <div className="mt-12 pt-8 border-t border-border grid md:grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <h4 className="text-base font-display font-extrabold text-foreground mb-1">
+              Get the weekly NAFT brief
+            </h4>
+            <p className="text-xs text-muted-foreground">
+              New scam alerts, broker score changes, and signal recaps — every Friday. No spam, unsubscribe anytime.
+            </p>
+          </div>
+          <NewsletterSignup source="footer" />
         </div>
 
         <NewsletterSponsorFooter />

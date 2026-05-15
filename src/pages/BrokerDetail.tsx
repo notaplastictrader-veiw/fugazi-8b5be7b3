@@ -65,6 +65,7 @@ interface Broker {
   withdrawal_fee?: string;
   warning_note?: string;
   last_verified_at?: string | null;
+  updated_at?: string | null;
 }
 
 const formatVerifiedAgo = (iso?: string | null) => {
@@ -480,6 +481,13 @@ const BrokerDetail = () => {
                           ))}
                         </div>
                       ) : null}
+
+                      {/* Last updated */}
+                      {broker.updated_at && (
+                        <p className="text-[10px] font-mono text-muted-foreground mt-2 uppercase tracking-wider">
+                          Last updated: {new Date(broker.updated_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                        </p>
+                      )}
 
                       {/* Broker Health Score™ */}
                       {(broker as any).health_score != null && (
