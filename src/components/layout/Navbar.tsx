@@ -214,7 +214,8 @@ const Navbar = () => {
           <div className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link) => {
               const isHighlight = (link as any).highlight;
-              const linkClass = `nav-tab relative inline-flex items-center gap-1 px-2.5 py-2 text-[13px] font-medium transition-colors ${
+              const isActive = isActiveLink(link);
+              const linkClass = `nav-tab ${isActive ? "nav-tab--active" : ""} relative inline-flex items-center gap-1 px-2.5 py-2 text-[13px] font-medium transition-colors ${
                 isHighlight ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
               }`;
               return (
