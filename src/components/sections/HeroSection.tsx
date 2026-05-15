@@ -57,11 +57,9 @@ const HeroSection = () => {
   const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
+  const [displayText, setDisplayText] = useState("");
+  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
-  // Pick one static placeholder on mount — no typewriter loop.
-  const [placeholderText] = useState(
-    () => typewriterTexts[Math.floor(Math.random() * typewriterTexts.length)]
-  );
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
