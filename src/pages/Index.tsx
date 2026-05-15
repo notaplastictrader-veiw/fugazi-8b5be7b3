@@ -66,22 +66,24 @@ const Index = () => {
       <LiveTrustTicker />
       <BrokerTrustHub />
       <BrokerHealthGrid />
-      <TrustTimeline />
-      <WithdrawalProofWall />
-      <PayoutSpeedLeaderboard />
-      <AIMatcherTeaser />
-      <ScamPulseRadar />
-      <ScamAlertSection />
-      <SponsoredBanner placement="homepage-banner" />
-      <FeaturedOffersCarousel />
-      <SignalHub />
-      <ForecastSection />
-      <HomepageCalendarWidget />
-      <LatestForexNews />
-      <CommunityReviews />
-      <ForumActivityWidget />
-      <HowItWorks />
-      <BrokerJoinSection />
+      <Suspense fallback={null}>
+        <LazySection><TrustTimeline /></LazySection>
+        <LazySection><WithdrawalProofWall /></LazySection>
+        <LazySection><PayoutSpeedLeaderboard /></LazySection>
+        <LazySection><AIMatcherTeaser /></LazySection>
+        <LazySection><ScamPulseRadar /></LazySection>
+        <LazySection><ScamAlertSection /></LazySection>
+        <LazySection minHeight={200}><SponsoredBanner placement="homepage-banner" /></LazySection>
+        <LazySection><FeaturedOffersCarousel /></LazySection>
+        <LazySection><SignalHub /></LazySection>
+        <LazySection><ForecastSection /></LazySection>
+        <LazySection><HomepageCalendarWidget /></LazySection>
+        <LazySection><LatestForexNews /></LazySection>
+        <LazySection><CommunityReviews /></LazySection>
+        <LazySection><ForumActivityWidget /></LazySection>
+        <LazySection><HowItWorks /></LazySection>
+        <LazySection><BrokerJoinSection /></LazySection>
+      </Suspense>
     </MainLayout>
   );
 };
