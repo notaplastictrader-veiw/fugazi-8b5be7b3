@@ -97,12 +97,19 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         {/* 1. Brand badge */}
-        <div className="flex justify-center mb-4">
-          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/30 bg-primary/8 text-xs text-primary font-mono font-semibold tracking-wider uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/40 bg-primary/8 text-xs text-primary font-mono font-bold tracking-[0.18em] uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.18)]">
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              We Test Brokers. You Trade Smarter.
+              Not A Fugazi Trader
+            </span>
+          </div>
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm">
+            <span className="relative flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
+              <span className="text-muted-foreground">Built for real traders, not</span>
+              <span className="text-primary font-bold">Fugazi Ones</span>
             </span>
           </div>
         </div>
