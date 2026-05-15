@@ -3,22 +3,23 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CardCarouselProps {
   children: ReactNode;
-  /** Minimum card width in px (drives how many fit per slide). Default 320. */
+  /** Items visible per slide on desktop (default 6). Mobile = 1, tablet = 2-3. */
+  itemsPerView?: number;
+  /** Min card width fallback in px. Default 200. */
   itemMinWidth?: number;
-  /** Extra className for the inner track if needed */
   className?: string;
-  /** Show dot indicators (default true) */
   showDots?: boolean;
 }
 
 /**
  * Drop-in replacement for `<div className="grid grid-cols-X gap-Y">`.
- * Renders children in a horizontal snap-scroll carousel with prev/next
- * arrows and page dots. One reusable component for every homepage card grid.
+ * Renders children in a horizontal snap-scroll carousel showing
+ * `itemsPerView` cards per page on desktop, with prev/next arrows + dots.
  */
 const CardCarousel = ({
   children,
-  itemMinWidth = 320,
+  itemsPerView = 6,
+  itemMinWidth = 200,
   className = "",
   showDots = true,
 }: CardCarouselProps) => {
@@ -79,8 +80,13 @@ const CardCarousel = ({
         {items.map((child, i) => (
           <div
             key={i}
-            className="snap-start shrink-0"
-            style={{ minWidth: itemMinWidth, flex: `0 0 calc(${100 / Math.max(1, Math.floor(800 / itemMinWidth))}% - 1rem)` }}
+            className="snap-start shrink-0 carousel-item"
+            style={
+              {
+                minWidth: itemMinWidth,
+                "--items-per-view": itemsPerView,
+              } as React.CSSProperties
+            }
           >
             {child}
           </div>

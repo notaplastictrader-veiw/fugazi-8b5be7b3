@@ -405,7 +405,7 @@ const BrokerTrustHub = () => {
           ))}
         </div>
 
-        <CardCarousel itemMinWidth={320}>
+        <CardCarousel itemsPerView={6} itemMinWidth={180}>
           <SponsoredBrokerCard />
           {filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
         </CardCarousel>
@@ -428,7 +428,7 @@ const BrokerTrustHub = () => {
           </div>
 
 
-          <CardCarousel itemMinWidth={320}>
+          <CardCarousel itemsPerView={6} itemMinWidth={180}>
             {filteredPropFirms.map((firm) => <PropFirmCard key={firm.slug} firm={firm} visible={visible} />)}
           </CardCarousel>
 
