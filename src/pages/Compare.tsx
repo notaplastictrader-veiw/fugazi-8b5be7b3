@@ -5,8 +5,10 @@ import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X, Star, Shield, AlertTriangle } from "lucide-react";
+import { Plus, X, Star, Shield, AlertTriangle, GitCompare, Globe, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import CostCalculator from "@/components/calculators/CostCalculator";
+import { countryGuides } from "@/data/countryGuides";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null; score: number | null;
@@ -180,6 +182,72 @@ const Compare = () => {
             <p className="text-muted-foreground">Select at least 2 brokers above to start comparing.</p>
           </div>
         )}
+
+        {/* Programmatic SEO: Popular head-to-head comparisons */}
+        {allBrokers.length >= 2 && (
+          <section className="mt-16">
+            <div className="flex items-center gap-2 mb-4">
+              <GitCompare className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-display font-extrabold text-foreground">Popular comparisons</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-5 max-w-2xl">
+              Side-by-side reviews of the most-searched broker matchups — regulation, spreads, leverage, and verified user reviews.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(() => {
+                const top = [...allBrokers]
+                  .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+                  .slice(0, 8);
+                const pairs: { a: BrokerRow; b: BrokerRow }[] = [];
+                for (let i = 0; i < top.length && pairs.length < 12; i++) {
+                  for (let j = i + 1; j < top.length && pairs.length < 12; j++) {
+                    pairs.push({ a: top[i], b: top[j] });
+                  }
+                }
+                return pairs.map(({ a, b }) => (
+                  <Link
+                    key={`${a.slug}-${b.slug}`}
+                    to={`/compare/${a.slug}-vs-${b.slug}`}
+                    className="group p-4 rounded-xl border border-border hover:border-primary/50 bg-card transition-colors flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-mono uppercase text-muted-foreground">Head-to-head</div>
+                      <div className="font-display font-bold text-foreground group-hover:text-primary transition truncate">
+                        {a.name} <span className="text-muted-foreground">vs</span> {b.name}
+                      </div>
+                      <div className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                        {(a.score ?? 0).toFixed(1)} / {(b.score ?? 0).toFixed(1)}
+                      </div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition shrink-0" />
+                  </Link>
+                ));
+              })()}
+            </div>
+          </section>
+        )}
+
+        {/* Programmatic SEO: Country shortlists */}
+        <section className="mt-16">
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5 text-primary" />
+            <h2 className="text-2xl font-display font-extrabold text-foreground">Best brokers by country</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-5 max-w-2xl">
+            Country-specific shortlists with legal status, recommended regulators, and local payment methods.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {countryGuides.map(c => (
+              <Link
+                key={c.slug}
+                to={`/brokers/country/${c.slug}`}
+                className="text-xs px-3 py-1.5 rounded-md border border-border hover:border-primary/50 hover:text-primary transition-colors"
+              >
+                {c.flag} {c.name}
+              </Link>
+            ))}
+          </div>
+        </section>
       </section>
     </MainLayout>
   );

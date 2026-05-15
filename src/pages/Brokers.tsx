@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
-import { Shield, Award, AlertTriangle, ExternalLink } from "lucide-react";
+import { Shield, Award, AlertTriangle, ExternalLink, Globe } from "lucide-react";
+import { countryGuides } from "@/data/countryGuides";
 import { useI18n } from "@/contexts/I18nContext";
 import StarRating from "@/components/reviews/StarRating";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
@@ -175,6 +176,27 @@ const Brokers = () => {
           )}
 
           <SmartPagination page={page} totalPages={totalPages} onPageChange={setPage} className="mt-10" />
+
+          <section className="mt-12 pt-8 border-t border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-display font-extrabold text-foreground">Browse brokers by country</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
+              Country-specific shortlists with legal status, recommended regulators, and local payment methods.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {countryGuides.map(c => (
+                <Link
+                  key={c.slug}
+                  to={`/brokers/country/${c.slug}`}
+                  className="text-xs px-3 py-1.5 rounded-md border border-border hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  {c.flag} {c.name}
+                </Link>
+              ))}
+            </div>
+          </section>
 
           <div className="mt-10 max-w-3xl mx-auto">
             <BecomeSponsorCard context="the broker directory" />
