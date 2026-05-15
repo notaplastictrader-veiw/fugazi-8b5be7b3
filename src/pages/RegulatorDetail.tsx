@@ -158,26 +158,6 @@ const RegulatorDetail = () => {
             </div>
           )}
         </section>
-                <Link
-                  key={b.id}
-                  to={`/brokers/${b.slug}`}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border hover:border-primary/50 transition-colors bg-card"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    {b.logo_url && <img src={b.logo_url} alt={b.name} loading="lazy" className="w-9 h-9 rounded-lg object-cover" />}
-                    <div className="min-w-0">
-                      <div className="font-bold text-foreground truncate">{b.name}</div>
-                      <div className="text-[11px] text-muted-foreground font-mono">
-                        {b.score?.toFixed(1) || "—"}/10 · {b.review_count || 0} reviews
-                      </div>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </Link>
-              ))}
-            </div>
-          )}
-        </section>
 
         <CTABand
           eyebrow="Not sure which regulator fits you"
