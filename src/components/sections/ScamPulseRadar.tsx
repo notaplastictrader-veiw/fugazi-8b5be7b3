@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Radio, AlertTriangle, ArrowRight } from "lucide-react";
+import { Radio, AlertTriangle, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 5;
 
 interface Pulse {
   id: string;
