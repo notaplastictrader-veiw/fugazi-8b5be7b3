@@ -93,12 +93,15 @@ const PayoutSpeedLeaderboard = () => {
         })
         .filter(Boolean) as Row[];
       computed.sort((a, b) => a.avg_hours - b.avg_hours);
-      setRows(computed.slice(0, 8).length > 0 ? computed.slice(0, 8) : FALLBACK);
+      setRows(computed.length > 0 ? computed : FALLBACK);
     })();
   }, [visible]);
 
   const data = rows.length > 0 ? rows : FALLBACK;
   const maxHours = Math.max(...data.map((r) => r.avg_hours));
+  const pageCount = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedData = data.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <section ref={ref} className="container mx-auto px-4 py-16">
