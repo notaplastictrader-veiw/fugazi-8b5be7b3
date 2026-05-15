@@ -138,7 +138,8 @@ const PayoutSpeedLeaderboard = () => {
           <div className="col-span-2 text-right">Tier</div>
           <div className="col-span-2 md:col-span-1 text-right">Proofs</div>
         </div>
-        {data.map((r, i) => {
+        {pagedData.map((r, idx) => {
+          const i = currentPage * PAGE_SIZE + idx;
           const tier = speedTier(r.avg_hours);
           const widthPct = Math.max(8, 100 - (r.avg_hours / maxHours) * 92);
           return (
