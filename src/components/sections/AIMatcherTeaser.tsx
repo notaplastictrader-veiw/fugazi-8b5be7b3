@@ -55,7 +55,7 @@ const AIMatcherTeaser = () => {
     setStep(0);
   };
 
-  const current = Q[step];
+  const current = Q[Math.min(step, 2) as 0 | 1 | 2];
   const progress = step === 3 ? 100 : (step / 3) * 100;
 
   return (
