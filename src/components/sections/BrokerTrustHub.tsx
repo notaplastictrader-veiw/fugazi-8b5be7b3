@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
-import CardCarousel from "@/components/common/CardCarousel";
 
 interface Broker {
   id: string;
