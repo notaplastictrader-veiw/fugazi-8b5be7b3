@@ -497,3 +497,9 @@ body[data-route="/"]::before {
 .nav-tab:hover { color: hsl(var(--primary-foreground)) !important; }
 [data-theme="dark"] .nav-tab__marker { mix-blend-mode: screen; }
 [data-theme="sentinel"] .nav-tab__marker { mix-blend-mode: screen; }
+
+/* Active route — marker locked in place */
+.nav-tab--active .nav-tab__marker {
+  transform: translateY(-50%) skewX(-12deg) scaleX(1);
+}
+.nav-tab--active { color: hsl(var(--primary-foreground)) !important; }
