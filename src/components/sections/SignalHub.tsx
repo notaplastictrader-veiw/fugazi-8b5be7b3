@@ -48,6 +48,10 @@ const SignalHub = () => {
     fetchGroups();
   }, [displayCount]);
 
+  const pageCount = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedGroups = groups.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
