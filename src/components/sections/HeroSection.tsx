@@ -60,7 +60,7 @@ const HeroSection = () => {
     baseStats[0],
     baseStats[1],
     baseStats[2],
-    { value: visitorsValue, label: "Website visitors" },
+    { value: visitorsValue, label: "Visitors" },
   ] as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
