@@ -63,6 +63,7 @@ const ScamAlerts = () => {
         title="Forex Scam Alerts — Verified Broker Warnings & Fraud Reports"
         description="Browse verified forex scam alerts, broker warnings, and fraud reports. Updated daily — protect yourself from withdrawal refusals and Ponzi schemes."
         path="/scam-alerts"
+        image="https://www.notafugazitrader.com/og-scam-alerts.jpg"
       />
       <JsonLd data={breadcrumbSchema([
         { name: "Home", path: "/" },

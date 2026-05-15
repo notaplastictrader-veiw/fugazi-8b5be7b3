@@ -58,6 +58,7 @@ const Signals = () => {
         title="Verified Signal Groups — Forex & Crypto Telegram Signals"
         description="Browse every verified forex and crypto signal group. Real win rates, audited track records, transparent performance — no fake screenshots."
         path="/signals"
+        image="https://www.notafugazitrader.com/og-signals.jpg"
       />
       <JsonLd data={breadcrumbSchema([
         { name: "Home", path: "/" },
