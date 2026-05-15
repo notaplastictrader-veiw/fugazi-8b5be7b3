@@ -48,7 +48,7 @@ const HeroSection = () => {
         { value: formatCount(brokers.count ?? 0), label: "Brokers reviewed" },
         { value: formatCount(scams.count ?? 0), label: "Scam alerts" },
         { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
-        { value: formatCount(profiles.count ?? 0), label: "Members" },
+        { value: "1.2M", label: "Monthly visitors" },
       ]);
     })();
     return () => { cancelled = true; };
