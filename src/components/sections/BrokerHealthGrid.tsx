@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Activity, TrendingUp, TrendingDown, Minus, ArrowRight } from "lucide-react";
-import CardCarousel from "@/components/common/CardCarousel";
+import { Activity, TrendingUp, TrendingDown, Minus, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Row {
   id: string;
@@ -47,9 +46,12 @@ const healthBg = (h: number) =>
     ? "from-muted to-foreground/40"
     : "from-destructive/30 to-destructive";
 
+const PAGE = 6;
+
 const BrokerHealthGrid = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [visible, setVisible] = useState(false);
+  const [page, setPage] = useState(0);
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -123,74 +125,84 @@ const BrokerHealthGrid = () => {
         </Link>
       </div>
 
-      <CardCarousel itemsPerView={6} itemMinWidth={180}>
-        {data.map((r) => {
-          const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
-          const deltaColor =
-            r.delta > 0
-              ? "text-primary bg-primary/10"
-              : r.delta < 0
-              ? "text-destructive bg-destructive/10"
-              : "text-muted-foreground bg-secondary";
-          return (
-            <Link
-              key={r.id}
-              to={`/brokers/${r.slug}`}
-              className="group rounded-xl border border-border bg-card hover:border-primary/50 transition-all p-4 flex flex-col gap-3 h-full"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  {r.logo_url ? (
-                    <img
-                      src={r.logo_url}
-                      alt={r.name}
-                      loading="lazy"
-                      className="w-8 h-8 rounded-md object-cover shrink-0"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center font-mono text-xs font-bold text-foreground shrink-0">
-                      {r.name[0]}
+      {(() => {
+        const data = rows.length > 0 ? rows : FALLBACK;
+        const pageCount = Math.max(1, Math.ceil(data.length / PAGE));
+        const current = Math.min(page, pageCount - 1);
+        const slice = data.slice(current * PAGE, current * PAGE + PAGE);
+        return (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {slice.map((r) => {
+                const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
+                const deltaColor =
+                  r.delta > 0
+                    ? "text-primary bg-primary/10"
+                    : r.delta < 0
+                    ? "text-destructive bg-destructive/10"
+                    : "text-muted-foreground bg-secondary";
+                return (
+                  <Link
+                    key={r.id}
+                    to={`/brokers/${r.slug}`}
+                    className="group rounded-xl border border-border bg-card hover:border-primary/50 transition-all p-4 flex flex-col gap-3 h-full"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {r.logo_url ? (
+                          <img src={r.logo_url} alt={r.name} loading="lazy" className="w-8 h-8 rounded-md object-cover shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center font-mono text-xs font-bold text-foreground shrink-0">
+                            {r.name[0]}
+                          </div>
+                        )}
+                        <span className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                          {r.name}
+                        </span>
+                      </div>
+                      <span className={`shrink-0 inline-flex items-center gap-0.5 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${deltaColor}`}>
+                        <DeltaIcon className="w-2.5 h-2.5" />
+                        {r.delta > 0 ? "+" : ""}{r.delta}
+                      </span>
                     </div>
-                  )}
-                  <span className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                    {r.name}
-                  </span>
-                </div>
-                <span
-                  className={`shrink-0 inline-flex items-center gap-0.5 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${deltaColor}`}
-                >
-                  <DeltaIcon className="w-2.5 h-2.5" />
-                  {r.delta > 0 ? "+" : ""}
-                  {r.delta}
-                </span>
-              </div>
 
-              <div className="flex items-baseline gap-1.5">
-                <span className={`font-display text-3xl font-black ${healthColor(r.health_score)}`}>
-                  {Math.round(r.health_score)}
-                </span>
-                <span className="text-[10px] font-mono uppercase text-muted-foreground">
-                  / 100
-                </span>
-              </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className={`font-display text-3xl font-black ${healthColor(r.health_score)}`}>
+                        {Math.round(r.health_score)}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase text-muted-foreground">/ 100</span>
+                    </div>
 
-              <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                <div
-                  className={`h-full bg-gradient-to-r ${healthBg(r.health_score)} transition-all`}
-                  style={{ width: `${Math.min(100, r.health_score)}%` }}
-                />
-              </div>
+                    <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                      <div className={`h-full bg-gradient-to-r ${healthBg(r.health_score)} transition-all`} style={{ width: `${Math.min(100, r.health_score)}%` }} />
+                    </div>
 
-              <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                <span>Score {r.score.toFixed(1)}</span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary">
-                  View →
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                      <span>Score {r.score.toFixed(1)}</span>
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-primary">View →</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            {pageCount > 1 && (
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <button onClick={() => setPage(Math.max(0, current - 1))} disabled={current === 0} aria-label="Previous"
+                  className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                  Page {current + 1} of {pageCount}
                 </span>
+                <button onClick={() => setPage(Math.min(pageCount - 1, current + 1))} disabled={current >= pageCount - 1} aria-label="Next"
+                  className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-            </Link>
-          );
-        })}
-      </CardCarousel>
+            )}
+          </>
+        );
+      })()}
     </section>
   );
 };
