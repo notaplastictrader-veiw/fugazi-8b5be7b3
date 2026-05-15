@@ -210,7 +210,7 @@ const HeroSection = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Live Trust Metrics</span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
             {[
               { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
               { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
@@ -221,14 +221,18 @@ const HeroSection = () => {
               return (
                 <div
                   key={i}
-                  className="relative overflow-hidden glass-card rounded-2xl p-5 md:p-6 min-h-[140px] md:min-h-[170px] flex flex-col justify-between hover:border-primary/30 transition-all group"
+                  className="relative overflow-hidden glass-card rounded-xl px-3 py-3 md:px-4 md:py-3.5 flex items-center gap-3 hover:border-primary/40 transition-all group"
                 >
-                  <Icon className={`absolute top-4 right-4 w-4 h-4 md:w-5 md:h-5 ${s.accent} opacity-60`} />
-                  <div className={`font-display font-extrabold leading-none tracking-tight ${s.accent} text-4xl md:text-5xl lg:text-6xl break-all`}>
-                    {s.value}
+                  <div className={`shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center bg-background/40 ${s.accent}`}>
+                    <Icon className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
-                  <div className="text-[11px] md:text-xs font-mono uppercase tracking-wider text-muted-foreground leading-snug">
-                    {s.label}
+                  <div className="flex flex-col min-w-0">
+                    <div className={`font-display font-extrabold leading-tight tracking-tight ${s.accent} text-xl md:text-2xl lg:text-3xl`}>
+                      {s.value}
+                    </div>
+                    <div className="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-foreground/70 leading-tight truncate">
+                      {s.label}
+                    </div>
                   </div>
                 </div>
               );
