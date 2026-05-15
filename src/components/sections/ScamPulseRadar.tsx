@@ -184,6 +184,30 @@ const ScamPulseRadar = () => {
           })}
         </div>
 
+        {pageCount > 1 && (
+          <div className="px-6 py-3 border-t border-border flex items-center justify-center gap-3">
+            <button
+              onClick={() => setPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              aria-label="Previous"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-destructive hover:border-destructive/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+              Page {currentPage + 1} of {pageCount}
+            </span>
+            <button
+              onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+              disabled={currentPage >= pageCount - 1}
+              aria-label="Next"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-destructive hover:border-destructive/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         <div className="px-6 py-4 border-t border-border bg-secondary/20 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
             <AlertTriangle className="w-3 h-3" />
