@@ -79,7 +79,7 @@ export default function Pro() {
       <SEO
         title="NAFT Pro — Trader-grade tools, hidden risk alerts | NAFT"
         description="Unlock advanced broker comparison, hidden risk alerts, AI trust audits, weekly audio digest and an ad-free experience with NAFT Pro."
-        canonical="/pro"
+        path="/pro"
       />
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         {/* Hero */}
