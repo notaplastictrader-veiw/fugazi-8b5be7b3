@@ -1,6 +1,25 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy } from "lucide-react";
+import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy, Gift, Lightbulb, CalendarDays, Newspaper, Handshake, Users, Briefcase, Info, Mail } from "lucide-react";
+
+// Icon map for More mega-menu items (matched by label keyword)
+const moreIcons: Record<string, any> = {
+  promotions: Gift,
+  ideas: Lightbulb,
+  share: Lightbulb,
+  calendar: CalendarDays,
+  news: Newspaper,
+  affiliate: Handshake,
+  ib: Users,
+  collab: Briefcase,
+  about: Info,
+  contact: Mail,
+};
+const iconFor = (label: string) => {
+  const k = label.toLowerCase();
+  for (const key in moreIcons) if (k.includes(key)) return moreIcons[key];
+  return ChevronDown;
+};
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/contexts/I18nContext";
