@@ -1,59 +1,63 @@
-# Ship everything remaining (P1 + P2 + P3)
+# 🔴 Critical Fixes — Implementation Plan
 
-Goal: take the platform from ~98 → 100. Nine items, batched into three execution phases.
+Three surgical frontend fixes. No backend, no schema, no new deps.
 
-## Phase 1 — SEO depth (P1)
+---
 
-1. **CompareVs verdicts upgrade** (`src/pages/CompareVs.tsx`)
-   - Add a "Winner by category" block: 4 mini-cards (Trust Score, Spreads, Regulation count, Complaints) each highlighting which broker wins
-   - Add FAQPage JSON-LD with 4 auto-generated Q&A per pair ("Is X regulated?", "Which has lower spreads?", etc.)
-   - Add "Related comparisons" rail — 3 internal links to other pairs
+## Fix 1 — Rotating eyebrow blank-frame bug
 
-2. **Regulator hub pages**
-   - New route `/regulators/:code` → new `src/pages/RegulatorDetailDynamic.tsx` (project already has `RegulatorDetail.tsx`; verify and reuse if dynamic, otherwise extend)
-   - Lists brokers under that regulator + complaint counts pulled from `brokers` + `complaints`
-   - JSON-LD `GovernmentOrganization` + breadcrumbs
-   - Add to `scripts/generate-sitemap.ts` if present, else skip sitemap entry
+**File:** `src/components/sections/HeroSection.tsx`
 
-3. **Annual Report OG image**
-   - New edge function `supabase/functions/annual-report-og/index.ts` returning a 1200×630 SVG-as-PNG with year + key stats
-   - Update `src/pages/AnnualReport.tsx` `<meta property="og:image">` to point at the function URL
+**Problem:** Mid-rotation the pill renders empty for ~150ms because the JSX uses a stale variable name and the fade-out sets opacity to 0 before swapping text.
 
-## Phase 2 — Engagement (P2)
+**Approach:**
+- Replace the JS-driven opacity toggle with a pure CSS crossfade: render the current item with `key={eyebrowIndex}` and a single `animate-fade-in` class so React re-mounts it cleanly each tick.
+- Keep the 3.5s interval, but remove the intermediate "fade out → swap → fade in" two-step. One tick = one mount = one fade-in. No blank frame possible.
+- Verify the variable name (`eyebrowItems` / `eyebrowIndex`) matches between state, effect, and JSX.
 
-4. **Notification center polish** (`src/components/NotificationBell.tsx`)
-   - Verify dropdown UX, add unread count badge, "Mark all read" action, link footer to `/dashboard/notifications`
+**Acceptance:** scroll the hero for 30 seconds — pill never goes blank, text always legible.
 
-5. **Watchlist quick-add**
-   - New `src/components/broker/WatchlistButton.tsx` — floating "+ Watch" pill that toggles row in `watchlist` table
-   - Mount on `BrokerCard` (find usage in `src/pages/Brokers.tsx` and broker grids)
+---
 
-6. **Forum activity widget**
-   - New `src/components/sections/ForumActivityWidget.tsx` — latest 5 threads from `forum_threads` with reply count + last activity
-   - Mount under `<CommunityReviews />` in `src/pages/Index.tsx`
+## Fix 2 — Reduce mobile chrome from ~140px to ≤90px above the fold
 
-## Phase 3 — Polish (P3)
+**Files:**
+- `src/components/sections/PromoTicker.tsx` (hide on mobile, or shrink to 24px)
+- `src/components/layout/Navbar.tsx` (shrink mobile nav to 48px)
+- `src/components/layout/MainLayout.tsx` (recompute `paddingTop` per breakpoint)
 
-7. **Skeleton loaders** for `TrustTimeline`, `WithdrawalProofWall`, `PayoutSpeedLeaderboard`, `BrokerHealthGrid`, `ScamPulseRadar`, `PayoutSpeedLeaderboard` — replace blank-during-fetch with shimmer rows using existing `Skeleton` component
+**Approach:**
+- Hide `PromoTicker` on `<md` (`hidden md:block` on its outer wrapper). Mobile users get the bottom nav for promos via existing CTAs.
+- Drop mobile Navbar height from 58px → 48px (logo + hamburger only — already minimal).
+- Update `MainLayout` `paddingTop` to `pt-12 md:pt-[92px]` (48px mobile, 92px desktop) instead of the fixed inline 92px.
+- Keep desktop unchanged.
 
-8. **Mobile spacing audit @ 375px**
-   - Set viewport to 375px, scroll all new sections, fix any overflow / cramped padding
-   - Touch-target audit on quiz buttons & leaderboard rows
+**Acceptance:** at 375×812, hero badge + headline first line both visible without scrolling.
 
-9. **Lighthouse pass**
-   - Add `loading="lazy"` + `decoding="async"` to remaining images in homepage sections
-   - Audit `font-display: swap` in `index.css`
-   - Verify route-level `React.lazy` is in place for heavy pages
+---
 
-## Technical notes
+## Fix 3 — Stop the search typewriter loop
 
-- All new components follow existing semantic token patterns (no hardcoded colors)
-- New edge function uses `npm:@supabase/supabase-js@2/cors` import per project rules
-- `verify_jwt = false` not needed — annual-report-og is public
-- No new database tables required; everything reuses existing schema (`forum_threads`, `watchlist`, `complaints`, `brokers`, `regulators` data file)
-- Existing `RegulatorDetail.tsx` will be inspected first; if already dynamic, only enrich it instead of duplicating
+**File:** `src/components/sections/HeroSection.tsx` (search bar block)
 
-## Out of scope (unchanged)
-- Payment gateway, custom email domain
+**Approach:**
+- Replace the typewriter animation on the search input placeholder with a **static rotating placeholder**: pick one of 4 example queries on mount (`useState` with `Math.floor(Math.random()*4)`), no animation, no interval.
+- Remove the `setInterval` and per-character state that drives the typewriter.
+- Keep the 4 example strings (e.g. "Search Exness", "Compare IC Markets vs Pepperstone", "Is XM regulated?", "Scam alerts this week") so the variety stays.
 
-Execution order: Phase 1 → 2 → 3 in a single sweep. Estimated score after: **100/100**.
+**Acceptance:** placeholder shows one full example, never animates, never loops. Input remains fully usable; focus clears placeholder as normal.
+
+---
+
+## Out of scope (deferred to 🟠 High batch)
+- `loading="lazy"` on broker logos
+- Lazy-mounting sections below fold 4
+- Per-route `og:image`
+
+## Verification
+After edits, reload preview at both 1042×770 (current) and 375×812 (mobile). Confirm:
+1. Eyebrow never blanks across 30s
+2. Hero headline visible above fold on 375px
+3. Search placeholder is static
+
+Estimated diff: ~60 lines across 3 files.
