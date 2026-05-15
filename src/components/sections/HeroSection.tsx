@@ -117,11 +117,13 @@ const HeroSection = () => {
               Not A Fugazi Trader
             </span>
           </div>
-          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm">
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm overflow-hidden">
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              <span className="text-muted-foreground">Built for real traders, not</span>
-              <span className="text-primary font-bold">Fugazi Ones</span>
+              <span key={eyebrowIdx} className="inline-flex items-center gap-1.5 animate-[fade-up_0.5s_ease_both]">
+                <span className="text-muted-foreground">{eyebrowVariants[eyebrowIdx].prefix}</span>
+                <span className="text-primary font-bold">{eyebrowVariants[eyebrowIdx].highlight}</span>
+              </span>
             </span>
           </div>
         </div>
