@@ -56,17 +56,15 @@ const Index = () => {
       ])} />
       <HeroSection />
       <LiveTrustTicker />
-      <FeaturedOffersCarousel />
-      <TrustStrip />
-      <ScamAlertSection />
-      <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
       <AIMatcherTeaser />
-      <HomepageCalendarWidget />
-      <LatestForexNews />
-      <SignalChannel />
+      <ScamAlertSection />
+      <SponsoredBanner placement="homepage-banner" />
+      <FeaturedOffersCarousel />
       <SignalHub />
       <ForecastSection />
+      <HomepageCalendarWidget />
+      <LatestForexNews />
       <CommunityReviews />
       <HowItWorks />
       <BrokerJoinSection />
