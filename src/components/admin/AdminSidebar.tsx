@@ -4,7 +4,7 @@ import {
   AlertTriangle, ShieldAlert, CheckCircle, Settings, Users, DollarSign, LogOut,
   Gift, Newspaper, CalendarDays, Trophy, ScrollText, Share2, BookOpen, GraduationCap,
   Lightbulb, Mail, Dices, FileText, ChevronDown, ShieldCheck, ArrowUpCircle,
-  Globe, BarChart3, Briefcase, UserCog, UserPlus, Home, ArrowLeft, Headphones, Megaphone, Inbox, Sparkles
+  Globe, BarChart3, Briefcase, UserCog, UserPlus, Home, ArrowLeft, Headphones, Megaphone, Inbox, Sparkles, Activity
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -114,6 +114,14 @@ const sections: SidebarSection[] = [
       { title: "Placements", url: "/admin/advertise/placements", icon: Megaphone },
       { title: "Live Campaigns", url: "/admin/advertise/campaigns", icon: Sparkles },
       { title: "Enquiries", url: "/admin/advertise/enquiries", icon: Inbox },
+    ],
+  },
+  {
+    label: "GROWTH",
+    icon: Activity,
+    items: [
+      { title: "Broker Health Scores", url: "/admin/health-scores", icon: Activity },
+      { title: "Audio Digests", url: "/admin/audio-digests", icon: Headphones },
     ],
   },
   {
