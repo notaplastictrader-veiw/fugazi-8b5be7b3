@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Pin, ArrowRight } from "lucide-react";
+import { MessageSquare, Pin, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 3;
 
 interface Thread {
   id: string;
@@ -31,6 +33,7 @@ const timeAgo = (iso: string) => {
 
 const ForumActivityWidget = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     supabase
@@ -38,11 +41,14 @@ const ForumActivityWidget = () => {
       .select("id,slug,title,category,reply_count,last_reply_at,pinned")
       .order("pinned", { ascending: false })
       .order("last_reply_at", { ascending: false })
-      .limit(5)
+      .limit(15)
       .then(({ data }) => setThreads((data as Thread[]) || []));
   }, []);
 
   const data = threads.length ? threads : FALLBACK;
+  const pageCount = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedData = data.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <section className="container mx-auto px-4 py-16">
@@ -60,7 +66,7 @@ const ForumActivityWidget = () => {
           </Link>
         </div>
         <div className="divide-y divide-border">
-          {data.map(t => (
+          {pagedData.map(t => (
             <Link
               key={t.id}
               to={`/forum/${t.slug}`}
@@ -82,6 +88,29 @@ const ForumActivityWidget = () => {
             </Link>
           ))}
         </div>
+        {pageCount > 1 && (
+          <div className="px-6 py-4 border-t border-border flex items-center justify-center gap-3">
+            <button
+              onClick={() => setPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              aria-label="Previous"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+              Page {currentPage + 1} of {pageCount}
+            </span>
+            <button
+              onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+              disabled={currentPage >= pageCount - 1}
+              aria-label="Next"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
