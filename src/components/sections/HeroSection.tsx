@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, ShieldCheck, AlertTriangle, Activity } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
@@ -57,9 +57,11 @@ const HeroSection = () => {
   const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
-  const [displayText, setDisplayText] = useState("");
-  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
+  // Pick one static placeholder on mount — no typewriter loop.
+  const [placeholderText] = useState(
+    () => typewriterTexts[Math.floor(Math.random() * typewriterTexts.length)]
+  );
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -69,45 +71,14 @@ const HeroSection = () => {
     { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
   ];
   const [eyebrowIndex, setEyebrowIndex] = useState(0);
-  const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   useEffect(() => {
     const interval = setInterval(() => {
-      setEyebrowAnim("out");
-      setTimeout(() => {
-        setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
-        setEyebrowAnim("in");
-      }, 300);
-    }, 3000);
+      setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
+    }, 3500);
     return () => clearInterval(interval);
   }, [eyebrowItems.length]);
   const eyebrow = eyebrowItems[eyebrowIndex];
 
-  useEffect(() => {
-    const ref = typewriterRef.current;
-    const tick = () => {
-      const fullText = typewriterTexts[ref.textIndex];
-      if (ref.isDeleting) {
-        ref.charIndex--;
-        setDisplayText(fullText.substring(0, ref.charIndex));
-        if (ref.charIndex === 0) {
-          ref.isDeleting = false;
-          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
-          return setTimeout(tick, 700);
-        }
-        return setTimeout(tick, 55);
-      } else {
-        ref.charIndex++;
-        setDisplayText(fullText.substring(0, ref.charIndex));
-        if (ref.charIndex === fullText.length) {
-          ref.isDeleting = true;
-          return setTimeout(tick, 2800);
-        }
-        return setTimeout(tick, 110);
-      }
-    };
-    const timer = setTimeout(tick, 500);
-    return () => clearTimeout(timer);
-  }, [typewriterTexts]);
 
   return (
     <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
@@ -128,12 +99,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* 2. Rotating eyebrow */}
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 overflow-hidden h-[30px]">
+        {/* 2. Rotating eyebrow — pure CSS crossfade via key remount */}
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 h-[30px]">
           <span
-            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
-              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
-            }`}
+            key={eyebrowIndex}
+            className="flex items-center gap-1 text-xs text-muted-foreground animate-fade-in"
           >
             <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
             {eyebrow.text}
@@ -169,8 +139,7 @@ const HeroSection = () => {
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             {!searchValue && (
               <span className="absolute left-12 right-[110px] text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-                {displayText}
-                <span className="inline-block w-[2px] h-[14px] bg-muted-foreground/60 ml-[1px] align-middle animate-[pulse_1s_steps(1)_infinite]" />
+                {placeholderText}
               </span>
             )}
             <input
