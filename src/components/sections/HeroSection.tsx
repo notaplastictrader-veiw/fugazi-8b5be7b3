@@ -99,12 +99,11 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* 2. Rotating eyebrow */}
-        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 overflow-hidden h-[30px]">
+        {/* 2. Rotating eyebrow — pure CSS crossfade via key remount */}
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 h-[30px]">
           <span
-            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
-              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
-            }`}
+            key={eyebrowIndex}
+            className="flex items-center gap-1 text-xs text-muted-foreground animate-fade-in"
           >
             <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
             {eyebrow.text}
@@ -140,8 +139,7 @@ const HeroSection = () => {
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             {!searchValue && (
               <span className="absolute left-12 right-[110px] text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-                {displayText}
-                <span className="inline-block w-[2px] h-[14px] bg-muted-foreground/60 ml-[1px] align-middle animate-[pulse_1s_steps(1)_infinite]" />
+                {placeholderText}
               </span>
             )}
             <input
