@@ -242,6 +242,48 @@ export type Database = {
         }
         Relationships: []
       }
+      audio_digests: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          error_message: string | null
+          id: string
+          script: string
+          status: string
+          title: string
+          updated_at: string
+          voice_id: string | null
+          week_of: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          script: string
+          status?: string
+          title: string
+          updated_at?: string
+          voice_id?: string | null
+          week_of: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          id?: string
+          script?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          voice_id?: string | null
+          week_of?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -637,6 +679,9 @@ export type Database = {
           description: string | null
           founded_year: number | null
           headquarters: string | null
+          health_breakdown: Json | null
+          health_score: number | null
+          health_updated_at: string | null
           homepage_position: number | null
           id: string
           last_verified_at: string | null
@@ -680,6 +725,9 @@ export type Database = {
           description?: string | null
           founded_year?: number | null
           headquarters?: string | null
+          health_breakdown?: Json | null
+          health_score?: number | null
+          health_updated_at?: string | null
           homepage_position?: number | null
           id?: string
           last_verified_at?: string | null
@@ -723,6 +771,9 @@ export type Database = {
           description?: string | null
           founded_year?: number | null
           headquarters?: string | null
+          health_breakdown?: Json | null
+          health_score?: number | null
+          health_updated_at?: string | null
           homepage_position?: number | null
           id?: string
           last_verified_at?: string | null
@@ -1330,6 +1381,45 @@ export type Database = {
           read?: boolean
           title?: string
           type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pro_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          notes: string | null
+          plan: string
+          source: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          plan?: string
+          source?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          notes?: string | null
+          plan?: string
+          source?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -2464,6 +2554,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calc_broker_health_score: {
+        Args: { _broker_id: string }
+        Returns: undefined
+      }
       convert_referral: { Args: { code_text: string }; Returns: string }
       detect_potential_scam: {
         Args: { _broker_id: string }
@@ -2477,7 +2571,9 @@ export type Database = {
         Args: { code_id: string }
         Returns: undefined
       }
+      is_pro_user: { Args: { _user_id: string }; Returns: boolean }
       is_verified_trader: { Args: { _user_id: string }; Returns: boolean }
+      recalc_all_broker_health: { Args: never; Returns: number }
       submit_application: {
         Args: {
           _application_data: Json
