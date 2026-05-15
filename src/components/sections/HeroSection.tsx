@@ -204,33 +204,36 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Live Trust Panel — replaces multiple chips/groups */}
-        <div className="glass-card rounded-2xl px-3 py-3 inline-flex items-center gap-3 md:gap-5 animate-[fade-up_0.6s_ease_0.45s_both] flex-wrap justify-center">
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
+        {/* 6. Stats — bold cards grid */}
+        <div className="w-full mt-2 animate-[fade-up_0.6s_ease_0.45s_both]">
+          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-card">
             <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-            LIVE
-          </span>
-          <span className="hidden md:inline-block w-px h-4 bg-border" />
-          <span className="inline-flex items-center gap-1.5 text-xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-            <strong className="font-display font-extrabold text-foreground">{stats[0].value}</strong>
-            <span className="text-muted-foreground">{stats[0].label}</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs">
-            <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
-            <strong className="font-display font-extrabold text-foreground">{stats[1].value}</strong>
-            <span className="text-muted-foreground">{stats[1].label}</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs">
-            <Activity className="w-3.5 h-3.5 text-accent" />
-            <strong className="font-display font-extrabold text-foreground">{stats[2].value}</strong>
-            <span className="text-muted-foreground">{stats[2].label}</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[hsl(var(--teal))]" />
-            <strong className="font-display font-extrabold text-foreground">{stats[3].value}</strong>
-            <span className="text-muted-foreground">{stats[3].label}</span>
-          </span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Live Trust Metrics</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {[
+              { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
+              { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
+              { icon: Activity, value: stats[2].value, label: stats[2].label, accent: "text-accent" },
+              { icon: Sparkles, value: stats[3].value, label: stats[3].label, accent: "text-[hsl(var(--teal))]" },
+            ].map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <div
+                  key={i}
+                  className="relative overflow-hidden glass-card rounded-2xl p-5 md:p-6 min-h-[140px] md:min-h-[170px] flex flex-col justify-between hover:border-primary/30 transition-all group"
+                >
+                  <Icon className={`absolute top-4 right-4 w-4 h-4 md:w-5 md:h-5 ${s.accent} opacity-60`} />
+                  <div className={`font-display font-extrabold leading-none tracking-tight ${s.accent} text-4xl md:text-5xl lg:text-6xl break-all`}>
+                    {s.value}
+                  </div>
+                  <div className="text-[11px] md:text-xs font-mono uppercase tracking-wider text-muted-foreground leading-snug">
+                    {s.label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
