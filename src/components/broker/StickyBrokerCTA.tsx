@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ExternalLink, GitCompare, Star } from "lucide-react";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   broker: { name: string; slug: string; score: number; website_url?: string; logo_url?: string | null };
@@ -52,6 +53,12 @@ const StickyBrokerCTA = ({ broker, onWriteReview }: Props) => {
                 href={broker.website_url}
                 target="_blank"
                 rel="nofollow noopener noreferrer sponsored"
+                onClick={() =>
+                  trackEvent("broker_visit_click", {
+                    broker: broker.slug,
+                    source: "sticky_cta",
+                  })
+                }
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-display font-bold uppercase tracking-wider hover:opacity-90 transition-opacity"
               >
                 Visit <ExternalLink className="w-3.5 h-3.5" />

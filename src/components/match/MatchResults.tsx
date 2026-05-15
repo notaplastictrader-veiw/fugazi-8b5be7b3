@@ -8,6 +8,8 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
+import { useEffect } from "react";
 
 interface Match {
   id: string;
@@ -23,6 +25,15 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
   const { user } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    trackEvent("matcher_completed", {
+      top_match: matches[0]?.slug,
+      style: answers?.style,
+      capital: answers?.capital,
+      goal: answers?.goal,
+    });
+  }, []);
 
   async function saveMatch() {
     if (!user) { toast.error("Sign in to save matches"); return; }
@@ -172,6 +183,7 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
                 <div className="flex flex-wrap gap-2">
                   <Link
                     to={`/brokers/${m.slug}`}
+                    onClick={() => trackEvent("matcher_result_click", { broker: m.slug, rank: i + 1 })}
                     className="inline-flex items-center gap-1 px-4 py-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
                   >
                     Read full review <ArrowUpRight className="w-3 h-3" />
