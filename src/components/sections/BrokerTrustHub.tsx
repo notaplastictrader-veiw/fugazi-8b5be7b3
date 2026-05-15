@@ -334,6 +334,11 @@ const BrokerTrustHub = () => {
     { id: "4", name: "Quotex", slug: "quotex", type: "binary", tags: ["binary", "crypto", "scam-watch"], regulation: ["IFMRRC"], score: 4.2, avg_spread: "N/A", leverage: "N/A", min_deposit: "$10", stars: 2.1, review_count: 312, complaints: 89, badge: "warning" },
     { id: "5", name: "Pepperstone", slug: "pepperstone", type: "forex", tags: ["forex", "ecn", "low-spread"], regulation: ["ASIC", "FCA"], score: 9.1, avg_spread: "0.09 pips", leverage: "1:500", min_deposit: "$200", stars: 4.6, review_count: 756, complaints: 5, badge: "verified" },
     { id: "6", name: "FTMO", slug: "ftmo", type: "prop-firm", tags: ["prop-firm"], regulation: ["Czech NB"], score: 8.8, avg_spread: "$10K–$200K", leverage: "1:100", min_deposit: "$155", stars: 4.4, review_count: 523, complaints: 15, badge: "verified" },
+    { id: "7", name: "MyForexFunds", slug: "myforexfunds", type: "prop-firm", tags: ["prop-firm", "instant-funding"], regulation: ["—"], score: 8.4, avg_spread: "$5K–$300K", leverage: "1:100", min_deposit: "$84", stars: 4.2, review_count: 412, complaints: 22, badge: "verified" },
+    { id: "8", name: "The Funded Trader", slug: "the-funded-trader", type: "prop-firm", tags: ["prop-firm", "challenge"], regulation: ["—"], score: 8.3, avg_spread: "$10K–$200K", leverage: "1:100", min_deposit: "$99", stars: 4.1, review_count: 318, complaints: 18, badge: "verified" },
+    { id: "9", name: "Maven Trading", slug: "maven-trading", type: "prop-firm", tags: ["prop-firm", "challenge"], regulation: ["—"], score: 8.2, avg_spread: "$10K–$200K", leverage: "1:100", min_deposit: "$59", stars: 4.0, review_count: 246, complaints: 11, badge: "verified" },
+    { id: "10", name: "FundedNext", slug: "fundednext", type: "prop-firm", tags: ["prop-firm", "instant-funding"], regulation: ["—"], score: 8.1, avg_spread: "$6K–$200K", leverage: "1:100", min_deposit: "$59", stars: 4.0, review_count: 287, complaints: 14, badge: "verified" },
+    { id: "11", name: "E8 Funding", slug: "e8-funding", type: "prop-firm", tags: ["prop-firm", "no-time-limit"], regulation: ["—"], score: 8.0, avg_spread: "$25K–$250K", leverage: "1:100", min_deposit: "$138", stars: 3.9, review_count: 198, complaints: 9, badge: "verified" },
   ];
 
   useEffect(() => {

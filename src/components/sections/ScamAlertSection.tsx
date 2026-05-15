@@ -66,7 +66,6 @@ const ScamAlertSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
             <h3 className="text-sm font-mono text-muted-foreground mb-4">{liveAlertsLabel}</h3>
-            {(() => null)()}
             {pagedAlerts.map((alert) => {
               const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
               return (
