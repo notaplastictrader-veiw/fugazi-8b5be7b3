@@ -44,6 +44,7 @@ const daysAgo = (iso: string) => {
 const ScamPulseRadar = () => {
   const [pulses, setPulses] = useState<Pulse[]>([]);
   const [visible, setVisible] = useState(false);
+  const [page, setPage] = useState(0);
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
