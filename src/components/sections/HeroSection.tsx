@@ -102,7 +102,7 @@ const HeroSection = () => {
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              Built by ex-broker insiders. Not paid by brokers.
+              We Test Brokers. You Trade Smarter.
             </span>
           </div>
         </div>
@@ -117,8 +117,8 @@ const HeroSection = () => {
         </div>
 
         {/* 3. One-line subheadline */}
-        <p className="max-w-xl mx-auto mb-6 text-sm md:text-base text-muted-foreground leading-relaxed animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "We stress-test withdrawals, spreads, regulation and scam history — so you never trade blind.")}
+        <p className="max-w-3xl mx-auto mb-6 text-sm md:text-base text-muted-foreground leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis animate-[fade-up_0.6s_ease_0.2s_both]">
+          {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
         </p>
 
         {/* 4. Search */}
