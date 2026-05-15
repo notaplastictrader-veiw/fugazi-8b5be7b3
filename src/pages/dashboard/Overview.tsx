@@ -5,6 +5,7 @@ import SEO from "@/components/SEO";
 import { Star, AlertTriangle, Bookmark, Activity } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import TraderLevelCard from "@/components/dashboard/TraderLevelCard";
+import AudioDigestPlayer from "@/components/AudioDigestPlayer";
 
 const StatCard = ({ icon: Icon, label, value }: { icon: typeof Star; label: string; value: string | number }) => (
   <div className="glass-card rounded-xl p-5">
@@ -80,6 +81,10 @@ const Overview = () => {
       <p className="text-sm text-muted-foreground mb-6">Welcome back, {fullName.split(" ")[0]}.</p>
 
       <TraderLevelCard />
+
+      <div className="my-6">
+        <AudioDigestPlayer />
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Star} label="Reviews" value={reviewCount} />
