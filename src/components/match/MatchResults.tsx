@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Shield, ArrowUpRight, RotateCw, Bookmark, Loader2 } from "lucide-react";
+import { Sparkles, Shield, ArrowUpRight, RotateCw, Bookmark, Loader2, Download } from "lucide-react";
+import jsPDF from "jspdf";
 import NeonCard from "@/components/ui/NeonCard";
 import TrustLight from "@/components/broker/TrustLight";
 import StarRating from "@/components/reviews/StarRating";
