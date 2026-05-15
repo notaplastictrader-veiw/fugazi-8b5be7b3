@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy, Gift, Lightbulb, CalendarDays, Newspaper, Handshake, Users, Briefcase, Info, Mail } from "lucide-react";
 
 // Icon map for More mega-menu items (matched by label keyword)
