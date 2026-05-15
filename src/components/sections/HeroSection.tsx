@@ -71,17 +71,17 @@ const HeroSection = () => {
         if (ref.charIndex === 0) {
           ref.isDeleting = false;
           ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
-          return setTimeout(tick, 400);
+          return setTimeout(tick, 700);
         }
-        return setTimeout(tick, 35);
+        return setTimeout(tick, 55);
       } else {
         ref.charIndex++;
         setDisplayText(fullText.substring(0, ref.charIndex));
         if (ref.charIndex === fullText.length) {
           ref.isDeleting = true;
-          return setTimeout(tick, 1800);
+          return setTimeout(tick, 2800);
         }
-        return setTimeout(tick, 70);
+        return setTimeout(tick, 110);
       }
     };
     const timer = setTimeout(tick, 500);
