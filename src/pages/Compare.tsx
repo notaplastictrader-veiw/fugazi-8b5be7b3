@@ -5,8 +5,10 @@ import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X, Star, Shield, AlertTriangle } from "lucide-react";
+import { Plus, X, Star, Shield, AlertTriangle, GitCompare, Globe, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import CostCalculator from "@/components/calculators/CostCalculator";
+import { countryGuides } from "@/data/countryGuides";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null; score: number | null;
