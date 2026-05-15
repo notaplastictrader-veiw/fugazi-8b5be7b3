@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, Users, BarChart3, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 3;
 
 interface SignalGroup {
   id: string;
