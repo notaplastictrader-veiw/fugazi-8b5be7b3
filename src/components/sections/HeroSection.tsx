@@ -61,6 +61,18 @@ const HeroSection = () => {
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
+  const eyebrowVariants = [
+    { prefix: "Built for real traders, not", highlight: "Fugazi Ones" },
+    { prefix: "We test brokers.", highlight: "You trade smarter." },
+    { prefix: "Real reviews.", highlight: "Zero paid promos." },
+    { prefix: "Withdrawal proof first.", highlight: "Hype never." },
+  ];
+  const [eyebrowIdx, setEyebrowIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setEyebrowIdx((i) => (i + 1) % eyebrowVariants.length), 3500);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     const ref = typewriterRef.current;
     const tick = () => {
@@ -71,17 +83,17 @@ const HeroSection = () => {
         if (ref.charIndex === 0) {
           ref.isDeleting = false;
           ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
-          return setTimeout(tick, 400);
+          return setTimeout(tick, 700);
         }
-        return setTimeout(tick, 35);
+        return setTimeout(tick, 55);
       } else {
         ref.charIndex++;
         setDisplayText(fullText.substring(0, ref.charIndex));
         if (ref.charIndex === fullText.length) {
           ref.isDeleting = true;
-          return setTimeout(tick, 1800);
+          return setTimeout(tick, 2800);
         }
-        return setTimeout(tick, 70);
+        return setTimeout(tick, 110);
       }
     };
     const timer = setTimeout(tick, 500);
@@ -105,11 +117,13 @@ const HeroSection = () => {
               Not A Fugazi Trader
             </span>
           </div>
-          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm">
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm overflow-hidden">
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              <span className="text-muted-foreground">Built for real traders, not</span>
-              <span className="text-primary font-bold">Fugazi Ones</span>
+              <span key={eyebrowIdx} className="inline-flex items-center gap-1.5 animate-[fade-up_0.5s_ease_both]">
+                <span className="text-muted-foreground">{eyebrowVariants[eyebrowIdx].prefix}</span>
+                <span className="text-primary font-bold">{eyebrowVariants[eyebrowIdx].highlight}</span>
+              </span>
             </span>
           </div>
         </div>
