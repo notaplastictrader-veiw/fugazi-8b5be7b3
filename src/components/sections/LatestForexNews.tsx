@@ -1,8 +1,10 @@
-import { Newspaper, ArrowRight, ExternalLink } from "lucide-react";
+import { Newspaper, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useForexNews, type ForexNewsArticle } from "@/hooks/useForexNews";
 import { useState } from "react";
+
+const PAGE_SIZE = 3;
 
 const timeAgo = (unixSeconds: number) => {
   if (!unixSeconds) return "";
