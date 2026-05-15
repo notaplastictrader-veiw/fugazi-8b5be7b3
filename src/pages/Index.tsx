@@ -66,24 +66,22 @@ const Index = () => {
       <LiveTrustTicker />
       <BrokerTrustHub />
       <BrokerHealthGrid />
-      <Suspense fallback={null}>
-        <LazySection><TrustTimeline /></LazySection>
-        <LazySection><WithdrawalProofWall /></LazySection>
-        <LazySection><PayoutSpeedLeaderboard /></LazySection>
-        <LazySection><AIMatcherTeaser /></LazySection>
-        <LazySection><ScamPulseRadar /></LazySection>
-        <LazySection><ScamAlertSection /></LazySection>
-        <LazySection minHeight={200}><SponsoredBanner placement="homepage-banner" /></LazySection>
-        <LazySection><FeaturedOffersCarousel /></LazySection>
-        <LazySection><SignalHub /></LazySection>
-        <LazySection><ForecastSection /></LazySection>
-        <LazySection><HomepageCalendarWidget /></LazySection>
-        <LazySection><LatestForexNews /></LazySection>
-        <LazySection><CommunityReviews /></LazySection>
-        <LazySection><ForumActivityWidget /></LazySection>
-        <LazySection><HowItWorks /></LazySection>
-        <LazySection><BrokerJoinSection /></LazySection>
-      </Suspense>
+      <LazySection><Suspense fallback={null}><TrustTimeline /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><WithdrawalProofWall /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><PayoutSpeedLeaderboard /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><AIMatcherTeaser /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><ScamPulseRadar /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><ScamAlertSection /></Suspense></LazySection>
+      <LazySection minHeight={200}><Suspense fallback={null}><SponsoredBanner placement="homepage-banner" /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><FeaturedOffersCarousel /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><SignalHub /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><ForecastSection /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><HomepageCalendarWidget /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><LatestForexNews /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><CommunityReviews /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><ForumActivityWidget /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><HowItWorks /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><BrokerJoinSection /></Suspense></LazySection>
     </MainLayout>
   );
 };

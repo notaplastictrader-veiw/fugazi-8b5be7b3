@@ -508,15 +508,18 @@ body[data-route="/"]::before {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* CardCarousel responsive item sizing — mobile 1, tablet 3, desktop = --items-per-view */
+/* CardCarousel responsive item sizing — mobile 1, small-tab 2, tab 3, desktop = --items-per-view */
 .carousel-item {
-  flex: 0 0 calc(100% - 1rem);
+  flex: 0 0 calc(100% - 0.5rem);
 }
-@media (min-width: 640px) {
-  .carousel-item { flex: 0 0 calc(50% - 0.75rem); }
+@media (min-width: 480px) {
+  .carousel-item { flex: 0 0 calc(50% - 0.5rem); }
 }
 @media (min-width: 768px) {
   .carousel-item { flex: 0 0 calc(33.333% - 0.667rem); }
+}
+@media (min-width: 1024px) {
+  .carousel-item { flex: 0 0 calc(25% - 0.75rem); }
 }
 @media (min-width: 1280px) {
   .carousel-item {

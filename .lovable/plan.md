@@ -1,22 +1,24 @@
-## Diagnosis
+## Plan
 
-Runtime error: `Failed to fetch dynamically imported module: SignalHub.tsx`.
+1. **Stop homepage collapse from lazy chunks**
+   - Split the homepage lazy sections so one failed section cannot unmount everything after it.
+   - Wrap each lazy section with its own `Suspense` boundary instead of one shared boundary around all below-fold sections.
+   - Keep `LazySection` reserved heights so mid-scroll loading does not jump the page.
 
-Root cause: `SignalHub.tsx` was edited with an IIFE (`{(() => { ... return <>...</>; })()}`) wrapped around the grid + pagination JSX. While syntactically valid, this is producing a broken/stale lazy chunk that the browser can't fetch — which makes the lazy `<SignalHub />` throw inside `<Suspense>`. When that section crashes mid-scroll, the surrounding `LazySection` / Suspense tree unmounts every section after it (Forecasts, Calendar, News, Community Reviews, etc.), so the rest of the homepage **vanishes** and the scroll position jumps back up — exactly the symptom you described.
+2. **Clean risky JSX that can trigger stale lazy chunk issues**
+   - Remove leftover no-op IIFE JSX in `ScamAlertSection`.
+   - Keep pagination calculations as top-level constants, not inline IIFEs.
 
-## Fix Plan
+3. **Restore prop firm carousel behavior on homepage**
+   - Ensure the Prop Firms section uses `CardCarousel` with `itemsPerView={6}` on desktop.
+   - Keep swipe enabled on mobile/tablet and arrows/dots available when more than one slide exists.
+   - Make sure fallback prop-firm data has at least 6 cards if live data is missing or only returns one prop firm.
 
-Refactor `src/components/sections/SignalHub.tsx` to match the clean pattern already used in `PayoutSpeedLeaderboard` and `ScamPulseRadar`:
+4. **Make carousel responsive better for tab/mobile**
+   - Update `CardCarousel` sizing so mobile shows 1 card, tablet shows 2 cards, desktop shows 6 cards.
+   - Keep horizontal swipe smooth and stable without layout shifting.
 
-1. Move the pagination math (`pageCount`, `currentPage`, `pagedGroups`) to top-level `const`s right after the `useEffect`, before the `return`.
-2. Remove the IIFE / fragment wrapper around the JSX.
-3. Render `pagedGroups.map(...)` directly inside the existing grid.
-4. Render the Prev/Next pagination block (same style as the other two sections) right below the grid, still inside the `max-w-7xl` container.
-
-No other files need to change. No data, styling, or routing changes.
-
-## Expected Result
-
-- Homepage renders top → bottom without jumping.
-- All sections below Signal Hub (Forecasts, Calendar, News, Community Reviews, Forum, How It Works, Broker Join) reappear.
-- Pagination on Payout Speed, Scam Pulse, and Signal Hub continues to work (5 per page, Prev/Next).
+5. **Verify after changes**
+   - Check console for lazy chunk/runtime errors.
+   - Confirm homepage scrolls past Signal/News/Forum without jumping to top.
+   - Confirm Prop Firms shows 6 cards per desktop slide and swipe works on smaller screens.
