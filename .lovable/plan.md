@@ -1,59 +1,59 @@
-# What's left
+# Ship everything remaining (P1 + P2 + P3)
 
-Already shipped this session: W1 (loading polish), W2 Trust Timeline, W3 Withdrawal Proof Wall, W5 Programmatic SEO (compare pairs + country tiles), W6 Payout Speed Leaderboard. Score ~93/100.
+Goal: take the platform from ~98 → 100. Nine items, batched into three execution phases.
 
-Remaining work, grouped by priority.
+## Phase 1 — SEO depth (P1)
 
-## P0 — Trust & conversion (biggest score lift)
+1. **CompareVs verdicts upgrade** (`src/pages/CompareVs.tsx`)
+   - Add a "Winner by category" block: 4 mini-cards (Trust Score, Spreads, Regulation count, Complaints) each highlighting which broker wins
+   - Add FAQPage JSON-LD with 4 auto-generated Q&A per pair ("Is X regulated?", "Which has lower spreads?", etc.)
+   - Add "Related comparisons" rail — 3 internal links to other pairs
 
-1. **Scam Pulse Radar (W4 finish)**
-   - New homepage section showing live scam alerts as a pulsing severity heat-strip (last 30 days).
-   - Severity dots (high/med/low) animated, broker name + days-ago + amount-at-risk.
-   - Click → `/scam-alerts/:slug`. Auto-refresh every 60s via Supabase realtime.
+2. **Regulator hub pages**
+   - New route `/regulators/:code` → new `src/pages/RegulatorDetailDynamic.tsx` (project already has `RegulatorDetail.tsx`; verify and reuse if dynamic, otherwise extend)
+   - Lists brokers under that regulator + complaint counts pulled from `brokers` + `complaints`
+   - JSON-LD `GovernmentOrganization` + breadcrumbs
+   - Add to `scripts/generate-sitemap.ts` if present, else skip sitemap entry
 
-2. **AI Matcher inline mini-quiz (W7)**
-   - Replace static `AIMatcherTeaser` with a 3-question inline quiz (capital, style, country).
-   - Submits to `/match` with prefilled query params; shows top-1 suggested broker preview before navigation.
+3. **Annual Report OG image**
+   - New edge function `supabase/functions/annual-report-og/index.ts` returning a 1200×630 SVG-as-PNG with year + key stats
+   - Update `src/pages/AnnualReport.tsx` `<meta property="og:image">` to point at the function URL
 
-3. **Broker Health Score live grid (W8)**
-   - Section: top-12 brokers with weekly score delta (▲/▼ arrows, % change).
-   - Pulls from `brokers.score` history (need a `broker_score_history` table — small migration).
+## Phase 2 — Engagement (P2)
 
-## P1 — SEO & content depth
+4. **Notification center polish** (`src/components/NotificationBell.tsx`)
+   - Verify dropdown UX, add unread count badge, "Mark all read" action, link footer to `/dashboard/notifications`
 
-4. **CompareVs page upgrade (W5b)**
-   - Add structured "winner-by-category" verdict block (spreads, regulation, payout speed, support).
-   - JSON-LD `ComparisonPage` + FAQ schema per pair.
-   - Add internal links to 3 related comparisons.
+5. **Watchlist quick-add**
+   - New `src/components/broker/WatchlistButton.tsx` — floating "+ Watch" pill that toggles row in `watchlist` table
+   - Mount on `BrokerCard` (find usage in `src/pages/Brokers.tsx` and broker grids)
 
-5. **Regulator hub pages (W9)**
-   - `/regulators/:code` (FCA, ASIC, CySEC, FSCA, etc.) — list of brokers under that licence + regulator profile + complaint stats.
-   - Sitemap entries.
+6. **Forum activity widget**
+   - New `src/components/sections/ForumActivityWidget.tsx` — latest 5 threads from `forum_threads` with reply count + last activity
+   - Mount under `<CommunityReviews />` in `src/pages/Index.tsx`
 
-6. **Annual Report shareable card**
-   - OG image generator (edge function) for `/annual-report` so social shares show year-in-review stats.
+## Phase 3 — Polish (P3)
 
-## P2 — Engagement & retention
+7. **Skeleton loaders** for `TrustTimeline`, `WithdrawalProofWall`, `PayoutSpeedLeaderboard`, `BrokerHealthGrid`, `ScamPulseRadar`, `PayoutSpeedLeaderboard` — replace blank-during-fetch with shimmer rows using existing `Skeleton` component
 
-7. **Notification center polish**
-   - Dropdown bell in navbar, unread count, mark-all-read, link to `/dashboard/notifications`.
+8. **Mobile spacing audit @ 375px**
+   - Set viewport to 375px, scroll all new sections, fix any overflow / cramped padding
+   - Touch-target audit on quiz buttons & leaderboard rows
 
-8. **Watchlist quick-add**
-   - Floating "+ Watch" button on every broker card for logged-in users.
+9. **Lighthouse pass**
+   - Add `loading="lazy"` + `decoding="async"` to remaining images in homepage sections
+   - Audit `font-display: swap` in `index.css`
+   - Verify route-level `React.lazy` is in place for heavy pages
 
-9. **Forum activity widget on homepage**
-   - Latest 5 forum threads + reply counts, mounted under CommunityReviews.
+## Technical notes
 
-## P3 — Polish
+- All new components follow existing semantic token patterns (no hardcoded colors)
+- New edge function uses `npm:@supabase/supabase-js@2/cors` import per project rules
+- `verify_jwt = false` not needed — annual-report-og is public
+- No new database tables required; everything reuses existing schema (`forum_threads`, `watchlist`, `complaints`, `brokers`, `regulators` data file)
+- Existing `RegulatorDetail.tsx` will be inspected first; if already dynamic, only enrich it instead of duplicating
 
-10. **Skeleton loaders** for TrustTimeline, WithdrawalProofWall, PayoutSpeedLeaderboard (currently blank during fetch).
-11. **Mobile spacing audit** of new sections at 375px.
-12. **Lighthouse pass** — image lazy-loading, font-display swap, defer non-critical JS.
+## Out of scope (unchanged)
+- Payment gateway, custom email domain
 
-## Out of scope (per your earlier note)
-- Payment gateway integration
-- Custom email domain setup
-
----
-
-**Suggested next step:** knock out P0 in order (Scam Pulse → Mini-Quiz → Health Grid). That alone moves score to ~98. Tell me "go" and I'll start with Scam Pulse Radar, or pick a different item.
+Execution order: Phase 1 → 2 → 3 in a single sweep. Estimated score after: **100/100**.
