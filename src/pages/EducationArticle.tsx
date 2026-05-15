@@ -119,7 +119,7 @@ const EducationArticle = () => {
             </h1>
             <div className="flex items-center gap-4 text-xs text-muted-foreground mb-8">
               <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.readTime} min read</span>
-              <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />NAPT Education Team</span>
+              <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />NAFT Education Team</span>
             </div>
 
             <div className="space-y-10">

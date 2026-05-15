@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ProviderSidebar } from "./ProviderSidebar";
+import NoIndex from "@/components/seo/NoIndex";
 import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -28,6 +29,7 @@ function ProviderLayout({ requiredRole }: Props) {
 
   return (
     <SidebarProvider>
+      <NoIndex />
       <div className="min-h-screen flex w-full bg-background">
         <ProviderSidebar role={requiredRole} />
         <div className="flex-1 flex flex-col">

@@ -962,7 +962,7 @@ const BrokerDetail = () => {
               {/* Disclaimer */}
               <div className="rounded-xl border border-border/50 bg-muted/20 p-5 text-xs text-muted-foreground italic leading-relaxed">
                 This review is based on our independent research and user-submitted data.
-                NAPT may earn a commission if you open an account via our links.
+                NAFT may earn a commission if you open an account via our links.
                 This does not affect our review or rating.
               </div>
             </TabsContent>
