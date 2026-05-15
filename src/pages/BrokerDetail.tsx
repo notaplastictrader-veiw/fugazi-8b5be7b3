@@ -25,6 +25,7 @@ import StarRating from "@/components/reviews/StarRating";
 import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
 import TrustLight from "@/components/broker/TrustLight";
+import BrokerHealthScore from "@/components/broker/BrokerHealthScore";
 import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
@@ -479,6 +480,17 @@ const BrokerDetail = () => {
                           ))}
                         </div>
                       ) : null}
+
+                      {/* Broker Health Score™ */}
+                      {(broker as any).health_score != null && (
+                        <div className="mt-4">
+                          <BrokerHealthScore
+                            score={(broker as any).health_score}
+                            breakdown={(broker as any).health_breakdown}
+                            updatedAt={(broker as any).health_updated_at}
+                          />
+                        </div>
+                      )}
 
                       {/* Claim + verified-ago row */}
                       <div className="flex items-center gap-2 mt-3 flex-wrap">

@@ -67,6 +67,7 @@ const GlossaryIndex = lazy(() => import("./pages/GlossaryIndex"));
 const GlossaryDetail = lazy(() => import("./pages/GlossaryDetail"));
 const CompareVs = lazy(() => import("./pages/CompareVs"));
 const Calculators = lazy(() => import("./pages/Calculators"));
+const Pro = lazy(() => import("./pages/Pro"));
 
 // Dashboard (lazy chunk)
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -128,6 +129,8 @@ const AwardsAdmin = lazy(() => import("./pages/admin/AwardsAdmin"));
 const ErrorLogAdmin = lazy(() => import("./pages/admin/ErrorLogAdmin"));
 const ResearchPromptsAdmin = lazy(() => import("./pages/admin/ResearchPromptsAdmin"));
 const ImportJsonAdmin = lazy(() => import("./pages/admin/ImportJsonAdmin"));
+const HealthScoreAdmin = lazy(() => import("./pages/admin/HealthScoreAdmin"));
+const AudioDigestsAdmin = lazy(() => import("./pages/admin/AudioDigestsAdmin"));
 
 // Provider Portal
 const ProviderLayout = lazy(() => import("./components/portal/ProviderLayout"));
@@ -242,6 +245,7 @@ const AppContent = () => {
           <Route path="/methodology" element={<HowWeReview />} />
           <Route path="/profile/:username" element={<UserProfile />} />
           <Route path="/claim-broker" element={<BrokerClaimProfile />} />
+          <Route path="/pro" element={<Pro />} />
 
           {/* Admin Panel */}
           <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
@@ -293,6 +297,8 @@ const AppContent = () => {
             <Route path="forum" element={<ForumAdmin />} />
             <Route path="awards" element={<AwardsAdmin />} />
             <Route path="research-prompts" element={<ResearchPromptsAdmin />} />
+            <Route path="health-scores" element={<HealthScoreAdmin />} />
+            <Route path="audio-digests" element={<AudioDigestsAdmin />} />
             <Route path="import-json" element={<ImportJsonAdmin />} />
           </Route>
 
