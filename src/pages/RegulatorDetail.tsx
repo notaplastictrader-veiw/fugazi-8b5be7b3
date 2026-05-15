@@ -13,23 +13,29 @@ import NotFound from "./NotFound";
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null;
   score: number | null; stars: number | null; review_count: number | null; logo_url: string | null;
+  complaints?: number;
 }
 
 const RegulatorDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const reg = slug ? regulatorBySlug(slug) : undefined;
   const [brokers, setBrokers] = useState<BrokerRow[]>([]);
+  const [totalComplaints, setTotalComplaints] = useState(0);
 
   useEffect(() => {
     if (!reg) return;
-    supabase
-      .from("brokers")
-      .select("id,name,slug,regulation,score,stars,review_count,logo_url")
-      .eq("status", "published")
-      .contains("regulation", [reg.code])
-      .order("score", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setBrokers((data as BrokerRow[]) || []));
+    (async () => {
+      const { data } = await supabase
+        .from("brokers")
+        .select("id,name,slug,regulation,score,stars,review_count,logo_url,complaints")
+        .eq("status", "published")
+        .contains("regulation", [reg.code])
+        .order("score", { ascending: false })
+        .limit(20);
+      const list = (data as BrokerRow[]) || [];
+      setBrokers(list);
+      setTotalComplaints(list.reduce((acc, b) => acc + (b.complaints || 0), 0));
+    })();
   }, [reg]);
 
   if (!reg) return <NotFound />;
