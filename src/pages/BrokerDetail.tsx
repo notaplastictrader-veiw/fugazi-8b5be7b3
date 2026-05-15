@@ -65,6 +65,7 @@ interface Broker {
   withdrawal_fee?: string;
   warning_note?: string;
   last_verified_at?: string | null;
+  updated_at?: string | null;
 }
 
 const formatVerifiedAgo = (iso?: string | null) => {

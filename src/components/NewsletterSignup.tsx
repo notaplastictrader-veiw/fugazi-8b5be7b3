@@ -13,7 +13,7 @@ interface Props {
 }
 
 const NewsletterSignup = ({ source = "footer", compact = false }: Props) => {
-  const { language } = useI18n();
+  const { locale } = useI18n();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -28,7 +28,7 @@ const NewsletterSignup = ({ source = "footer", compact = false }: Props) => {
     setLoading(true);
     const { error } = await supabase
       .from("newsletter_subscribers")
-      .insert({ email: parsed.data, source, locale: language });
+      .insert({ email: parsed.data, source, locale });
     setLoading(false);
     if (error && !error.message.toLowerCase().includes("duplicate")) {
       toast.error("Could not subscribe — try again");
