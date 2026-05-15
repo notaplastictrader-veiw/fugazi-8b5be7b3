@@ -80,8 +80,13 @@ const CardCarousel = ({
         {items.map((child, i) => (
           <div
             key={i}
-            className="snap-start shrink-0"
-            style={{ minWidth: itemMinWidth, flex: `0 0 calc(${100 / Math.max(1, Math.floor(800 / itemMinWidth))}% - 1rem)` }}
+            className="snap-start shrink-0 carousel-item"
+            style={
+              {
+                minWidth: itemMinWidth,
+                "--items-per-view": itemsPerView,
+              } as React.CSSProperties
+            }
           >
             {child}
           </div>
