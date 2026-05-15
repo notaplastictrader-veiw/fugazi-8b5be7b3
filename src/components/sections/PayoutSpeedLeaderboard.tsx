@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Zap, Clock, TrendingUp, ArrowRight } from "lucide-react";
+import { Zap, Clock, TrendingUp, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+
+const PAGE_SIZE = 5;
 
 interface Row {
   broker_id: string;
