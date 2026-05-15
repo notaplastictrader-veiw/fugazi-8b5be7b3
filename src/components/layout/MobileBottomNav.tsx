@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BarChart3, Sparkles, Radio, User } from "lucide-react";
+import { Home, BarChart3, Sparkles, ShieldAlert, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", label: "Home", icon: Home },
   { to: "/brokers", label: "Brokers", icon: BarChart3 },
   { to: "/match", label: "Match", icon: Sparkles, primary: true },
-  { to: "/signals", label: "Signals", icon: Radio },
+  { to: "/scam-alerts", label: "Scam", icon: ShieldAlert },
   { to: "/dashboard", label: "Account", icon: User },
 ];
 

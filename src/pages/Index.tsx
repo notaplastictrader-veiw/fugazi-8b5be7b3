@@ -4,11 +4,9 @@ import JsonLd, { organizationSchema, websiteSchema, faqSchema } from "@/componen
 import HeroSection from "@/components/sections/HeroSection";
 import LiveTrustTicker from "@/components/sections/LiveTrustTicker";
 import FeaturedOffersCarousel from "@/components/sections/FeaturedOffersCarousel";
-import TrustStrip from "@/components/sections/TrustStrip";
 import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
 import ScamAlertSection from "@/components/sections/ScamAlertSection";
-import SignalChannel from "@/components/sections/SignalChannel";
 import SignalHub from "@/components/sections/SignalHub";
 import ForecastSection from "@/components/sections/ForecastSection";
 import HomepageCalendarWidget from "@/components/sections/HomepageCalendarWidget";
@@ -56,17 +54,15 @@ const Index = () => {
       ])} />
       <HeroSection />
       <LiveTrustTicker />
-      <FeaturedOffersCarousel />
-      <TrustStrip />
-      <ScamAlertSection />
-      <SponsoredBanner placement="homepage-banner" />
       <BrokerTrustHub />
       <AIMatcherTeaser />
-      <HomepageCalendarWidget />
-      <LatestForexNews />
-      <SignalChannel />
+      <ScamAlertSection />
+      <SponsoredBanner placement="homepage-banner" />
+      <FeaturedOffersCarousel />
       <SignalHub />
       <ForecastSection />
+      <HomepageCalendarWidget />
+      <LatestForexNews />
       <CommunityReviews />
       <HowItWorks />
       <BrokerJoinSection />
