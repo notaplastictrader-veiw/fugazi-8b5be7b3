@@ -211,6 +211,47 @@ const CompareVs = () => {
           ))}
         </div>
 
+        {/* FAQ */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-display font-extrabold mb-4">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {faqs.map((f, i) => (
+              <details key={i} className="group p-4 rounded-xl border border-border bg-card open:border-primary/40">
+                <summary className="cursor-pointer font-bold text-foreground list-none flex items-center justify-between">
+                  <span>{f.q}</span>
+                  <span className="text-primary text-xl group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* Related comparisons */}
+        <section className="mt-12">
+          <h2 className="text-lg font-display font-bold mb-3">Related comparisons</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              `${a.slug}-vs-exness`,
+              `${b.slug}-vs-ic-markets`,
+              `${a.slug}-vs-pepperstone`,
+              `xm-vs-${b.slug}`,
+              `ftmo-vs-${a.slug}`,
+            ]
+              .filter(s => s !== vsSlug && !s.startsWith(`${a.slug}-vs-${a.slug}`) && !s.startsWith(`${b.slug}-vs-${b.slug}`))
+              .slice(0, 3)
+              .map(s => (
+                <Link
+                  key={s}
+                  to={`/compare/${s}`}
+                  className="text-xs font-mono px-3 py-1.5 rounded-md border border-border hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  {s.replace(/-/g, " ")}
+                </Link>
+              ))}
+          </div>
+        </section>
+
         <div className="mt-10">
           <CTABand
             eyebrow="Want a custom shortlist"
