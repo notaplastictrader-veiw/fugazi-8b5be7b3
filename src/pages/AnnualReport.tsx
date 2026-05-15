@@ -50,6 +50,7 @@ export default function AnnualReport() {
         title={`State of Brokers ${y} — NAFT Annual Report`}
         description={`The numbers behind ${y}: trader signups, reviews, scam alerts, top brokers, and signal performance — straight from the NAFT community.`}
         path={`/reports/${y}`}
+        image={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/annual-report-og?year=${y}${data ? `&users=${data.headline_stats.new_users}&reviews=${data.headline_stats.reviews}&alerts=${data.headline_stats.scam_alerts}&win_rate=${data.headline_stats.signal_win_rate}` : ""}`}
       />
       <section className="pt-10 pb-24 px-4">
         <div className="max-w-6xl mx-auto">

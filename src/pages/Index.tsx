@@ -20,6 +20,7 @@ import WithdrawalProofWall from "@/components/sections/WithdrawalProofWall";
 import PayoutSpeedLeaderboard from "@/components/sections/PayoutSpeedLeaderboard";
 import ScamPulseRadar from "@/components/sections/ScamPulseRadar";
 import BrokerHealthGrid from "@/components/sections/BrokerHealthGrid";
+import ForumActivityWidget from "@/components/sections/ForumActivityWidget";
 
 const Index = () => {
   return (
@@ -74,6 +75,7 @@ const Index = () => {
       <HomepageCalendarWidget />
       <LatestForexNews />
       <CommunityReviews />
+      <ForumActivityWidget />
       <HowItWorks />
       <BrokerJoinSection />
     </MainLayout>

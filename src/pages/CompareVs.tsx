@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Star, Shield, AlertTriangle, GitCompare } from "lucide-react";
+import { ArrowRight, Shield, GitCompare, Trophy, Zap, ScrollText, AlertOctagon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import CTABand from "@/components/common/CTABand";
 import NotFound from "./NotFound";
@@ -63,6 +63,26 @@ const CompareVs = () => {
   const titleStr = `${a.name} vs ${b.name} — Side-by-Side Broker Comparison`;
   const descStr = `Compare ${a.name} (${(a.score || 0).toFixed(1)}/10) vs ${b.name} (${(b.score || 0).toFixed(1)}/10): regulation, spreads, leverage, min deposit, and verified reviews.`;
 
+  // Per-category winners
+  const parseSpread = (s: string | null) => {
+    if (!s) return Infinity;
+    const m = s.match(/[\d.]+/);
+    return m ? parseFloat(m[0]) : Infinity;
+  };
+  const cats = [
+    { key: "trust", label: "Trust Score", icon: Trophy, winner: (a.score || 0) >= (b.score || 0) ? a : b, value: (br: BrokerRow) => `${(br.score || 0).toFixed(1)}/10` },
+    { key: "spread", label: "Tighter Spreads", icon: Zap, winner: parseSpread(a.avg_spread) <= parseSpread(b.avg_spread) ? a : b, value: (br: BrokerRow) => br.avg_spread || "—" },
+    { key: "reg", label: "More Regulators", icon: ScrollText, winner: (a.regulation?.length || 0) >= (b.regulation?.length || 0) ? a : b, value: (br: BrokerRow) => `${br.regulation?.length || 0} licences` },
+    { key: "complaints", label: "Fewer Complaints", icon: AlertOctagon, winner: (a.complaints || 0) <= (b.complaints || 0) ? a : b, value: (br: BrokerRow) => `${br.complaints || 0} complaints` },
+  ];
+
+  const faqs = [
+    { q: `Is ${a.name} regulated?`, a: a.regulation?.length ? `Yes — ${a.name} is regulated by ${a.regulation.join(", ")}.` : `${a.name} has no verified regulator listed in our database. Trade with caution.` },
+    { q: `Which has lower spreads, ${a.name} or ${b.name}?`, a: `${parseSpread(a.avg_spread) <= parseSpread(b.avg_spread) ? a.name : b.name} offers tighter spreads on average (${a.name}: ${a.avg_spread || "n/a"} · ${b.name}: ${b.avg_spread || "n/a"}).` },
+    { q: `Which broker has the higher trust score?`, a: `${(a.score || 0) >= (b.score || 0) ? a.name : b.name} scores higher overall (${a.name}: ${(a.score || 0).toFixed(1)}/10 · ${b.name}: ${(b.score || 0).toFixed(1)}/10) based on regulation, reviews, and complaints.` },
+    { q: `Should I open an account with ${a.name} or ${b.name}?`, a: `It depends on your priorities. ${winner?.name || a.name} wins on overall trust, but compare deposit minimums, available platforms, and your country's regulator before depositing.` },
+  ];
+
   return (
     <MainLayout>
       <SEO
@@ -96,6 +116,15 @@ const CompareVs = () => {
           },
         })),
       }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map(f => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }} />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="flex items-center gap-2 mb-3">
@@ -118,6 +147,26 @@ const CompareVs = () => {
             </div>
           </div>
         )}
+
+        {/* Winner-by-category */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {cats.map(c => {
+            const Icon = c.icon;
+            const isA = c.winner.id === a.id;
+            return (
+              <div key={c.key} className="p-4 rounded-xl border border-border bg-card">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider">{c.label}</span>
+                </div>
+                <div className="font-display font-extrabold text-foreground truncate">{c.winner.name}</div>
+                <div className="text-[11px] font-mono text-primary mt-1">
+                  {c.value(c.winner)} <span className="text-muted-foreground">vs {c.value(isA ? b : a)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
@@ -161,6 +210,47 @@ const CompareVs = () => {
             </Link>
           ))}
         </div>
+
+        {/* FAQ */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-display font-extrabold mb-4">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {faqs.map((f, i) => (
+              <details key={i} className="group p-4 rounded-xl border border-border bg-card open:border-primary/40">
+                <summary className="cursor-pointer font-bold text-foreground list-none flex items-center justify-between">
+                  <span>{f.q}</span>
+                  <span className="text-primary text-xl group-open:rotate-45 transition-transform">+</span>
+                </summary>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* Related comparisons */}
+        <section className="mt-12">
+          <h2 className="text-lg font-display font-bold mb-3">Related comparisons</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              `${a.slug}-vs-exness`,
+              `${b.slug}-vs-ic-markets`,
+              `${a.slug}-vs-pepperstone`,
+              `xm-vs-${b.slug}`,
+              `ftmo-vs-${a.slug}`,
+            ]
+              .filter(s => s !== vsSlug && !s.startsWith(`${a.slug}-vs-${a.slug}`) && !s.startsWith(`${b.slug}-vs-${b.slug}`))
+              .slice(0, 3)
+              .map(s => (
+                <Link
+                  key={s}
+                  to={`/compare/${s}`}
+                  className="text-xs font-mono px-3 py-1.5 rounded-md border border-border hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  {s.replace(/-/g, " ")}
+                </Link>
+              ))}
+          </div>
+        </section>
 
         <div className="mt-10">
           <CTABand

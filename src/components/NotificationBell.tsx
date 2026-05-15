@@ -72,6 +72,12 @@ const NotificationBell = () => {
               ))
             )}
           </div>
+          <button
+            onClick={() => { navigate("/dashboard/notifications"); setOpen(false); }}
+            className="px-4 py-2.5 border-t border-border text-xs font-mono uppercase tracking-wider text-primary hover:bg-secondary/40 transition-colors text-center"
+          >
+            View all in dashboard →
+          </button>
         </div>
       )}
     </div>

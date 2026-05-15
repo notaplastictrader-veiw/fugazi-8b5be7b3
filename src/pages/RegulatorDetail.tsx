@@ -13,23 +13,29 @@ import NotFound from "./NotFound";
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null;
   score: number | null; stars: number | null; review_count: number | null; logo_url: string | null;
+  complaints?: number;
 }
 
 const RegulatorDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const reg = slug ? regulatorBySlug(slug) : undefined;
   const [brokers, setBrokers] = useState<BrokerRow[]>([]);
+  const [totalComplaints, setTotalComplaints] = useState(0);
 
   useEffect(() => {
     if (!reg) return;
-    supabase
-      .from("brokers")
-      .select("id,name,slug,regulation,score,stars,review_count,logo_url")
-      .eq("status", "published")
-      .contains("regulation", [reg.code])
-      .order("score", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setBrokers((data as BrokerRow[]) || []));
+    (async () => {
+      const { data } = await supabase
+        .from("brokers")
+        .select("id,name,slug,regulation,score,stars,review_count,logo_url,complaints")
+        .eq("status", "published")
+        .contains("regulation", [reg.code])
+        .order("score", { ascending: false })
+        .limit(20);
+      const list = (data as BrokerRow[]) || [];
+      setBrokers(list);
+      setTotalComplaints(list.reduce((acc, b) => acc + (b.complaints || 0), 0));
+    })();
   }, [reg]);
 
   if (!reg) return <NotFound />;
@@ -115,10 +121,18 @@ const RegulatorDetail = () => {
         </div>
 
         <section className="mb-10">
-          <h2 className="text-2xl font-display font-extrabold mb-4">
-            Brokers regulated by {reg.code}
-            {brokers.length > 0 && <span className="text-muted-foreground text-base ml-2">({brokers.length})</span>}
-          </h2>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <h2 className="text-2xl font-display font-extrabold">
+              Brokers regulated by {reg.code}
+              {brokers.length > 0 && <span className="text-muted-foreground text-base ml-2">({brokers.length})</span>}
+            </h2>
+            {brokers.length > 0 && (
+              <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                <AlertTriangle className="w-3 h-3" />
+                {totalComplaints} total complaint{totalComplaints === 1 ? "" : "s"}
+              </div>
+            )}
+          </div>
           {brokers.length === 0 ? (
             <p className="text-muted-foreground text-sm">No published brokers tagged with {reg.code} yet.</p>
           ) : (
@@ -134,7 +148,7 @@ const RegulatorDetail = () => {
                     <div className="min-w-0">
                       <div className="font-bold text-foreground truncate">{b.name}</div>
                       <div className="text-[11px] text-muted-foreground font-mono">
-                        {b.score?.toFixed(1) || "—"}/10 · {b.review_count || 0} reviews
+                        {b.score?.toFixed(1) || "—"}/10 · {b.review_count || 0} reviews · {b.complaints || 0} complaints
                       </div>
                     </div>
                   </div>
