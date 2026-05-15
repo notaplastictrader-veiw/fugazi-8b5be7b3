@@ -199,6 +199,13 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
           {saved ? "Saved to dashboard" : "Save this match"}
         </button>
         <button
+          onClick={downloadPDF}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-border text-foreground hover:border-primary/50 hover:text-primary transition"
+        >
+          <Download className="w-3.5 h-3.5" />
+          Download PDF
+        </button>
+        <button
           onClick={onReset}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
         >
