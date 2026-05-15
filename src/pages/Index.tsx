@@ -15,6 +15,7 @@ import HowItWorks from "@/components/sections/HowItWorks";
 import CommunityReviews from "@/components/sections/CommunityReviews";
 import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
 import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
+import TrustTimeline from "@/components/sections/TrustTimeline";
 
 const Index = () => {
   return (
@@ -55,6 +56,7 @@ const Index = () => {
       <HeroSection />
       <LiveTrustTicker />
       <BrokerTrustHub />
+      <TrustTimeline />
       <AIMatcherTeaser />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
