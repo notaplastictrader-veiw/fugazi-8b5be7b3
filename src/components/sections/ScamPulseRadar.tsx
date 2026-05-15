@@ -139,7 +139,7 @@ const ScamPulseRadar = () => {
         </div>
 
         <div className="divide-y divide-border">
-          {data.map((p) => {
+          {pagedData.map((p) => {
             const Wrapper: any = p.broker_slug ? Link : "div";
             const props = p.broker_slug ? { to: `/brokers/${p.broker_slug}` } : {};
             return (
