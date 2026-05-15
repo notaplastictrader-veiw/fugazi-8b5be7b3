@@ -60,10 +60,12 @@ const Index = () => {
       <HeroSection />
       <LiveTrustTicker />
       <BrokerTrustHub />
+      <BrokerHealthGrid />
       <TrustTimeline />
       <WithdrawalProofWall />
       <PayoutSpeedLeaderboard />
       <AIMatcherTeaser />
+      <ScamPulseRadar />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
       <FeaturedOffersCarousel />
