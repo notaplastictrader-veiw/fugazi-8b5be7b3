@@ -204,13 +204,13 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Stats — bold cards grid */}
+        {/* 6. Stats — thin inline strip */}
         <div className="w-full mt-2 animate-[fade-up_0.6s_ease_0.45s_both]">
-          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-card">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Live Trust Metrics</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+          <div className="glass-card rounded-full px-4 py-2.5 md:px-5 md:py-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6">
+            <div className="flex items-center gap-2 pr-3 border-r border-border/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground whitespace-nowrap">Live</span>
+            </div>
             {[
               { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
               { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
@@ -219,21 +219,10 @@ const HeroSection = () => {
             ].map((s, i) => {
               const Icon = s.icon;
               return (
-                <div
-                  key={i}
-                  className="relative overflow-hidden glass-card rounded-xl px-3 py-3 md:px-4 md:py-3.5 flex items-center gap-3 hover:border-primary/40 transition-all group"
-                >
-                  <div className={`shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-lg flex items-center justify-center bg-background/40 ${s.accent}`}>
-                    <Icon className="w-4 h-4 md:w-5 md:h-5" />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <div className={`font-display font-extrabold leading-tight tracking-tight ${s.accent} text-xl md:text-2xl lg:text-3xl`}>
-                      {s.value}
-                    </div>
-                    <div className="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-foreground/70 leading-tight truncate">
-                      {s.label}
-                    </div>
-                  </div>
+                <div key={i} className="flex items-center gap-2 whitespace-nowrap">
+                  <Icon className={`w-3.5 h-3.5 ${s.accent}`} />
+                  <span className={`font-display font-bold text-sm md:text-base ${s.accent}`}>{s.value}</span>
+                  <span className="text-[11px] md:text-xs font-mono uppercase tracking-wider text-foreground/70">{s.label}</span>
                 </div>
               );
             })}
