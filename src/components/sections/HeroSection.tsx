@@ -211,36 +211,37 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Stats — Live strip, all-device single glance */}
-        <div className="w-full mt-2 animate-[fade-up_0.6s_ease_0.45s_both]">
-          <div className="glass-card rounded-2xl sm:rounded-full px-3 py-2.5 sm:px-4 sm:py-2.5">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 sm:gap-4">
-              {/* Live badge */}
-              <div className="flex items-center gap-2 self-start sm:self-auto sm:pr-3 sm:border-r sm:border-border/40 shrink-0">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/80">Live</span>
-              </div>
-              {/* Stats — 2x2 mobile, row tablet+ */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-x-3 gap-y-2 sm:gap-4 md:gap-5 w-full sm:w-auto">
-                {[
-                  { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
-                  { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
-                  { icon: Activity, value: stats[2].value, label: stats[2].label, accent: "text-accent" },
-                  { icon: Sparkles, value: stats[3].value, label: stats[3].label, accent: "text-[hsl(var(--teal))]" },
-                ].map((s, i) => {
-                  const Icon = s.icon;
-                  return (
-                    <div key={i} className="flex items-center gap-1.5 min-w-0">
-                      <Icon className={`w-3.5 h-3.5 shrink-0 ${s.accent}`} />
-                      <span className={`font-display font-bold text-sm md:text-base ${s.accent}`}>{s.value}</span>
-                      <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-foreground/70 truncate">{s.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
+        {/* 6. Stats — Live + 4 metrics, single cohesive pill */}
+        <div className="w-full mt-2 flex justify-center animate-[fade-up_0.6s_ease_0.45s_both]">
+          <div className="glass-card rounded-2xl sm:rounded-full inline-flex flex-col sm:flex-row sm:items-center px-4 py-2.5 sm:py-2 gap-2 sm:gap-3 md:gap-4 max-w-full">
+            {/* Live badge */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/80">Live</span>
+            </div>
+            {/* Divider — horizontal on mobile, vertical on tablet+ */}
+            <span className="hidden sm:block w-px h-4 bg-border/60 shrink-0" />
+            <span className="block sm:hidden h-px w-full bg-border/40" />
+            {/* Stats — 2×2 mobile, single row tablet+ */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-x-3 gap-y-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
+              {[
+                { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
+                { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
+                { icon: Activity, value: stats[2].value, label: stats[2].label, accent: "text-accent" },
+                { icon: Sparkles, value: stats[3].value, label: stats[3].label, accent: "text-[hsl(var(--teal))]" },
+              ].map((s, i) => {
+                const Icon = s.icon;
+                return (
+                  <div key={i} className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${s.accent}`} />
+                    <span className={`font-display font-bold text-sm md:text-base ${s.accent}`}>{s.value}</span>
+                    <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-foreground/70">{s.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
