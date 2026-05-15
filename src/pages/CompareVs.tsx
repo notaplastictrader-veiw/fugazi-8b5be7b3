@@ -116,6 +116,15 @@ const CompareVs = () => {
           },
         })),
       }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map(f => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }} />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="flex items-center gap-2 mb-3">
@@ -138,6 +147,26 @@ const CompareVs = () => {
             </div>
           </div>
         )}
+
+        {/* Winner-by-category */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {cats.map(c => {
+            const Icon = c.icon;
+            const isA = c.winner.id === a.id;
+            return (
+              <div key={c.key} className="p-4 rounded-xl border border-border bg-card">
+                <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider">{c.label}</span>
+                </div>
+                <div className="font-display font-extrabold text-foreground truncate">{c.winner.name}</div>
+                <div className="text-[11px] font-mono text-primary mt-1">
+                  {c.value(c.winner)} <span className="text-muted-foreground">vs {c.value(isA ? b : a)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
