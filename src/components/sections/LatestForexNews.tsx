@@ -66,7 +66,10 @@ const NewsCard = ({ article }: { article: ForexNewsArticle }) => {
 
 const LatestForexNews = () => {
   const { articles, loading } = useForexNews();
-  const display = articles.slice(0, 3);
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(articles.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const display = articles.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-16">
@@ -103,11 +106,36 @@ const LatestForexNews = () => {
           <p className="text-sm">News feed temporarily unavailable.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-4">
-          {display.map((article, i) => (
-            <NewsCard key={`${article.url}-${i}`} article={article} />
-          ))}
-        </div>
+        <>
+          <div className="grid md:grid-cols-3 gap-4">
+            {display.map((article, i) => (
+              <NewsCard key={`${article.url}-${i}`} article={article} />
+            ))}
+          </div>
+          {pageCount > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <button
+                onClick={() => setPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+                aria-label="Previous"
+                className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                Page {currentPage + 1} of {pageCount}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+                disabled={currentPage >= pageCount - 1}
+                aria-label="Next"
+                className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   );
