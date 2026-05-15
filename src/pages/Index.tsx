@@ -60,6 +60,7 @@ const Index = () => {
       <BrokerTrustHub />
       <TrustTimeline />
       <WithdrawalProofWall />
+      <PayoutSpeedLeaderboard />
       <AIMatcherTeaser />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
