@@ -33,23 +33,30 @@ serve(async (req) => {
     }
 
     // Compact NAFT context bundle
-    const [{ data: brokers }, { data: scams }, { data: signals }] = await Promise.all([
-      supabase.from("brokers").select("name, slug, type, score, regulation, tags, badge").eq("status", "published").order("score", { ascending: false }).limit(40),
-      supabase.from("scam_alerts").select("title, severity, created_at").eq("status", "published").order("created_at", { ascending: false }).limit(15),
+    const [{ data: brokers }, { data: scams }, { data: signals }, { data: payouts }] = await Promise.all([
+      supabase.from("brokers").select("name, slug, type, score, regulation, tags, badge, complaints, avg_spread, min_deposit").eq("status", "published").order("score", { ascending: false }).limit(50),
+      supabase.from("scam_alerts").select("title, severity, created_at").eq("status", "published").order("created_at", { ascending: false }).limit(20),
       supabase.from("signal_groups").select("name, win_rate, members, verified").eq("status", "published").order("win_rate", { ascending: false }).limit(10),
+      supabase.from("withdrawal_proofs").select("broker_id, amount, currency, payout_time_hours").eq("status", "verified").order("verified_at", { ascending: false }).limit(20),
     ]);
+
+    const brokerById = new Map((brokers || []).map((b: any) => [b.name, b]));
+    const payoutsByBroker: Record<string, number> = {};
+    (payouts || []).forEach((p: any) => { payoutsByBroker[p.broker_id] = (payoutsByBroker[p.broker_id] || 0) + 1; });
 
     const ctx = `
 NAFT (Not A Fugazi Trader) is a transparent broker review platform.
 
 TOP BROKERS (sorted by trust score):
-${(brokers || []).map((b: any) => `- ${b.name} [${b.type}] score=${b.score}/10 reg=${(b.regulation || []).join("/")} ${b.badge === "verified" ? "✓verified" : ""}`).join("\n")}
+${(brokers || []).map((b: any) => `- ${b.name} [${b.type}] score=${b.score}/10 spread=${b.avg_spread} min=${b.min_deposit} reg=${(b.regulation || []).join("/")} complaints=${b.complaints || 0} ${b.badge === "verified" ? "✓verified" : ""}`).join("\n")}
 
 ACTIVE SCAM ALERTS (recent):
 ${(scams || []).map((s: any) => `- ${s.title} [${s.severity}]`).join("\n")}
 
 TOP SIGNAL GROUPS:
 ${(signals || []).map((s: any) => `- ${s.name} winrate=${s.win_rate}% ${s.verified ? "(verified)" : ""}`).join("\n")}
+
+VERIFIED PAYOUT PROOFS (last 20): ${payouts?.length || 0} community-submitted withdrawals verified by NAFT moderators.
 `;
 
     const systemPrompt = `You are NAFT Assistant — a friendly, no-bs trading sidekick.
