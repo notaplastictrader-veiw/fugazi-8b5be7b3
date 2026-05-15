@@ -123,7 +123,7 @@ const BrokerHealthGrid = () => {
         </Link>
       </div>
 
-      <CardCarousel itemMinWidth={240}>
+      <CardCarousel itemsPerView={6} itemMinWidth={180}>
         {data.map((r) => {
           const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
           const deltaColor =
