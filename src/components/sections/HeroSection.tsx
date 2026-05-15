@@ -97,10 +97,7 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         {/* 1. Brand badge */}
-        <div className="flex flex-col items-center gap-2 mb-4">
-          <div className="font-display font-extrabold tracking-[0.25em] uppercase text-[11px] md:text-xs text-foreground/80">
-            Not A Fugazi Trader
-          </div>
+        <div className="flex justify-center mb-4">
           <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/30 bg-primary/8 text-xs text-primary font-mono font-semibold tracking-wider uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
