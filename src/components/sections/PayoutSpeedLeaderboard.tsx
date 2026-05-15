@@ -185,6 +185,30 @@ const PayoutSpeedLeaderboard = () => {
         })}
       </div>
 
+      {pageCount > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <button
+            onClick={() => setPage(Math.max(0, currentPage - 1))}
+            disabled={currentPage === 0}
+            aria-label="Previous"
+            className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+            Page {currentPage + 1} of {pageCount}
+          </span>
+          <button
+            onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+            disabled={currentPage >= pageCount - 1}
+            aria-label="Next"
+            className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <div className="mt-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center">
         Data sourced from verified user-submitted withdrawal proofs · updated continuously
       </div>
