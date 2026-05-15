@@ -61,17 +61,26 @@ const HeroSection = () => {
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
-  const eyebrowVariants = [
-    { prefix: "Built for real traders, not", highlight: "Fugazi Ones" },
-    { prefix: "We test brokers.", highlight: "You trade smarter." },
-    { prefix: "Real reviews.", highlight: "Zero paid promos." },
-    { prefix: "Withdrawal proof first.", highlight: "Hype never." },
+  const eyebrowItems = [
+    { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
+    { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
+    { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
+    { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
+    { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
   ];
-  const [eyebrowIdx, setEyebrowIdx] = useState(0);
+  const [eyebrowIndex, setEyebrowIndex] = useState(0);
+  const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   useEffect(() => {
-    const id = setInterval(() => setEyebrowIdx((i) => (i + 1) % eyebrowVariants.length), 3500);
-    return () => clearInterval(id);
-  }, []);
+    const interval = setInterval(() => {
+      setEyebrowAnim("out");
+      setTimeout(() => {
+        setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
+        setEyebrowAnim("in");
+      }, 300);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [eyebrowItems.length]);
+  const eyebrow = eyebrowItems[eyebrowIndex];
 
   useEffect(() => {
     const ref = typewriterRef.current;
