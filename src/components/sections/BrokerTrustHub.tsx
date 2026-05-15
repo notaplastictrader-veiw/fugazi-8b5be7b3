@@ -7,6 +7,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
+import CardCarousel from "@/components/common/CardCarousel";
 
 interface Broker {
   id: string;
@@ -404,10 +405,10 @@ const BrokerTrustHub = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardCarousel itemMinWidth={320}>
           <SponsoredBrokerCard />
           {filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
-        </div>
+        </CardCarousel>
 
         <div className="mt-6">
           <Link to="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</Link>
@@ -427,9 +428,9 @@ const BrokerTrustHub = () => {
           </div>
 
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CardCarousel itemMinWidth={320}>
             {filteredPropFirms.map((firm) => <PropFirmCard key={firm.slug} firm={firm} visible={visible} />)}
-          </div>
+          </CardCarousel>
 
           <div className="mt-6">
             <Link to="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</Link>

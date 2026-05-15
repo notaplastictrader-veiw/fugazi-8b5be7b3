@@ -503,3 +503,7 @@ body[data-route="/"]::before {
   transform: translateY(-50%) skewX(-12deg) scaleX(1);
 }
 .nav-tab--active { color: hsl(var(--primary-foreground)) !important; }
+
+/* Hide scrollbars for CardCarousel horizontal track */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

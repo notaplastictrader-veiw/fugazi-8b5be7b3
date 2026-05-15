@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Activity, TrendingUp, TrendingDown, Minus, ArrowRight } from "lucide-react";
+import CardCarousel from "@/components/common/CardCarousel";
 
 interface Row {
   id: string;
@@ -122,7 +123,7 @@ const BrokerHealthGrid = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <CardCarousel itemMinWidth={240}>
         {data.map((r) => {
           const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
           const deltaColor =
@@ -135,7 +136,7 @@ const BrokerHealthGrid = () => {
             <Link
               key={r.id}
               to={`/brokers/${r.slug}`}
-              className="group rounded-xl border border-border bg-card hover:border-primary/50 transition-all p-4 flex flex-col gap-3"
+              className="group rounded-xl border border-border bg-card hover:border-primary/50 transition-all p-4 flex flex-col gap-3 h-full"
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -189,7 +190,7 @@ const BrokerHealthGrid = () => {
             </Link>
           );
         })}
-      </div>
+      </CardCarousel>
     </section>
   );
 };
