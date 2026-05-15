@@ -54,7 +54,13 @@ const HeroSection = () => {
     return () => { cancelled = true; };
   }, [cmsStats]);
 
-  const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
+  const baseStats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
+  const stats = [
+    baseStats[0],
+    baseStats[1],
+    baseStats[2],
+    { value: "1.2M+", label: "Website visitors" },
+  ] as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
