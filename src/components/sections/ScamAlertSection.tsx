@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+
+const PAGE_SIZE = 3;
 
 interface ScamAlert {
   id: string;
@@ -22,6 +24,7 @@ const defaultScamScoreFactors = [
 
 const ScamAlertSection = () => {
   const [alerts, setAlerts] = useState<ScamAlert[]>([]);
+  const [page, setPage] = useState(0);
   const cms = useSiteSettings<Record<string, any>>("scam_alert_section", {});
 
   const sectionTitle = cms.section_title || "Active Scam";
@@ -48,6 +51,10 @@ const ScamAlertSection = () => {
     fetch();
   }, [displayCount]);
 
+  const pageCount = Math.max(1, Math.ceil(alerts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedAlerts = alerts.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
@@ -59,7 +66,8 @@ const ScamAlertSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
             <h3 className="text-sm font-mono text-muted-foreground mb-4">{liveAlertsLabel}</h3>
-            {alerts.map((alert) => {
+            {(() => null)()}
+            {pagedAlerts.map((alert) => {
               const daysAgo = Math.floor((Date.now() - new Date(alert.created_at).getTime()) / 86400000);
               return (
                 <Link to={`/scam-alerts/${alert.id}`} key={alert.id} className="block glass-card rounded-xl p-5 hover:border-destructive/20 transition-colors">
@@ -79,6 +87,29 @@ const ScamAlertSection = () => {
                 </Link>
               );
             })}
+            {pageCount > 1 && (
+              <div className="pt-2 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setPage(Math.max(0, currentPage - 1))}
+                  disabled={currentPage === 0}
+                  aria-label="Previous"
+                  className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-destructive hover:border-destructive/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                  Page {currentPage + 1} of {pageCount}
+                </span>
+                <button
+                  onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+                  disabled={currentPage >= pageCount - 1}
+                  aria-label="Next"
+                  className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-destructive hover:border-destructive/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <div className="mt-4">
               <Link to="/scam-alerts" className="text-sm text-destructive hover:underline font-medium">{ctaText}</Link>
             </div>
