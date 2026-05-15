@@ -162,7 +162,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border md:[top:34px]">
+      <nav className="fixed top-0 md:top-[34px] left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border">
         <div className="max-w-7xl mx-auto px-4 h-[48px] md:h-[58px] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
             <img
