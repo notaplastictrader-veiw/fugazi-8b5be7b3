@@ -17,6 +17,7 @@ import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
 import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
 import TrustTimeline from "@/components/sections/TrustTimeline";
 import WithdrawalProofWall from "@/components/sections/WithdrawalProofWall";
+import PayoutSpeedLeaderboard from "@/components/sections/PayoutSpeedLeaderboard";
 
 const Index = () => {
   return (
