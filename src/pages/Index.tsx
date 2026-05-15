@@ -1,26 +1,30 @@
+import { lazy, Suspense } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { organizationSchema, websiteSchema, faqSchema } from "@/components/seo/JsonLd";
+import LazySection from "@/components/LazySection";
 import HeroSection from "@/components/sections/HeroSection";
 import LiveTrustTicker from "@/components/sections/LiveTrustTicker";
-import FeaturedOffersCarousel from "@/components/sections/FeaturedOffersCarousel";
-import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
-import ScamAlertSection from "@/components/sections/ScamAlertSection";
-import SignalHub from "@/components/sections/SignalHub";
-import ForecastSection from "@/components/sections/ForecastSection";
-import HomepageCalendarWidget from "@/components/sections/HomepageCalendarWidget";
-import LatestForexNews from "@/components/sections/LatestForexNews";
-import HowItWorks from "@/components/sections/HowItWorks";
-import CommunityReviews from "@/components/sections/CommunityReviews";
-import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
-import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
-import TrustTimeline from "@/components/sections/TrustTimeline";
-import WithdrawalProofWall from "@/components/sections/WithdrawalProofWall";
-import PayoutSpeedLeaderboard from "@/components/sections/PayoutSpeedLeaderboard";
-import ScamPulseRadar from "@/components/sections/ScamPulseRadar";
 import BrokerHealthGrid from "@/components/sections/BrokerHealthGrid";
-import ForumActivityWidget from "@/components/sections/ForumActivityWidget";
+
+// Below-fold sections — lazy-loaded chunks, mounted on scroll
+const TrustTimeline = lazy(() => import("@/components/sections/TrustTimeline"));
+const WithdrawalProofWall = lazy(() => import("@/components/sections/WithdrawalProofWall"));
+const PayoutSpeedLeaderboard = lazy(() => import("@/components/sections/PayoutSpeedLeaderboard"));
+const AIMatcherTeaser = lazy(() => import("@/components/sections/AIMatcherTeaser"));
+const ScamPulseRadar = lazy(() => import("@/components/sections/ScamPulseRadar"));
+const ScamAlertSection = lazy(() => import("@/components/sections/ScamAlertSection"));
+const SponsoredBanner = lazy(() => import("@/components/sponsored/SponsoredBanner"));
+const FeaturedOffersCarousel = lazy(() => import("@/components/sections/FeaturedOffersCarousel"));
+const SignalHub = lazy(() => import("@/components/sections/SignalHub"));
+const ForecastSection = lazy(() => import("@/components/sections/ForecastSection"));
+const HomepageCalendarWidget = lazy(() => import("@/components/sections/HomepageCalendarWidget"));
+const LatestForexNews = lazy(() => import("@/components/sections/LatestForexNews"));
+const HowItWorks = lazy(() => import("@/components/sections/HowItWorks"));
+const CommunityReviews = lazy(() => import("@/components/sections/CommunityReviews"));
+const BrokerJoinSection = lazy(() => import("@/components/sections/BrokerJoinSection"));
+const ForumActivityWidget = lazy(() => import("@/components/sections/ForumActivityWidget"));
 
 const Index = () => {
   return (
@@ -62,22 +66,24 @@ const Index = () => {
       <LiveTrustTicker />
       <BrokerTrustHub />
       <BrokerHealthGrid />
-      <TrustTimeline />
-      <WithdrawalProofWall />
-      <PayoutSpeedLeaderboard />
-      <AIMatcherTeaser />
-      <ScamPulseRadar />
-      <ScamAlertSection />
-      <SponsoredBanner placement="homepage-banner" />
-      <FeaturedOffersCarousel />
-      <SignalHub />
-      <ForecastSection />
-      <HomepageCalendarWidget />
-      <LatestForexNews />
-      <CommunityReviews />
-      <ForumActivityWidget />
-      <HowItWorks />
-      <BrokerJoinSection />
+      <Suspense fallback={null}>
+        <LazySection><TrustTimeline /></LazySection>
+        <LazySection><WithdrawalProofWall /></LazySection>
+        <LazySection><PayoutSpeedLeaderboard /></LazySection>
+        <LazySection><AIMatcherTeaser /></LazySection>
+        <LazySection><ScamPulseRadar /></LazySection>
+        <LazySection><ScamAlertSection /></LazySection>
+        <LazySection minHeight={200}><SponsoredBanner placement="homepage-banner" /></LazySection>
+        <LazySection><FeaturedOffersCarousel /></LazySection>
+        <LazySection><SignalHub /></LazySection>
+        <LazySection><ForecastSection /></LazySection>
+        <LazySection><HomepageCalendarWidget /></LazySection>
+        <LazySection><LatestForexNews /></LazySection>
+        <LazySection><CommunityReviews /></LazySection>
+        <LazySection><ForumActivityWidget /></LazySection>
+        <LazySection><HowItWorks /></LazySection>
+        <LazySection><BrokerJoinSection /></LazySection>
+      </Suspense>
     </MainLayout>
   );
 };
