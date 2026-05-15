@@ -56,6 +56,7 @@ const Index = () => {
       <HeroSection />
       <LiveTrustTicker />
       <BrokerTrustHub />
+      <TrustTimeline />
       <AIMatcherTeaser />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
