@@ -57,9 +57,11 @@ const HeroSection = () => {
   const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
-  const [displayText, setDisplayText] = useState("");
-  const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
+  // Pick one static placeholder on mount — no typewriter loop.
+  const [placeholderText] = useState(
+    () => typewriterTexts[Math.floor(Math.random() * typewriterTexts.length)]
+  );
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -69,45 +71,14 @@ const HeroSection = () => {
     { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
   ];
   const [eyebrowIndex, setEyebrowIndex] = useState(0);
-  const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   useEffect(() => {
     const interval = setInterval(() => {
-      setEyebrowAnim("out");
-      setTimeout(() => {
-        setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
-        setEyebrowAnim("in");
-      }, 300);
-    }, 3000);
+      setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
+    }, 3500);
     return () => clearInterval(interval);
   }, [eyebrowItems.length]);
   const eyebrow = eyebrowItems[eyebrowIndex];
 
-  useEffect(() => {
-    const ref = typewriterRef.current;
-    const tick = () => {
-      const fullText = typewriterTexts[ref.textIndex];
-      if (ref.isDeleting) {
-        ref.charIndex--;
-        setDisplayText(fullText.substring(0, ref.charIndex));
-        if (ref.charIndex === 0) {
-          ref.isDeleting = false;
-          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
-          return setTimeout(tick, 700);
-        }
-        return setTimeout(tick, 55);
-      } else {
-        ref.charIndex++;
-        setDisplayText(fullText.substring(0, ref.charIndex));
-        if (ref.charIndex === fullText.length) {
-          ref.isDeleting = true;
-          return setTimeout(tick, 2800);
-        }
-        return setTimeout(tick, 110);
-      }
-    };
-    const timer = setTimeout(tick, 500);
-    return () => clearTimeout(timer);
-  }, [typewriterTexts]);
 
   return (
     <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
