@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ChevronDown, Menu, X, Sun, Moon, Flame, LogOut, Search, Shield, User, Settings, Building2, Radio, Star, MessageSquare, Trophy, Gift, Lightbulb, CalendarDays, Newspaper, Handshake, Users, Briefcase, Info, Mail } from "lucide-react";
 
 // Icon map for More mega-menu items (matched by label keyword)
@@ -42,6 +42,18 @@ const Navbar = () => {
   const { t } = useI18n();
   const { hasRole } = useUserRole();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActiveLink = (link: any): boolean => {
+    if (link.href && link.href !== "#") {
+      if (link.href === "/") return location.pathname === "/";
+      if (location.pathname === link.href || location.pathname.startsWith(link.href + "/")) return true;
+    }
+    if (Array.isArray(link.children)) {
+      return link.children.some((c: any) => c.href && c.href !== "#" &&
+        (location.pathname === c.href || location.pathname.startsWith(c.href.split("?")[0] + "/")));
+    }
+    return false;
+  };
 
   const getMobileMenuItems = () => {
     if (hasRole("super_admin")) return [
@@ -202,7 +214,8 @@ const Navbar = () => {
           <div className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link) => {
               const isHighlight = (link as any).highlight;
-              const linkClass = `nav-tab relative inline-flex items-center gap-1 px-2.5 py-2 text-[13px] font-medium transition-colors ${
+              const isActive = isActiveLink(link);
+              const linkClass = `nav-tab ${isActive ? "nav-tab--active" : ""} relative inline-flex items-center gap-1 px-2.5 py-2 text-[13px] font-medium transition-colors ${
                 isHighlight ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
               }`;
               return (
