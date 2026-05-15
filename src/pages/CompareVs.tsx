@@ -4,7 +4,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowRight, Star, Shield, AlertTriangle, GitCompare } from "lucide-react";
+import { ArrowRight, Shield, GitCompare, Trophy, Zap, ScrollText, AlertOctagon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import CTABand from "@/components/common/CTABand";
 import NotFound from "./NotFound";
@@ -62,6 +62,26 @@ const CompareVs = () => {
   const winner = (a.score || 0) > (b.score || 0) ? a : (b.score || 0) > (a.score || 0) ? b : null;
   const titleStr = `${a.name} vs ${b.name} — Side-by-Side Broker Comparison`;
   const descStr = `Compare ${a.name} (${(a.score || 0).toFixed(1)}/10) vs ${b.name} (${(b.score || 0).toFixed(1)}/10): regulation, spreads, leverage, min deposit, and verified reviews.`;
+
+  // Per-category winners
+  const parseSpread = (s: string | null) => {
+    if (!s) return Infinity;
+    const m = s.match(/[\d.]+/);
+    return m ? parseFloat(m[0]) : Infinity;
+  };
+  const cats = [
+    { key: "trust", label: "Trust Score", icon: Trophy, winner: (a.score || 0) >= (b.score || 0) ? a : b, value: (br: BrokerRow) => `${(br.score || 0).toFixed(1)}/10` },
+    { key: "spread", label: "Tighter Spreads", icon: Zap, winner: parseSpread(a.avg_spread) <= parseSpread(b.avg_spread) ? a : b, value: (br: BrokerRow) => br.avg_spread || "—" },
+    { key: "reg", label: "More Regulators", icon: ScrollText, winner: (a.regulation?.length || 0) >= (b.regulation?.length || 0) ? a : b, value: (br: BrokerRow) => `${br.regulation?.length || 0} licences` },
+    { key: "complaints", label: "Fewer Complaints", icon: AlertOctagon, winner: (a.complaints || 0) <= (b.complaints || 0) ? a : b, value: (br: BrokerRow) => `${br.complaints || 0} complaints` },
+  ];
+
+  const faqs = [
+    { q: `Is ${a.name} regulated?`, a: a.regulation?.length ? `Yes — ${a.name} is regulated by ${a.regulation.join(", ")}.` : `${a.name} has no verified regulator listed in our database. Trade with caution.` },
+    { q: `Which has lower spreads, ${a.name} or ${b.name}?`, a: `${parseSpread(a.avg_spread) <= parseSpread(b.avg_spread) ? a.name : b.name} offers tighter spreads on average (${a.name}: ${a.avg_spread || "n/a"} · ${b.name}: ${b.avg_spread || "n/a"}).` },
+    { q: `Which broker has the higher trust score?`, a: `${(a.score || 0) >= (b.score || 0) ? a.name : b.name} scores higher overall (${a.name}: ${(a.score || 0).toFixed(1)}/10 · ${b.name}: ${(b.score || 0).toFixed(1)}/10) based on regulation, reviews, and complaints.` },
+    { q: `Should I open an account with ${a.name} or ${b.name}?`, a: `It depends on your priorities. ${winner?.name || a.name} wins on overall trust, but compare deposit minimums, available platforms, and your country's regulator before depositing.` },
+  ];
 
   return (
     <MainLayout>
