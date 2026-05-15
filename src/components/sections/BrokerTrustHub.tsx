@@ -405,10 +405,10 @@ const BrokerTrustHub = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardCarousel itemMinWidth={320}>
           <SponsoredBrokerCard />
           {filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
-        </div>
+        </CardCarousel>
 
         <div className="mt-6">
           <Link to="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</Link>
