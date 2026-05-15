@@ -137,7 +137,8 @@ const HeroSection = () => {
             <Search className="absolute left-4 w-5 h-5 text-muted-foreground" />
             {!searchValue && (
               <span className="absolute left-12 right-[110px] text-sm text-muted-foreground font-mono pointer-events-none select-none tracking-wide whitespace-nowrap overflow-hidden text-ellipsis">
-                {placeholderText}
+                {displayText}
+                <span className="inline-block w-[2px] h-[1em] bg-muted-foreground ml-[1px] align-middle animate-[pulse_1s_ease-in-out_infinite]" />
               </span>
             )}
             <input
