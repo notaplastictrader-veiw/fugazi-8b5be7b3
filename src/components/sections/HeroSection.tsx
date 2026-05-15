@@ -46,10 +46,10 @@ const HeroSection = () => {
       ]);
       if (cancelled) return;
       setLiveStats((prev) => [
-        { value: reviews.count != null ? formatCount(reviews.count) : prev?.[0]?.value ?? "—", label: "Verified reviews" },
-        { value: brokers.count != null ? formatCount(brokers.count) : prev?.[1]?.value ?? "—", label: "Brokers listed" },
-        { value: scams.count != null ? formatCount(scams.count) : prev?.[2]?.value ?? "—", label: "Scam alerts" },
-        { value: visitorsValue, label: "Website visitors" },
+        { value: reviews.count != null ? formatCount(reviews.count) : prev?.[0]?.value ?? "—", label: "Reviews" },
+        { value: brokers.count != null ? formatCount(brokers.count) : prev?.[1]?.value ?? "—", label: "Brokers" },
+        { value: scams.count != null ? formatCount(scams.count) : prev?.[2]?.value ?? "—", label: "Scams" },
+        { value: visitorsValue, label: "Visitors" },
       ]);
     })();
     return () => { cancelled = true; };
@@ -60,7 +60,7 @@ const HeroSection = () => {
     baseStats[0],
     baseStats[1],
     baseStats[2],
-    { value: visitorsValue, label: "Website visitors" },
+    { value: visitorsValue, label: "Visitors" },
   ] as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
