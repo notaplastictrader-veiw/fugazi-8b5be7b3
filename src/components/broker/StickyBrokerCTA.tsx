@@ -29,7 +29,7 @@ const StickyBrokerCTA = ({ broker, onWriteReview }: Props) => {
       <div className="mx-auto max-w-5xl px-3 pb-2 md:pb-3">
         <div className="glass-card rounded-2xl border border-border/80 shadow-[0_-8px_30px_-12px_rgba(0,0,0,0.35)] backdrop-blur-xl px-3 py-2.5 flex items-center gap-3">
           {broker.logo_url && (
-            <img src={broker.logo_url} alt="" className="w-9 h-9 rounded-lg object-contain bg-background border border-border shrink-0" />
+            <img src={broker.logo_url} alt="" loading="lazy" decoding="async" width={36} height={36} className="w-9 h-9 rounded-lg object-contain bg-background border border-border shrink-0" />
           )}
           <div className="min-w-0 flex-1">
             <div className="text-sm font-display font-bold text-foreground truncate">{broker.name}</div>
