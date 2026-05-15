@@ -18,6 +18,8 @@ import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
 import TrustTimeline from "@/components/sections/TrustTimeline";
 import WithdrawalProofWall from "@/components/sections/WithdrawalProofWall";
 import PayoutSpeedLeaderboard from "@/components/sections/PayoutSpeedLeaderboard";
+import ScamPulseRadar from "@/components/sections/ScamPulseRadar";
+import BrokerHealthGrid from "@/components/sections/BrokerHealthGrid";
 
 const Index = () => {
   return (
