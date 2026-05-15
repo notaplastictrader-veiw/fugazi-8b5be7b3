@@ -64,8 +64,14 @@ const SignalHub = () => {
         </div>
         <p className="text-sm text-muted-foreground mb-10">{subtitle}</p>
 
+        {(() => {
+          const pageCount = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+          const currentPage = Math.min(page, pageCount - 1);
+          const pagedGroups = groups.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+          return (
+            <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {groups.map((group) => (
+          {pagedGroups.map((group) => (
             <div key={group.id} className="glass-card rounded-xl p-6 hover:border-primary/20 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold text-foreground">{group.name}</h3>
