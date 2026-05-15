@@ -45,10 +45,10 @@ const HeroSection = () => {
       ]);
       if (cancelled) return;
       setLiveStats([
-        { value: formatCount(brokers.count ?? 0), label: "Brokers reviewed" },
+        { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
         { value: formatCount(scams.count ?? 0), label: "Scam alerts" },
         { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
-        { value: "1.2M", label: "Monthly visitors" },
+        { value: "1.2M+", label: "Website visitors" },
       ]);
     })();
     return () => { cancelled = true; };
