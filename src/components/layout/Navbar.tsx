@@ -200,81 +200,80 @@ const Navbar = () => {
           </Link>
 
           <div className="hidden xl:flex items-center gap-0.5">
-            {navLinks.map((link) => (
+            {navLinks.map((link) => {
+              const isHighlight = (link as any).highlight;
+              const linkClass = `nav-tab relative inline-flex items-center gap-1 px-2.5 py-2 text-[13px] font-medium transition-colors ${
+                isHighlight ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
+              }`;
+              return (
               <div key={link.label} className="relative group">
                 {link.children ? (
-                  <button
-                    className={`flex items-center gap-1 px-2.5 py-2 text-[13px] transition-colors ${
-                      (link as any).highlight
-                        ? "text-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground font-medium"
-                    }`}
-                    onClick={() => toggleDropdown(link.label)}
-                  >
-                    {link.label}
-                    <ChevronDown className="w-3 h-3" />
+                  <button className={linkClass} onClick={() => toggleDropdown(link.label)}>
+                    <span className="nav-tab__marker" aria-hidden="true" />
+                    <span className="relative z-[1]">{link.label}</span>
+                    <ChevronDown className="w-3 h-3 relative z-[1]" />
                   </button>
                 ) : (
-                  <Link to={link.href} className="px-2.5 py-2 text-[13px] text-muted-foreground hover:text-foreground font-medium transition-colors">
-                    {link.label}
+                  <Link to={link.href} className={linkClass}>
+                    <span className="nav-tab__marker" aria-hidden="true" />
+                    <span className="relative z-[1]">{link.label}</span>
                   </Link>
                 )}
                 {link.children && (
-                  link.label === moreLabel && link.children.length >= 6 ? (
-                    <div className="absolute top-full right-0 mt-1 w-[520px] bg-card border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
-                      <div className="grid grid-cols-2 gap-0">
-                        {/* Main Menu column */}
-                        <div className="p-3 border-r border-border/60">
-                          <div className="px-2 pb-2 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Main Menu</div>
-                          <div className="space-y-0.5">
-                            {link.children.slice(0, 4).map((child) => {
+                  link.label === moreLabel && link.children.length >= 6 ? (() => {
+                    // Group by href pattern — robust to CMS reordering
+                    const isPartnership = (h: string) => /partnership/i.test(h);
+                    const isAboutContact = (h: string) => /^\/(about|contact)/i.test(h);
+                    const isCommunity = (h: string) => /^\/(forum|awards|ask|ideas)/i.test(h);
+                    const partnership = link.children.filter(c => isPartnership(c.href));
+                    const aboutContact = link.children.filter(c => isAboutContact(c.href));
+                    const community = link.children.filter(c => isCommunity(c.href));
+                    const discover = link.children.filter(c =>
+                      !isPartnership(c.href) && !isAboutContact(c.href) && !isCommunity(c.href)
+                    );
+                    const Column = ({ title, items, last }: { title: string; items: typeof link.children; last?: boolean }) => (
+                      <div className={`p-3 ${last ? "" : "border-r border-border/60"}`}>
+                        <div className="px-2 pb-2 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">{title}</div>
+                        <div className="space-y-0.5">
+                          {items.map((child) => {
+                            const Icon = iconFor(child.label);
+                            return (
+                              <Link key={child.label} to={child.href}
+                                className="flex items-center gap-2.5 px-2 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors group/item">
+                                <span className="w-7 h-7 rounded-md bg-secondary/50 group-hover/item:bg-primary/15 group-hover/item:text-primary text-muted-foreground flex items-center justify-center transition-colors">
+                                  <Icon className="w-3.5 h-3.5" />
+                                </span>
+                                <span className="font-medium">{child.label}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                    return (
+                      <div className="absolute top-full right-0 mt-1 w-[680px] bg-card border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                        <div className="grid grid-cols-3 gap-0">
+                          {community.length > 0 && <Column title="Community" items={community} />}
+                          {discover.length > 0 && <Column title="Discover" items={discover} />}
+                          {partnership.length > 0 && <Column title="Partnership" items={partnership} last />}
+                        </div>
+                        {aboutContact.length > 0 && (
+                          <div className="grid border-t border-border bg-secondary/30" style={{ gridTemplateColumns: `repeat(${aboutContact.length}, minmax(0,1fr))` }}>
+                            {aboutContact.map((child, i) => {
                               const Icon = iconFor(child.label);
                               return (
                                 <Link key={child.label} to={child.href}
-                                  className="flex items-center gap-2.5 px-2 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors group/item">
-                                  <span className="w-7 h-7 rounded-md bg-secondary/50 group-hover/item:bg-primary/15 group-hover/item:text-primary text-muted-foreground flex items-center justify-center transition-colors">
-                                    <Icon className="w-3.5 h-3.5" />
-                                  </span>
-                                  <span className="font-medium">{child.label}</span>
+                                  className={`flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-primary hover:bg-secondary/60 transition-colors ${i < aboutContact.length - 1 ? "border-r border-border" : ""}`}>
+                                  <Icon className="w-3.5 h-3.5" />
+                                  <span className="font-semibold">{child.label}</span>
                                 </Link>
                               );
                             })}
                           </div>
-                        </div>
-                        {/* Partnership column */}
-                        <div className="p-3">
-                          <div className="px-2 pb-2 text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Partnership</div>
-                          <div className="space-y-0.5">
-                            {link.children.slice(6).map((child) => {
-                              const Icon = iconFor(child.label);
-                              return (
-                                <Link key={child.label} to={child.href}
-                                  className="flex items-center gap-2.5 px-2 py-2 rounded-md text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors group/item">
-                                  <span className="w-7 h-7 rounded-md bg-secondary/50 group-hover/item:bg-primary/15 group-hover/item:text-primary text-muted-foreground flex items-center justify-center transition-colors">
-                                    <Icon className="w-3.5 h-3.5" />
-                                  </span>
-                                  <span className="font-medium">{child.label}</span>
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        </div>
+                        )}
                       </div>
-                      {/* Footer row: About / Contact */}
-                      <div className="grid grid-cols-2 border-t border-border bg-secondary/30">
-                        {link.children.slice(4, 6).map((child) => {
-                          const Icon = iconFor(child.label);
-                          return (
-                            <Link key={child.label} to={child.href}
-                              className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-primary hover:bg-secondary/60 transition-colors first:border-r first:border-border">
-                              <Icon className="w-3.5 h-3.5" />
-                              <span className="font-semibold">{child.label}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
+                    );
+                  })() : (
                     <div className="absolute top-full left-0 mt-1 w-56 bg-card border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
                       {link.children.map((child) => (
                         <Link key={child.label} to={child.href}
@@ -286,7 +285,8 @@ const Navbar = () => {
                   )
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="hidden xl:flex items-center gap-2">
