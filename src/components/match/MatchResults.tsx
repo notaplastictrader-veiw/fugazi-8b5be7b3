@@ -26,6 +26,15 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    trackEvent("matcher_completed", {
+      top_match: matches[0]?.slug,
+      style: answers?.style,
+      capital: answers?.capital,
+      goal: answers?.goal,
+    });
+  }, []);
+
   async function saveMatch() {
     if (!user) { toast.error("Sign in to save matches"); return; }
     setSaving(true);
