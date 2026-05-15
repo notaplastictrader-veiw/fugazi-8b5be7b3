@@ -5,6 +5,7 @@ import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
+import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
 
 interface Broker {
@@ -133,6 +134,7 @@ const BrokerCard = ({ broker, visible }: { broker: Broker; visible: boolean }) =
               <Award className="w-3 h-3" /> Featured
             </span>
           )}
+          <WatchlistButton brokerId={broker.id} brokerName={broker.name} variant="icon" />
         </div>
       </div>
 

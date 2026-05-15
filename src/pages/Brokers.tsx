@@ -17,6 +17,7 @@ import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import CTABand from "@/components/common/CTABand";
 import { Sparkles } from "lucide-react";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
+import WatchlistButton from "@/components/broker/WatchlistButton";
 import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 
 interface Broker {
@@ -148,6 +149,7 @@ const Brokers = () => {
                     </div>
                     {broker.badge === "verified" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20"><Shield className="w-3 h-3" /> Verified</span>}
                     {broker.badge === "featured" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20"><Award className="w-3 h-3" /> Featured</span>}
+                    <WatchlistButton brokerId={broker.id} brokerName={broker.name} variant="icon" />
                   </div>
                   <div className="grid grid-cols-3 gap-3 mb-4 text-center">
                     <div><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground">{broker.avg_spread}</div></div>
