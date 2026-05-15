@@ -61,6 +61,18 @@ const HeroSection = () => {
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
+  const eyebrowVariants = [
+    { prefix: "Built for real traders, not", highlight: "Fugazi Ones" },
+    { prefix: "We test brokers.", highlight: "You trade smarter." },
+    { prefix: "Real reviews.", highlight: "Zero paid promos." },
+    { prefix: "Withdrawal proof first.", highlight: "Hype never." },
+  ];
+  const [eyebrowIdx, setEyebrowIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setEyebrowIdx((i) => (i + 1) % eyebrowVariants.length), 3500);
+    return () => clearInterval(id);
+  }, []);
+
   useEffect(() => {
     const ref = typewriterRef.current;
     const tick = () => {
