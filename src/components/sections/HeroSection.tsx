@@ -56,10 +56,11 @@ const HeroSection = () => {
   }, [cmsStats, visitorsValue]);
 
   const baseStats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
+  // Force short, fits-on-one-line labels regardless of CMS overrides
   const stats = [
-    baseStats[0],
-    baseStats[1],
-    baseStats[2],
+    { value: baseStats[0]?.value ?? "—", label: "Reviews" },
+    { value: baseStats[1]?.value ?? "—", label: "Brokers" },
+    { value: baseStats[2]?.value ?? "—", label: "Scams" },
     { value: visitorsValue, label: "Visitors" },
   ] as typeof defaultStats;
 
