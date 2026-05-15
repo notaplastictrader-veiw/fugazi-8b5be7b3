@@ -72,9 +72,16 @@ export default function AudioDigestsAdmin() {
               </div>
               <div className="flex gap-2">
                 {d.audio_url && (
-                  <Button size="sm" variant="outline" onClick={() => new Audio(d.audio_url).play()}>
-                    <Play className="h-3 w-3 mr-1" /> Play
-                  </Button>
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => new Audio(d.audio_url).play()}>
+                      <Play className="h-3 w-3 mr-1" /> Play
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={d.audio_url} download={`naft-digest-${d.week_of}.mp3`} target="_blank" rel="noreferrer">
+                        ⬇ MP3
+                      </a>
+                    </Button>
+                  </>
                 )}
                 <Button size="sm" variant="ghost" onClick={() => removeDigest(d.id)}>
                   <Trash2 className="h-3 w-3" />
