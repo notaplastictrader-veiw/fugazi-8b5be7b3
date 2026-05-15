@@ -42,6 +42,18 @@ const Navbar = () => {
   const { t } = useI18n();
   const { hasRole } = useUserRole();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActiveLink = (link: any): boolean => {
+    if (link.href && link.href !== "#") {
+      if (link.href === "/") return location.pathname === "/";
+      if (location.pathname === link.href || location.pathname.startsWith(link.href + "/")) return true;
+    }
+    if (Array.isArray(link.children)) {
+      return link.children.some((c: any) => c.href && c.href !== "#" &&
+        (location.pathname === c.href || location.pathname.startsWith(c.href.split("?")[0] + "/")));
+    }
+    return false;
+  };
 
   const getMobileMenuItems = () => {
     if (hasRole("super_admin")) return [
