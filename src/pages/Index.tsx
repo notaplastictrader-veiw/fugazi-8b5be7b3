@@ -16,6 +16,7 @@ import CommunityReviews from "@/components/sections/CommunityReviews";
 import BrokerJoinSection from "@/components/sections/BrokerJoinSection";
 import AIMatcherTeaser from "@/components/sections/AIMatcherTeaser";
 import TrustTimeline from "@/components/sections/TrustTimeline";
+import WithdrawalProofWall from "@/components/sections/WithdrawalProofWall";
 
 const Index = () => {
   return (
@@ -57,6 +58,7 @@ const Index = () => {
       <LiveTrustTicker />
       <BrokerTrustHub />
       <TrustTimeline />
+      <WithdrawalProofWall />
       <AIMatcherTeaser />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
