@@ -128,10 +128,6 @@ const BrokerHealthGrid = () => {
         </Link>
       </div>
 
-      {(() => {
-        const data = rows.length > 0 ? rows : FALLBACK;
-        const pageCount = Math.max(1, Math.ceil(data.length / PAGE));
-        const current = Math.min(page, pageCount - 1);
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {slice.map((r) => {
           const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
