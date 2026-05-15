@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Activity, TrendingUp, TrendingDown, Minus, ArrowRight } from "lucide-react";
+import CardCarousel from "@/components/common/CardCarousel";
 
 interface Row {
   id: string;
