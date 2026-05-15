@@ -58,6 +58,7 @@ const Index = () => {
       <LiveTrustTicker />
       <BrokerTrustHub />
       <TrustTimeline />
+      <WithdrawalProofWall />
       <AIMatcherTeaser />
       <ScamAlertSection />
       <SponsoredBanner placement="homepage-banner" />
