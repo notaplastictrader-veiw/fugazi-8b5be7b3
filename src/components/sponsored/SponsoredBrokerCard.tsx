@@ -1,15 +1,28 @@
 import { ExternalLink, Sparkles, Award } from "lucide-react";
 import { useSponsorCampaigns } from "./useSponsorCampaigns";
+import { useImpression } from "@/hooks/useImpression";
+import { trackEvent } from "@/lib/analytics";
 
 const SponsoredBrokerCard = () => {
   const { top } = useSponsorCampaigns("broker-listing-boost");
+  const ref = useImpression("sponsor_impression", {
+    placement: "broker-listing-boost",
+    sponsor: top?.sponsor_name,
+  });
   if (!top) return null;
 
   return (
     <a
+      ref={ref as any}
       href={top.cta_url || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
+      onClick={() =>
+        trackEvent("sponsor_click", {
+          placement: "broker-listing-boost",
+          sponsor: top.sponsor_name,
+        })
+      }
       className="relative block rounded-xl p-5 border-2 border-accent/60 bg-gradient-to-br from-accent/10 via-background to-primary/5 hover:border-accent transition-all group overflow-hidden"
     >
       <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-mono uppercase tracking-widest text-accent bg-accent/10 border border-accent/30 px-2 py-0.5 rounded-full">
