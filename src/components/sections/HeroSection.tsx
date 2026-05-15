@@ -213,10 +213,6 @@ const HeroSection = () => {
         {/* 6. Stats — thin inline strip */}
         <div className="w-full mt-2 animate-[fade-up_0.6s_ease_0.45s_both]">
           <div className="glass-card rounded-full px-3 py-2 md:px-4 md:py-2.5 flex items-center justify-start md:justify-center gap-3 md:gap-5 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex items-center gap-2 pr-3 border-r border-border/40 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Live</span>
-            </div>
             {[
               { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
               { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
