@@ -33,33 +33,34 @@ const HeroSection = () => {
 
   const [liveStats, setLiveStats] = useState<typeof defaultStats | null>(null);
 
+  const visitorsValue = (cms.visitors_value as string) || "1.2M+";
+
   useEffect(() => {
     if (cmsStats) return;
     let cancelled = false;
     (async () => {
-      const [reviews, brokers, scams, profiles] = await Promise.all([
+      const [reviews, brokers, scams] = await Promise.all([
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("brokers").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("scam_alerts").select("*", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
       ]);
       if (cancelled) return;
-      setLiveStats([
-        { value: formatCount(brokers.count ?? 0), label: "Brokers listed" },
-        { value: formatCount(scams.count ?? 0), label: "Scam alerts" },
-        { value: formatCount(reviews.count ?? 0), label: "Verified reviews" },
-        { value: "1.2M+", label: "Website visitors" },
+      setLiveStats((prev) => [
+        { value: reviews.count != null ? formatCount(reviews.count) : prev?.[0]?.value ?? "—", label: "Verified reviews" },
+        { value: brokers.count != null ? formatCount(brokers.count) : prev?.[1]?.value ?? "—", label: "Brokers listed" },
+        { value: scams.count != null ? formatCount(scams.count) : prev?.[2]?.value ?? "—", label: "Scam alerts" },
+        { value: visitorsValue, label: "Website visitors" },
       ]);
     })();
     return () => { cancelled = true; };
-  }, [cmsStats]);
+  }, [cmsStats, visitorsValue]);
 
   const baseStats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
   const stats = [
     baseStats[0],
     baseStats[1],
     baseStats[2],
-    { value: "1.2M+", label: "Website visitors" },
+    { value: visitorsValue, label: "Website visitors" },
   ] as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
