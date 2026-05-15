@@ -7,6 +7,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
+import CardCarousel from "@/components/common/CardCarousel";
 
 interface Broker {
   id: string;
