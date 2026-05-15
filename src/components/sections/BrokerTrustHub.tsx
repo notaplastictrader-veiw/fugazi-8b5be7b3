@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle } from "lucide-react";
+import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
-import CardCarousel from "@/components/common/CardCarousel";
 
 interface Broker {
   id: string;
@@ -325,7 +324,10 @@ const BrokerTrustHub = () => {
   const [brokerFilter, setBrokerFilter] = useState("All");
   const [visible, setVisible] = useState(false);
   const [brokers, setBrokers] = useState<Broker[]>([]);
+  const [brokerPage, setBrokerPage] = useState(0);
+  const [propPage, setPropPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const PAGE = 6;
 
   const fallbackBrokers: Broker[] = [
     { id: "1", name: "Exness", slug: "exness", type: "forex", tags: ["forex", "ecn", "low-spread", "bd-friendly"], regulation: ["FCA", "CySEC"], score: 9.2, avg_spread: "0.1 pips", leverage: "Unlimited", min_deposit: "$1", stars: 4.5, review_count: 1247, complaints: 12, badge: "verified" },
@@ -389,7 +391,41 @@ const BrokerTrustHub = () => {
     ? brokers.filter(b => b.type !== "prop-firm")
     : brokers.filter(b => b.tags?.includes(filterMap[brokerFilter]));
 
-  const filteredPropFirms = brokers.filter(b => b.type === "prop-firm").slice(0, propFirmCount);
+  const allPropFirms = brokers.filter(b => b.type === "prop-firm");
+
+  const brokerPageCount = Math.max(1, Math.ceil((filteredBrokers.length + 1) / PAGE));
+  const brokerCurrent = Math.min(brokerPage, brokerPageCount - 1);
+  const brokerSlice = (() => {
+    const items: React.ReactNode[] = [
+      <SponsoredBrokerCard key="sponsored" />,
+      ...filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />),
+    ];
+    return items.slice(brokerCurrent * PAGE, brokerCurrent * PAGE + PAGE);
+  })();
+
+  const propPageCount = Math.max(1, Math.ceil(allPropFirms.length / PAGE));
+  const propCurrent = Math.min(propPage, propPageCount - 1);
+  const propSlice = allPropFirms.slice(propCurrent * PAGE, propCurrent * PAGE + PAGE);
+
+  const Pager = ({ page, count, onChange, accent }: { page: number; count: number; onChange: (p: number) => void; accent: "primary" | "accent" }) => {
+    if (count <= 1) return null;
+    const hover = accent === "primary" ? "hover:text-primary hover:border-primary/50" : "hover:text-accent hover:border-accent/50";
+    return (
+      <div className="mt-6 flex items-center justify-center gap-3">
+        <button onClick={() => onChange(Math.max(0, page - 1))} disabled={page === 0} aria-label="Previous"
+          className={`w-9 h-9 rounded-full border border-border bg-card text-foreground ${hover} disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center`}>
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+          Page {page + 1} of {count}
+        </span>
+        <button onClick={() => onChange(Math.min(count - 1, page + 1))} disabled={page >= count - 1} aria-label="Next"
+          className={`w-9 h-9 rounded-full border border-border bg-card text-foreground ${hover} disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center`}>
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
 
   return (
     <section ref={sectionRef} className="py-20 px-4">
@@ -403,17 +439,17 @@ const BrokerTrustHub = () => {
 
         <div className="flex flex-wrap gap-2 mb-10">
           {brokerFiltersList.map((f) => (
-            <button key={f} onClick={() => setBrokerFilter(f)}
+            <button key={f} onClick={() => { setBrokerFilter(f); setBrokerPage(0); }}
               className={`px-4 py-1.5 text-xs font-mono rounded-full border transition-colors ${
                 brokerFilter === f ? "bg-primary text-primary-foreground border-primary" : "text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
               }`}>{f}</button>
           ))}
         </div>
 
-        <CardCarousel itemsPerView={6} itemMinWidth={180}>
-          <SponsoredBrokerCard />
-          {filteredBrokers.map((broker) => <BrokerCard key={broker.slug} broker={broker} visible={visible} />)}
-        </CardCarousel>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {brokerSlice}
+        </div>
+        <Pager page={brokerCurrent} count={brokerPageCount} onChange={setBrokerPage} accent="primary" />
 
         <div className="mt-6">
           <Link to="/brokers" className="text-sm text-primary hover:underline font-medium">{brokerViewAllText}</Link>
@@ -432,10 +468,10 @@ const BrokerTrustHub = () => {
             ))}
           </div>
 
-
-          <CardCarousel itemsPerView={6} itemMinWidth={180}>
-            {filteredPropFirms.map((firm) => <PropFirmCard key={firm.slug} firm={firm} visible={visible} />)}
-          </CardCarousel>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {propSlice.map((firm) => <PropFirmCard key={firm.slug} firm={firm} visible={visible} />)}
+          </div>
+          <Pager page={propCurrent} count={propPageCount} onChange={setPropPage} accent="accent" />
 
           <div className="mt-6">
             <Link to="/prop-firms" className="text-sm text-accent hover:underline font-medium">{propViewAllText}</Link>
