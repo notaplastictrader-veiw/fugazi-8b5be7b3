@@ -77,6 +77,34 @@ const HeroSection = () => {
   }, [eyebrowItems.length]);
   const eyebrow = eyebrowItems[eyebrowIndex];
 
+  /* ─── typewriter search placeholder ─── */
+  useEffect(() => {
+    const ref = typewriterRef.current;
+    const tick = () => {
+      const fullText = typewriterTexts[ref.textIndex];
+      if (ref.isDeleting) {
+        ref.charIndex--;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === 0) {
+          ref.isDeleting = false;
+          ref.textIndex = (ref.textIndex + 1) % typewriterTexts.length;
+          return setTimeout(tick, 600);          // pause before next word
+        }
+        return setTimeout(tick, 55);             // delete speed (slower)
+      } else {
+        ref.charIndex++;
+        setDisplayText(fullText.substring(0, ref.charIndex));
+        if (ref.charIndex === fullText.length) {
+          ref.isDeleting = true;
+          return setTimeout(tick, 2500);         // pause after full word
+        }
+        return setTimeout(tick, 110);            // type speed (slower)
+      }
+    };
+    const timer = setTimeout(tick, 800);
+    return () => clearTimeout(timer);
+  }, [typewriterTexts]);
+
 
   return (
     <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
