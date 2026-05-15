@@ -123,7 +123,6 @@ const BrokerHealthGrid = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
       <CardCarousel itemMinWidth={240}>
         {data.map((r) => {
           const DeltaIcon = r.delta > 0 ? TrendingUp : r.delta < 0 ? TrendingDown : Minus;
