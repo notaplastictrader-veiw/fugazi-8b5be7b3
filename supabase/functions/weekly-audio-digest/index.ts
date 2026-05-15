@@ -8,6 +8,9 @@ const corsHeaders = {
 
 const VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"; // George — warm narrator
 const MODEL_ID = "eleven_turbo_v2_5";
+// ElevenLabs free plan = 10,000 credits/month. Turbo v2.5 costs 1 credit/char.
+// Cap each weekly podcast at 2,200 chars so 4 weeks + manual regenerations fit safely.
+const MAX_SCRIPT_CHARS = 2200;
 
 function startOfWeek(d = new Date()) {
   const date = new Date(d);
@@ -88,8 +91,14 @@ serve(async (req) => {
       lines.push(`In market news: ${news.map((n: any) => n.title).join("; ")}.`);
     }
 
-    lines.push(`That's your week. Stay sharp, verify everything, and we'll see you next Monday on NAFT.`);
-    const script = lines.join(" ");
+    lines.push(`That's your week. Stay sharp, verify everything, and see you next Monday on NAFT.`);
+    let script = lines.join(" ");
+    // Hard cap to stay within ElevenLabs free plan budget (10k credits/month)
+    if (script.length > MAX_SCRIPT_CHARS) {
+      const trimmed = script.slice(0, MAX_SCRIPT_CHARS);
+      const lastStop = Math.max(trimmed.lastIndexOf(". "), trimmed.lastIndexOf("! "), trimmed.lastIndexOf("? "));
+      script = (lastStop > 200 ? trimmed.slice(0, lastStop + 1) : trimmed) + " That's your week on NAFT.";
+    }
     const title = `NAFT Weekly Digest — ${dateLabel}`;
 
     // Insert/update placeholder row

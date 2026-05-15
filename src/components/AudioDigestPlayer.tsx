@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Headphones, Play, Pause } from "lucide-react";
+import { Headphones, Play, Pause, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +15,7 @@ export default function AudioDigestPlayer() {
   const [digest, setDigest] = useState<Digest | null>(null);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     supabase
@@ -55,6 +56,28 @@ export default function AudioDigestPlayer() {
     }
   };
 
+  const download = async () => {
+    try {
+      setDownloading(true);
+      // Fetch as blob so the browser actually saves the file instead of navigating to it
+      const res = await fetch(digest.audio_url);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${digest.title.replace(/[^\w\-]+/g, "_")}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
+      window.open(digest.audio_url, "_blank");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const mins = digest.duration_seconds ? Math.round(digest.duration_seconds / 60) : null;
 
   return (
@@ -72,6 +95,17 @@ export default function AudioDigestPlayer() {
           Week of {new Date(digest.week_of).toLocaleDateString()}
         </p>
       </div>
+      <Button
+        onClick={download}
+        variant="outline"
+        size="sm"
+        disabled={downloading}
+        className="flex-shrink-0 gap-2"
+        title="Download MP3 to share on social media"
+      >
+        <Download className="h-4 w-4" />
+        <span className="hidden sm:inline">{downloading ? "..." : "MP3"}</span>
+      </Button>
     </div>
   );
 }
