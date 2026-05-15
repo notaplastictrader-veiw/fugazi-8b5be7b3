@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Users, BarChart3, TrendingUp } from "lucide-react";
+import { CheckCircle, Users, BarChart3, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+
+const PAGE_SIZE = 5;
 
 interface SignalGroup {
   id: string;
