@@ -61,17 +61,26 @@ const HeroSection = () => {
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
 
-  const eyebrowVariants = [
-    { prefix: "Built for real traders, not", highlight: "Fugazi Ones" },
-    { prefix: "We test brokers.", highlight: "You trade smarter." },
-    { prefix: "Real reviews.", highlight: "Zero paid promos." },
-    { prefix: "Withdrawal proof first.", highlight: "Hype never." },
+  const eyebrowItems = [
+    { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
+    { text: "The world's ", highlight: "Most Transparent", suffix: " broker platform", color: "hsl(var(--accent))" },
+    { text: "Where ", highlight: "Scams Get Exposed", suffix: " every single day", color: "hsl(var(--destructive))" },
+    { text: "", highlight: "Real Proof", suffix: ". Real complaints. Real data.", color: "hsl(var(--teal))" },
+    { text: "The platform ", highlight: "Brokers Fear", suffix: " and traders love", color: "hsl(var(--purple))" },
   ];
-  const [eyebrowIdx, setEyebrowIdx] = useState(0);
+  const [eyebrowIndex, setEyebrowIndex] = useState(0);
+  const [eyebrowAnim, setEyebrowAnim] = useState<"in" | "out">("in");
   useEffect(() => {
-    const id = setInterval(() => setEyebrowIdx((i) => (i + 1) % eyebrowVariants.length), 3500);
-    return () => clearInterval(id);
-  }, []);
+    const interval = setInterval(() => {
+      setEyebrowAnim("out");
+      setTimeout(() => {
+        setEyebrowIndex((i) => (i + 1) % eyebrowItems.length);
+        setEyebrowAnim("in");
+      }, 300);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [eyebrowItems.length]);
+  const eyebrow = eyebrowItems[eyebrowIndex];
 
   useEffect(() => {
     const ref = typewriterRef.current;
@@ -109,38 +118,50 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         {/* 1. Brand badge */}
-        <div className="flex flex-col items-center gap-2 mb-4">
-          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/40 bg-primary/8 text-xs text-primary font-mono font-bold tracking-[0.18em] uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.18)]">
+        <div className="flex justify-center mt-[-8px] mb-3">
+          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-primary/30 bg-primary/8 text-xs text-primary font-mono font-semibold tracking-wider uppercase overflow-hidden shadow-[0_0_12px_hsl(var(--primary)/0.15)]">
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
             <span className="relative flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              Not A Fugazi Trader
-            </span>
-          </div>
-          <div className="relative inline-flex items-center px-4 py-1 rounded-full border border-border bg-card/40 text-xs font-mono backdrop-blur-sm overflow-hidden">
-            <span className="relative flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-              <span key={eyebrowIdx} className="inline-flex items-center gap-1.5 animate-[fade-up_0.5s_ease_both]">
-                <span className="text-muted-foreground">{eyebrowVariants[eyebrowIdx].prefix}</span>
-                <span className="text-primary font-bold">{eyebrowVariants[eyebrowIdx].highlight}</span>
-              </span>
+              Not a Fugazi Trader
             </span>
           </div>
         </div>
 
-        {/* 2. Headline */}
+        {/* 2. Rotating eyebrow */}
+        <div className="inline-flex items-center px-3 py-1.5 rounded-full border border-border/40 bg-card/50 backdrop-blur-sm mb-4 overflow-hidden h-[30px]">
+          <span
+            className={`flex items-center gap-1 text-xs text-muted-foreground transition-all duration-300 ${
+              eyebrowAnim === "in" ? "translate-y-0 opacity-100" : "translate-y-[-100%] opacity-0"
+            }`}
+          >
+            <span className="inline-block w-[6px] h-[6px] rounded-full mr-1.5 pulse-dot" style={{ backgroundColor: eyebrow.color }} />
+            {eyebrow.text}
+            <span className="inline-block px-2 py-0.5 rounded-md text-xs font-semibold" style={{ background: `${eyebrow.color}20`, color: eyebrow.color, textShadow: `0 0 8px ${eyebrow.color}40` }}>
+              {eyebrow.highlight}
+            </span>
+            {eyebrow.suffix}
+          </span>
+        </div>
+
+        {/* 3. Headline */}
         <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.05] mb-4 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(40px, 6.4vw, 76px)" }}>
-            <span className="grunge-text grunge-high">{cms.headline || "Find Brokers"}</span>
+          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
+            <span className="grunge-text grunge-high">{cms.headline || "Broker Reviews"}</span>
             <br />
-            <span className="grunge-text-accent grunge-high">{cms.subheadline || "You Can Actually Trust."}</span>
+            <span className="grunge-text-accent grunge-high">{cms.subheadline || "That Actually Matter."}</span>
           </h1>
         </div>
 
-        {/* 3. One-line subheadline */}
-        <p className="max-w-3xl mx-auto mb-6 text-sm md:text-base text-muted-foreground leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis animate-[fade-up_0.6s_ease_0.2s_both]">
-          {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
-        </p>
+        {/* 4. Subheadline */}
+        <div className="max-w-2xl mx-auto mb-5 animate-[fade-up_0.6s_ease_0.2s_both]">
+          <p className="text-sm md:text-base text-muted-foreground font-medium leading-snug mb-1.5">
+            We Test Brokers. You Trade Smarter.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {t("hero.subtitle", "Unbiased broker reviews, real trader signals, and scam alerts — all in one place.")}
+          </p>
+        </div>
 
         {/* 4. Search */}
         <div className="max-w-[640px] mx-auto mb-4 animate-[fade-up_0.6s_ease_0.3s_both]">
