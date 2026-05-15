@@ -39,6 +39,77 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
     toast.success("Match saved to your dashboard");
   }
 
+  function downloadPDF() {
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const margin = 48;
+    let y = margin;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("NAFT — AI Broker Match Report", margin, y);
+    y += 24;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text(`Generated ${new Date().toLocaleString()}  ·  notafugazitrader.com`, margin, y);
+    y += 24;
+
+    if (answers) {
+      doc.setTextColor(40);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("Your profile", margin, y); y += 16;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      Object.entries(answers).forEach(([k, v]) => {
+        doc.text(`• ${k}: ${String(v)}`, margin, y); y += 14;
+      });
+      y += 8;
+    }
+
+    matches.forEach((m, i) => {
+      if (y > 720) { doc.addPage(); y = margin; }
+      doc.setDrawColor(220); doc.line(margin, y, 547, y); y += 16;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(20);
+      doc.text(`#${i + 1}  ${m.name}`, margin, y);
+      doc.setTextColor(80);
+      doc.setFontSize(11);
+      doc.text(`Match ${Math.round(m.match_score)}%`, 470, y);
+      y += 18;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(90);
+      const meta = `Score ${m.broker.score}/10  ·  Spread ${m.broker.avg_spread}  ·  Min ${m.broker.min_deposit}  ·  ${m.broker.review_count} reviews`;
+      doc.text(meta, margin, y); y += 16;
+
+      doc.setTextColor(40);
+      const lines = doc.splitTextToSize(`Why: ${m.reasoning}`, 500);
+      doc.text(lines, margin, y); y += lines.length * 13 + 10;
+
+      if (m.why_tags?.length) {
+        doc.setTextColor(120);
+        doc.setFontSize(9);
+        doc.text(`Tags: ${m.why_tags.join(" · ")}`, margin, y);
+        y += 18;
+      }
+    });
+
+    doc.setFontSize(9);
+    doc.setTextColor(140);
+    doc.text(
+      "Disclaimer: NAFT may earn a referral commission. This report is for educational use only — not financial advice.",
+      margin, 800, { maxWidth: 500 }
+    );
+
+    doc.save(`naft-broker-match-${Date.now()}.pdf`);
+    toast.success("PDF downloaded");
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
