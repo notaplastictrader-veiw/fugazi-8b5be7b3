@@ -19,6 +19,7 @@ interface SignalGroup {
 
 const SignalHub = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
+  const [page, setPage] = useState(0);
   const cms = useSiteSettings<Record<string, any>>("signal_hub", {});
 
   const sectionTitle = cms.section_title || "Verified Signal";
