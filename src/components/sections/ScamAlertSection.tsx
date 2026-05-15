@@ -51,6 +51,10 @@ const ScamAlertSection = () => {
     fetch();
   }, [displayCount]);
 
+  const pageCount = Math.max(1, Math.ceil(alerts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pagedAlerts = alerts.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+
   return (
     <section className="py-20 px-4">
       <div className="max-w-7xl mx-auto">
