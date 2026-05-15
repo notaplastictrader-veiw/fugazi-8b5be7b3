@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle, Users, BarChart3, TrendingUp } from "lucide-react";
+import { CheckCircle, Users, BarChart3, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+
+const PAGE_SIZE = 5;
 
 interface SignalGroup {
   id: string;
@@ -17,6 +19,7 @@ interface SignalGroup {
 
 const SignalHub = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
+  const [page, setPage] = useState(0);
   const cms = useSiteSettings<Record<string, any>>("signal_hub", {});
 
   const sectionTitle = cms.section_title || "Verified Signal";
@@ -61,8 +64,14 @@ const SignalHub = () => {
         </div>
         <p className="text-sm text-muted-foreground mb-10">{subtitle}</p>
 
+        {(() => {
+          const pageCount = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+          const currentPage = Math.min(page, pageCount - 1);
+          const pagedGroups = groups.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+          return (
+            <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {groups.map((group) => (
+          {pagedGroups.map((group) => (
             <div key={group.id} className="glass-card rounded-xl p-6 hover:border-primary/20 transition-all">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-bold text-foreground">{group.name}</h3>
@@ -105,6 +114,32 @@ const SignalHub = () => {
             </div>
           ))}
         </div>
+        {pageCount > 1 && (
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <button
+              onClick={() => setPage(Math.max(0, currentPage - 1))}
+              disabled={currentPage === 0}
+              aria-label="Previous"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+              Page {currentPage + 1} of {pageCount}
+            </span>
+            <button
+              onClick={() => setPage(Math.min(pageCount - 1, currentPage + 1))}
+              disabled={currentPage >= pageCount - 1}
+              aria-label="Next"
+              className="w-9 h-9 rounded-full border border-border bg-card text-foreground hover:text-primary hover:border-primary/50 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+            </>
+          );
+        })()}
       </div>
     </section>
   );

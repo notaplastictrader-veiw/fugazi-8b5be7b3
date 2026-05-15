@@ -1,42 +1,35 @@
-## Full Site Audit — Findings & Fix Plan
+## Plan: Add 1-5 Pagination to 3 Homepage Sections
 
-DB scan + code scan korar pore eta dekhlam. User-driven empty tables (watchlist, trade_journal, referral_codes, follows, pro_subscriptions, ad_enquiries, newsletter_subscribers ityadi) skip korlam — egulo real users theke fill hobe. Focus shudhu **public-facing gaps** ar **pending wiring** er upor.
+### Goal
+Convert 3 homepage sections that currently show all items at once into paginated views that display **1-5 items per page**, with Previous / Next navigation.
 
-### 🔴 Critical gaps (visible to visitors)
+### Sections to Update
 
-1. **`news_articles` = 0 rows**
-   - `/news` page khali dekhabe
-   - Sitemap e `/news/<slug>` entries asbe na
-   - Homepage news section o khali
-   - **Fix:** 8 ta realistic published news article seed (forex/crypto/regulation mix, recent dates, proper excerpts + content)
+1. **PayoutSpeedLeaderboard** (`src/components/sections/PayoutSpeedLeaderboard.tsx`)
+   - Currently shows 8 rows in a table.
+   - Show max 5 rows per page. Add Prev/Next pagination controls under the table.
+   - Keep the existing table header, speed bar, tier badges.
 
-2. **`forum_threads` = 0 rows**
-   - `/forum` page completely empty
-   - Homepage "Top Traders" / forum widget khali
-   - **Fix:** 6 ta sample threads seed (existing verified profile user diye), categories: general, brokers, signals, scams. Sathe 2-3 ta replies prottek e.
+2. **ScamPulseRadar** (`src/components/sections/ScamPulseRadar.tsx`)
+   - Currently shows all 12 pulse alerts in a vertical list.
+   - Show max 5 alerts per page. Add Prev/Next pagination controls below the list, above the footer bar.
+   - Keep the live badge, severity colors, and auto-refresh behavior.
 
-### 🟡 Pending UI wiring (code exists but not connected)
+3. **SignalHub** (`src/components/sections/SignalHub.tsx`)
+   - Currently shows all signal groups in a 3-column grid.
+   - Show max 5 groups per page. Add Prev/Next pagination controls below the grid.
+   - Keep the glass-card styling and CMS-driven content.
 
-3. **`ExitIntentModal`** — component file `src/components/ExitIntentModal.tsx` exists but never imported anywhere
-   - **Fix:** Mount in `MainLayout.tsx` so it shows on all public pages
+### Reusable Approach
+Create a small internal pagination hook or inline state pattern (`useState` for `page`, compute `slice(start, end)`) shared across all three. No new component file needed — keep it lightweight and consistent.
 
-4. **Sitemap regenerate** — news seed korar por sitemap script abar run korte hobe (predev e auto run hobe but verify)
+### Visual Details
+- Prev / Next buttons: small rounded buttons with ChevronLeft / ChevronRight icons.
+- Disabled state when on first / last page.
+- Page indicator text: e.g. "Page 1 of 3" in mono font.
+- Use existing semantic tokens (`border-border`, `bg-card`, `text-muted-foreground`, `text-primary`).
 
-### 🟢 OK as-is (no action)
-- All user-driven tables (correct to be empty until users interact)
-- `signal_profiles` empty but `signal_groups` populated (groups is the public surface)
-- `profile_claims` (1), `applications` (1), `support_messages` (2) — admin workflow data, low volume expected
-
-### Implementation steps
-
-1. **Seed news_articles** — 8 published articles via insert (bn/en mix not needed, single-locale fine)
-2. **Seed forum_threads + replies** — use first verified user_id from profiles, 6 threads + ~15 replies
-3. **Wire ExitIntentModal** — add `<ExitIntentModal />` mount inside `MainLayout`
-4. **Verify sitemap** — confirm news entries appear after seed
-
-### What I will NOT do
-- Won't seed user PII tables (referrals, watchlist, journals, subscriptions)
-- Won't touch existing seeded tables (brokers, education, calendar, awards, scams, forecasts ityadi — already populated)
-- Won't add new features — shudhu fill the gaps in existing built features
-
-Approve korle implement kori.
+### No changes to
+- Data fetching logic, Supabase queries, fallback data.
+- Existing section styling, responsive behavior, lazy-loading.
+- Other homepage sections.
