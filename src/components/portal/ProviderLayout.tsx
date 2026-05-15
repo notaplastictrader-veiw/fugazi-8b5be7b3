@@ -29,6 +29,7 @@ function ProviderLayout({ requiredRole }: Props) {
 
   return (
     <SidebarProvider>
+      <NoIndex />
       <div className="min-h-screen flex w-full bg-background">
         <ProviderSidebar role={requiredRole} />
         <div className="flex-1 flex flex-col">
