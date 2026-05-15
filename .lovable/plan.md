@@ -1,35 +1,22 @@
-## Plan: Add 1-5 Pagination to 3 Homepage Sections
+## Diagnosis
 
-### Goal
-Convert 3 homepage sections that currently show all items at once into paginated views that display **1-5 items per page**, with Previous / Next navigation.
+Runtime error: `Failed to fetch dynamically imported module: SignalHub.tsx`.
 
-### Sections to Update
+Root cause: `SignalHub.tsx` was edited with an IIFE (`{(() => { ... return <>...</>; })()}`) wrapped around the grid + pagination JSX. While syntactically valid, this is producing a broken/stale lazy chunk that the browser can't fetch — which makes the lazy `<SignalHub />` throw inside `<Suspense>`. When that section crashes mid-scroll, the surrounding `LazySection` / Suspense tree unmounts every section after it (Forecasts, Calendar, News, Community Reviews, etc.), so the rest of the homepage **vanishes** and the scroll position jumps back up — exactly the symptom you described.
 
-1. **PayoutSpeedLeaderboard** (`src/components/sections/PayoutSpeedLeaderboard.tsx`)
-   - Currently shows 8 rows in a table.
-   - Show max 5 rows per page. Add Prev/Next pagination controls under the table.
-   - Keep the existing table header, speed bar, tier badges.
+## Fix Plan
 
-2. **ScamPulseRadar** (`src/components/sections/ScamPulseRadar.tsx`)
-   - Currently shows all 12 pulse alerts in a vertical list.
-   - Show max 5 alerts per page. Add Prev/Next pagination controls below the list, above the footer bar.
-   - Keep the live badge, severity colors, and auto-refresh behavior.
+Refactor `src/components/sections/SignalHub.tsx` to match the clean pattern already used in `PayoutSpeedLeaderboard` and `ScamPulseRadar`:
 
-3. **SignalHub** (`src/components/sections/SignalHub.tsx`)
-   - Currently shows all signal groups in a 3-column grid.
-   - Show max 5 groups per page. Add Prev/Next pagination controls below the grid.
-   - Keep the glass-card styling and CMS-driven content.
+1. Move the pagination math (`pageCount`, `currentPage`, `pagedGroups`) to top-level `const`s right after the `useEffect`, before the `return`.
+2. Remove the IIFE / fragment wrapper around the JSX.
+3. Render `pagedGroups.map(...)` directly inside the existing grid.
+4. Render the Prev/Next pagination block (same style as the other two sections) right below the grid, still inside the `max-w-7xl` container.
 
-### Reusable Approach
-Create a small internal pagination hook or inline state pattern (`useState` for `page`, compute `slice(start, end)`) shared across all three. No new component file needed — keep it lightweight and consistent.
+No other files need to change. No data, styling, or routing changes.
 
-### Visual Details
-- Prev / Next buttons: small rounded buttons with ChevronLeft / ChevronRight icons.
-- Disabled state when on first / last page.
-- Page indicator text: e.g. "Page 1 of 3" in mono font.
-- Use existing semantic tokens (`border-border`, `bg-card`, `text-muted-foreground`, `text-primary`).
+## Expected Result
 
-### No changes to
-- Data fetching logic, Supabase queries, fallback data.
-- Existing section styling, responsive behavior, lazy-loading.
-- Other homepage sections.
+- Homepage renders top → bottom without jumping.
+- All sections below Signal Hub (Forecasts, Calendar, News, Community Reviews, Forum, How It Works, Broker Join) reappear.
+- Pagination on Payout Speed, Scam Pulse, and Signal Hub continues to work (5 per page, Prev/Next).
