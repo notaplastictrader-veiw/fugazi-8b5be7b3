@@ -1216,17 +1216,119 @@ const BrokerDetail = () => {
             </TabsContent>
 
             {/* ===== PROMOTIONS TAB ===== */}
-            <TabsContent value="promotions" className="mt-6">
-              <div className="glass-card rounded-xl p-8 text-center">
-                <Gift className="w-10 h-10 text-accent mx-auto mb-3" />
-                <h2 className="text-xl font-display font-bold text-foreground mb-2">Active Promotions</h2>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
-                  No active promotions found for {broker.name} at the moment. Check back soon or browse all available offers.
-                </p>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/promotions">Browse All Promotions</Link>
-                </Button>
+            <TabsContent value="promotions" className="mt-6 space-y-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Gift className="w-5 h-5 text-accent" />
+                <h2 className="text-xl font-display font-bold text-foreground">Promotions for {broker.name}</h2>
+                <Link to="/promotions" className="ml-auto text-xs font-mono text-primary hover:underline">
+                  Browse all promotions →
+                </Link>
               </div>
+
+              {brokerPromos.length === 0 ? (
+                <div className="glass-card rounded-xl p-6 space-y-5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Featured Offer</span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Exclusive Partner Offer</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Current promotional access and preferred partner pricing for {broker.name} traders.
+                  </p>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Offer Code</div>
+                      <div className="font-mono font-bold text-foreground mt-1">NO CODE NEEDED</div>
+                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-1">No time limit · Weekend holding support</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Challenge Price (from)</div>
+                      <div className="font-mono font-bold text-primary mt-1">$32.99</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Profit Split</div>
+                      <div className="font-mono font-bold text-foreground mt-1">80% to 95%</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Payout Timing</div>
+                      <div className="font-mono font-bold text-foreground mt-1">On Demand</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-sm font-display font-bold text-foreground mb-2">How to claim</div>
+                    <p className="text-xs text-muted-foreground mb-3">Use the partner offer details below when purchasing your challenge.</p>
+                    <ol className="space-y-2">
+                      {[
+                        "Choose your preferred challenge or instant program.",
+                        "Apply code NO CODE NEEDED at checkout if required.",
+                        "Complete payment and start trading with the current partner deal.",
+                      ].map((s, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                          <span className="pt-0.5">{s}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {broker.website_url ? (
+                    <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored" className="block">
+                      <Button className="w-full font-display font-bold">
+                        <Gift className="w-4 h-4 mr-2" /> Claim Offer
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button className="w-full font-display font-bold" disabled>Coming Soon</Button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {brokerPromos.map((p) => {
+                    const expired = p.expiry_date && new Date(p.expiry_date) < new Date();
+                    const url = p.referral_url || p.link_url;
+                    return (
+                      <div key={p.id} className="glass-card rounded-xl p-5 flex flex-col gap-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {String(p.promo_type || "offer").replace("-", " ")}
+                          </span>
+                          {p.is_featured && (
+                            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Featured</span>
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-display font-bold text-foreground">{p.title}</h3>
+                          {p.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{p.description}</p>}
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                          {p.bonus_amount && <span className="text-lg font-extrabold text-primary">{p.bonus_amount}</span>}
+                          {p.expiry_date && (
+                            <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {expired ? "Expired" : `Ends ${new Date(p.expiry_date).toLocaleDateString()}`}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Link to={`/promotions/${p.slug || p.id}`} className="flex-1">
+                            <Button size="sm" variant="outline" className="w-full">Read More</Button>
+                          </Link>
+                          {url && !expired ? (
+                            <a href={url} target="_blank" rel="noopener noreferrer sponsored" className="flex-1">
+                              <Button size="sm" className="w-full">
+                                <ExternalLink className="w-3.5 h-3.5 mr-1" /> Claim
+                              </Button>
+                            </a>
+                          ) : (
+                            <Button size="sm" disabled className="flex-1">{expired ? "Expired" : "Soon"}</Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </TabsContent>
 
             {/* ===== COMPARISON TAB ===== */}
