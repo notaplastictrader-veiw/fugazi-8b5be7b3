@@ -73,7 +73,7 @@ const Brokers = () => {
     pageSize: 12,
   });
 
-  const scoreColor = (s: number) => s >= 8 ? "bg-primary" : s >= 6 ? "bg-accent" : "bg-destructive";
+  
 
   return (
     <MainLayout>
