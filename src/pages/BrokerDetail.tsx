@@ -407,18 +407,35 @@ const BrokerDetail = () => {
             const isProp = broker.type === "prop-firm";
             const scoreOutOf100 = Math.round((broker.score || 0) * 10);
             const scoreLabel = broker.score >= 8 ? "Excellent" : broker.score >= 6 ? "Average" : broker.score >= 4 ? "Caution" : "High Risk";
+            // Clean headline numbers from messy raw values
+            const cleanSpread = (raw?: string) => {
+              if (!raw) return "—";
+              // Take first chunk before "," or "(" → e.g. "0.3 pips (Standard), 0.0..." → "0.3 pips"
+              const first = raw.split(/[,(]/)[0].trim();
+              return first || raw;
+            };
+            const cleanLeverage = (raw?: string) => {
+              if (!raw) return "—";
+              if (/unlimited/i.test(raw)) return "Unlimited";
+              const matches = raw.match(/1:\s*\d+/g);
+              if (!matches?.length) return raw.split(/[,(]/)[0].trim() || raw;
+              const max = matches
+                .map((m) => parseInt(m.replace(/\D/g, ""), 10))
+                .reduce((a, b) => Math.max(a, b), 0);
+              return `1:${max}`;
+            };
             const stats = isProp
               ? [
                   { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
-                  { label: "Leverage", value: broker.leverage || "1:100" },
+                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Start From", value: broker.min_deposit || "$10" },
                   { label: "Complaints", value: String(broker.complaints || 0) },
                   { label: "Rating", value: `${broker.stars}/5` },
                 ]
               : [
                   { label: "Min Deposit", value: broker.min_deposit || "—" },
-                  { label: "Avg Spread", value: broker.avg_spread || "—" },
-                  { label: "Leverage", value: broker.leverage || "—" },
+                  { label: "Avg Spread", value: cleanSpread(broker.avg_spread) },
+                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Complaints", value: String(broker.complaints || 0) },
                   { label: "Rating", value: `${broker.stars}/5` },
                 ];
