@@ -144,16 +144,21 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
         </span>
       </div>
 
-      {(broker.affiliate_url || broker.website_url) && (
-        <div className="mt-3">
+      <div className="mt-3">
+        {(broker.affiliate_url || broker.website_url) ? (
           <OfferRail
             code={null}
             label={broker.promo_label}
             url={broker.affiliate_url || broker.website_url}
             entityName={broker.name}
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/20 text-muted-foreground font-display font-extrabold text-xs tracking-wide uppercase py-2.5 px-3">
+            Coming Soon
+          </div>
+        )}
+      </div>
+
 
       <div className="mt-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-1 min-w-0">
