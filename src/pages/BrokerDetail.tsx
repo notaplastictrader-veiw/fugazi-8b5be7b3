@@ -447,8 +447,8 @@ const BrokerDetail = () => {
                   { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Start From", value: broker.min_deposit || "$10" },
-                  { label: "Complaints", value: String(broker.complaints || 0) },
-                  { label: "Rating", value: `${broker.stars}/5` },
+                  { label: "Profit Split", value: "80% to 95%" },
+                  { label: "Payout Speed", value: "On Demand" },
                 ]
               : [
                   { label: "Min Deposit", value: broker.min_deposit || "—" },
