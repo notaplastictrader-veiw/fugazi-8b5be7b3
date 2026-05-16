@@ -5,7 +5,6 @@ import { useI18n } from "@/contexts/I18nContext";
 import { useTheme } from "@/hooks/useTheme";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
-import NewsletterSponsorFooter from "@/components/sponsored/NewsletterSponsorFooter";
 import NewsletterSignup from "@/components/NewsletterSignup";
 
 const XIcon = () => (
@@ -214,8 +213,6 @@ const Footer = () => {
           </div>
           <NewsletterSignup source="footer" />
         </div>
-
-        <NewsletterSponsorFooter />
 
         {/* Risk Warning */}
         <div className="mt-12 pt-8 border-t border-border">
