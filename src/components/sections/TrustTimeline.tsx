@@ -70,6 +70,48 @@ const EVENT_LIBRARY: Record<string, TimelineEvent[]> = {
     { date: "Q3 2024", type: "payout", title: "Withdrawals: 2-5 business days", detail: "Slower than tier-1 peers. Monitor." },
     { date: "Q4 2024", type: "milestone", title: "5M+ active accounts globally", detail: "Strong in South Asia and MENA." },
   ],
+  xm: [
+    { date: "Q1 2024", type: "regulation", title: "Multi-jurisdiction licensing", detail: "ASIC, CySEC, IFSC, DFSA active." },
+    { date: "Q2 2024", type: "complaint", title: "45 complaints — pattern detected", detail: "Mostly bonus T&C disputes. Review terms carefully." },
+    { date: "Q3 2024", type: "payout", title: "Withdrawals: 2-5 business days", detail: "Slower than tier-1 peers. Monitor." },
+    { date: "Q4 2024", type: "milestone", title: "5M+ active accounts globally", detail: "Strong in South Asia and MENA." },
+  ],
+  xtb: [
+    { date: "Q4 2023", type: "regulation", title: "FCA + KNF dual oversight", detail: "Publicly listed on Warsaw Stock Exchange." },
+    { date: "Q2 2024", type: "award", title: "Best Mobile Trading App 2024", detail: "xStation 5 voted top platform by users." },
+    { date: "Q3 2024", type: "payout", title: "Same-day withdrawals", detail: "Avg processing under 4 hours on e-wallets." },
+    { date: "Q1 2025", type: "milestone", title: "1M+ active clients globally", detail: "Strong growth in EU and LATAM markets." },
+  ],
+  oanda: [
+    { date: "Q4 2023", type: "regulation", title: "7 tier-1 licenses maintained", detail: "CFTC, NFA, FCA, ASIC, MAS, IIROC, FSA." },
+    { date: "Q2 2024", type: "payout", title: "Withdrawals avg. 1.2 business days", detail: "ACH and wire both within SLA." },
+    { date: "Q3 2024", type: "milestone", title: "API stability: 99.98% uptime", detail: "Independent monitoring confirmed." },
+    { date: "Q1 2025", type: "award", title: "NAFT Trust Score: 8.9", detail: "Top-5 for institutional-grade execution." },
+  ],
+  "forex-com": [
+    { date: "Q4 2023", type: "regulation", title: "NFA + FCA + ASIC licensed", detail: "StoneX Group subsidiary — publicly traded." },
+    { date: "Q2 2024", type: "payout", title: "Withdrawals: 1-2 business days", detail: "Wire and card refunds within SLA." },
+    { date: "Q3 2024", type: "complaint", title: "14 complaints (platform issues)", detail: "Resolved within 7 days. Pattern: mobile app." },
+    { date: "Q1 2025", type: "milestone", title: "80+ markets, 4500+ instruments", detail: "Expanded crypto and futures offering." },
+  ],
+  hotforex: [
+    { date: "Q4 2023", type: "regulation", title: "CySEC + FSCA + DFSA active", detail: "Rebranded to HFM in 2022." },
+    { date: "Q2 2024", type: "payout", title: "Avg payout: 18 hours", detail: "Faster on crypto and e-wallets." },
+    { date: "Q3 2024", type: "complaint", title: "21 complaints (bonus terms)", detail: "Most resolved with goodwill credits." },
+    { date: "Q4 2024", type: "milestone", title: "2.5M+ accounts across 190+ countries", detail: "Strong presence in MENA and Africa." },
+  ],
+  fxtm: [
+    { date: "Q4 2023", type: "regulation", title: "CySEC + FSCA + FCA licensed", detail: "ForexTime Ltd — established 2011." },
+    { date: "Q2 2024", type: "payout", title: "Withdrawals avg 12-24h", detail: "E-wallets fastest, wires 2-3 days." },
+    { date: "Q3 2024", type: "award", title: "Best Educational Broker 2024", detail: "Voted by NAFT community." },
+    { date: "Q1 2025", type: "milestone", title: "MyFXTM portal upgraded", detail: "Faster onboarding and KYC." },
+  ],
+  octafx: [
+    { date: "Q4 2023", type: "regulation", title: "CySEC + FSCA registered", detail: "Operating since 2011 across 100+ countries." },
+    { date: "Q2 2024", type: "complaint", title: "17 complaints (slippage)", detail: "Pattern: news events on exotic pairs." },
+    { date: "Q3 2024", type: "payout", title: "Avg payout: 24 hours", detail: "Crypto fastest, cards within 1-2 days." },
+    { date: "Q1 2025", type: "milestone", title: "12M+ trader community", detail: "Strong growth in SE Asia." },
+  ],
   quotex: [
     { date: "Q2 2024", type: "scam", title: "Withdrawal delays reported", detail: "73 unresolved complaints. NAFT issued warning." },
     { date: "Q3 2024", type: "complaint", title: "89 verified complaints", detail: "Account terminations cited. Avoid large deposits." },
