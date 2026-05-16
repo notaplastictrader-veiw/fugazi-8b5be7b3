@@ -173,21 +173,41 @@ const HeroSection = () => {
 
         {/* 6. Stats — Segmented tech tiles, centered: number on top, single-line label below */}
         <div className="w-full mt-4 animate-[fade-up_0.6s_ease_0.45s_both]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
-            {stats.map((s, i) => (
-              <div
-                key={i}
-                className="bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80"
-              >
-                <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
-                  {s.value}
-                </span>
-                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-center whitespace-nowrap">
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
+          <TooltipProvider delayDuration={150}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
+              {stats.map((s, i) => (
+                <div
+                  key={i}
+                  className="bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
+                      {s.value}
+                    </span>
+                    {s.tooltip && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            aria-label={`About ${s.label}`}
+                            className="text-muted-foreground/60 hover:text-primary transition-colors"
+                          >
+                            <Info className="w-3 h-3" />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[220px] text-xs leading-relaxed whitespace-normal">
+                          {s.tooltip}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                  <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-center whitespace-nowrap">
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </TooltipProvider>
         </div>
       </div>
     </section>
