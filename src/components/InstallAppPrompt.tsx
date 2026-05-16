@@ -102,7 +102,7 @@ export default function InstallAppPrompt() {
   return (
     <>
       {showFab && (
-        <div className="fixed bottom-24 right-4 z-40 md:bottom-6 md:right-24 flex items-center gap-2">
+        <div className="fixed bottom-24 right-4 z-[160] md:bottom-14 md:right-24 flex items-center gap-2">
           <button
             onClick={openPrompt}
             className="flex items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-primary-foreground shadow-lg hover:opacity-90 transition-opacity text-sm font-semibold"

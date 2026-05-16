@@ -11,17 +11,16 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultStats = [
-  { value: "590+", label: "Brokers & Firms", suffix: "Tracked & Counting" },
-  { value: "50K+", label: "Reviews Analyzed", suffix: "& Counting" },
-  { value: "140+", label: "Countries Reached", suffix: "& Counting" },
-  { value: "1.2M+", label: "Views", suffix: "& Counting" },
+  { value: "590+", label: "Brokers & Firms" },
+  { value: "50K+", label: "Reviews Analyzed" },
+  { value: "140+", label: "Countries Reached" },
+  { value: "1.2M+", label: "Platform Views" },
 ];
 
 const HeroSection = () => {
   const cms = useSiteSettings<Record<string, any>>("hero_section", {});
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
-  const cmsStats = (cms.stats?.length ? cms.stats : null) as typeof defaultStats | null;
-  const stats = (cmsStats ?? defaultStats) as typeof defaultStats;
+  const stats = defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
@@ -74,7 +73,7 @@ const HeroSection = () => {
 
 
   return (
-    <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
+    <section className="relative flex items-center justify-center overflow-hidden py-6">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
@@ -171,31 +170,19 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Stats — Segmented tech tiles, 4 metrics with pulsing live indicators */}
+        {/* 6. Stats — Segmented tech tiles, centered: number on top, single-line label below */}
         <div className="w-full mt-4 animate-[fade-up_0.6s_ease_0.45s_both]">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="bg-card/60 p-4 md:p-5 flex flex-col items-start gap-1.5 group transition-all hover:bg-card/80"
+                className="bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80"
               >
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
-                    {s.value}
-                  </span>
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
-                  </span>
-                </div>
-                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-left">
+                <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
+                  {s.value}
+                </span>
+                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-center whitespace-nowrap">
                   {s.label}
-                  {s.suffix && (
-                    <>
-                      <br />
-                      <span className="text-primary/70">{s.suffix}</span>
-                    </>
-                  )}
                 </p>
               </div>
             ))}
