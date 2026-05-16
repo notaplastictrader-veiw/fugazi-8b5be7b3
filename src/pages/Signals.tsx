@@ -20,6 +20,7 @@ import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
   avg_rr: string; track_record: string; members: string; verified: boolean;
+  categories?: string[];
 }
 
 // Wave 0: removed fake "Gold Pulse / Asia FX Scalpers / Prop Killer" fallback
