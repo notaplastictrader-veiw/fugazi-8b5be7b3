@@ -679,7 +679,7 @@ const BrokerDetail = () => {
             </TabsList>
 
             {/* ===== OVERVIEW TAB ===== */}
-            <TabsContent value="overview" className="mt-6 space-y-8">
+            <TabsContent value="overview" className="mt-4 space-y-6">
               {/* Our Verdict */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
@@ -689,6 +689,18 @@ const BrokerDetail = () => {
                   <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
                 </div>
               </section>
+
+              {/* Trust Amplifiers */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <BeforeYouDepositChecklist brokerName={broker.name} />
+                </div>
+                <SentimentSparkline
+                  score={broker.score}
+                  reviewCount={broker.review_count || 0}
+                  complaints={broker.complaints || 0}
+                />
+              </div>
 
               {/* Key Facts */}
               <section>
