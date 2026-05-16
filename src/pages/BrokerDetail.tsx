@@ -1256,11 +1256,11 @@ const BrokerDetail = () => {
               </div>
             </TabsContent>
 
-            {/* ===== SCAM SCORE TAB ===== */}
+            {/* ===== SCORE TAB ===== */}
             <TabsContent value="scam-score" className="mt-6">
               <div className="glass-card rounded-xl p-6 space-y-6">
                 <div className="text-center">
-                  <div className="text-xs font-mono text-muted-foreground mb-2">SCAM SCORE</div>
+                  <div className="text-xs font-mono text-muted-foreground mb-2">{broker.score < 5 ? "SCAM SCORE" : "SCORE"}</div>
                   <div className={`inline-flex w-24 h-24 rounded-2xl items-center justify-center text-3xl font-mono font-extrabold text-primary-foreground ${scoreColor}`}>
                     {broker.score}
                   </div>
@@ -1279,9 +1279,9 @@ const BrokerDetail = () => {
                 </div>
 
                 <div className="border-t border-border pt-4">
-                  <h3 className="text-sm font-display font-bold text-foreground mb-2">How We Calculate Scam Score</h3>
+                  <h3 className="text-sm font-display font-bold text-foreground mb-2">How We Calculate {broker.score < 5 ? "Scam Score" : "Score"}</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Our scam score is based on regulatory status, complaint history, user reviews, transparency of operations,
+                    Our score is based on regulatory status, complaint history, user reviews, transparency of operations,
                     withdrawal reliability, and overall track record. Scores above 8 indicate low risk, 6-8 moderate risk,
                     and below 6 high risk.
                   </p>
