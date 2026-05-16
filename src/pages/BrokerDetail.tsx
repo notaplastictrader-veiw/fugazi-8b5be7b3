@@ -1095,12 +1095,21 @@ const BrokerDetail = () => {
                     const reviewScore = Math.min(10, (broker.stars || 0) * 2);
                     const complaintScore = Math.max(0, 10 - (broker.complaints || 0) * 0.3);
                     const wdScore = Math.min(10, Math.max(0, broker.score + (broker.withdrawal_time?.toLowerCase().includes("instant") ? 0.5 : 0)));
-                    const items = [
-                      { label: "Regulation", weight: "30%", value: regScore, hint: `${broker.regulation?.length || 0} active license${(broker.regulation?.length || 0) === 1 ? "" : "s"} verified against public registers.` },
-                      { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from real traders.` },
-                      { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
-                      { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
-                    ];
+                    const payoutScore = Math.min(10, Math.max(0, broker.score + 0.5));
+                    const ruleScore = Math.min(10, Math.max(0, broker.score - 0.3));
+                    const items = broker.type === "prop-firm"
+                      ? [
+                          { label: "Payout History", weight: "35%", value: payoutScore, hint: "Verified 30-day withdrawal proofs and same-day payout track record." },
+                          { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from funded traders.` },
+                          { label: "Rule Fairness", weight: "20%", value: ruleScore, hint: "Drawdown model, consistency rule, EA / news / weekend policies vs industry norms." },
+                          { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
+                        ]
+                      : [
+                          { label: "Regulation", weight: "30%", value: regScore, hint: `${broker.regulation?.length || 0} active license${(broker.regulation?.length || 0) === 1 ? "" : "s"} verified against public registers.` },
+                          { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from real traders.` },
+                          { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
+                          { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
+                        ];
                     return items.map((it) => {
                       const color = it.value >= 8 ? "bg-primary" : it.value >= 6 ? "bg-accent" : "bg-destructive";
                       return (
