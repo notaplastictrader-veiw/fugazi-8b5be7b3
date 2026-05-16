@@ -1,64 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, AlertTriangle, Award, ExternalLink, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, Award, CheckCircle, XCircle, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
-import WatchlistButton from "@/components/broker/WatchlistButton";
 import OfferRail from "@/components/common/OfferRail";
-
-interface Broker {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  tags: string[];
-  regulation: string[];
-  score: number;
-  avg_spread: string;
-  leverage: string;
-  min_deposit: string;
-  stars: number;
-  review_count: number;
-  complaints: number;
-  badge: string;
-  logo_url?: string | null;
-  last_verified_at?: string | null;
-  promo_code?: string | null;
-  promo_label?: string | null;
-  affiliate_url?: string | null;
-  website_url?: string | null;
-}
-
-const formatSpread = (v?: string) => {
-  if (!v) return "—";
-  const m = v.match(/[\d.]+/);
-  return m ? m[0] : v;
-};
-
-const formatLeverage = (v?: string) => {
-  if (!v) return "—";
-  if (/unlimited/i.test(v)) return "Unlimited";
-  const matches = [...v.matchAll(/1:(\d+)/g)];
-  if (!matches.length) return v;
-  const max = matches.reduce((a, b) => (parseInt(b[1]) > parseInt(a[1]) ? b : a));
-  return `1:${max[1]}`;
-};
-
-const formatRegulator = (v: string) => {
-  if (!v) return v;
-  return v.split(/[(\-—–]/)[0].trim();
-};
-
-const verifiedAgoShort = (iso?: string | null) => {
-  if (!iso) return null;
-  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-  if (days < 1) return "today";
-  if (days < 30) return `${days}d ago`;
-  const m = Math.floor(days / 30);
-  return m < 12 ? `${m}mo ago` : `${Math.floor(m / 12)}y ago`;
-};
+import BrokerCard, { Broker, formatLeverage, formatRegulator } from "@/components/broker/BrokerCard";
 
 const brokerFilters = ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"];
 const propFirmFilters = ["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"];
