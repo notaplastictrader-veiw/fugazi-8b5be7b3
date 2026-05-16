@@ -533,6 +533,14 @@ const BrokerDetail = () => {
                           </span>
                         )}
                       </div>
+
+                      {/* Data source notice — fits in the empty space below header info */}
+                      <div className="mt-3 flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2 text-[11px] font-mono text-muted-foreground leading-relaxed">
+                        <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                        <span>
+                          Information sourced from public data and the NAFT community.{claimStatus !== "claimed" && ` This broker hasn't claimed their profile yet.`}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -616,14 +624,6 @@ const BrokerDetail = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Consolidated notice: research source + affiliate disclosure */}
-                <div className="mt-4 flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2 text-[11px] font-mono text-muted-foreground leading-relaxed">
-                  <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
-                  <span>
-                    Independent research + community-submitted data{claimStatus !== "claimed" ? ` · ${broker.name} hasn't claimed this profile yet` : ""} · NAFT may earn a commission via our links — doesn't affect our rating.
-                  </span>
                 </div>
 
                 {/* Offer rail */}
