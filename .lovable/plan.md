@@ -1,37 +1,20 @@
-## Changes (UI-only, `src/pages/BrokerDetail.tsx`)
+## Merge disclaimer + unclaimed notice into one line
 
-### 1. Stat tiles — clean numbers only
+**Problem:** Currently two separate banners feel redundant:
+1. "This review is based on our independent research..." (affiliate disclosure)
+2. "Unclaimed profile — information is sourced from public data... Are you from Exness? Claim this profile"
 
-In the `stats` array (lines ~410-425):
+The red-highlighted empty space below the header (between "Claim This Profile" pill and the bonus banner) is wasted.
 
-- **Avg Spread**: extract just the first numeric value with unit (e.g., `0.3 pips`) from values like `"0.3 pips (Standard), 0.0 pips (Pro)"`. Helper: split on `,` / `(` and take the first chunk.
-- **Leverage**: extract the highest `1:N` ratio (or `Unlimited`) from values like `"Unlimited (Pro), 1:2000 (Standard)"`. Helper: regex out all `1:\d+` and `Unlimited`, prefer `Unlimited`, else pick max number → display `Unlimited` or `1:2000`.
-
-Full original strings remain available in the Trading Conditions / Account Types tab — only the tile shows a clean headline number.
-
-### 2. Health Score compact line — explain what it means
-
-Currently inside Trust Score panel: `⚡ 100 · Excellent` — meaningless to a first-time visitor.
-
-Replace with a labelled, two-row mini-block (still compact, fits sidebar):
+**Fix:** In `src/pages/BrokerDetail.tsx`, place ONE compact single-line notice in that empty space:
 
 ```
-─────────────────────────
-BROKER HEALTH       100/100
-████████████████  Excellent
-Based on complaints, scam alerts,
-ratings & withdrawal proofs
-─────────────────────────
+ⓘ  Independent research + community data · NAFT may earn commission via links — doesn't affect our rating.
 ```
 
-- Top row: small uppercase label `BROKER HEALTH` (left) + score `100/100` + tier badge (`Excellent` / `Healthy` / `Watch` / `Risk`).
-- Tiny progress bar.
-- One-line caption in muted text: *"Based on complaints, scam alerts, ratings & withdrawal proofs"* — so visitors immediately understand inputs.
-- Tooltip (`title=`) on the block with last-updated date for power users.
+- Subtle muted text, small font-mono, info icon on the left
+- Sits right above the "Claim 100% Bonus" promo strip
+- Remove the separate "Unclaimed profile..." banner since the "Claim This Profile" pill already exists in the header (no need to repeat the ask)
+- Remove the standalone affiliate disclosure block lower on the page (now consolidated here)
 
-Implementation: instead of using `<BrokerHealthScore compact />` (which is a single pill), inline a small custom block in `BrokerDetail.tsx` sidebar so the caption stays visible without adding height to the global compact variant.
-
-## Out of scope
-- No DB or scoring logic changes
-- No changes to admin Health Score full card
-- Stats tile widths unchanged (still 5-up grid)
+**Out of scope:** No changes to the Claim pill, bonus banner, stats tiles, or sidebar.
