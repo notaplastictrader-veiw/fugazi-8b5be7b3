@@ -21,29 +21,7 @@ const HeroSection = () => {
   const cms = useSiteSettings<Record<string, any>>("hero_section", {});
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
   const cmsStats = (cms.stats?.length ? cms.stats : null) as typeof defaultStats | null;
-
-  const [liveStats, setLiveStats] = useState<typeof defaultStats | null>(null);
-
-  useEffect(() => {
-    if (cmsStats) return;
-    let cancelled = false;
-    (async () => {
-      const { count } = await supabase
-        .from("brokers")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "published");
-      if (cancelled) return;
-      setLiveStats([
-        { value: count != null ? formatCount(count) : "—", label: "Brokers & Firms Tracked" },
-        { value: "140+", label: "Countries Covered" },
-        { value: "2026", label: "Independent Since" },
-        { value: "24/7", label: "Scam Monitoring" },
-      ]);
-    })();
-    return () => { cancelled = true; };
-  }, [cmsStats]);
-
-  const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
+  const stats = (cmsStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
