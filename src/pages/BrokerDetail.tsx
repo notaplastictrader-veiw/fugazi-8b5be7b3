@@ -813,7 +813,7 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl overflow-hidden">
                   <table className="w-full">
                     <tbody>
-                      {(isProp
+                      {(broker.type === "prop-firm"
                         ? [
                             { label: "Account Sizes", value: "$2K · $5K · $10K · $25K · $50K · $100K · $200K" },
                             { label: "Challenge Fee From", value: "$32.99 (2-Step $5K)" },
