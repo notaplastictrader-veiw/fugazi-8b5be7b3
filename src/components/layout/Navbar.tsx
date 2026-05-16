@@ -193,7 +193,10 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 md:top-[34px] left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-border">
+      <nav
+        className="fixed top-0 md:top-[34px] left-0 right-0 z-[190] bg-background/80 backdrop-blur-2xl border-b border-transparent after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-[-1px] after:h-px after:bg-[linear-gradient(90deg,transparent,hsl(var(--primary)/0.6),transparent)] after:pointer-events-none"
+        style={{ boxShadow: "0 1px 20px hsl(var(--primary) / 0.15)" }}
+      >
         <div className="max-w-7xl mx-auto px-4 h-[48px] md:h-[58px] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
             <img
