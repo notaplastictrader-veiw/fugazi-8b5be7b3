@@ -1,42 +1,47 @@
-## Idea
-Bhalo idea — unclaimed broker pages e ekta clear callout banner thakle visitors bujhbe je info community-sourced and broker chaile claim korte parbe. Trust + transparency duto bare.
+## Problem
 
-## Where to add
-`src/pages/BrokerDetail.tsx` — broker hero card-er thik **niche**, "Quick Stats" / tabs section-er **upore**. Eta most visible spot — user broker name dekhar por porei eta porbe, kintu hero CTA gulo block korbe na.
+Broker detail page-er hero ekhon onek lomba — Broker Health Score™ full card (~200px) ar Trust Score panel duitai same info dichhe (complaints, scam alerts, score), unclaimed banner alada jaiga nichhe, ar 5-tile stat strip + trust amplifiers row mile "Our Verdict" first scroll-er onek niche chole geche. Client landing-er por verdict na dekhe page chere chole jachhe.
 
-Alternative spots considered:
-- Hero-er moddhe (already crowded with badges, score, claim button)
-- Sidebar (kom visible, mobile-e niche chole jay)
-- Page-er top (intrusive, ad-banner mone hobe)
+## Goal
 
-→ Hero-er thik niche ekta slim full-width info strip best.
+1194×770 viewport-e (current preview size) page load hole user **Our Verdict** box-er end porjonto dekhte parbe — kichu na scroll kore.
 
-## What it shows (conditional)
+## Changes (UI-only, `src/pages/BrokerDetail.tsx`)
 
-**Only render when** `claimStatus === "unclaimed"` — claimed/pending hole hide.
+### 1. Health Score — full card → compact pill
+Lines 492-501: full `<BrokerHealthScore />` card-er bodole right sidebar-er Trust Score panel-er bhitor ekta compact version dhukabo (`compact` prop already supported). Saves ~180px.
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│ ⓘ  Unclaimed profile — info sourced from public data &        │
-│    community reviews.  Are you from {broker.name}?            │
-│    [ Claim this profile → ]                                   │
-└───────────────────────────────────────────────────────────────┘
+┌─ NAFT TRUST SCORE      AVERAGE ─┐
+│ 72 /100  ▓▓▓▓▓░░░             │
+│ ⚡ Health 100 · Excellent      │  ← new compact line
+└────────────────────────────────┘
 ```
 
-- Soft accent background (`bg-accent/5 border-accent/20`)
-- Info icon left
-- Text uses `broker.name` dynamically
-- "Claim this profile →" button reuses existing `handleClaimClick` handler (no new logic)
-- If `claimStatus === "pending"` → optionally show a muted variant: "Claim under review" (or skip — simpler is just hide)
+### 2. Unclaimed banner — remove (redundant)
+Lines 601-621: hero-er moddhe already "Claim This Profile" pill ache (line 514). Banner-tao same info — duplicate. Remove kore dilam, ekta concise tooltip/hover hero badge-e thakbe.
 
-## Implementation
-1. New small inline JSX block in `BrokerDetail.tsx` right after the hero card closing tag, before the tabs/quick-stats section.
-2. Wraps in `{claimStatus === "unclaimed" && (...)}`.
-3. Uses existing `handleClaimClick`, `broker.name`, `claimLoading` — no new state, no new handlers, no schema change.
-4. Semantic tokens only (`accent`, `muted-foreground`, `border-accent/20`).
-5. Responsive: stacks vertically on mobile (`flex-col sm:flex-row`).
+### 3. Trust amplifiers grid — move below tabs
+Lines 623-633 (`BeforeYouDepositChecklist` + `SentimentSparkline`) ekhon hero ar tabs-er majhe boshe verdict-ke push korche. Eta `Overview` tab-er bhitor verdict-er **niche** rakhbo — content-wise more relevant, ar above-the-fold-e jaiga free hobe.
+
+### 4. Stat strip — tighter padding
+Line 589-596: `py-3` → `py-2`, `mt-5` → `mt-4`. ~20px save.
+
+### 5. Hero outer padding trim
+Hero card outer container-e `mb-6` → `mb-4`, internal section gaps `mt-5` → `mt-4` consistently. ~20px save.
+
+### 6. Tabs — reduce top margin
+Line 718: `mt-6 space-y-8` → `mt-4 space-y-6` so verdict box top closer to tabs.
 
 ## Out of scope
-- No DB changes (claim_status already tracked in `broker_profiles`)
-- No new component file — small enough to inline
-- Hero-er existing "Claim This Profile" badge thakbe (redundant noy — badge = quick signal, banner = explanation)
+- No DB / logic changes
+- Health Score full card thakbe **admin page-e** (HealthScoreAdmin) — only hero-te compact
+- Scam alert investigations section unchanged (critical info)
+- Mobile layout already stacks — same compression applies cleanly
+
+## Expected outcome
+At 1194×770:
+- Hero card (logo, name, score, regulation, claim, CTAs, stats) ≈ 480px
+- Tabs bar ≈ 50px
+- Verdict heading + box ≈ 180px
+- **Total ≈ 710px** → fits within 770px viewport with room for partial peek of Key Facts table.
