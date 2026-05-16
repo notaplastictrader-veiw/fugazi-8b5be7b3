@@ -1,34 +1,37 @@
-# Hero Stats — Fix Broken Layout
+# Plan: Configure Resend as email provider
 
-## Problem
-On desktop the Live badge sits at the far-left edge while the four stats float far to the right, with a huge empty gap and no visible divider — looks broken/disconnected, not like one cohesive pill.
+## Security note
+Please don't paste API keys in chat — they get stored in message history. I'll request it through the secure secret form instead, and you can rotate the key you just shared at https://resend.com/api-keys.
 
-## Root cause
-The strip uses `glass-card rounded-full` as the outer container that stretches to full hero width, with `sm:justify-center` on the inner flex. Because the inner content is much narrower than the container, Live and the stats group both center as one cluster — but the eye reads the wide rounded background as the "pill" and the content inside as misaligned. Worse, the divider between Live and stats is hidden by `sm:border-r` on Live (it sits at the wrong side).
+## Steps
 
-## Fix
+1. **Add `RESEND_API_KEY`** via the secure secrets form (you'll paste it once into a masked input).
 
-### 1. Pill hugs its content
-Wrap the strip in a centered `inline-flex` so the rounded pill sizes to its contents (no more giant empty pill). Outer wrapper centers it inside the hero column.
+2. **Verify sender domain in Resend**
+   - Resend requires a verified domain (or `onboarding@resend.dev` for testing only).
+   - Question: which `from` address should we use?
+     - `onboarding@resend.dev` (works immediately, testing only)
+     - A custom domain you've already verified in Resend (e.g. `noreply@yourdomain.com`)
 
-### 2. Single coherent row on tablet+
-- Live · `|` · Stat · Stat · Stat · Stat — all in one flex row with consistent `gap-3 md:gap-4`.
-- Vertical divider after Live: `w-px h-4 bg-border/60` (dedicated element, not border on the badge — guarantees it shows).
-- Live badge keeps green pulsing dot + `LIVE` label.
+3. **Auth emails (signup confirmation, password reset, email verification, magic link)**
+   - Scaffold a custom `auth-email-hook` edge function that sends via Resend API (using the gateway pattern).
+   - Create branded React Email templates for: signup, recovery, magic-link, email-change.
+   - Style templates with NAFT brand (lime/charcoal dark theme, DM Sans/Barlow Condensed fonts, white email body bg).
+   - Register the hook with Supabase Auth so all auth emails route through Resend.
 
-### 3. Mobile (<640px)
-- Pill becomes a rounded-2xl card.
-- Live row on top (dot + label + thin underline), stats in 2×2 grid below with the same icon + value + label pattern.
-- Everything still inside one card so it reads as one unit.
+4. **Transactional emails (welcome, notifications, etc.)**
+   - Create a `send-transactional-email` edge function calling Resend via the connector gateway pattern.
+   - Add a "welcome email" trigger after signup (via the existing `handle_new_user` flow or a post-signup client call).
+   - Provide a reusable helper for future transactional sends.
 
-### 4. Visual polish
-- Tighten label size to `text-[10px] md:text-[11px]`, value `text-sm md:text-base`, icon `w-3.5 h-3.5` — same as now, no clipping.
-- Remove `truncate` from labels (caused some labels to ellipsize on tablet) — replace with `whitespace-nowrap`.
-- Keep all 4 stats wired to backend (reviews / brokers / scams counts + visitors from `site_settings.hero_section.visitors_value`, default `1.2M+`).
+5. **Deploy** all new/updated edge functions.
 
-### 5. Verification
-- Visual check at 360, 414, 768, 1024, 1194, 1440 widths — pill hugs content, Live + divider + 4 stats are a tight single row on ≥640, 2×2 grid below Live on <640.
-- No horizontal scroll, no clipped labels.
+## Technical details
+- Use `https://api.resend.com/emails` directly with `Authorization: Bearer ${RESEND_API_KEY}` (simpler than the connector gateway since you're providing the key directly, not via OAuth connector).
+- Templates live in `supabase/functions/_shared/email-templates/`.
+- Auth hook: `supabase/functions/auth-email-hook/index.ts` with `verify_jwt = false` + webhook signature verification.
+- Welcome email: triggered client-side after successful signup in `Signup.tsx`, or via DB webhook on profile insert.
 
-## File touched
-- `src/components/sections/HeroSection.tsx` — only the stats strip block + its wrapper.
+## Open questions
+1. Sender address — `onboarding@resend.dev` or your verified custom domain?
+2. Welcome email — send immediately on signup, or after email verification?
