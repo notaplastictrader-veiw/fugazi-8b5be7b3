@@ -11,7 +11,7 @@ const TIERS = [
   { name: "Legend", min: 1000, color: "text-primary" },
 ];
 
-const TraderLevelCard = () => {
+const TraderLevelCard = ({ userName }: { userName?: string } = {}) => {
   const { user } = useAuth();
 
   const { data } = useQuery({
@@ -66,6 +66,14 @@ const TraderLevelCard = () => {
 
   return (
     <div className="glass-card rounded-xl p-5 mb-6">
+      {userName && (
+        <div className="flex items-baseline justify-between gap-3 flex-wrap mb-4 pb-4 border-b border-border/40">
+          <div>
+            <h1 className="text-xl font-display font-extrabold text-foreground leading-tight">Dashboard</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Welcome back, {userName}.</p>
+          </div>
+        </div>
+      )}
       <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">

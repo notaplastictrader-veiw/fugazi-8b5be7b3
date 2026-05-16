@@ -77,10 +77,8 @@ const Overview = () => {
   return (
     <>
       <SEO title="Dashboard" description="Your personal trading dashboard." path="/dashboard" />
-      <h1 className="text-2xl font-display font-extrabold text-foreground mb-1">Dashboard</h1>
-      <p className="text-sm text-muted-foreground mb-6">Welcome back, {fullName.split(" ")[0]}.</p>
 
-      <TraderLevelCard />
+      <TraderLevelCard userName={fullName.split(" ")[0]} />
 
       <div className="my-6">
         <AudioDigestPlayer />
