@@ -535,10 +535,10 @@ const BrokerDetail = () => {
                       </div>
 
                       {/* 5-tile stat strip — inside left column */}
-                      <div className="mt-6 flex flex-wrap gap-y-4 gap-x-8">
+                      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 rounded-xl border border-border/60 bg-background/30 divide-x divide-border/40">
                         {stats.map((s) => (
-                          <div key={s.label}>
-                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-0.5">{s.label}</div>
+                          <div key={s.label} className="px-3 py-3 text-center">
+                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
                             <div className="text-base font-display font-extrabold text-foreground">{s.value}</div>
                           </div>
                         ))}
