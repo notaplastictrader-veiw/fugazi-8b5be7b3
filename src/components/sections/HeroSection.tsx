@@ -183,7 +183,6 @@ const HeroSection = () => {
                 </span>
                 <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-center whitespace-nowrap">
                   {s.label}
-                  {s.suffix && <span className="text-primary/70"> {s.suffix}</span>}
                 </p>
               </div>
             ))}
