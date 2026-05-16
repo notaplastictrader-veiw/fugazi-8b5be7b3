@@ -648,6 +648,16 @@ const BrokerDetail = () => {
                   </div>
                 </div>
 
+                {/* 5-tile stat strip — full width across header card */}
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 rounded-xl border border-border/60 bg-background/30 divide-x divide-border/40 overflow-hidden">
+                  {stats.map((s) => (
+                    <div key={s.label} className="px-3 py-3.5 text-center">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
+                      <div className="text-base md:text-lg font-display font-extrabold text-foreground">{s.value}</div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Offer rail */}
                 {(broker.website_url || (broker as any).affiliate_url) && (
                   <div className="mt-4">
