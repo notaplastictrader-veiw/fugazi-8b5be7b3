@@ -619,6 +619,16 @@ const BrokerDetail = () => {
                   </div>
                 </div>
 
+                {/* 5-tile stat strip */}
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                  {stats.map((s) => (
+                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-2 text-center">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-0.5 truncate" title={s.value}>{s.value}</div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Offer rail */}
                 {(broker.website_url || (broker as any).affiliate_url) && (
                   <div className="mt-4">
@@ -631,16 +641,6 @@ const BrokerDetail = () => {
                     />
                   </div>
                 )}
-
-                {/* 5-tile stat strip */}
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                  {stats.map((s) => (
-                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-2 text-center">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
-                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-0.5 truncate" title={s.value}>{s.value}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             );
           })()}
