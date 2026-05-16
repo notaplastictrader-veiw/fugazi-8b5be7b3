@@ -20,8 +20,7 @@ const defaultStats = [
 const HeroSection = () => {
   const cms = useSiteSettings<Record<string, any>>("hero_section", {});
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
-  const cmsStats = (cms.stats?.length ? cms.stats : null) as typeof defaultStats | null;
-  const stats = (cmsStats ?? defaultStats) as typeof defaultStats;
+  const stats = defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
