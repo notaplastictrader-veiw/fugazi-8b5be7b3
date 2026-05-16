@@ -473,12 +473,18 @@ const BrokerDetail = () => {
                         </span>
                       </div>
 
-                      {/* Regulation chips */}
+                      {/* Regulation chips — short names only, full details in Regulation & Safety section */}
                       {broker.regulation?.length ? (
-                        <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-                          {broker.regulation.map((r) => (
-                            <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">{r}</span>
-                          ))}
+                        <div className="flex items-center gap-1.5 mt-3 flex-wrap" title={broker.regulation.join(" · ")}>
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Regulated by:</span>
+                          {broker.regulation.map((r) => {
+                            const short = r.split(/[\s(\-–—]/)[0].trim();
+                            return (
+                              <span key={r} className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
+                                {short}
+                              </span>
+                            );
+                          })}
                         </div>
                       ) : null}
 
