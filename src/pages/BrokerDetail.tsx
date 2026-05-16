@@ -1251,6 +1251,14 @@ const BrokerDetail = () => {
 
           <WithdrawalProofGallery brokerId={broker.id} brokerName={broker.name} />
           <PeerBrokersRail brokerId={broker.id} type={broker.type} />
+
+          {/* Page-level data source disclosure — quiet footer note */}
+          <div className="mt-8 pt-6 border-t border-border/40 flex items-start gap-2 text-[11px] font-mono text-muted-foreground/80 leading-relaxed">
+            <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-60" />
+            <p>
+              Information on this page is sourced from public data and the NAFT community.{claimStatus !== "claimed" && ` ${broker.name} hasn't claimed this profile yet — if you represent the broker, use the “Claim This Profile” button at the top to respond to community reviews.`} NAFT may earn a commission when you open an account through our links — this does not affect our ratings or research.
+            </p>
+          </div>
         </div>
       </div>
 
