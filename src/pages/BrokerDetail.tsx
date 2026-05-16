@@ -205,6 +205,16 @@ const BrokerDetail = () => {
       // Override cached counts with live values
       setBroker({ ...(b as unknown as Broker), review_count: liveReviewCount || 0, complaints: liveComplaintCount || 0 });
       setScamAlerts((alerts as ScamAlertRow[]) || []);
+
+      // Fetch promotions for this broker (by name match)
+      const { data: promos } = await supabase
+        .from("promotions")
+        .select("*")
+        .eq("status", "published")
+        .ilike("broker_name", b.name)
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false });
+      setBrokerPromos(promos || []);
       if (r) {
         setReviews(r as Review[]);
         // fetch replies for these reviews
