@@ -73,7 +73,28 @@ const Compare = () => {
 
   const renderCell = (broker: BrokerRow, key: keyof BrokerRow) => {
     const val = broker[key];
-    if (key === "regulation") return (val as string[] | null)?.join(", ") || "—";
+    if (key === "regulation") {
+      const list = (val as string[] | null) ?? [];
+      if (!list.length) return "—";
+      const shortName = (r: string) => r.split(/[(\-—–]/)[0].trim();
+      const shown = list.slice(0, 3).map(shortName);
+      const extra = list.length - 3;
+      return (
+        <span className="inline-flex flex-wrap items-center justify-center gap-1">
+          {shown.map((r, i) => (
+            <span key={i} className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground">{r}</span>
+          ))}
+          {extra > 0 && (
+            <span
+              title={list.slice(3).join(", ")}
+              className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 cursor-help"
+            >
+              +{extra} more
+            </span>
+          )}
+        </span>
+      );
+    }
     if (key === "score") return (
       <span className={`font-bold ${(val as number) >= 8 ? "text-primary" : (val as number) >= 5 ? "text-accent" : "text-destructive"}`}>
         {val ?? "—"}/10
@@ -150,13 +171,19 @@ const Compare = () => {
         {/* Table */}
         {compared.length >= 2 ? (
           <div className="overflow-x-auto rounded-xl border border-primary/20 shadow-[0_0_30px_hsl(var(--primary)/0.10)] bg-card/40 backdrop-blur-sm">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse table-fixed">
+              <colgroup>
+                <col className="w-[160px]" />
+                {compared.map(b => (
+                  <col key={b.id} style={{ width: `calc((100% - 160px) / ${compared.length})` }} />
+                ))}
+              </colgroup>
               <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-md">
                 <tr className="border-b-2 border-primary/30">
-                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider w-[160px] sticky left-0 bg-card/95 backdrop-blur-md z-20 border-r border-primary/20">Feature</th>
+                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider sticky left-0 bg-card/95 backdrop-blur-md z-20 border-r border-primary/20">Feature</th>
                   {compared.map((b, idx) => (
-                    <th key={b.id} className={`p-4 text-center min-w-[160px] ${idx > 0 ? "border-l border-primary/20" : ""}`}>
-                      <div className="font-display font-bold text-foreground">{b.name}</div>
+                    <th key={b.id} className={`p-4 text-center ${idx > 0 ? "border-l border-primary/20" : ""}`}>
+                      <div className="font-display font-bold text-foreground truncate">{b.name}</div>
                       <a href={`/brokers/${b.slug}`} className="text-xs text-primary hover:underline">Full Review →</a>
                     </th>
                   ))}
