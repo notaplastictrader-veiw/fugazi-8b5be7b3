@@ -97,6 +97,7 @@ const PayoutSpeedLeaderboard = () => {
     })();
   }, [visible]);
 
+  const usingFallback = rows.length === 0;
   const data = rows.length > 0 ? rows : FALLBACK;
   const maxHours = Math.max(...data.map((r) => r.avg_hours));
   const pageCount = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
