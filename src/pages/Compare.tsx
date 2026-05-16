@@ -152,10 +152,10 @@ const Compare = () => {
           <div className="overflow-x-auto rounded-xl border border-primary/20 shadow-[0_0_30px_hsl(var(--primary)/0.10)] bg-card/40 backdrop-blur-sm">
             <table className="w-full border-collapse">
               <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-md">
-                <tr className="border-b border-primary/20">
-                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider w-[160px] sticky left-0 bg-card/95 backdrop-blur-md z-20">Feature</th>
-                  {compared.map(b => (
-                    <th key={b.id} className="p-4 text-center min-w-[160px]">
+                <tr className="border-b-2 border-primary/30">
+                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider w-[160px] sticky left-0 bg-card/95 backdrop-blur-md z-20 border-r border-primary/20">Feature</th>
+                  {compared.map((b, idx) => (
+                    <th key={b.id} className={`p-4 text-center min-w-[160px] ${idx > 0 ? "border-l border-primary/20" : ""}`}>
                       <div className="font-display font-bold text-foreground">{b.name}</div>
                       <a href={`/brokers/${b.slug}`} className="text-xs text-primary hover:underline">Full Review →</a>
                     </th>
@@ -165,9 +165,9 @@ const Compare = () => {
               <tbody>
                 {fields.map((f, i) => (
                   <tr key={f.key} className={i % 2 === 0 ? "bg-card/50" : ""}>
-                    <td className={`p-4 text-sm font-medium text-muted-foreground sticky left-0 z-10 ${i % 2 === 0 ? "bg-card/95" : "bg-background/95"} backdrop-blur-md`}>{f.label}</td>
-                    {compared.map(b => (
-                      <td key={b.id} className="p-4 text-sm text-center text-foreground">
+                    <td className={`p-4 text-sm font-medium text-muted-foreground sticky left-0 z-10 border-r border-primary/20 ${i % 2 === 0 ? "bg-card/95" : "bg-background/95"} backdrop-blur-md`}>{f.label}</td>
+                    {compared.map((b, idx) => (
+                      <td key={b.id} className={`p-4 text-sm text-center text-foreground transition-colors hover:bg-primary/5 ${idx > 0 ? "border-l border-primary/15" : ""}`}>
                         {renderCell(b, f.key)}
                       </td>
                     ))}
