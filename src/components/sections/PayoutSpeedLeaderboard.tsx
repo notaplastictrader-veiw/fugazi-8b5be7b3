@@ -108,11 +108,16 @@ const PayoutSpeedLeaderboard = () => {
     <section ref={ref} className="container mx-auto px-4 py-16">
       <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Zap className="w-4 h-4 text-primary" />
             <span className="text-[11px] font-mono uppercase tracking-widest text-primary">
               Payout Speed Leaderboard
             </span>
+            {usingFallback && (
+              <span className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-500">
+                Demo data
+              </span>
+            )}
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold leading-tight">
             Who actually pays out{" "}
