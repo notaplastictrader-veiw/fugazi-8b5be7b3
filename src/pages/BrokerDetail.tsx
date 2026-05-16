@@ -17,7 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info,
+  ListChecks, Trophy, Coins, MessageSquare
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
