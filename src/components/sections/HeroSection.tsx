@@ -171,31 +171,20 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Stats — Segmented tech tiles, 4 metrics with pulsing live indicators */}
+        {/* 6. Stats — Segmented tech tiles, centered: number on top, single-line label below */}
         <div className="w-full mt-4 animate-[fade-up_0.6s_ease_0.45s_both]">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
             {stats.map((s, i) => (
               <div
                 key={i}
-                className="bg-card/60 p-4 md:p-5 flex flex-col items-start gap-1.5 group transition-all hover:bg-card/80"
+                className="bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80"
               >
-                <div className="flex items-center gap-2">
-                  <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
-                    {s.value}
-                  </span>
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
-                  </span>
-                </div>
-                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-left">
+                <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
+                  {s.value}
+                </span>
+                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-center whitespace-nowrap">
                   {s.label}
-                  {s.suffix && (
-                    <>
-                      <br />
-                      <span className="text-primary/70">{s.suffix}</span>
-                    </>
-                  )}
+                  {s.suffix && <span className="text-primary/70"> {s.suffix}</span>}
                 </p>
               </div>
             ))}
