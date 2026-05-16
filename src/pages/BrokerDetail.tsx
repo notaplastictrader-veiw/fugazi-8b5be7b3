@@ -519,8 +519,22 @@ const BrokerDetail = () => {
                         </span>
                       </div>
 
-                      {/* Regulation chips — short names only, full details in Regulation & Safety section */}
-                      {broker.regulation?.length ? (
+                      {/* Regulation / Structure chips — prop firms show HQ + liquidity, brokers show regulators */}
+                      {isProp ? (
+                        <div className="flex flex-col gap-1.5 mt-3">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">HQ:</span>
+                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
+                              FundedNext FZCO · Dubai, UAE
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1.5 flex-wrap" title="Underlying brokers executing your orders">
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Liquidity by:</span>
+                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">Eightcap (ASIC)</span>
+                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">GBE Brokers (BaFin)</span>
+                          </div>
+                        </div>
+                      ) : broker.regulation?.length ? (
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap" title={broker.regulation.join(" · ")}>
                           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Regulated by:</span>
                           {broker.regulation.map((r) => {
@@ -799,7 +813,21 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl overflow-hidden">
                   <table className="w-full">
                     <tbody>
-                      {review.keyFacts.map((fact, i) => (
+                      {(broker.type === "prop-firm"
+                        ? [
+                            { label: "Account Sizes", value: "$2K · $5K · $10K · $25K · $50K · $100K · $200K" },
+                            { label: "Challenge Fee From", value: "$32.99 (2-Step $5K)" },
+                            { label: "Programs", value: "1-Step, 2-Step, Stellar Lite, Stellar Instant" },
+                            { label: "Profit Split", value: "Up to 95% (default 80%)" },
+                            { label: "Payout Cycle", value: "Same-day on demand, no fixed schedule" },
+                            { label: "Refundable Fee", value: "Yes — refunded with first payout" },
+                            { label: "Drawdown Model", value: "Balanced or Trailing (varies by plan)" },
+                            { label: "Underlying Broker", value: "Eightcap (ASIC), GBE Brokers (BaFin)" },
+                            { label: "Founded", value: "2022" },
+                            { label: "Headquarters", value: "FundedNext FZCO · Dubai, UAE" },
+                          ]
+                        : review.keyFacts
+                      ).map((fact, i) => (
                         <tr key={fact.label} className={i % 2 === 0 ? "bg-muted/20" : ""}>
                           <td className="px-5 py-3 text-sm font-medium text-muted-foreground w-44">{fact.label}</td>
                           <td className="px-5 py-3 text-sm font-medium text-foreground">{fact.value}</td>
@@ -810,55 +838,127 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Regulation & Safety */}
+              {/* Regulation & Safety / Firm Structure */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" /> Regulation & Safety
+                  <Shield className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Firm Structure & Safety" : "Regulation & Safety"}
                 </h2>
                 <div className="glass-card rounded-xl p-6 space-y-3">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
-                    {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
-                  </p>
+                  {broker.type === "prop-firm" ? (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {broker.name} is not a broker — it's a proprietary trading firm based in <strong className="text-foreground">Dubai, UAE</strong> operating under the legal entity <strong className="text-foreground">FundedNext FZCO</strong>. Trader orders are routed to regulated underlying brokers: <strong className="text-foreground">Eightcap</strong> (ASIC, Australia) and <strong className="text-foreground">GBE Brokers</strong> (BaFin, Germany), which hold client liquidity in segregated tier-1 bank accounts.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Refund Policy</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">Fee refunded with first payout after passing both phases.</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Dispute Resolution</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">In-app ticket + email escalation, governed by UAE commercial law.</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Trader Funds</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">Demo capital — no real trader deposit required after challenge fee.</div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground leading-relaxed">
+                      {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
+                      {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
+                    </p>
+                  )}
                 </div>
               </section>
 
-              {/* Trading Conditions */}
+              {/* Trading Conditions / Challenge Programs */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" /> Trading Conditions
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Challenge Programs" : "Trading Conditions"}
                 </h2>
                 <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    {broker.name} offers {broker.avg_spread} average spreads with leverage up to {broker.leverage}.
-                    The minimum deposit starts from {broker.min_deposit}, making it {parseInt(broker.min_deposit?.replace(/[^0-9]/g, "") || "0") <= 10 ? "highly accessible for beginners" : "suitable for traders with moderate capital"}.
-                  </p>
-                  <div className="glass-card rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-muted/30">
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Account</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Min Deposit</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Spread</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Leverage</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Commission</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
-                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, leverage: broker.leverage, commission: "—" },
-                        ]).map((at, i) => (
-                          <tr key={i} className="border-t border-border/50">
-                            <td className="px-4 py-2.5 text-foreground">{at.name}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {broker.type === "prop-firm" ? (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        {broker.name} offers four challenge tracks across seven account sizes ($2K–$200K). All programs use real-tick pricing from regulated underlying brokers and pay out same-day on demand once funded.
+                      </p>
+                      <div className="glass-card rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/30">
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Phases</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { name: "Stellar 2-Step", phases: "2", target: "8% / 5%", maxDD: "10%", dailyDD: "5%", fee: "$32.99" },
+                              { name: "Stellar 1-Step", phases: "1", target: "9%", maxDD: "6%", dailyDD: "3%", fee: "$65" },
+                              { name: "Stellar Lite", phases: "2", target: "8% / 5%", maxDD: "8% trailing", dailyDD: "4%", fee: "$49" },
+                              { name: "Stellar Instant", phases: "0 (funded)", target: "—", maxDD: "4%", dailyDD: "3%", fee: "$219" },
+                            ].map((p, i) => (
+                              <tr key={p.name} className="border-t border-border/50">
+                                <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.phases}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.target}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD}</td>
+                                <td className="px-4 py-2.5 text-foreground font-mono">{p.fee}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("challenges")}
+                        className="mt-4 text-xs font-mono uppercase tracking-wider text-primary hover:underline"
+                      >
+                        See full pricing grid in Challenges tab →
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        {broker.name} offers {broker.avg_spread} average spreads with leverage up to {broker.leverage}.
+                        The minimum deposit starts from {broker.min_deposit}, making it {parseInt(broker.min_deposit?.replace(/[^0-9]/g, "") || "0") <= 10 ? "highly accessible for beginners" : "suitable for traders with moderate capital"}.
+                      </p>
+                      <div className="glass-card rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/30">
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Account</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Min Deposit</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Spread</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Leverage</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Commission</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
+                              { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, leverage: broker.leverage, commission: "—" },
+                            ]).map((at, i) => (
+                              <tr key={i} className="border-t border-border/50">
+                                <td className="px-4 py-2.5 text-foreground">{at.name}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
                 </div>
               </section>
 
@@ -877,11 +977,17 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Deposits & Withdrawals */}
+              {/* Deposits & Withdrawals / Payout Methods */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-primary" /> Deposits & Withdrawals
+                  <CreditCard className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Payout Methods" : "Deposits & Withdrawals"}
                 </h2>
+                {broker.type === "prop-firm" && (
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Funded traders can request payouts on demand — no fixed schedule. First payout unlocks the refundable challenge fee.
+                  </p>
+                )}
                 <div className="glass-card rounded-xl overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
@@ -893,7 +999,15 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(broker.payment_method_details && broker.payment_method_details.length > 0
+                      {(broker.type === "prop-firm"
+                        ? [
+                            { method: "USDT (TRC20)", min: "$50", processing: "Same day", fee: "Network fee" },
+                            { method: "USDT (ERC20)", min: "$50", processing: "Same day", fee: "Network fee" },
+                            { method: "Bank Wire", min: "$100", processing: "1-3 business days", fee: "Free" },
+                            { method: "Rise", min: "$50", processing: "Same day", fee: "Free" },
+                            { method: "Deel", min: "$50", processing: "1-2 business days", fee: "Free" },
+                          ]
+                        : broker.payment_method_details && broker.payment_method_details.length > 0
                         ? broker.payment_method_details
                         : broker.payment_methods && broker.payment_methods.length > 0
                         ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
@@ -981,12 +1095,21 @@ const BrokerDetail = () => {
                     const reviewScore = Math.min(10, (broker.stars || 0) * 2);
                     const complaintScore = Math.max(0, 10 - (broker.complaints || 0) * 0.3);
                     const wdScore = Math.min(10, Math.max(0, broker.score + (broker.withdrawal_time?.toLowerCase().includes("instant") ? 0.5 : 0)));
-                    const items = [
-                      { label: "Regulation", weight: "30%", value: regScore, hint: `${broker.regulation?.length || 0} active license${(broker.regulation?.length || 0) === 1 ? "" : "s"} verified against public registers.` },
-                      { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from real traders.` },
-                      { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
-                      { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
-                    ];
+                    const payoutScore = Math.min(10, Math.max(0, broker.score + 0.5));
+                    const ruleScore = Math.min(10, Math.max(0, broker.score - 0.3));
+                    const items = broker.type === "prop-firm"
+                      ? [
+                          { label: "Payout History", weight: "35%", value: payoutScore, hint: "Verified 30-day withdrawal proofs and same-day payout track record." },
+                          { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from funded traders.` },
+                          { label: "Rule Fairness", weight: "20%", value: ruleScore, hint: "Drawdown model, consistency rule, EA / news / weekend policies vs industry norms." },
+                          { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
+                        ]
+                      : [
+                          { label: "Regulation", weight: "30%", value: regScore, hint: `${broker.regulation?.length || 0} active license${(broker.regulation?.length || 0) === 1 ? "" : "s"} verified against public registers.` },
+                          { label: "User Reviews", weight: "25%", value: reviewScore, hint: `${broker.review_count || 0} verified review${(broker.review_count || 0) === 1 ? "" : "s"} from real traders.` },
+                          { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
+                          { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
+                        ];
                     return items.map((it) => {
                       const color = it.value >= 8 ? "bg-primary" : it.value >= 6 ? "bg-accent" : "bg-destructive";
                       return (
@@ -1016,18 +1139,30 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* How to Open Account */}
+              {/* How to Open Account / Get Funded */}
               <section>
-                <h2 className="text-xl font-display font-bold text-foreground mb-3">How to Open an Account</h2>
+                <h2 className="text-xl font-display font-bold text-foreground mb-3">
+                  {broker.type === "prop-firm" ? "How to Get Funded" : "How to Open an Account"}
+                </h2>
                 <div className="glass-card rounded-xl p-6">
                   <div className="space-y-4">
-                    {[
-                      'Click "Open Account" button above',
-                      "Fill in your personal details",
-                      "Verify your identity (KYC)",
-                      "Make your first deposit",
-                      "Start trading",
-                    ].map((step, i) => (
+                    {(broker.type === "prop-firm"
+                      ? [
+                          "Pick a challenge program and account size",
+                          "Pay the refundable challenge fee",
+                          "Pass Phase 1 — hit the profit target without breaching drawdown",
+                          "Pass Phase 2 (verification) on a reduced target",
+                          "Get funded — trade live capital with up to 95% profit split",
+                          "Request payout on demand, fee refunded with first payout",
+                        ]
+                      : [
+                          'Click "Open Account" button above',
+                          "Fill in your personal details",
+                          "Verify your identity (KYC)",
+                          "Make your first deposit",
+                          "Start trading",
+                        ]
+                    ).map((step, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
                           {i + 1}
@@ -1041,7 +1176,7 @@ const BrokerDetail = () => {
                       <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored">
                         <Button className="font-display font-bold">
                           <ExternalLink className="w-4 h-4 mr-2" />
-                          Open Account with {broker.name}
+                          {broker.type === "prop-firm" ? `Start Challenge with ${broker.name}` : `Open Account with ${broker.name}`}
                         </Button>
                       </a>
                     ) : (
