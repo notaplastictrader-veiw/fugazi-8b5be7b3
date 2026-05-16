@@ -527,6 +527,16 @@ const BrokerDetail = () => {
                       <div className="score-bar mt-2">
                         <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
                       </div>
+                      {(broker as any).health_score != null && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <BrokerHealthScore
+                            score={(broker as any).health_score}
+                            breakdown={(broker as any).health_breakdown}
+                            updatedAt={(broker as any).health_updated_at}
+                            compact
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-3">
