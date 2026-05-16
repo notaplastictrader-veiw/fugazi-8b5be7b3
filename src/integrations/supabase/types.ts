@@ -1536,6 +1536,7 @@ export type Database = {
           social_tiktok: string | null
           social_twitter: string | null
           social_youtube: string | null
+          theme_preference: string
           trading_style: string | null
           updated_at: string
           user_id: string
@@ -1565,6 +1566,7 @@ export type Database = {
           social_tiktok?: string | null
           social_twitter?: string | null
           social_youtube?: string | null
+          theme_preference?: string
           trading_style?: string | null
           updated_at?: string
           user_id: string
@@ -1594,6 +1596,7 @@ export type Database = {
           social_tiktok?: string | null
           social_twitter?: string | null
           social_youtube?: string | null
+          theme_preference?: string
           trading_style?: string | null
           updated_at?: string
           user_id?: string
