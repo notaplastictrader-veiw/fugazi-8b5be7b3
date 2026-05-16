@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles, ArrowRight } from "lucide-react";
+import { Search, Sparkles, ArrowRight, Info } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
