@@ -1139,18 +1139,30 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* How to Open Account */}
+              {/* How to Open Account / Get Funded */}
               <section>
-                <h2 className="text-xl font-display font-bold text-foreground mb-3">How to Open an Account</h2>
+                <h2 className="text-xl font-display font-bold text-foreground mb-3">
+                  {broker.type === "prop-firm" ? "How to Get Funded" : "How to Open an Account"}
+                </h2>
                 <div className="glass-card rounded-xl p-6">
                   <div className="space-y-4">
-                    {[
-                      'Click "Open Account" button above',
-                      "Fill in your personal details",
-                      "Verify your identity (KYC)",
-                      "Make your first deposit",
-                      "Start trading",
-                    ].map((step, i) => (
+                    {(broker.type === "prop-firm"
+                      ? [
+                          "Pick a challenge program and account size",
+                          "Pay the refundable challenge fee",
+                          "Pass Phase 1 — hit the profit target without breaching drawdown",
+                          "Pass Phase 2 (verification) on a reduced target",
+                          "Get funded — trade live capital with up to 95% profit split",
+                          "Request payout on demand, fee refunded with first payout",
+                        ]
+                      : [
+                          'Click "Open Account" button above',
+                          "Fill in your personal details",
+                          "Verify your identity (KYC)",
+                          "Make your first deposit",
+                          "Start trading",
+                        ]
+                    ).map((step, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-sm font-bold text-primary">
                           {i + 1}
@@ -1164,7 +1176,7 @@ const BrokerDetail = () => {
                       <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored">
                         <Button className="font-display font-bold">
                           <ExternalLink className="w-4 h-4 mr-2" />
-                          Open Account with {broker.name}
+                          {broker.type === "prop-firm" ? `Start Challenge with ${broker.name}` : `Open Account with ${broker.name}`}
                         </Button>
                       </a>
                     ) : (
