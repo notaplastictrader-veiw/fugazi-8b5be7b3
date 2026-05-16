@@ -455,11 +455,11 @@ const BrokerDetail = () => {
             };
             const stats = isProp
               ? [
-                  { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
-                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
-                  { label: "Start From", value: broker.min_deposit || "$10" },
+                  { label: "Account Size", value: "$2K – $200K" },
+                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) || "1:100" },
+                  { label: "Start From", value: "$32.99" },
                   { label: "Profit Split", value: "80% to 95%" },
-                  { label: "Payout Speed", value: "On Demand" },
+                  { label: "Payout Speed", value: "Same Day" },
                 ]
               : [
                   { label: "Min Deposit", value: broker.min_deposit || "—" },
@@ -563,16 +563,6 @@ const BrokerDetail = () => {
                         )}
                       </div>
 
-                      {/* 5-tile stat strip — inside left column */}
-                      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 rounded-xl border border-border/60 bg-background/30 divide-x divide-border/40">
-                        {stats.map((s) => (
-                          <div key={s.label} className="px-3 py-3 text-center">
-                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
-                            <div className="text-base font-display font-extrabold text-foreground">{s.value}</div>
-                          </div>
-                        ))}
-                      </div>
-
                     </div>
                   </div>
 
@@ -656,6 +646,16 @@ const BrokerDetail = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* 5-tile stat strip — full width across header card */}
+                <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 rounded-xl border border-border/60 bg-background/30 divide-x divide-border/40 overflow-hidden">
+                  {stats.map((s) => (
+                    <div key={s.label} className="px-3 py-3.5 text-center">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
+                      <div className="text-base md:text-lg font-display font-extrabold text-foreground">{s.value}</div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Offer rail */}

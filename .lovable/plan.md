@@ -1,25 +1,52 @@
-## Goal
-`BeforeYouDepositChecklist` ekhon shob broker er jonno "deposit" centric. Prop firm e user deposit kore na — challenge fee dey, rules follow kore, payout ney. Tai prop-firm er jonno alada 6-item checklist + alada heading dorkar.
+## Prop firm header card — review + fix plan
 
-## Changes
+Scope: only the top header card on `/brokers/:slug` for prop firms (BrokerDetail.tsx, lines ~456–576). No DB changes, no logic changes elsewhere.
 
-### 1. `src/components/broker/BeforeYouDepositChecklist.tsx`
-- Notun optional prop: `variant?: "broker" | "prop-firm"` (default `"broker"`).
-- Duita item array rakhbo: `brokerItems` (current 6) + notun `propFirmItems` (6):
-  1. **Verify the firm's payout history** — Check 30-day withdrawal proof gallery + recent payout complaints. No proofs = walk away.
-  2. **Read the full challenge rules before paying** — Daily loss, max drawdown, consistency rule, min trading days, news/EA/weekend restrictions. Ek line bhul holei account bust.
-  3. **Start with the smallest account size** — $5k/$10k diye test koro firm er execution, slippage, dashboard, support. Boro account purer ager na.
-  4. **Confirm the profit split + payout cycle** — 80/20 vs 90/10, bi-weekly vs monthly, min payout threshold, payout method (Deel/Rise/Wise/crypto) — sob T&Cs e likha ache kina.
-  5. **Check the broker behind the firm** — Prop firm trades route hoy ek underlying broker er kache. Sei broker er regulation + spread tomar strategy e thik ache kina dekho.
-  6. **Confirm the firm is not on our Scam Watch** — Active scam alert ribbon thakle skip koro. Refund policy + dispute resolution chesta korar age clear thaka uchit.
-- Heading text variant-based:
-  - broker: `Before you deposit at {brokerName}` (current)
-  - prop-firm: `Before you buy a challenge at {brokerName}`
+### 1. Fix wrong stat values (FundedNext)
+Currently pulling from broker fields meant for regular brokers, so it shows nonsense:
+- ACCOUNT SIZE → `broker.avg_spread` = "Raw"  ❌  → should be **$2K – $200K**
+- START FROM → `broker.min_deposit` = "$59"  ❌  → should be **$32.99**
 
-### 2. `src/pages/BrokerDetail.tsx`
-- `<BeforeYouDepositChecklist>` call e `variant={broker.type === "prop-firm" ? "prop-firm" : "broker"}` pass korbo.
+Fix: for `isProp` brokers, ignore `avg_spread` / `min_deposit` and read prop-specific values. Two options:
 
-## Technical notes
-- Single file component, no DB/style changes. Tokens unchanged.
-- Mobile + desktop same — collapsible card already responsive.
-- (9/6) counter bug ta amar scope na, alada — eta plan e thik korte hole bolen, korbo.
+- **A (quick):** hardcode FundedNext-correct strings in the `stats` array fallback (`"$2K – $200K"`, `"$32.99"`).
+- **B (clean):** add per-broker prop overrides in `src/data/brokers.ts` (e.g. `account_size_range`, `challenge_start_price`, `profit_split`, `payout_speed`) and read them here. Recommended — same pattern will work for the other prop firms later.
+
+### 2. Stats strip alignment (looks pushed right)
+Right now the 5-tile strip sits **inside the left identity column**, so it starts after the 80px logo + gap. On the 1194px viewport it visually drifts right while the trust panel hugs the right edge.
+
+Fix: move the stats strip **out of the identity column** so it spans the full width of the header card, sitting below both the identity block and the trust panel.
+
+```text
+Before                          After
+┌──────────────┬──────────┐     ┌──────────────┬──────────┐
+│ logo  name…  │  trust   │     │ logo  name…  │  trust   │
+│       chips… │  panel   │     │       chips… │  panel   │
+│       [stats strip]     │     │       claim  │  CTAs    │
+│              │  CTAs    │     ├──────────────┴──────────┤
+└──────────────┴──────────┘     │ [ stats strip full-w ]  │
+                                └─────────────────────────┘
+```
+Result: stats are visually centered/left-aligned to the card edge, not shoved under the name column.
+
+### 3. "On Demand" wording
+Currently `PAYOUT SPEED: On Demand`. It's ambiguous (does it mean instant? request anytime?).
+
+Options to pick from:
+- **Same Day** — clearest for traders, matches industry copy
+- **Within 24h** — concrete promise
+- **Up to 4× / month** — frequency-based instead of speed
+- Keep **On Demand** but add a tiny tooltip "Request payouts any time, processed same-day"
+
+Will go with **"Same Day"** unless you prefer one of the others.
+
+### 4. Optional small polish (only if you want)
+- Stat strip currently has 5 columns crammed at `md:grid-cols-5`. With wider tiles after going full-width we can let each label breathe — same 5 columns but slightly larger numbers.
+- "REGULATED BY: Regulated" looks empty — for prop firms, replace with the underlying broker label (e.g. "Liquidity by: Eightcap, GBE Brokers") or hide the row entirely.
+
+### Question before I implement
+Two choices to confirm:
+1. Stat data source — **A (hardcode FundedNext)** or **B (per-broker fields in data file)**?
+2. Payout wording — **Same Day**, **Within 24h**, **Up to 4×/month**, or **keep On Demand + tooltip**?
+
+After you answer I'll do steps 1–3 in one pass (and 4 if you say yes).
