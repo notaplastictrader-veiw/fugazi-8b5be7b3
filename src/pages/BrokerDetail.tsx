@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
@@ -489,17 +489,6 @@ const BrokerDetail = () => {
                         </p>
                       )}
 
-                      {/* Broker Health Score™ */}
-                      {(broker as any).health_score != null && (
-                        <div className="mt-4">
-                          <BrokerHealthScore
-                            score={(broker as any).health_score}
-                            breakdown={(broker as any).health_breakdown}
-                            updatedAt={(broker as any).health_updated_at}
-                          />
-                        </div>
-                      )}
-
                       {/* Claim + verified-ago row */}
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
                         {claimStatus === "claimed" ? (
@@ -538,6 +527,16 @@ const BrokerDetail = () => {
                       <div className="score-bar mt-2">
                         <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
                       </div>
+                      {(broker as any).health_score != null && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <BrokerHealthScore
+                            score={(broker as any).health_score}
+                            breakdown={(broker as any).health_breakdown}
+                            updatedAt={(broker as any).health_updated_at}
+                            compact
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-3">
@@ -574,7 +573,7 @@ const BrokerDetail = () => {
 
                 {/* Offer rail */}
                 {(broker.website_url || (broker as any).affiliate_url) && (
-                  <div className="mt-5">
+                  <div className="mt-4">
                     <OfferRail
                       code={isProp ? (broker as any).promo_code : null}
                       label={(broker as any).promo_label}
@@ -586,52 +585,17 @@ const BrokerDetail = () => {
                 )}
 
                 {/* 5-tile stat strip */}
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                   {stats.map((s) => (
-                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-3 text-center">
+                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-2 text-center">
                       <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
-                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-1 truncate" title={s.value}>{s.value}</div>
+                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-0.5 truncate" title={s.value}>{s.value}</div>
                     </div>
                   ))}
                 </div>
               </div>
             );
           })()}
-
-          {/* ===== UNCLAIMED PROFILE BANNER ===== */}
-          {claimStatus === "unclaimed" && (
-            <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex items-start gap-3 flex-1 min-w-0">
-                <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                <p className="text-sm text-foreground leading-relaxed">
-                  <span className="font-semibold">Unclaimed profile</span>
-                  <span className="text-muted-foreground"> — information is sourced from public data and community reviews. Are you from </span>
-                  <span className="font-semibold">{broker.name}</span>
-                  <span className="text-muted-foreground">?</span>
-                </p>
-              </div>
-              <button
-                onClick={handleClaimClick}
-                disabled={claimLoading}
-                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-display font-bold uppercase tracking-wider rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/60 transition-all disabled:opacity-50"
-              >
-                <Shield className="w-3.5 h-3.5" /> Claim this profile →
-              </button>
-            </div>
-          )}
-
-          {/* ===== TRUST AMPLIFIERS ===== */}
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="md:col-span-2">
-              <BeforeYouDepositChecklist brokerName={broker.name} />
-            </div>
-            <SentimentSparkline
-              score={broker.score}
-              reviewCount={broker.review_count || 0}
-              complaints={broker.complaints || 0}
-            />
-          </div>
-
 
           {scamAlerts.length > 0 && (
             <section id="investigations" className="mb-6 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-5 md:p-6 scroll-mt-24">
@@ -715,7 +679,7 @@ const BrokerDetail = () => {
             </TabsList>
 
             {/* ===== OVERVIEW TAB ===== */}
-            <TabsContent value="overview" className="mt-6 space-y-8">
+            <TabsContent value="overview" className="mt-4 space-y-6">
               {/* Our Verdict */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
@@ -725,6 +689,18 @@ const BrokerDetail = () => {
                   <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
                 </div>
               </section>
+
+              {/* Trust Amplifiers */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <BeforeYouDepositChecklist brokerName={broker.name} />
+                </div>
+                <SentimentSparkline
+                  score={broker.score}
+                  reviewCount={broker.review_count || 0}
+                  complaints={broker.complaints || 0}
+                />
+              </div>
 
               {/* Key Facts */}
               <section>
