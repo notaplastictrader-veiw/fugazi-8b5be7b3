@@ -20,10 +20,10 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultStats = [
-  { value: "—", label: "Brokers reviewed" },
-  { value: "—", label: "Scam alerts" },
-  { value: "—", label: "Verified reviews" },
-  { value: "—", label: "Members" },
+  { value: "—", label: "Brokers & Firms Tracked" },
+  { value: "140+", label: "Countries Covered" },
+  { value: "2026", label: "Independent Since" },
+  { value: "24/7", label: "Scam Monitoring" },
 ];
 
 const HeroSection = () => {
@@ -33,36 +33,26 @@ const HeroSection = () => {
 
   const [liveStats, setLiveStats] = useState<typeof defaultStats | null>(null);
 
-  const visitorsValue = (cms.visitors_value as string) || "1.2M+";
-
   useEffect(() => {
     if (cmsStats) return;
     let cancelled = false;
     (async () => {
-      const [reviews, brokers, scams] = await Promise.all([
-        supabase.from("reviews").select("*", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("brokers").select("*", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("scam_alerts").select("*", { count: "exact", head: true }).eq("status", "published"),
-      ]);
+      const { count } = await supabase
+        .from("brokers")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "published");
       if (cancelled) return;
-      setLiveStats((prev) => [
-        { value: reviews.count != null ? formatCount(reviews.count) : prev?.[0]?.value ?? "—", label: "Reviews" },
-        { value: brokers.count != null ? formatCount(brokers.count) : prev?.[1]?.value ?? "—", label: "Brokers" },
-        { value: scams.count != null ? formatCount(scams.count) : prev?.[2]?.value ?? "—", label: "Scams" },
-        { value: visitorsValue, label: "Visitors" },
+      setLiveStats([
+        { value: count != null ? formatCount(count) : "—", label: "Brokers & Firms Tracked" },
+        { value: "140+", label: "Countries Covered" },
+        { value: "2026", label: "Independent Since" },
+        { value: "24/7", label: "Scam Monitoring" },
       ]);
     })();
     return () => { cancelled = true; };
-  }, [cmsStats, visitorsValue]);
+  }, [cmsStats]);
 
-  const baseStats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
-  // Force short, fits-on-one-line labels regardless of CMS overrides
-  const stats = [
-    { value: baseStats[0]?.value ?? "—", label: "Reviews" },
-    { value: baseStats[1]?.value ?? "—", label: "Brokers" },
-    { value: baseStats[2]?.value ?? "—", label: "Scams" },
-    { value: visitorsValue, label: "Visitors" },
-  ] as typeof defaultStats;
+  const stats = (cmsStats ?? liveStats ?? defaultStats) as typeof defaultStats;
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
