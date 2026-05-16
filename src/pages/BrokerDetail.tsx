@@ -641,19 +641,6 @@ const BrokerDetail = () => {
                     />
                   </div>
                 )}
-
-                {/* Offer rail */}
-                {(broker.website_url || (broker as any).affiliate_url) && (
-                  <div className="mt-4">
-                    <OfferRail
-                      code={isProp ? (broker as any).promo_code : null}
-                      label={(broker as any).promo_label}
-                      url={(broker as any).affiliate_url || broker.website_url}
-                      entityName={broker.name}
-                      variant="wide"
-                    />
-                  </div>
-                )}
               </div>
             );
           })()}
