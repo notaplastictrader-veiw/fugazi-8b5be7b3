@@ -489,17 +489,6 @@ const BrokerDetail = () => {
                         </p>
                       )}
 
-                      {/* Broker Health Score™ */}
-                      {(broker as any).health_score != null && (
-                        <div className="mt-4">
-                          <BrokerHealthScore
-                            score={(broker as any).health_score}
-                            breakdown={(broker as any).health_breakdown}
-                            updatedAt={(broker as any).health_updated_at}
-                          />
-                        </div>
-                      )}
-
                       {/* Claim + verified-ago row */}
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
                         {claimStatus === "claimed" ? (
