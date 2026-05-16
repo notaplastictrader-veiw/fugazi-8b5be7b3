@@ -977,11 +977,17 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Deposits & Withdrawals */}
+              {/* Deposits & Withdrawals / Payout Methods */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-primary" /> Deposits & Withdrawals
+                  <CreditCard className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Payout Methods" : "Deposits & Withdrawals"}
                 </h2>
+                {broker.type === "prop-firm" && (
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Funded traders can request payouts on demand — no fixed schedule. First payout unlocks the refundable challenge fee.
+                  </p>
+                )}
                 <div className="glass-card rounded-xl overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
@@ -993,7 +999,15 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(broker.payment_method_details && broker.payment_method_details.length > 0
+                      {(broker.type === "prop-firm"
+                        ? [
+                            { method: "USDT (TRC20)", min: "$50", processing: "Same day", fee: "Network fee" },
+                            { method: "USDT (ERC20)", min: "$50", processing: "Same day", fee: "Network fee" },
+                            { method: "Bank Wire", min: "$100", processing: "1-3 business days", fee: "Free" },
+                            { method: "Rise", min: "$50", processing: "Same day", fee: "Free" },
+                            { method: "Deel", min: "$50", processing: "1-2 business days", fee: "Free" },
+                          ]
+                        : broker.payment_method_details && broker.payment_method_details.length > 0
                         ? broker.payment_method_details
                         : broker.payment_methods && broker.payment_methods.length > 0
                         ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
