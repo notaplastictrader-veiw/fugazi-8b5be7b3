@@ -550,16 +550,40 @@ const BrokerDetail = () => {
                       <div className="score-bar mt-2">
                         <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
                       </div>
-                      {(broker as any).health_score != null && (
-                        <div className="mt-3 pt-3 border-t border-border">
-                          <BrokerHealthScore
-                            score={(broker as any).health_score}
-                            breakdown={(broker as any).health_breakdown}
-                            updatedAt={(broker as any).health_updated_at}
-                            compact
-                          />
-                        </div>
-                      )}
+                      {(broker as any).health_score != null && (() => {
+                        const hs = Number((broker as any).health_score);
+                        const tier =
+                          hs >= 80 ? { label: "Excellent", color: "text-green-500", bg: "bg-green-500/60" } :
+                          hs >= 60 ? { label: "Healthy",   color: "text-primary",   bg: "bg-primary/60"   } :
+                          hs >= 40 ? { label: "Watch",     color: "text-yellow-500",bg: "bg-yellow-500/60"} :
+                                     { label: "Risk",      color: "text-destructive",bg: "bg-destructive/60"};
+                        const updated = (broker as any).health_updated_at;
+                        return (
+                          <div
+                            className="mt-3 pt-3 border-t border-border"
+                            title={updated ? `Updated ${new Date(updated).toLocaleDateString()}` : undefined}
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                                Broker Health
+                              </span>
+                              <div className="flex items-baseline gap-1">
+                                <span className={`text-sm font-display font-extrabold ${tier.color}`}>{hs.toFixed(0)}</span>
+                                <span className="text-[10px] font-mono text-muted-foreground">/100</span>
+                                <span className={`ml-1.5 text-[9px] font-mono font-bold uppercase ${tier.color}`}>
+                                  {tier.label}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="h-1 rounded-full bg-muted overflow-hidden">
+                              <div className={`h-full rounded-full ${tier.bg}`} style={{ width: `${Math.max(2, Math.min(100, hs))}%` }} />
+                            </div>
+                            <p className="mt-1.5 text-[9px] leading-tight text-muted-foreground">
+                              Based on complaints, scam alerts, ratings &amp; withdrawal proofs.
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-3">
