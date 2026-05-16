@@ -131,45 +131,7 @@ const Brokers = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {page === 1 && <SponsoredBrokerCard />}
               {visibleItems.map(broker => (
-                <NeonCard key={broker.id} accent={broker.score >= 8 ? "primary" : broker.score >= 6 ? "accent" : "destructive"} className="p-5 group">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
-                        {broker.tags?.includes('upcoming') && (
-                          <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-dashed border-muted-foreground/40 text-muted-foreground">Upcoming</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        {broker.regulation?.map(r => <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>)}
-                      </div>
-                    </div>
-                    {broker.badge === "verified" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20"><Shield className="w-3 h-3" /> Verified</span>}
-                    {broker.badge === "featured" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-accent bg-accent/10 border-accent/20"><Award className="w-3 h-3" /> Featured</span>}
-                    <WatchlistButton brokerId={broker.id} brokerName={broker.name} variant="icon" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-                    <div><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground">{broker.avg_spread}</div></div>
-                    <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{broker.leverage}</div></div>
-                    <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
-                  </div>
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted-foreground">Trust Score</span>
-                      <span className="text-sm font-mono font-bold text-foreground">{broker.score}/10</span>
-                    </div>
-                    <div className="score-bar"><div className={`score-bar-fill ${scoreColor(broker.score)}`} style={{ width: `${broker.score * 10}%` }} /></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <StarRating value={broker.stars} size={14} />
-                      <span className="text-xs text-muted-foreground ml-1">({broker.review_count})</span>
-                    </div>
-                    <Link to={`/brokers/${broker.slug}`} className="flex items-center gap-1 text-xs text-primary hover:underline">Full review <ExternalLink className="w-3 h-3" /></Link>
-                  </div>
-                  <Link to={`/brokers/${broker.slug}`} className="mt-3 block w-full py-2 text-sm font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition-colors">View Profile →</Link>
-                  {(broker.complaints || 0) > 20 && <div className="mt-3 flex items-center gap-1.5 text-xs text-destructive"><AlertTriangle className="w-3.5 h-3.5" /> {broker.complaints} complaints</div>}
-                </NeonCard>
+                <BrokerCard key={broker.id} broker={broker} />
               ))}
             </div>
           )}
