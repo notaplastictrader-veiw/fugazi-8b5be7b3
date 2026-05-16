@@ -74,7 +74,7 @@ const HeroSection = () => {
 
 
   return (
-    <section className="relative min-h-[68vh] flex items-center justify-center overflow-hidden py-10">
+    <section className="relative flex items-center justify-center overflow-hidden py-6">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
