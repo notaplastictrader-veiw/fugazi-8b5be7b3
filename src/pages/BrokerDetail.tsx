@@ -1293,32 +1293,46 @@ const BrokerDetail = () => {
             {broker.type === "prop-firm" && (
               <TabsContent value="rules" className="mt-6 space-y-6">
                 <div className="glass-card rounded-xl p-6">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <ListChecks className="w-5 h-5 text-primary" />
-                    <h2 className="text-xl font-display font-bold text-foreground">Trading Rules</h2>
+                    <h2 className="text-xl font-display font-bold text-foreground">Rules &amp; conditions for {broker.name}</h2>
                     <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {[
-                      { k: "Max Daily Loss", v: "5%" },
-                      { k: "Max Overall Drawdown", v: "10%" },
-                      { k: "Profit Target (Phase 1)", v: "8%" },
-                      { k: "Profit Target (Phase 2)", v: "5%" },
-                      { k: "Min Trading Days", v: "0 days" },
+                      { k: "Max Daily Loss", v: "5% of account balance" },
+                      { k: "Max Overall Drawdown", v: "Balanced / Trailing — varies by plan" },
+                      { k: "Profit Target — Phase 1", v: "8% – 10%" },
+                      { k: "Profit Target — Phase 2", v: "5%" },
+                      { k: "Minimum Trading Days", v: "4 days" },
                       { k: "Max Trading Period", v: "Unlimited" },
-                      { k: "Consistency Rule", v: "No (single-day cap waived)" },
-                      { k: "Weekend Holding", v: "Allowed" },
-                      { k: "News Trading", v: "Allowed" },
-                      { k: "EAs / Copy Trading", v: "Allowed" },
-                      { k: "Hedging", v: "Allowed (single account)" },
-                      { k: "Lot Size Cap", v: "Based on account size" },
+                      { k: "Weekend Holding", v: "Varies by plan" },
+                      { k: "News Trading", v: "Check firm policy" },
+                      { k: "Expert Advisors (EAs)", v: "Allowed" },
+                      { k: "Hedging", v: "Allowed" },
                     ].map(r => (
-                      <div key={r.k} className="flex justify-between p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
+                      <div key={r.k} className="flex justify-between gap-3 p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
                         <span className="text-muted-foreground">{r.k}</span>
-                        <span className="font-mono font-semibold text-foreground">{r.v}</span>
+                        <span className="font-mono font-semibold text-foreground text-right">{r.v}</span>
                       </div>
                     ))}
                   </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3 mt-6">
+                    <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Available Challenges</div>
+                      <div className="text-base font-display font-bold text-foreground">Up to $300K funded accounts</div>
+                    </div>
+                    <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Platforms</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {["cTrader", "MetaTrader"].map(p => (
+                          <span key={p} className="px-2 py-0.5 text-xs font-mono bg-primary/10 text-primary border border-primary/20 rounded">{p}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                   <p className="text-[11px] font-mono text-muted-foreground/80 mt-4 leading-relaxed">
                     Demo data shown — exact rules are being verified with {broker.name}. Always confirm on the official site before purchasing a challenge.
                   </p>
