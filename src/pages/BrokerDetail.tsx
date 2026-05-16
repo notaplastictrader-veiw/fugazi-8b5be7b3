@@ -566,9 +566,6 @@ const BrokerDetail = () => {
                     </div>
                   </div>
 
-                    </div>
-                  </div>
-
                   {/* Trust score panel + CTAs */}
                   <div className="w-full lg:w-[260px] shrink-0">
                     <div className="rounded-xl border border-border bg-background/60 p-4">
