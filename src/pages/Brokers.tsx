@@ -143,7 +143,12 @@ const Brokers = () => {
                 <NeonCard key={broker.id} accent={broker.score >= 8 ? "primary" : broker.score >= 6 ? "accent" : "destructive"} className="p-5 group">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
+                        {broker.tags?.includes('upcoming') && (
+                          <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-dashed border-muted-foreground/40 text-muted-foreground">Upcoming</span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1.5 mt-1">
                         {broker.regulation?.map(r => <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{r}</span>)}
                       </div>
