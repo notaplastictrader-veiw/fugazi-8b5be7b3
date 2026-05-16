@@ -72,47 +72,71 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
 
       {loading ? (
         <div className="text-sm text-muted-foreground">Loading proofs…</div>
-      ) : proofs.length === 0 ? (
-        <div className="border border-dashed border-border rounded-lg p-8 text-center">
-          <Banknote className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">
-            No verified payout proofs yet for {brokerName}.{" "}
-            {user ? "Be the first to submit one." : "Sign in to submit yours."}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {proofs.map((p) => (
-            <div key={p.id} className="border border-border rounded-lg overflow-hidden bg-card hover:border-primary/40 transition-colors">
-              <a href={p.proof_url} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-secondary/40 overflow-hidden">
-                <img src={p.proof_url} alt={`Verified ${brokerName} payout`} loading="lazy" className="w-full h-full object-cover" />
-              </a>
-              <div className="p-3 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 text-xs text-emerald-500 font-medium">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Admin verified
-                  </span>
-                  {p.amount && (
-                    <span className="text-sm font-mono text-foreground">
-                      {p.currency || "$"}{Number(p.amount).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  {p.payout_method && <span>{p.payout_method}</span>}
-                  {p.payout_time_hours != null && (
-                    <span className="inline-flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {p.payout_time_hours}h
-                    </span>
-                  )}
-                  {p.withdrawal_date && <span>{new Date(p.withdrawal_date).toLocaleDateString()}</span>}
-                </div>
-                {p.notes && <p className="text-xs text-foreground/80 line-clamp-2">{p.notes}</p>}
+      ) : (() => {
+        const isDemo = proofs.length === 0;
+        const list = isDemo ? DEMO_PROOFS : proofs;
+        return (
+          <>
+            {isDemo && (
+              <div className="mb-4 flex items-center gap-2 px-3 py-2 rounded-md border border-amber-500/40 bg-amber-500/5 text-amber-600 dark:text-amber-400 text-xs">
+                <Banknote className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Example payouts shown — be the first to submit a verified proof for {brokerName} and replace these.
+                </span>
               </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {list.map((p) => (
+                <div key={p.id} className="relative border border-border rounded-lg overflow-hidden bg-card hover:border-primary/40 transition-colors">
+                  {isDemo && (
+                    <span className="absolute top-2 right-2 z-10 text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-amber-500/50 bg-background/90 backdrop-blur-sm text-amber-600 dark:text-amber-400">
+                      Demo
+                    </span>
+                  )}
+                  {p.proof_url ? (
+                    <a href={p.proof_url} target="_blank" rel="noopener noreferrer" className="block aspect-video bg-secondary/40 overflow-hidden">
+                      <img src={p.proof_url} alt={`Verified ${brokerName} payout`} loading="lazy" className="w-full h-full object-cover" />
+                    </a>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-muted to-card border-b border-border flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="font-display text-2xl font-bold text-emerald-500/80">
+                          {p.currency || "$"}{Number(p.amount || 0).toLocaleString()}
+                        </div>
+                        <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mt-1">
+                          {isDemo ? "Example payout" : "Proof on file"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-3 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-500 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {isDemo ? "Sample verified" : "Admin verified"}
+                      </span>
+                      {p.amount && (
+                        <span className="text-sm font-mono text-foreground">
+                          {p.currency || "$"}{Number(p.amount).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                      {p.payout_method && <span>{p.payout_method}</span>}
+                      {p.payout_time_hours != null && (
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {p.payout_time_hours}h
+                        </span>
+                      )}
+                      {p.withdrawal_date && <span>{new Date(p.withdrawal_date).toLocaleDateString()}</span>}
+                    </div>
+                    {p.notes && <p className="text-xs text-foreground/80 line-clamp-2">{p.notes}</p>}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </>
+        );
+      })()}
 
       <WithdrawalProofUploadModal
         open={openUpload}
