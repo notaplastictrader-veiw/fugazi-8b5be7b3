@@ -1,28 +1,15 @@
-## Add ⓘ tooltip to each hero stat
+## Fix: Tooltip clipped inside stats grid
 
-Add a small info icon next to each stat number in `HeroSection.tsx`. On hover/tap, show an explanation tooltip using the existing shadcn `Tooltip` component.
+**Problem:** The stats grid wrapper has `overflow-hidden` (needed for the rounded segmented look), which clips the Radix tooltip popover so the text isn't visible.
 
-### Changes
+**Fix in `src/components/sections/HeroSection.tsx`:**
 
-**File:** `src/components/sections/HeroSection.tsx`
+1. Remove `overflow-hidden` from the grid container. To keep the segmented rounded-corner look, instead clip each tile's hover background by giving the **first/last tiles** appropriate `rounded-*` classes, OR simpler: keep `overflow-hidden` on a separate inner wrapper that only holds the tile backgrounds, and let the Tooltip portal escape.
 
-1. Extend `defaultStats` to include a `tooltip` field:
-   - `590+ Brokers & Firms` → "Includes all brokers and prop firms in our database, whether reviewed or not."
-   - `50K+ Reviews Analyzed` → "We analyze public reviews from multiple sources, not just user submissions."
-   - `140+ Countries Reached` → "Traders from 140+ countries access NAFT every month."
-   - `1.2M+ Platform Views` → "Total page views across all NAFT properties, last quarter."
+   Cleanest approach: Radix `TooltipContent` already renders into a portal at `document.body`, so `overflow-hidden` on an ancestor should NOT clip it. The real issue is likely **z-index** — the tooltip is appearing behind the fixed ticker/navbar. Bump `TooltipContent` with `className="z-[300] max-w-[220px] ..."` (above ticker's `z-[200]`).
 
-2. Import `Info` icon from `lucide-react` and `Tooltip`, `TooltipTrigger`, `TooltipContent`, `TooltipProvider` from `@/components/ui/tooltip`.
+2. Also add `sideOffset={8}` so the tooltip floats clearly above the icon.
 
-3. Inside each stat tile: render the number with a small `Info` icon (size 12, `text-muted-foreground/60`, hover `text-primary`) right next to the value. Wrap it in a Tooltip; content shows the explanation text (max-width ~220px, small font).
+3. Verify by hovering each ⓘ in preview after the fix; tooltip should appear above the tile with full text visible.
 
-### Layout safety
-
-- Keep tile structure unchanged (number on top centered, label single-line below, no dot).
-- Icon sits inline beside the number with `gap-1.5`, doesn't push label to a new line.
-- Use `whitespace-normal` on tooltip content only; label stays `whitespace-nowrap`.
-- `TooltipProvider` wraps the stats grid only — doesn't affect the rest of the page.
-
-### Confirm before I build
-
-Should the **140+ Countries Reached** tooltip use my suggested copy, or do you want to provide your own line?
+No other files change. Layout, stats, ticker, FAB all stay intact.
