@@ -171,38 +171,34 @@ const HeroSection = () => {
           </Link>
         </div>
 
-        {/* 6. Stats — Live + 4 metrics, single cohesive pill */}
-        <div className="w-full mt-2 flex justify-center animate-[fade-up_0.6s_ease_0.45s_both]">
-          <div className="glass-card rounded-2xl sm:rounded-full inline-flex flex-col sm:flex-row sm:items-center px-4 py-2.5 sm:py-2 gap-2 sm:gap-3 md:gap-4 max-w-full">
-            {/* Live badge */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-foreground/80">Live</span>
-            </div>
-            {/* Divider — horizontal on mobile, vertical on tablet+ */}
-            <span className="hidden sm:block w-px h-4 bg-border/60 shrink-0" />
-            <span className="block sm:hidden h-px w-full bg-border/40" />
-            {/* Stats — 2×2 mobile, single row tablet+ */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-row sm:items-center gap-x-3 gap-y-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
-              {[
-                { icon: ShieldCheck, value: stats[0].value, label: stats[0].label, accent: "text-primary" },
-                { icon: AlertTriangle, value: stats[1].value, label: stats[1].label, accent: "text-destructive" },
-                { icon: Activity, value: stats[2].value, label: stats[2].label, accent: "text-accent" },
-                { icon: Sparkles, value: stats[3].value, label: stats[3].label, accent: "text-[hsl(var(--teal))]" },
-              ].map((s, i) => {
-                const Icon = s.icon;
-                return (
-                  <div key={i} className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-                    <Icon className={`w-3.5 h-3.5 shrink-0 ${s.accent}`} />
-                    <span className={`font-display font-bold text-sm md:text-base ${s.accent}`}>{s.value}</span>
-                    <span className="text-[10px] md:text-[11px] font-mono uppercase tracking-wider text-foreground/70">{s.label}</span>
-                  </div>
-                );
-              })}
-            </div>
+        {/* 6. Stats — Segmented tech tiles, 4 metrics with pulsing live indicators */}
+        <div className="w-full mt-4 animate-[fade-up_0.6s_ease_0.45s_both]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="bg-card/60 p-4 md:p-5 flex flex-col items-start gap-1.5 group transition-all hover:bg-card/80"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
+                    {s.value}
+                  </span>
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
+                  </span>
+                </div>
+                <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.15em] text-foreground/60 leading-tight text-left">
+                  {s.label}
+                  {s.suffix && (
+                    <>
+                      <br />
+                      <span className="text-primary/70">{s.suffix}</span>
+                    </>
+                  )}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
