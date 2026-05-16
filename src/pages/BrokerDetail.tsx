@@ -573,7 +573,7 @@ const BrokerDetail = () => {
 
                 {/* Offer rail */}
                 {(broker.website_url || (broker as any).affiliate_url) && (
-                  <div className="mt-5">
+                  <div className="mt-4">
                     <OfferRail
                       code={isProp ? (broker as any).promo_code : null}
                       label={(broker as any).promo_label}
@@ -585,52 +585,17 @@ const BrokerDetail = () => {
                 )}
 
                 {/* 5-tile stat strip */}
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                   {stats.map((s) => (
-                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-3 text-center">
+                    <div key={s.label} className="rounded-xl border border-border bg-background/40 px-3 py-2 text-center">
                       <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.label}</div>
-                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-1 truncate" title={s.value}>{s.value}</div>
+                      <div className="text-sm md:text-base font-display font-extrabold text-foreground mt-0.5 truncate" title={s.value}>{s.value}</div>
                     </div>
                   ))}
                 </div>
               </div>
             );
           })()}
-
-          {/* ===== UNCLAIMED PROFILE BANNER ===== */}
-          {claimStatus === "unclaimed" && (
-            <div className="mb-6 rounded-xl border border-accent/30 bg-accent/5 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="flex items-start gap-3 flex-1 min-w-0">
-                <Info className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                <p className="text-sm text-foreground leading-relaxed">
-                  <span className="font-semibold">Unclaimed profile</span>
-                  <span className="text-muted-foreground"> — information is sourced from public data and community reviews. Are you from </span>
-                  <span className="font-semibold">{broker.name}</span>
-                  <span className="text-muted-foreground">?</span>
-                </p>
-              </div>
-              <button
-                onClick={handleClaimClick}
-                disabled={claimLoading}
-                className="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-display font-bold uppercase tracking-wider rounded-lg border border-accent/40 bg-accent/10 text-accent hover:bg-accent/20 hover:border-accent/60 transition-all disabled:opacity-50"
-              >
-                <Shield className="w-3.5 h-3.5" /> Claim this profile →
-              </button>
-            </div>
-          )}
-
-          {/* ===== TRUST AMPLIFIERS ===== */}
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="md:col-span-2">
-              <BeforeYouDepositChecklist brokerName={broker.name} />
-            </div>
-            <SentimentSparkline
-              score={broker.score}
-              reviewCount={broker.review_count || 0}
-              complaints={broker.complaints || 0}
-            />
-          </div>
-
 
           {scamAlerts.length > 0 && (
             <section id="investigations" className="mb-6 rounded-xl border-2 border-destructive/40 bg-destructive/5 p-5 md:p-6 scroll-mt-24">
