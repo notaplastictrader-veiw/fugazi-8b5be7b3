@@ -4,7 +4,7 @@ import { z } from 'npm:zod@3.23.8';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 // Default sender — override per-call by passing `from`. Use a verified Resend
 // domain in production; `onboarding@resend.dev` works for testing only.
-const DEFAULT_FROM = Deno.env.get('RESEND_FROM') ?? 'NAFT <onboarding@resend.dev>';
+const DEFAULT_FROM = Deno.env.get('RESEND_FROM') ?? 'NAFT Notify <onboarding@resend.dev>';
 
 const BodySchema = z.object({
   to: z.union([z.string().email(), z.array(z.string().email()).min(1)]),
