@@ -1,17 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Search, Sparkles, ArrowRight, ShieldCheck, AlertTriangle, Activity } from "lucide-react";
+import { Search, Sparkles, ArrowRight } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { supabase } from "@/integrations/supabase/client";
-
-const formatCount = (n: number | null): string => {
-  if (n === null) return "—";
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M+`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K+`;
-  if (n >= 100) return `${n}+`;
-  return `${n}`;
-};
 
 const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
@@ -20,10 +11,10 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultStats = [
-  { value: "—", label: "Brokers & Firms Tracked" },
-  { value: "140+", label: "Countries Covered" },
-  { value: "2026", label: "Independent Since" },
-  { value: "24/7", label: "Scam Monitoring" },
+  { value: "590+", label: "Brokers & Firms", suffix: "Tracked & Counting" },
+  { value: "50K+", label: "Reviews Analyzed", suffix: "& Counting" },
+  { value: "140+", label: "Countries Reached", suffix: "& Counting" },
+  { value: "1.2M+", label: "Views", suffix: "& Counting" },
 ];
 
 const HeroSection = () => {
