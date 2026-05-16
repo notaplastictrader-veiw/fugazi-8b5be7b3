@@ -11,7 +11,7 @@ const TIERS = [
   { name: "Legend", min: 1000, color: "text-primary" },
 ];
 
-const TraderLevelCard = () => {
+const TraderLevelCard = ({ userName }: { userName?: string } = {}) => {
   const { user } = useAuth();
 
   const { data } = useQuery({
