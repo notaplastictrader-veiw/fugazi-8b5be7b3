@@ -270,6 +270,17 @@ const BrokerDetail = () => {
 
   useEffect(() => { fetchData(); }, [slug, user]);
 
+  // Sync activeTab <-> URL hash so tabs are linkable
+  useEffect(() => {
+    const h = location.hash.replace("#", "");
+    if (VALID_TABS.includes(h) && h !== activeTab) setActiveTab(h);
+  }, [location.hash]);
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    navigate(`${location.pathname}#${val}`, { replace: true });
+  };
+
   const canReply = isSuperAdmin || (!!user && claimedByUserId === user.id && claimStatus === "approved");
 
   const handleSaveReply = async (reviewId: string) => {
