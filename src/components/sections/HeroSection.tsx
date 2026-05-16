@@ -195,7 +195,7 @@ const HeroSection = () => {
                             <Info className="w-3 h-3" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" align="center" sideOffset={10} collisionPadding={16} className="z-[500] max-w-[260px] text-xs leading-relaxed whitespace-normal">
+                        <TooltipContent side="top" align="center" sideOffset={10} collisionPadding={16} className="z-[2500] max-w-[260px] text-xs leading-relaxed whitespace-normal">
                           {s.tooltip}
                         </TooltipContent>
                       </Tooltip>
