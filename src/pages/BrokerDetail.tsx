@@ -1470,16 +1470,37 @@ const BrokerDetail = () => {
 
             {/* ===== PROP-FIRM: PAYOUTS TAB ===== */}
             {broker.type === "prop-firm" && (
-              <TabsContent value="payouts" className="mt-6 space-y-4">
-                <div className="flex items-center gap-2">
+              <TabsContent value="payouts" className="mt-6 space-y-6">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Coins className="w-5 h-5 text-primary" />
                   <h2 className="text-xl font-display font-bold text-foreground">Payouts</h2>
+                  <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> LIVE
+                  </span>
                 </div>
+
+                {/* Headline payout stats */}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    { k: "Total Payouts", v: "$311.69M", sub: "$311,693,538.65" },
+                    { k: "No. of Payouts", v: "48,955", sub: "Verified on-chain" },
+                    { k: "Largest Single", v: "$7,492,465", sub: "All-time record" },
+                    { k: "Last Payout", v: "41m ago", sub: new Date().toLocaleDateString() },
+                  ].map((s) => (
+                    <div key={s.k} className="glass-card rounded-xl p-4">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.k}</div>
+                      <div className="text-xl font-display font-extrabold text-foreground mt-1">{s.v}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">{s.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Payout terms */}
                 <div className="grid sm:grid-cols-3 gap-3">
                   {[
-                    { k: "First Payout", v: "After 14 days", icon: Clock },
-                    { k: "Payout Cycle", v: "Bi-weekly", icon: TrendingUp },
-                    { k: "Min Withdrawal", v: "$50", icon: Coins },
+                    { k: "Payout Frequency", v: "On Demand", icon: Clock },
+                    { k: "Profit Split", v: "80% to 95%", icon: TrendingUp },
+                    { k: "Max Allocation", v: "$300K", icon: Coins },
                   ].map(({ k, v, icon: Ic }) => (
                     <div key={k} className="glass-card rounded-xl p-4 flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -1492,6 +1513,7 @@ const BrokerDetail = () => {
                     </div>
                   ))}
                 </div>
+
                 <div className="glass-card rounded-xl p-5">
                   <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Supported Methods</div>
                   <div className="flex flex-wrap gap-2">
