@@ -97,6 +97,7 @@ const PayoutSpeedLeaderboard = () => {
     })();
   }, [visible]);
 
+  const usingFallback = rows.length === 0;
   const data = rows.length > 0 ? rows : FALLBACK;
   const maxHours = Math.max(...data.map((r) => r.avg_hours));
   const pageCount = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
@@ -107,11 +108,16 @@ const PayoutSpeedLeaderboard = () => {
     <section ref={ref} className="container mx-auto px-4 py-16">
       <div className="flex items-end justify-between mb-8 flex-wrap gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
             <Zap className="w-4 h-4 text-primary" />
             <span className="text-[11px] font-mono uppercase tracking-widest text-primary">
               Payout Speed Leaderboard
             </span>
+            {usingFallback && (
+              <span className="text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-500">
+                Demo data
+              </span>
+            )}
           </div>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold leading-tight">
             Who actually pays out{" "}
@@ -209,8 +215,8 @@ const PayoutSpeedLeaderboard = () => {
         </div>
       )}
 
-      <div className="mt-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center">
-        Data sourced from verified user-submitted withdrawal proofs · updated continuously
+      <div className="mt-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+        Sourced from public broker disclosures + NAFT community-submitted payout proofs. Demo data shown until live submissions reach threshold · updated continuously
       </div>
     </section>
   );

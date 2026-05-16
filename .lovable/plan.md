@@ -1,40 +1,33 @@
-## Move stats into left column — plain inline style
+## Goal
 
-Stats row ke broker header card er **left column er vitore** nibo, niche dewa style ta v1 prototype er moto plain inline (border box nai, label uppercase tiny, value bold).
+Add demo/example data to trust sections so the site looks alive while you collect real submissions. You'll later override with live DB data once users start uploading.
 
-### Single change in `src/pages/BrokerDetail.tsx`
+## Changes
 
-**1. Stats row ke left column er vitore move korbo**
-- Currently lines ~622-643 e stats row main `grid-cols-[1fr_auto]` er **baire**, card er full width nicche
-- New: stats row left column (`<div className="min-w-0 flex-1">` — ja logo er pashe shob meta info hold kore) er **shesh element** hishabe boshbe, "Claim This Profile / Verified 2 days ago" pill row er thik niche
-- Right side e NAFT Trust Score panel jemon ase tai thakbe — left column lomba hoye gele right side empty space ta natural vabe fill hoye jabe
+### 1. `src/components/sections/TrustTimeline.tsx`
+- Already has a curated `EVENT_LIBRARY` for 6 brokers (Exness, IC Markets, Pepperstone, FTMO, XM, Quotex) and a `FALLBACK_EVENTS` for unknown brokers — it's already demo-filled. ✅ No change needed unless you want more brokers added. I'll add 2-3 more example slugs (e.g. `xtb`, `oanda`, `forex-com`) so any broker tab shows rich events.
 
-**2. Tile styling simplify korbo (v1 prototype match)**
-- Remove: `border border-border bg-background/40 rounded-xl px-3 py-2` box
-- Remove: `text-center` (left-align)
-- Change container: `grid grid-cols-5 gap-4` → `flex flex-wrap gap-y-4 gap-x-8` (better readability, breathing room)
-- Label: `text-[10px] font-mono uppercase tracking-widest text-muted-foreground` (unchanged tokens)
-- Value: `text-base font-display font-extrabold text-foreground mt-0.5` (no border, no bg)
+### 2. `src/components/broker/WithdrawalProofGallery.tsx` (Verified Withdrawals on broker pages)
+- Currently shows empty state when DB has zero verified proofs.
+- Add a `DEMO_PROOFS` fallback array (4-6 example payouts: amount, method, payout time, date, demo screenshot URL, optional note).
+- When `proofs.length === 0`, render the demo cards with a subtle `DEMO` ribbon/badge on each card and a small caption: _"Example payouts shown — submit yours to replace these with real verified proofs."_
+- Keep the existing "Submit your payout" button.
 
-**3. Bonus banner thakbe full-width below entire grid (jemon ekhon ase)**
+### 3. `src/components/sections/PayoutSpeedLeaderboard.tsx`
+- Already has `FALLBACK` with 8 brokers — works fine. ✅
+- Update the footer caption from:
+  > Data sourced from verified user-submitted withdrawal proofs · updated continuously
+  
+  to something that signals both demo + public + community sourcing, e.g.:
+  > Sourced from public broker disclosures + NAFT user-submitted proofs. Demo data shown until live submissions reach threshold · updated continuously
+- Also add a tiny `DEMO` chip in the header when running off `FALLBACK` so it's transparent.
 
-### Visual result
+### 4. `src/components/sections/WithdrawalProofWall.tsx` (homepage Verified Withdrawals section, if present)
+- I'll inspect it and add the same demo fallback pattern as #2 if it currently shows an empty state.
 
-```text
-┌─ Header card ─────────────────────────────────────────┐
-│ ┌─ Left column ─────────────┐  ┌─ Right column ─────┐ │
-│ │ Logo  Exness · Verified   │  │ NAFT Trust Score   │ │
-│ │ ★★★★½ 4.3 · Trusted · FX  │  │   81/100           │ │
-│ │ Regulated By: chips       │  │ Broker Health 100  │ │
-│ │ Last updated: …           │  │                    │ │
-│ │ [Claim] [Verified 2d]     │  │ [Open Account]     │ │
-│ │                           │  │ [Review][Compl.]   │ │
-│ │ MIN DEP  AVG SPREAD  …    │  │                    │ │
-│ │  $10      0.3 pips        │  │                    │ │
-│ └───────────────────────────┘  └────────────────────┘ │
-│ ──── Claim 100% Bonus banner (full width) ────        │
-└───────────────────────────────────────────────────────┘
-```
+## Notes
+- All demo data is hard-coded in the component files — easy to remove once real data flows.
+- Each demo item is clearly labeled `DEMO` so users aren't misled.
+- No DB / migration changes. Pure frontend.
 
-### Out of scope
-Trust score panel, action buttons, bonus banner, page-level disclaimer, any other section — kichui change hobe na.
+Approve and I'll implement.
