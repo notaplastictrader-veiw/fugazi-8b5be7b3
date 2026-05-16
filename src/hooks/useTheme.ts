@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 type Theme = "dark" | "light" | "sentinel";
 
@@ -15,6 +16,20 @@ export function useTheme() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
+
+    // Persist to profile for theme-aware emails (fire-and-forget)
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        await supabase
+          .from("profiles")
+          .update({ theme_preference: theme })
+          .eq("user_id", user.id);
+      } catch {
+        // ignore
+      }
+    })();
   }, [theme]);
 
   const cycleTheme = () => {
