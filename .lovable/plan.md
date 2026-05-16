@@ -1,45 +1,25 @@
 ## Goal
-Prop firm broker detail page (`/brokers/:slug` where `type === 'prop-firm'`) er tabs e notun 4 ta tab add korbo: **Rules, Challenges, Payouts, Forum** — and existing tabs shob link-able (URL hash) korbo.
-
-## Current state
-`src/pages/BrokerDetail.tsx` te ekta `<Tabs>` ace 6 ta tab niye: Overview, Reviews, Complaints, Promotions, Comparison, Scam Score. Tabs gula URL e sync hoy na, tai shareable na.
+`BeforeYouDepositChecklist` ekhon shob broker er jonno "deposit" centric. Prop firm e user deposit kore na — challenge fee dey, rules follow kore, payout ney. Tai prop-firm er jonno alada 6-item checklist + alada heading dorkar.
 
 ## Changes
 
-### 1. Tab order (prop-firm only)
-```
-Overview · Rules · Challenges · Payouts · Reviews · Complaints · Promotions · Comparison · Score · Forum
-```
-Regular broker hole purono 6-tab list e thakbe (Rules/Challenges/Payouts/Forum hide).
+### 1. `src/components/broker/BeforeYouDepositChecklist.tsx`
+- Notun optional prop: `variant?: "broker" | "prop-firm"` (default `"broker"`).
+- Duita item array rakhbo: `brokerItems` (current 6) + notun `propFirmItems` (6):
+  1. **Verify the firm's payout history** — Check 30-day withdrawal proof gallery + recent payout complaints. No proofs = walk away.
+  2. **Read the full challenge rules before paying** — Daily loss, max drawdown, consistency rule, min trading days, news/EA/weekend restrictions. Ek line bhul holei account bust.
+  3. **Start with the smallest account size** — $5k/$10k diye test koro firm er execution, slippage, dashboard, support. Boro account purer ager na.
+  4. **Confirm the profit split + payout cycle** — 80/20 vs 90/10, bi-weekly vs monthly, min payout threshold, payout method (Deel/Rise/Wise/crypto) — sob T&Cs e likha ache kina.
+  5. **Check the broker behind the firm** — Prop firm trades route hoy ek underlying broker er kache. Sei broker er regulation + spread tomar strategy e thik ache kina dekho.
+  6. **Confirm the firm is not on our Scam Watch** — Active scam alert ribbon thakle skip koro. Refund policy + dispute resolution chesta korar age clear thaka uchit.
+- Heading text variant-based:
+  - broker: `Before you deposit at {brokerName}` (current)
+  - prop-firm: `Before you buy a challenge at {brokerName}`
 
-Detection: `broker.type === 'prop-firm'`.
-
-### 2. URL hash sync (linkable tabs)
-- Mount e `location.hash` theke active tab read korbo (e.g. `/brokers/fundednext#payouts`).
-- `onValueChange` e `navigate(..., { replace: true })` diye hash update korbo.
-- Tabs ekhon directly share/link kora jabe.
-
-### 3. New tab contents (prop-firm)
-
-**Rules tab** — Key trading rules card:
-- Max daily loss, max overall drawdown, profit target, min trading days, consistency rule, news trading allowed?, EA allowed?, weekend holding.
-- Source: `broker.rules` (jsonb) or fallback demo placeholder text "Rules being verified — check official site."
-
-**Challenges tab** — Challenge plans grid:
-- Account sizes ($10k / $25k / $50k / $100k / $200k), fee, profit split, phases (1-step / 2-step / instant).
-- Source: `broker.challenges` (jsonb array) or demo cards.
-
-**Payouts tab** — Reuses existing `WithdrawalProofGallery` + `PayoutSpeedLeaderboard` filtered for this broker + payout frequency / min payout / method list.
-
-**Forum tab** — List of forum threads tagged with this broker (query `forum_threads` where `broker_id = broker.id`), with "Start a discussion" CTA linking to `/forum/new?broker=<slug>`. Empty state: "No threads yet — be first."
-
-**Score tab** — Existing "Scam Score" tab renamed to just "Score" (matches user's wording).
-
-### 4. Sticky tab bar
-Tabs row ke `sticky top-16 z-20 bg-background/95 backdrop-blur` korbo so jokhon scroll kore tokhono visible thake (mobile + desktop).
+### 2. `src/pages/BrokerDetail.tsx`
+- `<BeforeYouDepositChecklist>` call e `variant={broker.type === "prop-firm" ? "prop-firm" : "broker"}` pass korbo.
 
 ## Technical notes
-- File touched: `src/pages/BrokerDetail.tsx` only (+ ekta chhoto helper for hash sync).
-- `broker.rules` and `broker.challenges` columns DB te thakte pare na — fallback demo content show korbo (user already said "demo add koro jekhane info nai, pore live diye update korbo").
-- No DB migration needed unless user wants structured rules/challenges fields. Can do that in follow-up.
-- All semantic tokens from index.css; mobile-first responsive.
+- Single file component, no DB/style changes. Tokens unchanged.
+- Mobile + desktop same — collapsible card already responsive.
+- (9/6) counter bug ta amar scope na, alada — eta plan e thik korte hole bolen, korbo.

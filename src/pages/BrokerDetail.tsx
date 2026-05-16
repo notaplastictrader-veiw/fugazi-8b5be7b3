@@ -771,7 +771,7 @@ const BrokerDetail = () => {
               {/* Trust Amplifiers */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
-                  <BeforeYouDepositChecklist brokerName={broker.name} />
+                  <BeforeYouDepositChecklist brokerName={broker.name} variant={broker.type === "prop-firm" ? "prop-firm" : "broker"} />
                 </div>
                 <SentimentSparkline
                   score={broker.score}
