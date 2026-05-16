@@ -22,6 +22,15 @@ interface Props {
   brokerName: string;
 }
 
+const DEMO_PROOFS: Proof[] = [
+  { id: "demo-1", amount: 4200, currency: "USD", withdrawal_date: new Date(Date.now() - 2 * 86400000).toISOString(), payout_method: "Crypto (USDT)", payout_time_hours: 1, proof_url: "", notes: "Same-day payout — no friction, no extra KYC." },
+  { id: "demo-2", amount: 1850, currency: "USD", withdrawal_date: new Date(Date.now() - 5 * 86400000).toISOString(), payout_method: "Skrill", payout_time_hours: 3, proof_url: "", notes: "Withdrew profits from EUR/USD scalping." },
+  { id: "demo-3", amount: 8750, currency: "USD", withdrawal_date: new Date(Date.now() - 9 * 86400000).toISOString(), payout_method: "Bank Wire", payout_time_hours: 22, proof_url: "", notes: "T+1 wire — as advertised on website." },
+  { id: "demo-4", amount: 640, currency: "USD", withdrawal_date: new Date(Date.now() - 12 * 86400000).toISOString(), payout_method: "Crypto (BTC)", payout_time_hours: 1, proof_url: "", notes: "Confirmed in 1 block. Fastest payout I've had." },
+  { id: "demo-5", amount: 3200, currency: "USD", withdrawal_date: new Date(Date.now() - 18 * 86400000).toISOString(), payout_method: "Neteller", payout_time_hours: 4, proof_url: "", notes: "Smooth withdrawal, no questions asked." },
+  { id: "demo-6", amount: 12400, currency: "USD", withdrawal_date: new Date(Date.now() - 25 * 86400000).toISOString(), payout_method: "Bank Wire", payout_time_hours: 36, proof_url: "", notes: "Large amount — extra verification but paid in full." },
+];
+
 const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
   const { user } = useAuth();
   const [proofs, setProofs] = useState<Proof[]>([]);
