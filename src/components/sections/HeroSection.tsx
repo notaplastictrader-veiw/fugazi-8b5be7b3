@@ -174,11 +174,11 @@ const HeroSection = () => {
         {/* 6. Stats — Segmented tech tiles, centered: number on top, single-line label below */}
         <div className="w-full mt-4 animate-[fade-up_0.6s_ease_0.45s_both]">
           <TooltipProvider delayDuration={150}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-hidden backdrop-blur-xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border/40 border border-border/40 rounded-2xl overflow-visible backdrop-blur-xl">
               {stats.map((s, i) => (
                 <div
                   key={i}
-                  className="bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80"
+                  className={`bg-card/60 px-3 py-4 md:py-5 flex flex-col items-center justify-center gap-1.5 group transition-all hover:bg-card/80 ${i === 0 ? "rounded-tl-2xl md:rounded-l-2xl" : ""} ${i === 1 ? "rounded-tr-2xl md:rounded-none" : ""} ${i === 2 ? "rounded-bl-2xl md:rounded-none" : ""} ${i === 3 ? "rounded-br-2xl md:rounded-r-2xl" : ""}`}
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="font-display font-bold text-2xl md:text-3xl tracking-tight leading-none text-primary">
@@ -195,7 +195,7 @@ const HeroSection = () => {
                             <Info className="w-3 h-3" />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" sideOffset={8} className="z-[300] max-w-[220px] text-xs leading-relaxed whitespace-normal">
+                        <TooltipContent side="top" align="center" sideOffset={10} collisionPadding={16} className="z-[2500] max-w-[260px] text-xs leading-relaxed whitespace-normal">
                           {s.tooltip}
                         </TooltipContent>
                       </Tooltip>
