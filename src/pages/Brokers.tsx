@@ -4,27 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
-import { Shield, Award, AlertTriangle, ExternalLink, Globe } from "lucide-react";
+import { Globe, Sparkles } from "lucide-react";
 import { countryGuides } from "@/data/countryGuides";
 import { useI18n } from "@/contexts/I18nContext";
-import StarRating from "@/components/reviews/StarRating";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
-import NeonCard from "@/components/ui/NeonCard";
 import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import CTABand from "@/components/common/CTABand";
-import { Sparkles } from "lucide-react";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
-import WatchlistButton from "@/components/broker/WatchlistButton";
 import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
-
-interface Broker {
-  id: string; name: string; slug: string; type: string; tags: string[];
-  regulation: string[]; score: number; avg_spread: string; leverage: string;
-  min_deposit: string; stars: number; review_count: number; complaints: number; badge: string;
-}
+import BrokerCard, { Broker } from "@/components/broker/BrokerCard";
 
 const filters = ["All", "Forex", "Crypto", "Binary", "ECN", "Scam Watch"];
 const filterMap: Record<string, string> = { All: "", Forex: "forex", Crypto: "crypto", Binary: "binary", ECN: "ecn", "Scam Watch": "scam-watch" };
