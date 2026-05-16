@@ -171,13 +171,19 @@ const Compare = () => {
         {/* Table */}
         {compared.length >= 2 ? (
           <div className="overflow-x-auto rounded-xl border border-primary/20 shadow-[0_0_30px_hsl(var(--primary)/0.10)] bg-card/40 backdrop-blur-sm">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse table-fixed">
+              <colgroup>
+                <col className="w-[160px]" />
+                {compared.map(b => (
+                  <col key={b.id} style={{ width: `calc((100% - 160px) / ${compared.length})` }} />
+                ))}
+              </colgroup>
               <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-md">
                 <tr className="border-b-2 border-primary/30">
-                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider w-[160px] sticky left-0 bg-card/95 backdrop-blur-md z-20 border-r border-primary/20">Feature</th>
+                  <th className="text-left p-4 text-sm text-muted-foreground font-mono uppercase tracking-wider sticky left-0 bg-card/95 backdrop-blur-md z-20 border-r border-primary/20">Feature</th>
                   {compared.map((b, idx) => (
-                    <th key={b.id} className={`p-4 text-center min-w-[160px] ${idx > 0 ? "border-l border-primary/20" : ""}`}>
-                      <div className="font-display font-bold text-foreground">{b.name}</div>
+                    <th key={b.id} className={`p-4 text-center ${idx > 0 ? "border-l border-primary/20" : ""}`}>
+                      <div className="font-display font-bold text-foreground truncate">{b.name}</div>
                       <a href={`/brokers/${b.slug}`} className="text-xs text-primary hover:underline">Full Review →</a>
                     </th>
                   ))}
