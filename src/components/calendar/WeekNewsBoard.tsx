@@ -14,8 +14,12 @@ function getCurrentWeekMonToFri(): string[] {
   const now = new Date();
   const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const dow = utc.getUTCDay(); // 0=Sun..6=Sat
-  const daysBack = dow === 0 ? 6 : dow - 1;
-  const monday = new Date(utc.getTime() - daysBack * 86400000);
+  // On weekends (Sat/Sun), show the upcoming Mon-Fri instead of the past week
+  let daysOffset: number;
+  if (dow === 6) daysOffset = 2;        // Sat -> +2 to next Mon
+  else if (dow === 0) daysOffset = 1;   // Sun -> +1 to next Mon
+  else daysOffset = -(dow - 1);         // Mon-Fri -> back to this Mon
+  const monday = new Date(utc.getTime() + daysOffset * 86400000);
   return Array.from({ length: 5 }, (_, i) => {
     const d = new Date(monday.getTime() + i * 86400000);
     return d.toISOString().slice(0, 10);
