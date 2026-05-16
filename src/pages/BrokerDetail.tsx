@@ -534,6 +534,16 @@ const BrokerDetail = () => {
                         )}
                       </div>
 
+                      {/* 5-tile stat strip — inside left column */}
+                      <div className="mt-6 flex flex-wrap gap-y-4 gap-x-8">
+                        {stats.map((s) => (
+                          <div key={s.label}>
+                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-0.5">{s.label}</div>
+                            <div className="text-base font-display font-extrabold text-foreground">{s.value}</div>
+                          </div>
+                        ))}
+                      </div>
+
                     </div>
                   </div>
 
