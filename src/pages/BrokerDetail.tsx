@@ -159,16 +159,22 @@ const RatingBar = ({ label, value }: { label: string; value: number }) => {
   );
 };
 
+const VALID_TABS = ["overview", "rules", "challenges", "payouts", "reviews", "complaints", "promotions", "comparison", "scam-score", "forum"];
+
 const BrokerDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [replies, setReplies] = useState<Record<string, ReviewReply>>({});
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    const h = typeof window !== "undefined" ? window.location.hash.replace("#", "") : "";
+    return VALID_TABS.includes(h) ? h : "overview";
+  });
   const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
   const [claimedByUserId, setClaimedByUserId] = useState<string | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
