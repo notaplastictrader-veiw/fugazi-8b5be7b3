@@ -838,55 +838,127 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Regulation & Safety */}
+              {/* Regulation & Safety / Firm Structure */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-primary" /> Regulation & Safety
+                  <Shield className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Firm Structure & Safety" : "Regulation & Safety"}
                 </h2>
                 <div className="glass-card rounded-xl p-6 space-y-3">
-                  <p className="text-muted-foreground leading-relaxed">
-                    {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
-                    {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
-                  </p>
+                  {broker.type === "prop-firm" ? (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed">
+                        {broker.name} is not a broker — it's a proprietary trading firm based in <strong className="text-foreground">Dubai, UAE</strong> operating under the legal entity <strong className="text-foreground">FundedNext FZCO</strong>. Trader orders are routed to regulated underlying brokers: <strong className="text-foreground">Eightcap</strong> (ASIC, Australia) and <strong className="text-foreground">GBE Brokers</strong> (BaFin, Germany), which hold client liquidity in segregated tier-1 bank accounts.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Refund Policy</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">Fee refunded with first payout after passing both phases.</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Dispute Resolution</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">In-app ticket + email escalation, governed by UAE commercial law.</div>
+                        </div>
+                        <div className="rounded-lg border border-border bg-background/40 p-3">
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Trader Funds</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">Demo capital — no real trader deposit required after challenge fee.</div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground leading-relaxed">
+                      {broker.name} holds licenses from {broker.regulation?.join(", ") || "unregulated authorities"}.
+                      {broker.score >= 8 ? " Client funds are held in segregated accounts with tier-1 banks, providing strong investor protection." : broker.score >= 6 ? " The regulatory framework provides moderate protection for client funds." : " The regulatory status raises concerns. We recommend exercising extreme caution."}
+                    </p>
+                  )}
                 </div>
               </section>
 
-              {/* Trading Conditions */}
+              {/* Trading Conditions / Challenge Programs */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" /> Trading Conditions
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  {broker.type === "prop-firm" ? "Challenge Programs" : "Trading Conditions"}
                 </h2>
                 <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    {broker.name} offers {broker.avg_spread} average spreads with leverage up to {broker.leverage}.
-                    The minimum deposit starts from {broker.min_deposit}, making it {parseInt(broker.min_deposit?.replace(/[^0-9]/g, "") || "0") <= 10 ? "highly accessible for beginners" : "suitable for traders with moderate capital"}.
-                  </p>
-                  <div className="glass-card rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-muted/30">
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Account</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Min Deposit</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Spread</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Leverage</th>
-                          <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Commission</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
-                          { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, leverage: broker.leverage, commission: "—" },
-                        ]).map((at, i) => (
-                          <tr key={i} className="border-t border-border/50">
-                            <td className="px-4 py-2.5 text-foreground">{at.name}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
-                            <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  {broker.type === "prop-firm" ? (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        {broker.name} offers four challenge tracks across seven account sizes ($2K–$200K). All programs use real-tick pricing from regulated underlying brokers and pay out same-day on demand once funded.
+                      </p>
+                      <div className="glass-card rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/30">
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Phases</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { name: "Stellar 2-Step", phases: "2", target: "8% / 5%", maxDD: "10%", dailyDD: "5%", fee: "$32.99" },
+                              { name: "Stellar 1-Step", phases: "1", target: "9%", maxDD: "6%", dailyDD: "3%", fee: "$65" },
+                              { name: "Stellar Lite", phases: "2", target: "8% / 5%", maxDD: "8% trailing", dailyDD: "4%", fee: "$49" },
+                              { name: "Stellar Instant", phases: "0 (funded)", target: "—", maxDD: "4%", dailyDD: "3%", fee: "$219" },
+                            ].map((p, i) => (
+                              <tr key={p.name} className="border-t border-border/50">
+                                <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.phases}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.target}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD}</td>
+                                <td className="px-4 py-2.5 text-foreground font-mono">{p.fee}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("challenges")}
+                        className="mt-4 text-xs font-mono uppercase tracking-wider text-primary hover:underline"
+                      >
+                        See full pricing grid in Challenges tab →
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-muted-foreground leading-relaxed mb-4">
+                        {broker.name} offers {broker.avg_spread} average spreads with leverage up to {broker.leverage}.
+                        The minimum deposit starts from {broker.min_deposit}, making it {parseInt(broker.min_deposit?.replace(/[^0-9]/g, "") || "0") <= 10 ? "highly accessible for beginners" : "suitable for traders with moderate capital"}.
+                      </p>
+                      <div className="glass-card rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-muted/30">
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Account</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Min Deposit</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Spread</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Leverage</th>
+                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Commission</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(broker.account_types && broker.account_types.length > 0 ? broker.account_types : [
+                              { name: "Standard", min_deposit: broker.min_deposit, spread: broker.avg_spread, leverage: broker.leverage, commission: "—" },
+                            ]).map((at, i) => (
+                              <tr key={i} className="border-t border-border/50">
+                                <td className="px-4 py-2.5 text-foreground">{at.name}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
                 </div>
               </section>
 
