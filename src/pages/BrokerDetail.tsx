@@ -813,7 +813,21 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl overflow-hidden">
                   <table className="w-full">
                     <tbody>
-                      {review.keyFacts.map((fact, i) => (
+                      {(isProp
+                        ? [
+                            { label: "Account Sizes", value: "$2K · $5K · $10K · $25K · $50K · $100K · $200K" },
+                            { label: "Challenge Fee From", value: "$32.99 (2-Step $5K)" },
+                            { label: "Programs", value: "1-Step, 2-Step, Stellar Lite, Stellar Instant" },
+                            { label: "Profit Split", value: "Up to 95% (default 80%)" },
+                            { label: "Payout Cycle", value: "Same-day on demand, no fixed schedule" },
+                            { label: "Refundable Fee", value: "Yes — refunded with first payout" },
+                            { label: "Drawdown Model", value: "Balanced or Trailing (varies by plan)" },
+                            { label: "Underlying Broker", value: "Eightcap (ASIC), GBE Brokers (BaFin)" },
+                            { label: "Founded", value: "2022" },
+                            { label: "Headquarters", value: "FundedNext FZCO · Dubai, UAE" },
+                          ]
+                        : review.keyFacts
+                      ).map((fact, i) => (
                         <tr key={fact.label} className={i % 2 === 0 ? "bg-muted/20" : ""}>
                           <td className="px-5 py-3 text-sm font-medium text-muted-foreground w-44">{fact.label}</td>
                           <td className="px-5 py-3 text-sm font-medium text-foreground">{fact.value}</td>
