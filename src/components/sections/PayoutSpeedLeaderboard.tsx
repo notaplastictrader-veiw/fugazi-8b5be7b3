@@ -215,8 +215,8 @@ const PayoutSpeedLeaderboard = () => {
         </div>
       )}
 
-      <div className="mt-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center">
-        Data sourced from verified user-submitted withdrawal proofs · updated continuously
+      <div className="mt-4 text-[10px] font-mono uppercase tracking-widest text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+        Sourced from public broker disclosures + NAFT community-submitted payout proofs. Demo data shown until live submissions reach threshold · updated continuously
       </div>
     </section>
   );
