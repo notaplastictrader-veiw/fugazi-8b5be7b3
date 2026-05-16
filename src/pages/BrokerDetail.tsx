@@ -186,6 +186,7 @@ const BrokerDetail = () => {
   const [replySaving, setReplySaving] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [scamAlerts, setScamAlerts] = useState<ScamAlertRow[]>([]);
+  const [brokerPromos, setBrokerPromos] = useState<any[]>([]);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { toast } = useToast();
