@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
-import { Download, Share, Plus, MoreVertical, X, Smartphone } from "lucide-react";
+import { Download, Share, Plus, X, Zap, Bell, Smartphone, Monitor, Apple } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 const STORAGE_KEY = "naft_install_prompt_dismissed";
 
 type Platform = "ios" | "android" | "desktop";
+type Browser = "safari" | "chromium" | "firefox" | "other";
 
 function detectPlatform(): Platform {
   const ua = navigator.userAgent || "";
   if (/iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream) return "ios";
   if (/Android/i.test(ua)) return "android";
   return "desktop";
+}
+
+function detectBrowser(): Browser {
+  const ua = navigator.userAgent || "";
+  if (/CriOS|FxiOS|EdgiOS/.test(ua)) return "other"; // iOS non-Safari
+  if (/Safari/.test(ua) && !/Chrome|Chromium|Edg/.test(ua)) return "safari";
+  if (/Firefox/.test(ua)) return "firefox";
+  if (/Chrome|Chromium|Edg|Brave|OPR/.test(ua)) return "chromium";
+  return "other";
 }
 
 function isStandalone(): boolean {
@@ -26,7 +35,8 @@ function isStandalone(): boolean {
 export default function InstallAppPrompt() {
   const [open, setOpen] = useState(false);
   const [showFab, setShowFab] = useState(false);
-  const [platform, setPlatform] = useState<Platform>("ios");
+  const [platform, setPlatform] = useState<Platform>("desktop");
+  const [browser, setBrowser] = useState<Browser>("chromium");
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const track = useTrackEvent();
 
@@ -34,24 +44,16 @@ export default function InstallAppPrompt() {
     if (typeof window === "undefined") return;
     if (isStandalone()) return;
 
-    const p = detectPlatform();
-    setPlatform(p === "desktop" ? "ios" : p);
-
-    const dismissed = localStorage.getItem(STORAGE_KEY);
-    // Only auto-show floating button on mobile
-    if (p !== "desktop" && !dismissed) {
-      setShowFab(true);
-    } else if (p !== "desktop") {
-      // user dismissed — still show subtle FAB after delay
-      setShowFab(true);
-    }
+    setPlatform(detectPlatform());
+    setBrowser(detectBrowser());
+    setShowFab(true);
 
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };
     const onAppInstalled = () => {
-      track("pwa_installed", { platform: p, method: "appinstalled_event" });
+      track("pwa_installed", {});
       setOpen(false);
       setShowFab(false);
     };
@@ -64,22 +66,21 @@ export default function InstallAppPrompt() {
   }, [track]);
 
   const openPrompt = () => {
-    track("install_prompt_opened", { platform });
+    track("install_prompt_opened", { platform, browser });
     setOpen(true);
   };
 
-  const handleAndroidInstall = async () => {
-    if (deferredPrompt) {
-      track("install_prompt_native_triggered", { platform: "android" });
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      track("install_prompt_native_outcome", { platform: "android", outcome });
-      if (outcome === "accepted") {
-        setOpen(false);
-        setShowFab(false);
-      }
-      setDeferredPrompt(null);
+  const triggerNativeInstall = async () => {
+    if (!deferredPrompt) return;
+    track("install_prompt_native_triggered", { platform });
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    track("install_prompt_native_outcome", { platform, outcome });
+    if (outcome === "accepted") {
+      setOpen(false);
+      setShowFab(false);
     }
+    setDeferredPrompt(null);
   };
 
   const dismissFab = () => {
@@ -89,6 +90,14 @@ export default function InstallAppPrompt() {
   };
 
   if (isStandalone()) return null;
+
+  const hasNativePrompt = !!deferredPrompt;
+  const isIOS = platform === "ios";
+  const needsSafariNotice = isIOS && browser !== "safari";
+  const showGuide = isIOS || (!hasNativePrompt && !isIOS);
+
+  const PlatformIcon = isIOS ? Apple : platform === "desktop" ? Monitor : Smartphone;
+  const platformLabel = isIOS ? "iPhone / iPad" : platform === "desktop" ? "Desktop" : "Android";
 
   return (
     <>
@@ -113,81 +122,111 @@ export default function InstallAppPrompt() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-primary" />
-              Install NAFT App
-            </DialogTitle>
-            <DialogDescription>
-              Add NAFT to your home screen for instant access, faster loads, and a full-screen experience.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-sm p-0 overflow-hidden">
+          {/* Hero */}
+          <div className="px-6 pt-7 pb-5 text-center bg-gradient-to-b from-primary/10 to-transparent">
+            <div className="mx-auto w-20 h-20 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg mb-4">
+              <span className="font-display text-3xl font-black tracking-tight">N</span>
+            </div>
+            <DialogHeader className="space-y-1">
+              <p className="text-[11px] font-bold tracking-[0.2em] text-primary uppercase">Install App</p>
+              <DialogTitle className="text-xl font-bold">Get the NAFT App</DialogTitle>
+              <DialogDescription className="text-xs">
+                Free • No app store • Installs in seconds
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <Tabs defaultValue={platform} className="mt-2">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="ios">iPhone / iPad</TabsTrigger>
-              <TabsTrigger value="android">Android</TabsTrigger>
-            </TabsList>
+          {/* Features */}
+          <div className="px-6 space-y-3">
+            <FeatureRow icon={<Zap className="w-4 h-4" />} title="Instant access" desc="One-tap launch from your home screen" />
+            <FeatureRow icon={<Bell className="w-4 h-4" />} title="Live alerts" desc="Real-time scam alerts & broker updates" />
+            <FeatureRow icon={<PlatformIcon className="w-4 h-4" />} title="Native experience" desc={`Full-screen app on ${platformLabel}`} />
+          </div>
 
-            <TabsContent value="ios" className="space-y-3 mt-4">
-              <p className="text-xs text-muted-foreground">
-                Open this site in <strong>Safari</strong> (not Chrome) to install.
-              </p>
-              <ol className="space-y-3 text-sm">
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">1</span>
-                  <span className="flex items-center gap-1.5 flex-wrap">
-                    Tap the <Share className="w-4 h-4 inline text-primary" /> <strong>Share</strong> button at the bottom of Safari.
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">2</span>
-                  <span className="flex items-center gap-1.5 flex-wrap">
-                    Scroll down and tap <Plus className="w-4 h-4 inline text-primary" /> <strong>Add to Home Screen</strong>.
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">3</span>
-                  <span>Tap <strong>Add</strong> in the top-right corner. The NAFT icon will appear on your home screen.</span>
-                </li>
-              </ol>
-            </TabsContent>
+          {/* CTA */}
+          <div className="px-6 pt-5 pb-3 space-y-2">
+            {hasNativePrompt && (
+              <Button onClick={triggerNativeInstall} className="w-full h-11 text-base font-semibold" size="lg">
+                <Download className="w-4 h-4 mr-2" />
+                Add to {platform === "desktop" ? "Desktop" : "Device"}
+              </Button>
+            )}
 
-            <TabsContent value="android" className="space-y-3 mt-4">
-              <p className="text-xs text-muted-foreground">
-                Open this site in <strong>Chrome</strong> for the best install experience.
-              </p>
-              {deferredPrompt && (
-                <Button onClick={handleAndroidInstall} className="w-full" size="lg">
-                  <Download className="w-4 h-4 mr-2" />
-                  Install Now
-                </Button>
-              )}
-              <ol className="space-y-3 text-sm">
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">1</span>
-                  <span className="flex items-center gap-1.5 flex-wrap">
-                    Tap the <MoreVertical className="w-4 h-4 inline text-primary" /> <strong>menu</strong> (three dots) in the top-right of Chrome.
-                  </span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">2</span>
-                  <span>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</span>
-                </li>
-                <li className="flex gap-3">
-                  <span className="flex-none w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">3</span>
-                  <span>Confirm by tapping <strong>Install</strong>. NAFT will be added to your app drawer.</span>
-                </li>
-              </ol>
-            </TabsContent>
-          </Tabs>
+            {needsSafariNotice && (
+              <div className="rounded-md bg-muted/60 border border-border px-3 py-2 text-xs text-muted-foreground">
+                Open this site in <strong className="text-foreground">Safari</strong> to install on iPhone/iPad.
+              </div>
+            )}
 
-          <p className="text-[11px] text-muted-foreground mt-4 text-center">
-            Free • No app store required • Works offline-ready
-          </p>
+            {!hasNativePrompt && !isIOS && (
+              <div className="rounded-md bg-muted/60 border border-border px-3 py-2 text-xs text-muted-foreground">
+                Install isn't available in this browser. Try <strong className="text-foreground">Chrome</strong> or <strong className="text-foreground">Edge</strong>.
+              </div>
+            )}
+          </div>
+
+          {/* Guide (iOS or fallback) */}
+          {showGuide && (
+            <div className="px-6 pb-6">
+              <details className="group" open={isIOS}>
+                <summary className="cursor-pointer list-none text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center justify-between py-2 border-t border-border">
+                  <span>How to install manually</span>
+                  <span className="text-[10px] group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <ol className="space-y-2.5 text-xs mt-3">
+                  {isIOS ? (
+                    <>
+                      <Step n={1}>
+                        Tap the <Share className="w-3.5 h-3.5 inline text-primary mx-0.5" /> <strong>Share</strong> button in Safari.
+                      </Step>
+                      <Step n={2}>
+                        Scroll down, tap <Plus className="w-3.5 h-3.5 inline text-primary mx-0.5" /> <strong>Add to Home Screen</strong>.
+                      </Step>
+                      <Step n={3}>Tap <strong>Add</strong> — NAFT appears on your home screen.</Step>
+                    </>
+                  ) : platform === "desktop" ? (
+                    <>
+                      <Step n={1}>Click the <strong>install icon</strong> (⊕) in the address bar.</Step>
+                      <Step n={2}>Or open the browser menu → <strong>Install NAFT</strong>.</Step>
+                      <Step n={3}>Confirm <strong>Install</strong> — NAFT opens as a desktop app.</Step>
+                    </>
+                  ) : (
+                    <>
+                      <Step n={1}>Open the browser <strong>menu</strong> (⋮).</Step>
+                      <Step n={2}>Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</Step>
+                      <Step n={3}>Confirm — NAFT lands in your app drawer.</Step>
+                    </>
+                  )}
+                </ol>
+              </details>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function FeatureRow({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex-none w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold leading-tight">{title}</p>
+        <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function Step({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <li className="flex gap-2.5">
+      <span className="flex-none w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">{n}</span>
+      <span className="flex-1 leading-relaxed">{children}</span>
+    </li>
   );
 }
