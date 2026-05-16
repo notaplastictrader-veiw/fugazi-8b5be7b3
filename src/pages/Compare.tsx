@@ -73,7 +73,28 @@ const Compare = () => {
 
   const renderCell = (broker: BrokerRow, key: keyof BrokerRow) => {
     const val = broker[key];
-    if (key === "regulation") return (val as string[] | null)?.join(", ") || "—";
+    if (key === "regulation") {
+      const list = (val as string[] | null) ?? [];
+      if (!list.length) return "—";
+      const shortName = (r: string) => r.split(/[(\-—–]/)[0].trim();
+      const shown = list.slice(0, 3).map(shortName);
+      const extra = list.length - 3;
+      return (
+        <span className="inline-flex flex-wrap items-center justify-center gap-1">
+          {shown.map((r, i) => (
+            <span key={i} className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground">{r}</span>
+          ))}
+          {extra > 0 && (
+            <span
+              title={list.slice(3).join(", ")}
+              className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 cursor-help"
+            >
+              +{extra} more
+            </span>
+          )}
+        </span>
+      );
+    }
     if (key === "score") return (
       <span className={`font-bold ${(val as number) >= 8 ? "text-primary" : (val as number) >= 5 ? "text-accent" : "text-destructive"}`}>
         {val ?? "—"}/10
