@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
@@ -618,6 +618,14 @@ const BrokerDetail = () => {
                   </div>
                 </div>
 
+                {/* Consolidated notice: research source + affiliate disclosure */}
+                <div className="mt-4 flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2 text-[11px] font-mono text-muted-foreground leading-relaxed">
+                  <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                  <span>
+                    Independent research + community-submitted data{claimStatus !== "claimed" ? ` · ${broker.name} hasn't claimed this profile yet` : ""} · NAFT may earn a commission via our links — doesn't affect our rating.
+                  </span>
+                </div>
+
                 {/* Offer rail */}
                 {(broker.website_url || (broker as any).affiliate_url) && (
                   <div className="mt-4">
@@ -1012,12 +1020,6 @@ const BrokerDetail = () => {
                 </div>
               </section>
 
-              {/* Disclaimer */}
-              <div className="rounded-xl border border-border/50 bg-muted/20 p-5 text-xs text-muted-foreground italic leading-relaxed">
-                This review is based on our independent research and user-submitted data.
-                NAFT may earn a commission if you open an account via our links.
-                This does not affect our review or rating.
-              </div>
             </TabsContent>
 
             {/* ===== REVIEWS TAB ===== */}
