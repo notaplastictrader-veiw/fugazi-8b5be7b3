@@ -455,11 +455,11 @@ const BrokerDetail = () => {
             };
             const stats = isProp
               ? [
-                  { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
-                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
-                  { label: "Start From", value: broker.min_deposit || "$10" },
+                  { label: "Account Size", value: "$2K – $200K" },
+                  { label: "Max Leverage", value: cleanLeverage(broker.leverage) || "1:100" },
+                  { label: "Start From", value: "$32.99" },
                   { label: "Profit Split", value: "80% to 95%" },
-                  { label: "Payout Speed", value: "On Demand" },
+                  { label: "Payout Speed", value: "Same Day" },
                 ]
               : [
                   { label: "Min Deposit", value: broker.min_deposit || "—" },
