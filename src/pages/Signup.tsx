@@ -109,6 +109,11 @@ const Signup = () => {
         }
         sessionStorage.removeItem("ref-tracked-code");
       }
+      // Send branded welcome email via Resend (fire-and-forget)
+      supabase.functions.invoke("send-email", {
+        body: { to: email, template: "welcome", data: { name: fullName.trim() } },
+      }).catch((err) => console.error("Welcome email failed:", err));
+
       // Force sign out to prevent auto-login before email verification
       await supabase.auth.signOut();
       toast({ title: "Check your email", description: "We sent you a confirmation link. Please verify your email to complete your sign up." });
