@@ -734,15 +734,27 @@ const BrokerDetail = () => {
           )}
 
           {/* ===== TABS ===== */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
-              <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="reviews" className="font-display text-sm">Reviews ({reviews.length})</TabsTrigger>
-              <TabsTrigger value="complaints" className="font-display text-sm">Complaints ({broker.complaints || 0})</TabsTrigger>
-              <TabsTrigger value="promotions" className="font-display text-sm">Promotions</TabsTrigger>
-              <TabsTrigger value="comparison" className="font-display text-sm">Comparison</TabsTrigger>
-              <TabsTrigger value="scam-score" className="font-display text-sm">Scam Score</TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <div className="sticky top-16 z-20 -mx-4 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 py-2">
+              <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
+                <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
+                {broker.type === "prop-firm" && (
+                  <>
+                    <TabsTrigger value="rules" className="font-display text-sm">Rules</TabsTrigger>
+                    <TabsTrigger value="challenges" className="font-display text-sm">Challenges</TabsTrigger>
+                    <TabsTrigger value="payouts" className="font-display text-sm">Payouts</TabsTrigger>
+                  </>
+                )}
+                <TabsTrigger value="reviews" className="font-display text-sm">Reviews ({reviews.length})</TabsTrigger>
+                <TabsTrigger value="complaints" className="font-display text-sm">Complaints ({broker.complaints || 0})</TabsTrigger>
+                <TabsTrigger value="promotions" className="font-display text-sm">Promotions</TabsTrigger>
+                <TabsTrigger value="comparison" className="font-display text-sm">Comparison</TabsTrigger>
+                <TabsTrigger value="scam-score" className="font-display text-sm">Score</TabsTrigger>
+                {broker.type === "prop-firm" && (
+                  <TabsTrigger value="forum" className="font-display text-sm">Forum</TabsTrigger>
+                )}
+              </TabsList>
+            </div>
 
             {/* ===== OVERVIEW TAB ===== */}
             <TabsContent value="overview" className="mt-4 space-y-6">
