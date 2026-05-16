@@ -11,10 +11,10 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultStats = [
-  { value: "590+", label: "Brokers & Firms", suffix: "Tracked & Counting" },
-  { value: "50K+", label: "Reviews Analyzed", suffix: "& Counting" },
-  { value: "140+", label: "Countries Reached", suffix: "& Counting" },
-  { value: "1.2M+", label: "Views", suffix: "& Counting" },
+  { value: "590+", label: "Brokers & Firms" },
+  { value: "50K+", label: "Reviews Analyzed" },
+  { value: "140+", label: "Countries Reached" },
+  { value: "1.2M+", label: "Platform Views" },
 ];
 
 const HeroSection = () => {
