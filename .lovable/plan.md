@@ -1,33 +1,45 @@
 ## Goal
+Prop firm broker detail page (`/brokers/:slug` where `type === 'prop-firm'`) er tabs e notun 4 ta tab add korbo: **Rules, Challenges, Payouts, Forum** — and existing tabs shob link-able (URL hash) korbo.
 
-Add demo/example data to trust sections so the site looks alive while you collect real submissions. You'll later override with live DB data once users start uploading.
+## Current state
+`src/pages/BrokerDetail.tsx` te ekta `<Tabs>` ace 6 ta tab niye: Overview, Reviews, Complaints, Promotions, Comparison, Scam Score. Tabs gula URL e sync hoy na, tai shareable na.
 
 ## Changes
 
-### 1. `src/components/sections/TrustTimeline.tsx`
-- Already has a curated `EVENT_LIBRARY` for 6 brokers (Exness, IC Markets, Pepperstone, FTMO, XM, Quotex) and a `FALLBACK_EVENTS` for unknown brokers — it's already demo-filled. ✅ No change needed unless you want more brokers added. I'll add 2-3 more example slugs (e.g. `xtb`, `oanda`, `forex-com`) so any broker tab shows rich events.
+### 1. Tab order (prop-firm only)
+```
+Overview · Rules · Challenges · Payouts · Reviews · Complaints · Promotions · Comparison · Score · Forum
+```
+Regular broker hole purono 6-tab list e thakbe (Rules/Challenges/Payouts/Forum hide).
 
-### 2. `src/components/broker/WithdrawalProofGallery.tsx` (Verified Withdrawals on broker pages)
-- Currently shows empty state when DB has zero verified proofs.
-- Add a `DEMO_PROOFS` fallback array (4-6 example payouts: amount, method, payout time, date, demo screenshot URL, optional note).
-- When `proofs.length === 0`, render the demo cards with a subtle `DEMO` ribbon/badge on each card and a small caption: _"Example payouts shown — submit yours to replace these with real verified proofs."_
-- Keep the existing "Submit your payout" button.
+Detection: `broker.type === 'prop-firm'`.
 
-### 3. `src/components/sections/PayoutSpeedLeaderboard.tsx`
-- Already has `FALLBACK` with 8 brokers — works fine. ✅
-- Update the footer caption from:
-  > Data sourced from verified user-submitted withdrawal proofs · updated continuously
-  
-  to something that signals both demo + public + community sourcing, e.g.:
-  > Sourced from public broker disclosures + NAFT user-submitted proofs. Demo data shown until live submissions reach threshold · updated continuously
-- Also add a tiny `DEMO` chip in the header when running off `FALLBACK` so it's transparent.
+### 2. URL hash sync (linkable tabs)
+- Mount e `location.hash` theke active tab read korbo (e.g. `/brokers/fundednext#payouts`).
+- `onValueChange` e `navigate(..., { replace: true })` diye hash update korbo.
+- Tabs ekhon directly share/link kora jabe.
 
-### 4. `src/components/sections/WithdrawalProofWall.tsx` (homepage Verified Withdrawals section, if present)
-- I'll inspect it and add the same demo fallback pattern as #2 if it currently shows an empty state.
+### 3. New tab contents (prop-firm)
 
-## Notes
-- All demo data is hard-coded in the component files — easy to remove once real data flows.
-- Each demo item is clearly labeled `DEMO` so users aren't misled.
-- No DB / migration changes. Pure frontend.
+**Rules tab** — Key trading rules card:
+- Max daily loss, max overall drawdown, profit target, min trading days, consistency rule, news trading allowed?, EA allowed?, weekend holding.
+- Source: `broker.rules` (jsonb) or fallback demo placeholder text "Rules being verified — check official site."
 
-Approve and I'll implement.
+**Challenges tab** — Challenge plans grid:
+- Account sizes ($10k / $25k / $50k / $100k / $200k), fee, profit split, phases (1-step / 2-step / instant).
+- Source: `broker.challenges` (jsonb array) or demo cards.
+
+**Payouts tab** — Reuses existing `WithdrawalProofGallery` + `PayoutSpeedLeaderboard` filtered for this broker + payout frequency / min payout / method list.
+
+**Forum tab** — List of forum threads tagged with this broker (query `forum_threads` where `broker_id = broker.id`), with "Start a discussion" CTA linking to `/forum/new?broker=<slug>`. Empty state: "No threads yet — be first."
+
+**Score tab** — Existing "Scam Score" tab renamed to just "Score" (matches user's wording).
+
+### 4. Sticky tab bar
+Tabs row ke `sticky top-16 z-20 bg-background/95 backdrop-blur` korbo so jokhon scroll kore tokhono visible thake (mobile + desktop).
+
+## Technical notes
+- File touched: `src/pages/BrokerDetail.tsx` only (+ ekta chhoto helper for hash sync).
+- `broker.rules` and `broker.challenges` columns DB te thakte pare na — fallback demo content show korbo (user already said "demo add koro jekhane info nai, pore live diye update korbo").
+- No DB migration needed unless user wants structured rules/challenges fields. Can do that in follow-up.
+- All semantic tokens from index.css; mobile-first responsive.

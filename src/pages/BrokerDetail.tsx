@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { brokers as localBrokers } from "@/data/brokers";
@@ -17,7 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import {
   Star, Shield, Award, AlertTriangle, ArrowLeft, ExternalLink,
   CheckCircle, XCircle, Globe, Clock, CreditCard, Headphones,
-  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info
+  TrendingUp, FileText, Scale, Gift, GitCompare, Loader2, ShieldAlert, Info,
+  ListChecks, Trophy, Coins, MessageSquare
 } from "lucide-react";
 import ReviewReactions from "@/components/reviews/ReviewReactions";
 import VerifiedDepositorBadge from "@/components/reviews/VerifiedDepositorBadge";
@@ -158,16 +159,22 @@ const RatingBar = ({ label, value }: { label: string; value: number }) => {
   );
 };
 
+const VALID_TABS = ["overview", "rules", "challenges", "payouts", "reviews", "complaints", "promotions", "comparison", "scam-score", "forum"];
+
 const BrokerDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [replies, setReplies] = useState<Record<string, ReviewReply>>({});
   const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    const h = typeof window !== "undefined" ? window.location.hash.replace("#", "") : "";
+    return VALID_TABS.includes(h) ? h : "overview";
+  });
   const [claimStatus, setClaimStatus] = useState<string>("unclaimed");
   const [claimedByUserId, setClaimedByUserId] = useState<string | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -262,6 +269,17 @@ const BrokerDetail = () => {
   };
 
   useEffect(() => { fetchData(); }, [slug, user]);
+
+  // Sync activeTab <-> URL hash so tabs are linkable
+  useEffect(() => {
+    const h = location.hash.replace("#", "");
+    if (VALID_TABS.includes(h) && h !== activeTab) setActiveTab(h);
+  }, [location.hash]);
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    navigate(`${location.pathname}#${val}`, { replace: true });
+  };
 
   const canReply = isSuperAdmin || (!!user && claimedByUserId === user.id && claimStatus === "approved");
 
@@ -716,15 +734,27 @@ const BrokerDetail = () => {
           )}
 
           {/* ===== TABS ===== */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
-              <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="reviews" className="font-display text-sm">Reviews ({reviews.length})</TabsTrigger>
-              <TabsTrigger value="complaints" className="font-display text-sm">Complaints ({broker.complaints || 0})</TabsTrigger>
-              <TabsTrigger value="promotions" className="font-display text-sm">Promotions</TabsTrigger>
-              <TabsTrigger value="comparison" className="font-display text-sm">Comparison</TabsTrigger>
-              <TabsTrigger value="scam-score" className="font-display text-sm">Scam Score</TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
+            <div className="sticky top-16 z-20 -mx-4 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 py-2">
+              <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
+                <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
+                {broker.type === "prop-firm" && (
+                  <>
+                    <TabsTrigger value="rules" className="font-display text-sm">Rules</TabsTrigger>
+                    <TabsTrigger value="challenges" className="font-display text-sm">Challenges</TabsTrigger>
+                    <TabsTrigger value="payouts" className="font-display text-sm">Payouts</TabsTrigger>
+                  </>
+                )}
+                <TabsTrigger value="reviews" className="font-display text-sm">Reviews ({reviews.length})</TabsTrigger>
+                <TabsTrigger value="complaints" className="font-display text-sm">Complaints ({broker.complaints || 0})</TabsTrigger>
+                <TabsTrigger value="promotions" className="font-display text-sm">Promotions</TabsTrigger>
+                <TabsTrigger value="comparison" className="font-display text-sm">Comparison</TabsTrigger>
+                <TabsTrigger value="scam-score" className="font-display text-sm">Score</TabsTrigger>
+                {broker.type === "prop-firm" && (
+                  <TabsTrigger value="forum" className="font-display text-sm">Forum</TabsTrigger>
+                )}
+              </TabsList>
+            </div>
 
             {/* ===== OVERVIEW TAB ===== */}
             <TabsContent value="overview" className="mt-4 space-y-6">
@@ -1247,6 +1277,152 @@ const BrokerDetail = () => {
                 </div>
               </div>
             </TabsContent>
+
+            {/* ===== PROP-FIRM: RULES TAB ===== */}
+            {broker.type === "prop-firm" && (
+              <TabsContent value="rules" className="mt-6 space-y-6">
+                <div className="glass-card rounded-xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ListChecks className="w-5 h-5 text-primary" />
+                    <h2 className="text-xl font-display font-bold text-foreground">Trading Rules</h2>
+                    <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {[
+                      { k: "Max Daily Loss", v: "5%" },
+                      { k: "Max Overall Drawdown", v: "10%" },
+                      { k: "Profit Target (Phase 1)", v: "8%" },
+                      { k: "Profit Target (Phase 2)", v: "5%" },
+                      { k: "Min Trading Days", v: "0 days" },
+                      { k: "Max Trading Period", v: "Unlimited" },
+                      { k: "Consistency Rule", v: "No (single-day cap waived)" },
+                      { k: "Weekend Holding", v: "Allowed" },
+                      { k: "News Trading", v: "Allowed" },
+                      { k: "EAs / Copy Trading", v: "Allowed" },
+                      { k: "Hedging", v: "Allowed (single account)" },
+                      { k: "Lot Size Cap", v: "Based on account size" },
+                    ].map(r => (
+                      <div key={r.k} className="flex justify-between p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
+                        <span className="text-muted-foreground">{r.k}</span>
+                        <span className="font-mono font-semibold text-foreground">{r.v}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] font-mono text-muted-foreground/80 mt-4 leading-relaxed">
+                    Demo data shown — exact rules are being verified with {broker.name}. Always confirm on the official site before purchasing a challenge.
+                  </p>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* ===== PROP-FIRM: CHALLENGES TAB ===== */}
+            {broker.type === "prop-firm" && (
+              <TabsContent value="challenges" className="mt-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-display font-bold text-foreground">Challenge Plans</h2>
+                  <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo pricing</span>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { size: "$10,000", fee: "$89", split: "80%", phases: "2-step" },
+                    { size: "$25,000", fee: "$189", split: "80%", phases: "2-step" },
+                    { size: "$50,000", fee: "$289", split: "85%", phases: "2-step" },
+                    { size: "$100,000", fee: "$499", split: "85%", phases: "2-step" },
+                    { size: "$200,000", fee: "$999", split: "90%", phases: "2-step" },
+                    { size: "$10,000", fee: "$129", split: "70%", phases: "Instant" },
+                  ].map((c, i) => (
+                    <div key={i} className="glass-card rounded-xl p-5">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-accent mb-1">{c.phases}</div>
+                      <div className="text-2xl font-display font-extrabold text-foreground">{c.size}</div>
+                      <div className="text-xs text-muted-foreground mb-3">Account size</div>
+                      <div className="grid grid-cols-2 gap-2 text-center">
+                        <div className="p-2 bg-background/50 rounded border border-border/40">
+                          <div className="text-[10px] uppercase text-muted-foreground">Fee</div>
+                          <div className="font-mono font-bold text-foreground">{c.fee}</div>
+                        </div>
+                        <div className="p-2 bg-background/50 rounded border border-border/40">
+                          <div className="text-[10px] uppercase text-muted-foreground">Split</div>
+                          <div className="font-mono font-bold text-primary">{c.split}</div>
+                        </div>
+                      </div>
+                      {broker.website_url && (
+                        <a href={broker.website_url} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full py-2 text-xs font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition">
+                          View on {broker.name} →
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] font-mono text-muted-foreground/80 leading-relaxed">
+                  Demo plans shown for illustration. Live pricing &amp; phases will populate once {broker.name} verifies the listing.
+                </p>
+              </TabsContent>
+            )}
+
+            {/* ===== PROP-FIRM: PAYOUTS TAB ===== */}
+            {broker.type === "prop-firm" && (
+              <TabsContent value="payouts" className="mt-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-display font-bold text-foreground">Payouts</h2>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-3">
+                  {[
+                    { k: "First Payout", v: "After 14 days", icon: Clock },
+                    { k: "Payout Cycle", v: "Bi-weekly", icon: TrendingUp },
+                    { k: "Min Withdrawal", v: "$50", icon: Coins },
+                  ].map(({ k, v, icon: Ic }) => (
+                    <div key={k} className="glass-card rounded-xl p-4 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Ic className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">{k}</div>
+                        <div className="font-mono font-bold text-foreground">{v}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="glass-card rounded-xl p-5">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Supported Methods</div>
+                  <div className="flex flex-wrap gap-2">
+                    {["Bank Wire", "USDT (TRC20)", "USDT (ERC20)", "Rise", "Deel", "Crypto BTC"].map(m => (
+                      <span key={m} className="px-3 py-1 text-xs font-mono bg-background/60 border border-border/40 rounded-full text-foreground">{m}</span>
+                    ))}
+                  </div>
+                  <p className="text-[11px] font-mono text-muted-foreground/80 mt-3">
+                    Demo data — verified payout proofs from real traders appear in the gallery below the tabs.
+                  </p>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* ===== PROP-FIRM: FORUM TAB ===== */}
+            {broker.type === "prop-firm" && (
+              <TabsContent value="forum" className="mt-6 space-y-4">
+                <div className="glass-card rounded-xl p-8 text-center">
+                  <MessageSquare className="w-10 h-10 text-primary mx-auto mb-3" />
+                  <h2 className="text-xl font-display font-bold text-foreground mb-2">Discuss {broker.name}</h2>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
+                    Talk to other traders about challenges, payouts, and rules. Share screenshots, ask questions, or warn the community.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <Button size="sm" asChild>
+                      <Link to={`/forum?q=${encodeURIComponent(broker.name)}`}>
+                        <MessageSquare className="w-4 h-4 mr-2" /> Browse Threads
+                      </Link>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to="/forum">Start a Thread</Link>
+                    </Button>
+                  </div>
+                  <p className="text-[11px] font-mono text-muted-foreground/70 mt-4">
+                    Verified traders (with at least one published review) can post.
+                  </p>
+                </div>
+              </TabsContent>
+            )}
           </Tabs>
 
           <WithdrawalProofGallery brokerId={broker.id} brokerName={broker.name} />
