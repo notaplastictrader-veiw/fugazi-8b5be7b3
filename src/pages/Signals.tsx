@@ -20,6 +20,7 @@ import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
   avg_rr: string; track_record: string; members: string; verified: boolean;
+  categories?: string[];
 }
 
 // Wave 0: removed fake "Gold Pulse / Asia FX Scalpers / Prop Killer" fallback
@@ -103,9 +104,12 @@ const Signals = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {visibleItems.map(group => (
                 <NeonCard key={group.id} accent={group.win_rate >= 80 ? "primary" : "accent"} glow={group.win_rate >= 80 ? "lg" : "md"} className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <h3 className="text-lg font-bold text-foreground">{group.name}</h3>
                     {group.verified && <CheckCircle className="w-4 h-4 text-primary" />}
+                    {group.categories?.includes('upcoming') && (
+                      <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-dashed border-muted-foreground/40 text-muted-foreground">Upcoming</span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4 mb-5">
                     <div className="flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /><div><div className="text-xs text-muted-foreground">Win Rate</div><div className="text-sm font-mono font-bold text-foreground">{group.win_rate}%</div></div></div>
