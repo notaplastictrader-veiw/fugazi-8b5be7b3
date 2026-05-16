@@ -1,47 +1,37 @@
-## Problem
-
-Broker detail page-er hero ekhon onek lomba — Broker Health Score™ full card (~200px) ar Trust Score panel duitai same info dichhe (complaints, scam alerts, score), unclaimed banner alada jaiga nichhe, ar 5-tile stat strip + trust amplifiers row mile "Our Verdict" first scroll-er onek niche chole geche. Client landing-er por verdict na dekhe page chere chole jachhe.
-
-## Goal
-
-1194×770 viewport-e (current preview size) page load hole user **Our Verdict** box-er end porjonto dekhte parbe — kichu na scroll kore.
-
 ## Changes (UI-only, `src/pages/BrokerDetail.tsx`)
 
-### 1. Health Score — full card → compact pill
-Lines 492-501: full `<BrokerHealthScore />` card-er bodole right sidebar-er Trust Score panel-er bhitor ekta compact version dhukabo (`compact` prop already supported). Saves ~180px.
+### 1. Stat tiles — clean numbers only
+
+In the `stats` array (lines ~410-425):
+
+- **Avg Spread**: extract just the first numeric value with unit (e.g., `0.3 pips`) from values like `"0.3 pips (Standard), 0.0 pips (Pro)"`. Helper: split on `,` / `(` and take the first chunk.
+- **Leverage**: extract the highest `1:N` ratio (or `Unlimited`) from values like `"Unlimited (Pro), 1:2000 (Standard)"`. Helper: regex out all `1:\d+` and `Unlimited`, prefer `Unlimited`, else pick max number → display `Unlimited` or `1:2000`.
+
+Full original strings remain available in the Trading Conditions / Account Types tab — only the tile shows a clean headline number.
+
+### 2. Health Score compact line — explain what it means
+
+Currently inside Trust Score panel: `⚡ 100 · Excellent` — meaningless to a first-time visitor.
+
+Replace with a labelled, two-row mini-block (still compact, fits sidebar):
 
 ```
-┌─ NAFT TRUST SCORE      AVERAGE ─┐
-│ 72 /100  ▓▓▓▓▓░░░             │
-│ ⚡ Health 100 · Excellent      │  ← new compact line
-└────────────────────────────────┘
+─────────────────────────
+BROKER HEALTH       100/100
+████████████████  Excellent
+Based on complaints, scam alerts,
+ratings & withdrawal proofs
+─────────────────────────
 ```
 
-### 2. Unclaimed banner — remove (redundant)
-Lines 601-621: hero-er moddhe already "Claim This Profile" pill ache (line 514). Banner-tao same info — duplicate. Remove kore dilam, ekta concise tooltip/hover hero badge-e thakbe.
+- Top row: small uppercase label `BROKER HEALTH` (left) + score `100/100` + tier badge (`Excellent` / `Healthy` / `Watch` / `Risk`).
+- Tiny progress bar.
+- One-line caption in muted text: *"Based on complaints, scam alerts, ratings & withdrawal proofs"* — so visitors immediately understand inputs.
+- Tooltip (`title=`) on the block with last-updated date for power users.
 
-### 3. Trust amplifiers grid — move below tabs
-Lines 623-633 (`BeforeYouDepositChecklist` + `SentimentSparkline`) ekhon hero ar tabs-er majhe boshe verdict-ke push korche. Eta `Overview` tab-er bhitor verdict-er **niche** rakhbo — content-wise more relevant, ar above-the-fold-e jaiga free hobe.
-
-### 4. Stat strip — tighter padding
-Line 589-596: `py-3` → `py-2`, `mt-5` → `mt-4`. ~20px save.
-
-### 5. Hero outer padding trim
-Hero card outer container-e `mb-6` → `mb-4`, internal section gaps `mt-5` → `mt-4` consistently. ~20px save.
-
-### 6. Tabs — reduce top margin
-Line 718: `mt-6 space-y-8` → `mt-4 space-y-6` so verdict box top closer to tabs.
+Implementation: instead of using `<BrokerHealthScore compact />` (which is a single pill), inline a small custom block in `BrokerDetail.tsx` sidebar so the caption stays visible without adding height to the global compact variant.
 
 ## Out of scope
-- No DB / logic changes
-- Health Score full card thakbe **admin page-e** (HealthScoreAdmin) — only hero-te compact
-- Scam alert investigations section unchanged (critical info)
-- Mobile layout already stacks — same compression applies cleanly
-
-## Expected outcome
-At 1194×770:
-- Hero card (logo, name, score, regulation, claim, CTAs, stats) ≈ 480px
-- Tabs bar ≈ 50px
-- Verdict heading + box ≈ 180px
-- **Total ≈ 710px** → fits within 770px viewport with room for partial peek of Key Facts table.
+- No DB or scoring logic changes
+- No changes to admin Health Score full card
+- Stats tile widths unchanged (still 5-up grid)
