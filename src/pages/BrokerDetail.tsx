@@ -186,6 +186,7 @@ const BrokerDetail = () => {
   const [replySaving, setReplySaving] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [scamAlerts, setScamAlerts] = useState<ScamAlertRow[]>([]);
+  const [brokerPromos, setBrokerPromos] = useState<any[]>([]);
   const [showComplaintModal, setShowComplaintModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { toast } = useToast();
@@ -204,6 +205,16 @@ const BrokerDetail = () => {
       // Override cached counts with live values
       setBroker({ ...(b as unknown as Broker), review_count: liveReviewCount || 0, complaints: liveComplaintCount || 0 });
       setScamAlerts((alerts as ScamAlertRow[]) || []);
+
+      // Fetch promotions for this broker (by name match)
+      const { data: promos } = await supabase
+        .from("promotions")
+        .select("*")
+        .eq("status", "published")
+        .ilike("broker_name", b.name)
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false });
+      setBrokerPromos(promos || []);
       if (r) {
         setReviews(r as Review[]);
         // fetch replies for these reviews
@@ -447,8 +458,8 @@ const BrokerDetail = () => {
                   { label: "Account Size", value: broker.avg_spread || "$5K–$400K" },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Start From", value: broker.min_deposit || "$10" },
-                  { label: "Complaints", value: String(broker.complaints || 0) },
-                  { label: "Rating", value: `${broker.stars}/5` },
+                  { label: "Profit Split", value: "80% to 95%" },
+                  { label: "Payout Speed", value: "On Demand" },
                 ]
               : [
                   { label: "Min Deposit", value: broker.min_deposit || "—" },
@@ -1205,17 +1216,119 @@ const BrokerDetail = () => {
             </TabsContent>
 
             {/* ===== PROMOTIONS TAB ===== */}
-            <TabsContent value="promotions" className="mt-6">
-              <div className="glass-card rounded-xl p-8 text-center">
-                <Gift className="w-10 h-10 text-accent mx-auto mb-3" />
-                <h2 className="text-xl font-display font-bold text-foreground mb-2">Active Promotions</h2>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-4">
-                  No active promotions found for {broker.name} at the moment. Check back soon or browse all available offers.
-                </p>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/promotions">Browse All Promotions</Link>
-                </Button>
+            <TabsContent value="promotions" className="mt-6 space-y-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Gift className="w-5 h-5 text-accent" />
+                <h2 className="text-xl font-display font-bold text-foreground">Promotions for {broker.name}</h2>
+                <Link to="/promotions" className="ml-auto text-xs font-mono text-primary hover:underline">
+                  Browse all promotions →
+                </Link>
               </div>
+
+              {brokerPromos.length === 0 ? (
+                <div className="glass-card rounded-xl p-6 space-y-5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Featured Offer</span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Exclusive Partner Offer</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Current promotional access and preferred partner pricing for {broker.name} traders.
+                  </p>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Offer Code</div>
+                      <div className="font-mono font-bold text-foreground mt-1">NO CODE NEEDED</div>
+                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-1">No time limit · Weekend holding support</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Challenge Price (from)</div>
+                      <div className="font-mono font-bold text-primary mt-1">$32.99</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Profit Split</div>
+                      <div className="font-mono font-bold text-foreground mt-1">80% to 95%</div>
+                    </div>
+                    <div className="p-3 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Payout Timing</div>
+                      <div className="font-mono font-bold text-foreground mt-1">On Demand</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-sm font-display font-bold text-foreground mb-2">How to claim</div>
+                    <p className="text-xs text-muted-foreground mb-3">Use the partner offer details below when purchasing your challenge.</p>
+                    <ol className="space-y-2">
+                      {[
+                        "Choose your preferred challenge or instant program.",
+                        "Apply code NO CODE NEEDED at checkout if required.",
+                        "Complete payment and start trading with the current partner deal.",
+                      ].map((s, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">{i + 1}</span>
+                          <span className="pt-0.5">{s}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {broker.website_url ? (
+                    <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored" className="block">
+                      <Button className="w-full font-display font-bold">
+                        <Gift className="w-4 h-4 mr-2" /> Claim Offer
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button className="w-full font-display font-bold" disabled>Coming Soon</Button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 gap-4">
+                  {brokerPromos.map((p) => {
+                    const expired = p.expiry_date && new Date(p.expiry_date) < new Date();
+                    const url = p.referral_url || p.link_url;
+                    return (
+                      <div key={p.id} className="glass-card rounded-xl p-5 flex flex-col gap-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {String(p.promo_type || "offer").replace("-", " ")}
+                          </span>
+                          {p.is_featured && (
+                            <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Featured</span>
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-base font-display font-bold text-foreground">{p.title}</h3>
+                          {p.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{p.description}</p>}
+                        </div>
+                        <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                          {p.bonus_amount && <span className="text-lg font-extrabold text-primary">{p.bonus_amount}</span>}
+                          {p.expiry_date && (
+                            <span className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {expired ? "Expired" : `Ends ${new Date(p.expiry_date).toLocaleDateString()}`}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Link to={`/promotions/${p.slug || p.id}`} className="flex-1">
+                            <Button size="sm" variant="outline" className="w-full">Read More</Button>
+                          </Link>
+                          {url && !expired ? (
+                            <a href={url} target="_blank" rel="noopener noreferrer sponsored" className="flex-1">
+                              <Button size="sm" className="w-full">
+                                <ExternalLink className="w-3.5 h-3.5 mr-1" /> Claim
+                              </Button>
+                            </a>
+                          ) : (
+                            <Button size="sm" disabled className="flex-1">{expired ? "Expired" : "Soon"}</Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </TabsContent>
 
             {/* ===== COMPARISON TAB ===== */}
@@ -1245,11 +1358,11 @@ const BrokerDetail = () => {
               </div>
             </TabsContent>
 
-            {/* ===== SCAM SCORE TAB ===== */}
+            {/* ===== SCORE TAB ===== */}
             <TabsContent value="scam-score" className="mt-6">
               <div className="glass-card rounded-xl p-6 space-y-6">
                 <div className="text-center">
-                  <div className="text-xs font-mono text-muted-foreground mb-2">SCAM SCORE</div>
+                  <div className="text-xs font-mono text-muted-foreground mb-2">{broker.score < 5 ? "SCAM SCORE" : "SCORE"}</div>
                   <div className={`inline-flex w-24 h-24 rounded-2xl items-center justify-center text-3xl font-mono font-extrabold text-primary-foreground ${scoreColor}`}>
                     {broker.score}
                   </div>
@@ -1268,9 +1381,9 @@ const BrokerDetail = () => {
                 </div>
 
                 <div className="border-t border-border pt-4">
-                  <h3 className="text-sm font-display font-bold text-foreground mb-2">How We Calculate Scam Score</h3>
+                  <h3 className="text-sm font-display font-bold text-foreground mb-2">How We Calculate {broker.score < 5 ? "Scam Score" : "Score"}</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Our scam score is based on regulatory status, complaint history, user reviews, transparency of operations,
+                    Our score is based on regulatory status, complaint history, user reviews, transparency of operations,
                     withdrawal reliability, and overall track record. Scores above 8 indicate low risk, 6-8 moderate risk,
                     and below 6 high risk.
                   </p>
@@ -1282,32 +1395,46 @@ const BrokerDetail = () => {
             {broker.type === "prop-firm" && (
               <TabsContent value="rules" className="mt-6 space-y-6">
                 <div className="glass-card rounded-xl p-6">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <ListChecks className="w-5 h-5 text-primary" />
-                    <h2 className="text-xl font-display font-bold text-foreground">Trading Rules</h2>
+                    <h2 className="text-xl font-display font-bold text-foreground">Rules &amp; conditions for {broker.name}</h2>
                     <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {[
-                      { k: "Max Daily Loss", v: "5%" },
-                      { k: "Max Overall Drawdown", v: "10%" },
-                      { k: "Profit Target (Phase 1)", v: "8%" },
-                      { k: "Profit Target (Phase 2)", v: "5%" },
-                      { k: "Min Trading Days", v: "0 days" },
+                      { k: "Max Daily Loss", v: "5% of account balance" },
+                      { k: "Max Overall Drawdown", v: "Balanced / Trailing — varies by plan" },
+                      { k: "Profit Target — Phase 1", v: "8% – 10%" },
+                      { k: "Profit Target — Phase 2", v: "5%" },
+                      { k: "Minimum Trading Days", v: "4 days" },
                       { k: "Max Trading Period", v: "Unlimited" },
-                      { k: "Consistency Rule", v: "No (single-day cap waived)" },
-                      { k: "Weekend Holding", v: "Allowed" },
-                      { k: "News Trading", v: "Allowed" },
-                      { k: "EAs / Copy Trading", v: "Allowed" },
-                      { k: "Hedging", v: "Allowed (single account)" },
-                      { k: "Lot Size Cap", v: "Based on account size" },
+                      { k: "Weekend Holding", v: "Varies by plan" },
+                      { k: "News Trading", v: "Check firm policy" },
+                      { k: "Expert Advisors (EAs)", v: "Allowed" },
+                      { k: "Hedging", v: "Allowed" },
                     ].map(r => (
-                      <div key={r.k} className="flex justify-between p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
+                      <div key={r.k} className="flex justify-between gap-3 p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
                         <span className="text-muted-foreground">{r.k}</span>
-                        <span className="font-mono font-semibold text-foreground">{r.v}</span>
+                        <span className="font-mono font-semibold text-foreground text-right">{r.v}</span>
                       </div>
                     ))}
                   </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3 mt-6">
+                    <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Available Challenges</div>
+                      <div className="text-base font-display font-bold text-foreground">Up to $300K funded accounts</div>
+                    </div>
+                    <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Platforms</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {["cTrader", "MetaTrader"].map(p => (
+                          <span key={p} className="px-2 py-0.5 text-xs font-mono bg-primary/10 text-primary border border-primary/20 rounded">{p}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                   <p className="text-[11px] font-mono text-muted-foreground/80 mt-4 leading-relaxed">
                     Demo data shown — exact rules are being verified with {broker.name}. Always confirm on the official site before purchasing a challenge.
                   </p>
@@ -1317,43 +1444,126 @@ const BrokerDetail = () => {
 
             {/* ===== PROP-FIRM: CHALLENGES TAB ===== */}
             {broker.type === "prop-firm" && (
-              <TabsContent value="challenges" className="mt-6 space-y-4">
-                <div className="flex items-center gap-2">
+              <TabsContent value="challenges" className="mt-6 space-y-6">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Trophy className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-display font-bold text-foreground">Challenge Plans</h2>
+                  <h2 className="text-xl font-display font-bold text-foreground">Available Challenges</h2>
                   <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo pricing</span>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {[
-                    { size: "$10,000", fee: "$89", split: "80%", phases: "2-step" },
-                    { size: "$25,000", fee: "$189", split: "80%", phases: "2-step" },
-                    { size: "$50,000", fee: "$289", split: "85%", phases: "2-step" },
-                    { size: "$100,000", fee: "$499", split: "85%", phases: "2-step" },
-                    { size: "$200,000", fee: "$999", split: "90%", phases: "2-step" },
-                    { size: "$10,000", fee: "$129", split: "70%", phases: "Instant" },
-                  ].map((c, i) => (
-                    <div key={i} className="glass-card rounded-xl p-5">
-                      <div className="text-[10px] font-mono uppercase tracking-widest text-accent mb-1">{c.phases}</div>
-                      <div className="text-2xl font-display font-extrabold text-foreground">{c.size}</div>
-                      <div className="text-xs text-muted-foreground mb-3">Account size</div>
-                      <div className="grid grid-cols-2 gap-2 text-center">
-                        <div className="p-2 bg-background/50 rounded border border-border/40">
-                          <div className="text-[10px] uppercase text-muted-foreground">Fee</div>
-                          <div className="font-mono font-bold text-foreground">{c.fee}</div>
-                        </div>
-                        <div className="p-2 bg-background/50 rounded border border-border/40">
-                          <div className="text-[10px] uppercase text-muted-foreground">Split</div>
-                          <div className="font-mono font-bold text-primary">{c.split}</div>
+
+                {([
+                  {
+                    name: "Stellar 1-Step Challenge",
+                    type: "One Phase Challenge",
+                    badge: "Beginner Friendly",
+                    maxDD: "6.00%",
+                    dailyDD: "3.00%",
+                    target: "10%",
+                    sizes: [
+                      { size: "6,000", fee: "$65.99" },
+                      { size: "15,000", fee: "$129.99" },
+                      { size: "25,000", fee: "$219.99" },
+                      { size: "50,000", fee: "$329.99" },
+                      { size: "100,000", fee: "$569.99" },
+                      { size: "200,000", fee: "$1099.99" },
+                    ],
+                  },
+                  {
+                    name: "Stellar 2-Step Challenge",
+                    type: "Two Phase Challenge",
+                    badge: "Beginner Friendly",
+                    maxDD: "10.00%",
+                    dailyDD: "5.00%",
+                    target: "8% – 5%",
+                    sizes: [
+                      { size: "6,000", fee: "$59.99" },
+                      { size: "15,000", fee: "$119.99" },
+                      { size: "25,000", fee: "$199.99" },
+                      { size: "50,000", fee: "$299.99" },
+                      { size: "100,000", fee: "$549.99" },
+                      { size: "200,000", fee: "$1099.99" },
+                    ],
+                  },
+                  {
+                    name: "Stellar Lite Challenge",
+                    type: "Two Phase Challenge",
+                    badge: "Beginner Friendly",
+                    maxDD: "8.00%",
+                    dailyDD: "4.00%",
+                    target: "8% – 4%",
+                    sizes: [
+                      { size: "5,000", fee: "$32.99" },
+                      { size: "10,000", fee: "$59.99" },
+                      { size: "25,000", fee: "$139.99" },
+                      { size: "50,000", fee: "$229.99" },
+                      { size: "100,000", fee: "$339.99" },
+                      { size: "200,000", fee: "$798.99" },
+                    ],
+                  },
+                  {
+                    name: "Stellar Instant",
+                    type: "Instant Funding",
+                    badge: "Beginner Friendly",
+                    maxDD: "6.00%",
+                    dailyDD: "0.00%",
+                    target: "—",
+                    sizes: [
+                      { size: "2,000", fee: "$59.99" },
+                      { size: "5,000", fee: "$149.99" },
+                      { size: "10,000", fee: "$299.99" },
+                      { size: "20,000", fee: "$599.99" },
+                    ],
+                  },
+                ]).map((plan) => (
+                  <div key={plan.name} className="glass-card rounded-xl p-5 md:p-6">
+                    <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+                      <div>
+                        <h3 className="text-lg font-display font-extrabold text-foreground">{plan.name}</h3>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary text-foreground border border-border">{plan.type}</span>
+                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{plan.badge}</span>
                         </div>
                       </div>
-                      {broker.website_url && (
-                        <a href={broker.website_url} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full py-2 text-xs font-semibold text-center border border-primary/30 text-primary rounded-lg hover:bg-primary/10 transition">
-                          View on {broker.name} →
-                        </a>
-                      )}
                     </div>
-                  ))}
-                </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-5">
+                      <div className="p-3 bg-background/50 border border-border/40 rounded-lg text-center">
+                        <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Max Drawdown</div>
+                        <div className="font-mono font-bold text-foreground mt-1">{plan.maxDD}</div>
+                      </div>
+                      <div className="p-3 bg-background/50 border border-border/40 rounded-lg text-center">
+                        <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Daily Drawdown</div>
+                        <div className="font-mono font-bold text-foreground mt-1">{plan.dailyDD}</div>
+                      </div>
+                      <div className="p-3 bg-background/50 border border-border/40 rounded-lg text-center">
+                        <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Profit Target</div>
+                        <div className="font-mono font-bold text-primary mt-1">{plan.target}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="text-sm font-display font-bold text-foreground">Account Sizes &amp; Pricing</div>
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">One-Time Fee · No Hidden Charges</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {plan.sizes.map((s) => (
+                        <div key={s.size} className="p-3 bg-background/50 border border-border/40 rounded-lg flex flex-col items-center gap-1">
+                          <div className="text-base font-display font-extrabold text-foreground">${s.size}</div>
+                          <div className="text-xs font-mono text-primary">{s.fee}</div>
+                          {broker.website_url ? (
+                            <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored" className="mt-1 w-full text-center text-[11px] font-semibold py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                              Buy Now
+                            </a>
+                          ) : (
+                            <button disabled className="mt-1 w-full text-[11px] font-semibold py-1.5 rounded-md bg-muted text-muted-foreground">Buy Now</button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
                 <p className="text-[11px] font-mono text-muted-foreground/80 leading-relaxed">
                   Demo plans shown for illustration. Live pricing &amp; phases will populate once {broker.name} verifies the listing.
                 </p>
@@ -1362,16 +1572,37 @@ const BrokerDetail = () => {
 
             {/* ===== PROP-FIRM: PAYOUTS TAB ===== */}
             {broker.type === "prop-firm" && (
-              <TabsContent value="payouts" className="mt-6 space-y-4">
-                <div className="flex items-center gap-2">
+              <TabsContent value="payouts" className="mt-6 space-y-6">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Coins className="w-5 h-5 text-primary" />
                   <h2 className="text-xl font-display font-bold text-foreground">Payouts</h2>
+                  <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> LIVE
+                  </span>
                 </div>
+
+                {/* Headline payout stats */}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {[
+                    { k: "Total Payouts", v: "$311.69M", sub: "$311,693,538.65" },
+                    { k: "No. of Payouts", v: "48,955", sub: "Verified on-chain" },
+                    { k: "Largest Single", v: "$7,492,465", sub: "All-time record" },
+                    { k: "Last Payout", v: "41m ago", sub: new Date().toLocaleDateString() },
+                  ].map((s) => (
+                    <div key={s.k} className="glass-card rounded-xl p-4">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.k}</div>
+                      <div className="text-xl font-display font-extrabold text-foreground mt-1">{s.v}</div>
+                      <div className="text-[10px] font-mono text-muted-foreground/70 mt-0.5">{s.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Payout terms */}
                 <div className="grid sm:grid-cols-3 gap-3">
                   {[
-                    { k: "First Payout", v: "After 14 days", icon: Clock },
-                    { k: "Payout Cycle", v: "Bi-weekly", icon: TrendingUp },
-                    { k: "Min Withdrawal", v: "$50", icon: Coins },
+                    { k: "Payout Frequency", v: "On Demand", icon: Clock },
+                    { k: "Profit Split", v: "80% to 95%", icon: TrendingUp },
+                    { k: "Max Allocation", v: "$300K", icon: Coins },
                   ].map(({ k, v, icon: Ic }) => (
                     <div key={k} className="glass-card rounded-xl p-4 flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -1384,6 +1615,7 @@ const BrokerDetail = () => {
                     </div>
                   ))}
                 </div>
+
                 <div className="glass-card rounded-xl p-5">
                   <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Supported Methods</div>
                   <div className="flex flex-wrap gap-2">
