@@ -519,20 +519,13 @@ const BrokerDetail = () => {
                         </span>
                       </div>
 
-                      {/* Regulation / Structure chips — prop firms show HQ + liquidity, brokers show regulators */}
+                      {/* Regulation / Structure chips — prop firms show HQ only */}
                       {isProp ? (
-                        <div className="flex flex-col gap-1.5 mt-3">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">HQ:</span>
-                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
-                              FundedNext FZCO · Dubai, UAE
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 flex-wrap" title="Underlying brokers executing your orders">
-                            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">Liquidity by:</span>
-                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">Eightcap (ASIC)</span>
-                            <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">GBE Brokers (BaFin)</span>
-                          </div>
+                        <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">HQ:</span>
+                          <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
+                            FundedNext FZCO · Dubai, UAE
+                          </span>
                         </div>
                       ) : broker.regulation?.length ? (
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap" title={broker.regulation.join(" · ")}>
