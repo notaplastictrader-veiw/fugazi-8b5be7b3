@@ -15,7 +15,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <MainLayout>
       <NoIndex />
-      <div className="pt-20 pb-20">
+      <div className="pt-14 pb-20">
         <SidebarProvider>
           <div className="min-h-[calc(100vh-8rem)] flex w-full max-w-7xl mx-auto px-4">
             <DashboardSidebar />
