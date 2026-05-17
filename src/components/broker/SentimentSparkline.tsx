@@ -32,7 +32,7 @@ const SentimentSparkline = ({ score, reviewCount, complaints }: Props) => {
     // Pending state — flat dashed placeholder, muted styling
     const midY = H / 2;
     return (
-      <NeonCard className="p-4" accent="muted">
+      <NeonCard className="p-4 opacity-90">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-mono tracking-widest uppercase text-muted-foreground">
             Sentiment · 14d
