@@ -788,16 +788,9 @@ const BrokerDetail = () => {
               {/* Scannable 4-second scorecard — only renders if long_review present */}
               {broker.long_review?.verdict?.tldr && (() => {
                 const v = broker.long_review!.verdict!;
-                const ag = broker.long_review!.at_a_glance || {};
                 const tp = broker.long_review!.trustpilot;
                 const rt = broker.long_review!.reading_time_minutes;
                 const cta = broker.long_review!.affiliate_cta;
-                const quickStats = [
-                  ag.min_deposit && { label: "Min deposit", value: String(ag.min_deposit).split("/")[0].trim() },
-                  ag.avg_spread_eurusd && { label: "EUR/USD spread", value: String(ag.avg_spread_eurusd).split("/")[0].trim() },
-                  ag.withdrawal_speed && { label: "Withdrawals", value: String(ag.withdrawal_speed).split("/")[0].trim() },
-                  ag.max_leverage && { label: "Max leverage", value: String(ag.max_leverage).split("/")[0].trim() },
-                ].filter(Boolean) as { label: string; value: string }[];
                 return (
                   <section className="glass-card rounded-2xl p-6 md:p-7 border-l-4 border-primary space-y-5">
                     {/* Hero strip */}
@@ -805,7 +798,8 @@ const BrokerDetail = () => {
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className="font-display font-extrabold text-xl text-foreground">{broker.name}</span>
                         {v.trust_score != null && (
-                          <span className="font-mono text-sm">
+                          <span className="font-mono text-sm inline-flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-1.5 py-0.5 rounded">NAFT</span>
                             <span className="text-primary font-bold text-lg">{v.trust_score}</span>
                             <span className="text-muted-foreground">/10</span>
                           </span>
@@ -818,8 +812,8 @@ const BrokerDetail = () => {
                           </span>
                         )}
                         {tp?.rating && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
-                            <Star className="w-3 h-3 fill-primary" /> Trustpilot {tp.rating}/5
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-border bg-muted/30 text-muted-foreground">
+                            <Star className="w-3 h-3" /> Trustpilot {tp.rating}/5
                             {tp.reviews ? ` · ${tp.reviews.toLocaleString()}` : ""}
                           </span>
                         )}
@@ -853,22 +847,10 @@ const BrokerDetail = () => {
                       </div>
                     )}
 
-                    {/* 4-stat row */}
-                    {quickStats.length > 0 && (
-                      <div className={`grid grid-cols-2 ${quickStats.length === 4 ? "md:grid-cols-4" : `md:grid-cols-${quickStats.length}`} rounded-xl border border-border/60 bg-background/40 divide-x divide-border/40 overflow-hidden`}>
-                        {quickStats.map((s) => (
-                          <div key={s.label} className="px-3 py-3 text-center">
-                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
-                            <div className="text-sm md:text-base font-display font-extrabold text-foreground">{s.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* TL;DR plain-English */}
-                    <div>
+                    {/* TL;DR — muted, low visual weight, easy on the eyes */}
+                    <div className="border-t border-border/40 pt-4">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">TL;DR</div>
-                      <p className="text-foreground/90 leading-relaxed">{v.tldr}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{v.tldr}</p>
                     </div>
 
                     {/* Bottom line + CTAs */}
