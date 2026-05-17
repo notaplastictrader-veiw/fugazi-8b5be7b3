@@ -108,6 +108,7 @@ const AtAGlance = ({ data }: { data: Record<string, any> }) => {
     withdrawal_speed: "Withdrawal speed",
     platforms: "Platforms",
     islamic_account: "Islamic account",
+    deposit_methods: "Deposit methods",
   };
   const entries = Object.entries(data);
   return (
