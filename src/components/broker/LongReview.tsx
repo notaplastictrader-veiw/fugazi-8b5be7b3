@@ -41,7 +41,7 @@ export interface LongReviewData {
     trust_score?: number;
     star_rating?: number;
     bottom_line?: string;
-    trust_breakdown?: { label: string; score: number; max: number }[];
+    trust_breakdown?: { label: string; score: number; max: number; weight?: number }[];
   };
   at_a_glance?: Record<string, any>;
   geo?: { accepted?: string[]; excluded?: string[] };
@@ -337,7 +337,12 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                     const pct = Math.round((b.score / b.max) * 100);
                     return (
                       <div key={i} className="flex items-center gap-3 text-xs">
-                        <span className="w-44 shrink-0 text-foreground/80 truncate" title={b.label}>{b.label}</span>
+                        <span className="w-44 shrink-0 text-foreground/80 truncate flex items-center gap-1.5" title={b.label}>
+                          {b.label}
+                          {b.weight != null && (
+                            <span className="text-[9px] font-mono text-muted-foreground bg-muted/60 px-1 py-0.5 rounded">{Math.round(b.weight * 100)}%</span>
+                          )}
+                        </span>
                         <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                           <div className="h-full rounded-full bg-primary/70" style={{ width: `${pct}%` }} />
                         </div>
@@ -345,6 +350,11 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                       </div>
                     );
                   })}
+                  {data.verdict.trust_breakdown.some(b => b.weight != null) && (
+                    <p className="text-[10px] font-mono text-muted-foreground pt-1 border-t border-border/40">
+                      Weighted total = <span className="text-primary font-bold">{data.verdict.trust_score}</span>/10
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
