@@ -521,7 +521,7 @@ const BrokerDetail = () => {
                         <TrustLight score={broker.score} complaints={broker.complaints} showLabel />
                         <span className="text-muted-foreground">|</span>
                         <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-border bg-secondary/50 text-foreground">
-                          {isProp ? "Prop Firm" : broker.type || "Broker"}
+                          {isProp ? "Prop Firm" : (broker.type === "forex" ? "Forex Broker" : (broker.type || "Broker"))}
                         </span>
                       </div>
 
