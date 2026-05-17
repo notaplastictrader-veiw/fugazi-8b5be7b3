@@ -325,6 +325,28 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
               {data.verdict.bottom_line && (
                 <p className="text-sm text-foreground/75 italic border-l-2 border-primary/40 pl-3">{data.verdict.bottom_line}</p>
               )}
+              {data.verdict.trust_breakdown && data.verdict.trust_breakdown.length > 0 && (
+                <div className="pt-3 border-t border-border/60 space-y-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">NAFT Trust Breakdown</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      Total <span className="text-primary font-bold">{data.verdict.trust_score}</span>/10
+                    </p>
+                  </div>
+                  {data.verdict.trust_breakdown.map((b, i) => {
+                    const pct = Math.round((b.score / b.max) * 100);
+                    return (
+                      <div key={i} className="flex items-center gap-3 text-xs">
+                        <span className="w-44 shrink-0 text-foreground/80 truncate" title={b.label}>{b.label}</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary/70" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="w-14 text-right font-mono text-muted-foreground tabular-nums">{b.score}/{b.max}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
