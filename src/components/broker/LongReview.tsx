@@ -10,11 +10,20 @@ export interface LongReviewSection { id: string; heading: string; body: string; 
 export interface LongReviewFaq { q: string; a: string; }
 export interface LongReviewData {
   seo?: { title?: string; description?: string; og_image_alt?: string; focus_keyword?: string; secondary_keywords?: string[] };
-  verdict?: { summary?: string; best_for?: string; not_ideal_for?: string; trust_score?: number; star_rating?: number };
+  verdict?: { summary?: string; tldr?: string; best_for?: string; not_ideal_for?: string; trust_score?: number; star_rating?: number };
   sections?: LongReviewSection[];
   faq?: LongReviewFaq[];
   affiliate_cta?: { label?: string; url?: string };
+  factuality_legend?: boolean;
 }
+
+const FACTUALITY_ITEMS: { dot: string; label: string }[] = [
+  { dot: "🟢", label: "Broker-advertised" },
+  { dot: "🔵", label: "Community-reported" },
+  { dot: "🟡", label: "Third-party reviewed" },
+  { dot: "🔴", label: "Could not independently verify" },
+  { dot: "⚪", label: "NAFT editorial" },
+];
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
 
