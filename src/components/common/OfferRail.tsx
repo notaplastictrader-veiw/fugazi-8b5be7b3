@@ -51,8 +51,29 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
 
   const isWide = variant === "wide";
 
+  // Inactive bonus state — when label signals no current offer, render a muted, non-CTA pill
+  const isNoBonus = !!label && /^no\s|no active|0%\s*bonus/i.test(label);
+
   // No code → single CTA button (used for brokers — bonus-only)
   if (!hasCode) {
+    if (isNoBonus) {
+      return (
+        <div
+          className={cn(
+            "w-full inline-flex items-center justify-center gap-2 rounded-lg",
+            "border border-border bg-muted/30",
+            "text-muted-foreground font-mono text-[11px] tracking-wide uppercase",
+            "py-2.5 px-3",
+            isWide && "py-3 text-xs",
+            className
+          )}
+          aria-label="No active bonus at this time"
+        >
+          <Tag className={cn("opacity-60 shrink-0", isWide ? "w-3.5 h-3.5" : "w-3 h-3")} />
+          <span>{label} — check back soon</span>
+        </div>
+      );
+    }
     const ctaText = label ? `Claim ${label}` : `Open Account`;
     return (
       <button

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity } from "lucide-react";
 import NeonCard from "@/components/ui/NeonCard";
 
 interface Props {
@@ -13,6 +13,9 @@ interface Props {
  * Generates a deterministic curve from broker stats.
  */
 const SentimentSparkline = ({ score, reviewCount, complaints }: Props) => {
+  const signalCount = (reviewCount || 0) + (complaints || 0);
+  const hasEnoughData = signalCount >= 5;
+
   const points = useMemo(() => {
     const base = score * 10;
     const seed = reviewCount + complaints;
@@ -23,11 +26,40 @@ const SentimentSparkline = ({ score, reviewCount, complaints }: Props) => {
     });
   }, [score, reviewCount, complaints]);
 
+  const W = 200, H = 60;
+
+  if (!hasEnoughData) {
+    // Pending state — flat dashed placeholder, muted styling
+    const midY = H / 2;
+    return (
+      <NeonCard className="p-4 opacity-90">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-mono tracking-widest uppercase text-muted-foreground">
+            Sentiment · 14d
+          </span>
+          <span className="text-[10px] font-mono font-bold flex items-center gap-1 text-muted-foreground uppercase tracking-widest">
+            <Activity className="w-3 h-3" /> Pending
+          </span>
+        </div>
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-14 opacity-50">
+          <line
+            x1="0" y1={midY} x2={W} y2={midY}
+            stroke="hsl(var(--muted-foreground))"
+            strokeWidth="1"
+            strokeDasharray="4 4"
+          />
+        </svg>
+        <div className="text-[10px] text-muted-foreground mt-1 leading-tight">
+          Needs community signals (reviews + complaints) before we publish sentiment.
+        </div>
+      </NeonCard>
+    );
+  }
+
   const last = points[points.length - 1];
   const first = points[0];
   const delta = last - first;
   const up = delta >= 0;
-  const W = 200, H = 60;
   const max = Math.max(...points);
   const min = Math.min(...points);
   const range = Math.max(1, max - min);

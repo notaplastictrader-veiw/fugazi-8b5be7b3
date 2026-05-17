@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Banknote, Clock, Upload } from "lucide-react";
+import { CheckCircle2, Banknote, Clock, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WithdrawalProofUploadModal from "./WithdrawalProofUploadModal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,11 +31,14 @@ const DEMO_PROOFS: Proof[] = [
   { id: "demo-6", amount: 12400, currency: "USD", withdrawal_date: new Date(Date.now() - 25 * 86400000).toISOString(), payout_method: "Bank Wire", payout_time_hours: 36, proof_url: "", notes: "Large amount — extra verification but paid in full.", verified_at: new Date().toISOString() },
 ];
 
+const PAGE_SIZE = 3;
+
 const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
   const { user } = useAuth();
   const [proofs, setProofs] = useState<Proof[]>([]);
   const [loading, setLoading] = useState(true);
   const [openUpload, setOpenUpload] = useState(false);
+  const [page, setPage] = useState(0);
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +51,7 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
       .limit(12);
     setProofs((data as Proof[]) || []);
     setLoading(false);
+    setPage(0);
   };
 
   useEffect(() => { load(); }, [brokerId]);
@@ -75,6 +79,10 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
       ) : (() => {
         const isDemo = proofs.length === 0;
         const list = isDemo ? DEMO_PROOFS : proofs;
+        const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+        const safePage = Math.min(page, totalPages - 1);
+        const visible = list.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+        const showNav = list.length > PAGE_SIZE;
         return (
           <>
             {isDemo && (
@@ -86,7 +94,7 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {list.map((p) => (
+              {visible.map((p) => (
                 <div key={p.id} className="relative border border-border rounded-lg overflow-hidden bg-card hover:border-primary/40 transition-colors">
                   {isDemo && (
                     <span className="absolute top-2 right-2 z-10 text-[9px] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded border border-amber-500/50 bg-background/90 backdrop-blur-sm text-amber-600 dark:text-amber-400">
@@ -134,6 +142,43 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
                 </div>
               ))}
             </div>
+
+            {showNav && (
+              <div className="mt-5 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={safePage === 0}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-display font-semibold text-foreground hover:border-primary/40 hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Previous payouts"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
+                </button>
+                <div className="flex items-center gap-1.5" role="tablist" aria-label="Payout pages">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setPage(i)}
+                      aria-label={`Go to page ${i + 1}`}
+                      aria-current={safePage === i ? "page" : undefined}
+                      className={`h-1.5 rounded-full transition-all ${
+                        safePage === i ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-muted-foreground"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={safePage >= totalPages - 1}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-display font-semibold text-foreground hover:border-primary/40 hover:text-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Next payouts"
+                >
+                  Next <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </>
         );
       })()}
