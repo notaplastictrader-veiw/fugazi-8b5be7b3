@@ -104,8 +104,11 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {(broker.badge === "verified" || broker.badge === "featured") && (
-            <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badgeConfig.verified.className}`}>
-              <Shield className="w-3 h-3" /> Verified
+            <span
+              className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badgeConfig.verified.className}`}
+              title="NAFT-vetted: independently verified, not a fugazi"
+            >
+              <Shield className="w-3 h-3" /> Not a Fugazi
             </span>
           )}
           {broker.badge === "featured" && (
