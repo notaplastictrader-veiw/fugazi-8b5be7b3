@@ -785,29 +785,129 @@ const BrokerDetail = () => {
 
             {/* ===== OVERVIEW TAB ===== */}
             <TabsContent value="overview" className="mt-4 space-y-6">
-              {/* TL;DR — plain-English summary from long_review */}
-              {broker.long_review?.verdict?.tldr && (
+              {/* Scannable 4-second scorecard — only renders if long_review present */}
+              {broker.long_review?.verdict?.tldr && (() => {
+                const v = broker.long_review!.verdict!;
+                const ag = broker.long_review!.at_a_glance || {};
+                const tp = broker.long_review!.trustpilot;
+                const rt = broker.long_review!.reading_time_minutes;
+                const cta = broker.long_review!.affiliate_cta;
+                const quickStats = [
+                  ag.min_deposit && { label: "Min deposit", value: String(ag.min_deposit).split("/")[0].trim() },
+                  ag.avg_spread_eurusd && { label: "EUR/USD spread", value: String(ag.avg_spread_eurusd).split("/")[0].trim() },
+                  ag.withdrawal_speed && { label: "Withdrawals", value: String(ag.withdrawal_speed).split("/")[0].trim() },
+                  ag.max_leverage && { label: "Max leverage", value: String(ag.max_leverage).split("/")[0].trim() },
+                ].filter(Boolean) as { label: string; value: string }[];
+                return (
+                  <section className="glass-card rounded-2xl p-6 md:p-7 border-l-4 border-primary space-y-5">
+                    {/* Hero strip */}
+                    <div className="flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="font-display font-extrabold text-xl text-foreground">{broker.name}</span>
+                        {v.trust_score != null && (
+                          <span className="font-mono text-sm">
+                            <span className="text-primary font-bold text-lg">{v.trust_score}</span>
+                            <span className="text-muted-foreground">/10</span>
+                          </span>
+                        )}
+                        {v.star_rating != null && (
+                          <span className="inline-flex items-center gap-1 font-mono text-sm">
+                            <Star className="w-4 h-4 fill-primary text-primary" />
+                            <span className="font-bold">{v.star_rating}</span>
+                            <span className="text-muted-foreground">/5</span>
+                          </span>
+                        )}
+                        {tp?.rating && (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
+                            <Star className="w-3 h-3 fill-primary" /> Trustpilot {tp.rating}/5
+                            {tp.reviews ? ` · ${tp.reviews.toLocaleString()}` : ""}
+                          </span>
+                        )}
+                      </div>
+                      {rt && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-border bg-muted/30 text-muted-foreground">
+                          <Clock className="w-3 h-3" /> {rt} min read
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Decision chips */}
+                    {(v.best_for || v.not_ideal_for) && (
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {v.best_for && (
+                          <div className="rounded-md border border-primary/25 bg-primary/5 p-3">
+                            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-primary mb-1">
+                              <CheckCircle className="w-3.5 h-3.5" /> Best for
+                            </div>
+                            <p className="text-sm text-foreground/85 leading-snug">{v.best_for}</p>
+                          </div>
+                        )}
+                        {v.not_ideal_for && (
+                          <div className="rounded-md border border-destructive/25 bg-destructive/5 p-3">
+                            <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-destructive mb-1">
+                              <XCircle className="w-3.5 h-3.5" /> Not for
+                            </div>
+                            <p className="text-sm text-foreground/85 leading-snug">{v.not_ideal_for}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 4-stat row */}
+                    {quickStats.length > 0 && (
+                      <div className={`grid grid-cols-2 ${quickStats.length === 4 ? "md:grid-cols-4" : `md:grid-cols-${quickStats.length}`} rounded-xl border border-border/60 bg-background/40 divide-x divide-border/40 overflow-hidden`}>
+                        {quickStats.map((s) => (
+                          <div key={s.label} className="px-3 py-3 text-center">
+                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
+                            <div className="text-sm md:text-base font-display font-extrabold text-foreground">{s.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* TL;DR plain-English */}
+                    <div>
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">TL;DR</div>
+                      <p className="text-foreground/90 leading-relaxed">{v.tldr}</p>
+                    </div>
+
+                    {/* Bottom line + CTAs */}
+                    {v.bottom_line && (
+                      <p className="text-sm text-foreground/75 italic border-l-2 border-primary/40 pl-3">{v.bottom_line}</p>
+                    )}
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      {cta?.url && cta.url !== "AFFILIATE_PLACEHOLDER" ? (
+                        <Button asChild className="flex-1">
+                          <a href={cta.url} target="_blank" rel="sponsored noopener">
+                            {cta.label || `Open ${broker.name} Account`} <ExternalLink className="w-4 h-4 ml-1.5" />
+                          </a>
+                        </Button>
+                      ) : broker.website_url && (
+                        <Button asChild className="flex-1">
+                          <a href={broker.website_url} target="_blank" rel="sponsored noopener">
+                            Open {broker.name} Account <ExternalLink className="w-4 h-4 ml-1.5" />
+                          </a>
+                        </Button>
+                      )}
+                      <Button variant="outline" onClick={() => handleTabChange("full-review")} className="flex-1">
+                        Read the full review →
+                      </Button>
+                    </div>
+                  </section>
+                );
+              })()}
+
+              {/* Fallback verdict for brokers without long_review */}
+              {!broker.long_review?.verdict?.tldr && (
                 <section>
                   <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-primary" /> TL;DR
+                    <Scale className="w-5 h-5 text-primary" /> Our Verdict
                   </h2>
-                  <div className="glass-card rounded-xl p-6 border-l-4 border-primary">
-                    <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
-                      {broker.long_review.verdict.tldr}
-                    </p>
+                  <div className="glass-card rounded-xl p-6">
+                    <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
                   </div>
                 </section>
               )}
-
-              {/* Our Verdict */}
-              <section>
-                <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-primary" /> Our Verdict
-                </h2>
-                <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed">{broker.long_review?.verdict?.summary || broker.description?.trim() || review.verdict}</p>
-                </div>
-              </section>
 
               {/* Trust Amplifiers */}
               <div className="grid md:grid-cols-3 gap-4">
