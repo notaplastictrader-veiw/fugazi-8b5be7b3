@@ -41,7 +41,7 @@ export interface LongReviewData {
     trust_score?: number;
     star_rating?: number;
     bottom_line?: string;
-    trust_breakdown?: { label: string; score: number; max: number }[];
+    trust_breakdown?: { label: string; score: number; max: number; weight?: number }[];
   };
   at_a_glance?: Record<string, any>;
   geo?: { accepted?: string[]; excluded?: string[] };
