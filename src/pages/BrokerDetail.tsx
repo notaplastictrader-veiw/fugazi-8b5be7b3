@@ -31,6 +31,7 @@ import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositCheck
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
 import OfferRail from "@/components/common/OfferRail";
+import LongReview, { type LongReviewData } from "@/components/broker/LongReview";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
@@ -67,6 +68,7 @@ interface Broker {
   warning_note?: string;
   last_verified_at?: string | null;
   updated_at?: string | null;
+  long_review?: LongReviewData | null;
 }
 
 const formatVerifiedAgo = (iso?: string | null) => {
@@ -396,8 +398,8 @@ const BrokerDetail = () => {
   return (
     <MainLayout>
       <SEO
-        title={`${broker.name} Review ${new Date().getFullYear()} — Spreads, Regulation & Real User Feedback`}
-        description={`In-depth ${broker.name} review: regulation (${(broker.regulation || []).join(", ") || "N/A"}), spreads ${broker.avg_spread || "N/A"}, ${broker.review_count || 0}+ trader reviews. Trust score: ${broker.score}/10.`}
+        title={broker.long_review?.seo?.title || `${broker.name} Review ${new Date().getFullYear()} — Spreads, Regulation & Real User Feedback`}
+        description={broker.long_review?.seo?.description || `In-depth ${broker.name} review: regulation (${(broker.regulation || []).join(", ") || "N/A"}), spreads ${broker.avg_spread || "N/A"}, ${broker.review_count || 0}+ trader reviews. Trust score: ${broker.score}/10.`}
         path={`/brokers/${broker.slug}`}
       />
       <JsonLd data={breadcrumbSchema([
@@ -420,14 +422,18 @@ const BrokerDetail = () => {
           date: (r.created_at || new Date().toISOString()).slice(0, 10),
         })),
       })} />
-      <JsonLd data={faqSchema([
-        { question: `Is ${broker.name} regulated?`, answer: (broker.regulation && broker.regulation.length > 0)
-            ? `${broker.name} is regulated by ${broker.regulation.join(", ")}. Always verify the licence number on the regulator's official register before depositing.`
-            : `${broker.name} has no verified top-tier regulation on file. Treat this as elevated risk and start with a minimal deposit.` },
-        { question: `Is ${broker.name} safe for traders?`, answer: `Our independent trust score for ${broker.name} is ${Math.round((broker.score || 0) * 10)}/100, based on regulation, complaint history, withdrawal reliability and ${broker.review_count || 0} verified user reviews.` },
-        { question: `What is the minimum deposit at ${broker.name}?`, answer: broker.min_deposit ? `The minimum deposit at ${broker.name} starts from ${broker.min_deposit}.` : `Minimum deposit details for ${broker.name} are not published. Contact the broker before funding an account.` },
-        { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
-      ])} />
+      <JsonLd data={faqSchema(
+        broker.long_review?.faq && broker.long_review.faq.length > 0
+          ? broker.long_review.faq.map(f => ({ question: f.q, answer: f.a }))
+          : [
+              { question: `Is ${broker.name} regulated?`, answer: (broker.regulation && broker.regulation.length > 0)
+                  ? `${broker.name} is regulated by ${broker.regulation.join(", ")}. Always verify the licence number on the regulator's official register before depositing.`
+                  : `${broker.name} has no verified top-tier regulation on file. Treat this as elevated risk and start with a minimal deposit.` },
+              { question: `Is ${broker.name} safe for traders?`, answer: `Our independent trust score for ${broker.name} is ${Math.round((broker.score || 0) * 10)}/100, based on regulation, complaint history, withdrawal reliability and ${broker.review_count || 0} verified user reviews.` },
+              { question: `What is the minimum deposit at ${broker.name}?`, answer: broker.min_deposit ? `The minimum deposit at ${broker.name} starts from ${broker.min_deposit}.` : `Minimum deposit details for ${broker.name} are not published. Contact the broker before funding an account.` },
+              { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
+            ]
+      )} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
 
@@ -756,6 +762,9 @@ const BrokerDetail = () => {
             <div className="sticky top-16 z-20 -mx-4 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 py-2">
               <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
                 <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
+                {broker.long_review && (
+                  <TabsTrigger value="full-review" className="font-display text-sm">Full Review</TabsTrigger>
+                )}
                 {broker.type === "prop-firm" && (
                   <>
                     <TabsTrigger value="rules" className="font-display text-sm">Rules</TabsTrigger>
@@ -1183,6 +1192,13 @@ const BrokerDetail = () => {
               </section>
 
             </TabsContent>
+
+            {/* ===== FULL REVIEW TAB ===== */}
+            {broker.long_review && (
+              <TabsContent value="full-review" className="mt-4">
+                <LongReview brokerName={broker.name} brokerSlug={broker.slug} data={broker.long_review} />
+              </TabsContent>
+            )}
 
             {/* ===== REVIEWS TAB ===== */}
             <TabsContent value="reviews" className="mt-6" id="reviews-anchor">

@@ -1,0 +1,1 @@
+ALTER TABLE public.brokers ADD COLUMN IF NOT EXISTS long_review jsonb;

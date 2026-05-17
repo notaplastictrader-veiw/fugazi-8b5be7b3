@@ -688,6 +688,7 @@ export type Database = {
           leverage: string | null
           license_number: string | null
           logo_url: string | null
+          long_review: Json | null
           min_deposit: string | null
           name: string
           payment_method_details: Json
@@ -734,6 +735,7 @@ export type Database = {
           leverage?: string | null
           license_number?: string | null
           logo_url?: string | null
+          long_review?: Json | null
           min_deposit?: string | null
           name: string
           payment_method_details?: Json
@@ -780,6 +782,7 @@ export type Database = {
           leverage?: string | null
           license_number?: string | null
           logo_url?: string | null
+          long_review?: Json | null
           min_deposit?: string | null
           name?: string
           payment_method_details?: Json
