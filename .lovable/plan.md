@@ -1,103 +1,64 @@
-# Exness Review Refinements
+## Exness review — region + data cleanup
 
-## 1. Deposits & Withdrawals table (shorter, universal)
+### 1. Replace "Bangladesh" wording → "Asia"
 
-Update `long_review.at_a_glance.deposit_methods` and the D&W section table in the `brokers.exness` row to only 5 universal rows (drop bKash/Nagad/Rocket/Skrill/Neteller/Perfect Money/WebMoney specificity, no BD focus):
+Search Exness `long_review` (summary, tldr, sections body, best_for, not_ideal_for, where-exness-accepts-clients section) and replace BD/Bangladesh-primary phrasing with **Asia** (broader region). Bangladesh stays only as one named example among India/Vietnam/Thailand/UAE — never as the headline market.
 
+### 2. Deposits & Withdrawals section (`sections[id=deposits-withdrawals]`)
 
-| Method                           | Min  | Processing        | Fee                      |
-| -------------------------------- | ---- | ----------------- | ------------------------ |
-| Bank Transfer (Wire)             | $100 | 1–3 business days | 0% (bank fees may apply) |
-| Visa / Mastercard (Credit/Debit) | $10  | Instant–30 min    | 0%                       |
-| Local Internet Banking           | $50  | Instant–1 hour    | 0%                       |
-| Crypto (BTC, USDT)               | $10  | 10–60 min         | 0%                       |
-| E-wallets (Skrill / Neteller)    | $50  | Instant           | 0%                       |
+Current section still ships bKash/Nagad/Rocket rows and blank min/processing/fee cells. Rewrite the in-section table to **5 common, complete rows** (no blanks):
 
 
-Fee shows `0%` if known free, `N/A` if unknown. Remove BD-first ordering — alphabetical/usage-based instead. Also update `verdict.best_for` / `not_ideal_for` to drop South Asia/BD wording → generic "emerging-market traders who need low min deposit and fast crypto withdrawals."Tier 1 (Core NAFT identity)
+| Method                             | Min Deposit | Processing        | Fee                      |
+| ---------------------------------- | ----------- | ----------------- | ------------------------ |
+| Bank Transfer / Wire               | $100        | 1–3 business days | 0% (bank fees may apply) |
+| Visa / Mastercard (Credit & Debit) | $10         | Instant–30 min    | 0%                       |
+| Internet Banking (local)           | $50         | Instant–1 hour    | 0%                       |
+| Crypto (BTC, USDT)                 | $10         | 10–60 min         | 0%                       |
+| E-wallets (Skrill / Neteller)      | $50         | Instant           | 0%                       |
 
-India  
-Indonesia  
-Vietnam  
-UAE  
-Thailand  
-malaysia  
-singapore  
-Philippines  
-Saudi Arabia  
-South Africa  
-Nigeria  
-EgyptTier 2 (Support markets)
 
-Pakistan  
-Bangladesh  
-Kenya  
-Ghana  
-Sri Lanka  
-Jordan  
-Kuwait  
-Qatar  
-Bahrain  
-Oman
+Rules: merge credit + debit into one Visa/Mastercard row; never leave a cell blank — use `0%` if free, `N/A` if unknown. Drop bKash / Nagad / Rocket / Bangladesh-only methods. Also write the same rows into `brokers.payment_method_details` (currently `[]`) so the structured D&W panel on `BrokerDetail.tsx` renders the same data.
 
-This sequence anchors with large high-volume markets first, then moves through MENA and Africa. Never lead with Pakistan or Bangladesh alone.
+### 3. Avg spread — single source of truth = **0.7–1.0 pips**
 
-## 2. Trust Score Breakdown (math fix → 8.1)
+User wants the headline number on the top scorecard to match the overview narrative + homepage card. Update every surface:
 
-Update `verdict.trust_score = 8.1`, `verdict.star_rating = 4.1`. Replace `trust_breakdown` with weighted entries:
+- `brokers.avg_spread` → `0.7–1.0 pips`
+- `long_review.at_a_glance.avg_spread_eurusd` → `0.7–1.0 pips`
+- Any hard-coded "from 0.1 pip" / "from 0.0" text inside `spreads-fees-accounts` section copy → rewrite around the 0.7–1.0 pip Standard-account headline, mention Raw 0.0 + commission only as a secondary detail
+- Homepage broker card pulls from `avg_spread`, so it updates automatically
 
-- Regulation — 8.0/10 (weight 30%)
-- User Reviews — 8.5/10 (weight 25%)
-- Withdrawal Speed — 8.0/10 (weight 25%)
-- Complaint History — 8.0/10 (weight 20%)
+### 4. Trust score breakdown math
 
-Weighted total = 8.0×0.30 + 8.5×0.25 + 8.0×0.25 + 8.0×0.20 = **8.125 → 8.1**.
+Current breakdown sums to 8.125 → rounds to 8.1, but the four shown sub-scores (8.0 / 8.5 / 8.0 / 8.0) only feel right if weights are visible. Two fixes:
 
-Update every surface showing the score:
+- Keep `trust_score = 8.1`, `star_rating = 4.1`
+- Update each `trust_breakdown` entry to include a `weight` field, and append a `weighted` line in the UI so the math is transparent:
+  - Regulation 8.0 × 30%
+  - User Reviews 8.5 × 25%
+  - Withdrawal Speed 8.0 × 25%
+  - Complaint History 8.0 × 20%
+  - = **8.125 → 8.1 / 10**
+- `LongReview.tsx` Trust Score card: render `weight` chip next to each row and a "Weighted total = 8.1" footer line so the calculation actually reconciles for the reader.
 
-- `brokers.exness.score = 8.1`, `stars = 4.1`
-- `BrokerDetail.tsx` overview scorecard → `NAFT 8.1/10`, rating `4.1/5`
-- `StickyBrokerCTA.tsx` → `NAFT 8.1/10`
-- `LongReview.tsx` verdict card → already reads from data, will pick up 8.1 automatically
-- Seeded NAFT Editorial review `rating` stays 4 (integer column) — text unchanged
+### 5. Customer Support — remove  Telegram
 
-## 3. Bonus CTA copy
+### 6. Verdict copy — drop BD wording
 
-In `StickyBrokerCTA.tsx` (and any promo pill on overview), when broker has no active bonus campaign, replace "CLAIM 100% BONUS" with **"Bonus — No active offer"** (muted styling, no arrow icon, non-clickable or links to promotions page).
-
-## 4. Avg spread consistency
-
-Audit all surfaces showing spread for Exness so the value matches everywhere (currently "from 0.0 pip" in overview vs whatever's in long_review at_a_glance). Set canonical value: `**from 0.1 pip` (Raw Spread account)** in:
-
-- `brokers.exness.spread` field
-- `long_review.at_a_glance.avg_spread_eurusd`
-- Overview 5-stat scorecard in `BrokerDetail.tsx`
-- Any sticky/comparison surface
-
-## 5. Sentiment sparkline → Pending state
-
-In `SentimentSparkline.tsx`, when total reviews + complaints < 5 (reuse the same threshold as Broker Health), render a pending state instead of the red `-13.1` chart:
-
-```
-SENTIMENT · 14D                    PENDING
-[muted flat dashed line placeholder]
-Needs community signals (reviews + complaints) before we publish sentiment.
-```
-
-## 6. Withdrawal Proofs → 3-card carousel
-
-In `WithdrawalProofGallery.tsx`, when more than 3 proofs exist, show only 3 at a time with horizontal swipe / prev-next pagination (reuse `CardCarousel` component pattern from `src/components/common/CardCarousel.tsx` if compatible, otherwise add lightweight prev/next arrows + page dots). Mobile = swipe gesture, desktop = arrow buttons. Keep the "Submit your payout" CTA and the demo banner.
+- `best_for`: "Active traders across **Asia, MENA and Africa** — low minimum deposit, fast crypto / e-wallet withdrawals, tight raw spreads."
+- `not_ideal_for`: unchanged (already generic).
+- `summary` / `tldr`: replace "Thailand, Vietnam, and the Gulf" enumerations with "Asia and MENA" + keep one country example only.
 
 ---
 
-## Technical surface map
+## Technical surface
 
-- **DB update** (`supabase--insert` UPDATE on `brokers` where slug='exness'): `score`, `stars`, `spread`, `long_review` JSON (verdict + at_a_glance + D&W section + best_for copy)
+- **Single `supabase--insert` UPDATE** on `brokers` where `slug='exness'`:
+  - `avg_spread`, `payment_method_details`
+  - `long_review` (verdict, at_a_glance, deposits-withdrawals section body, spreads-fees-accounts copy, support block, where-exness-accepts-clients section)
 - **Code edits**:
-  - `src/components/broker/StickyBrokerCTA.tsx` — score 8.1, bonus fallback copy
-  - `src/pages/BrokerDetail.tsx` — score 8.1, stars 4.1, spread display
-  - `src/components/broker/SentimentSparkline.tsx` — pending state branch
-  - `src/components/broker/WithdrawalProofGallery.tsx` — 3-up carousel
-  - `LongReview.tsx` — no changes needed (data-driven)
+  - `src/components/broker/LongReview.tsx` — render `weight` chip + weighted total footer in Trust Score card (data-driven, no hard-coded values)
+  - `src/pages/BrokerDetail.tsx` — ensure the D&W structured table reads from `payment_method_details` and shows `N/A` for missing cells; surface support_channels including Telegram
 
-No schema changes. No new tables.
+No schema changes. No homepage card changes (it auto-updates from `avg_spread`).
