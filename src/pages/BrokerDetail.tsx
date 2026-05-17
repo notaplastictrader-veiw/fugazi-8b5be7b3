@@ -583,18 +583,47 @@ const BrokerDetail = () => {
                   <div className="w-full lg:w-[260px] shrink-0">
                     <div className="rounded-xl border border-border bg-background/60 p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">NAFT Trust Score</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                          <span className="font-extrabold text-primary">NAFT</span> Trust Score
+                        </span>
                         <span className={`text-[10px] font-mono font-bold uppercase ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreLabel}</span>
                       </div>
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-5xl font-display font-extrabold ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreOutOf100}</span>
-                        <span className="text-sm font-mono text-muted-foreground">/100</span>
+                        <span className={`text-5xl font-display font-extrabold ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{broker.score?.toFixed(1)}</span>
+                        <span className="text-sm font-mono text-muted-foreground">/10</span>
                       </div>
                       <div className="score-bar mt-2">
                         <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
                       </div>
-                      {(broker as any).health_score != null && (() => {
-                        const hs = Number((broker as any).health_score);
+                      {(() => {
+                        const reviewCount = broker.review_count || 0;
+                        const complaintCount = broker.complaints || 0;
+                        const totalSignals = reviewCount + complaintCount;
+                        const hasEnoughData = totalSignals >= 5;
+                        const hs = Number((broker as any).health_score ?? 0);
+
+                        if (!hasEnoughData) {
+                          // Pending state — transparent: we don't have enough data yet
+                          return (
+                            <div className="mt-3 pt-3 border-t border-border">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                                  Broker Health
+                                </span>
+                                <span className="text-[10px] font-mono font-bold uppercase text-muted-foreground">
+                                  Pending
+                                </span>
+                              </div>
+                              <div className="h-1 rounded-full bg-muted overflow-hidden">
+                                <div className="h-full rounded-full bg-muted-foreground/30" style={{ width: `15%` }} />
+                              </div>
+                              <p className="mt-1.5 text-[9px] leading-tight text-muted-foreground">
+                                Needs at least 5 community signals (reviews + complaints) before we publish a health score.
+                              </p>
+                            </div>
+                          );
+                        }
+
                         const tier =
                           hs >= 80 ? { label: "Excellent", color: "text-green-500", bg: "bg-green-500/60" } :
                           hs >= 60 ? { label: "Healthy",   color: "text-primary",   bg: "bg-primary/60"   } :
@@ -602,20 +631,13 @@ const BrokerDetail = () => {
                                      { label: "Risk",      color: "text-destructive",bg: "bg-destructive/60"};
                         const updated = (broker as any).health_updated_at;
                         return (
-                          <div
-                            className="mt-3 pt-3 border-t border-border"
-                            title={updated ? `Updated ${new Date(updated).toLocaleDateString()}` : undefined}
-                          >
+                          <div className="mt-3 pt-3 border-t border-border" title={updated ? `Updated ${new Date(updated).toLocaleDateString()}` : undefined}>
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                                Broker Health
-                              </span>
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Broker Health</span>
                               <div className="flex items-baseline gap-1">
                                 <span className={`text-sm font-display font-extrabold ${tier.color}`}>{hs.toFixed(0)}</span>
                                 <span className="text-[10px] font-mono text-muted-foreground">/100</span>
-                                <span className={`ml-1.5 text-[9px] font-mono font-bold uppercase ${tier.color}`}>
-                                  {tier.label}
-                                </span>
+                                <span className={`ml-1.5 text-[9px] font-mono font-bold uppercase ${tier.color}`}>{tier.label}</span>
                               </div>
                             </div>
                             <div className="h-1 rounded-full bg-muted overflow-hidden">
