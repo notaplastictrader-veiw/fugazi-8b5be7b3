@@ -491,8 +491,8 @@ const BrokerDetail = () => {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground truncate">{broker.name}</h1>
                         {broker.badge === "verified" && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
-                            <Shield className="w-3 h-3" /> Verified
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20" title="NAFT-vetted: independently verified, not a fugazi">
+                            <Shield className="w-3 h-3" /> Not a Fugazi
                           </span>
                         )}
                         {broker.badge === "featured" && (
@@ -521,7 +521,7 @@ const BrokerDetail = () => {
                         <TrustLight score={broker.score} complaints={broker.complaints} showLabel />
                         <span className="text-muted-foreground">|</span>
                         <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border border-border bg-secondary/50 text-foreground">
-                          {isProp ? "Prop Firm" : broker.type || "Broker"}
+                          {isProp ? "Prop Firm" : (broker.type === "forex" ? "Forex Broker" : (broker.type || "Broker"))}
                         </span>
                       </div>
 
@@ -583,18 +583,47 @@ const BrokerDetail = () => {
                   <div className="w-full lg:w-[260px] shrink-0">
                     <div className="rounded-xl border border-border bg-background/60 p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">NAFT Trust Score</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                          <span className="font-extrabold text-primary">NAFT</span> Trust Score
+                        </span>
                         <span className={`text-[10px] font-mono font-bold uppercase ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreLabel}</span>
                       </div>
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-5xl font-display font-extrabold ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{scoreOutOf100}</span>
-                        <span className="text-sm font-mono text-muted-foreground">/100</span>
+                        <span className={`text-5xl font-display font-extrabold ${broker.score >= 8 ? "text-primary" : broker.score >= 6 ? "text-accent" : "text-destructive"}`}>{broker.score?.toFixed(1)}</span>
+                        <span className="text-sm font-mono text-muted-foreground">/10</span>
                       </div>
                       <div className="score-bar mt-2">
                         <div className={`score-bar-fill ${scoreColor} opacity-80`} style={{ width: `${scoreOutOf100}%` }} />
                       </div>
-                      {(broker as any).health_score != null && (() => {
-                        const hs = Number((broker as any).health_score);
+                      {(() => {
+                        const reviewCount = broker.review_count || 0;
+                        const complaintCount = broker.complaints || 0;
+                        const totalSignals = reviewCount + complaintCount;
+                        const hasEnoughData = totalSignals >= 5;
+                        const hs = Number((broker as any).health_score ?? 0);
+
+                        if (!hasEnoughData) {
+                          // Pending state — transparent: we don't have enough data yet
+                          return (
+                            <div className="mt-3 pt-3 border-t border-border">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                                  Broker Health
+                                </span>
+                                <span className="text-[10px] font-mono font-bold uppercase text-muted-foreground">
+                                  Pending
+                                </span>
+                              </div>
+                              <div className="h-1 rounded-full bg-muted overflow-hidden">
+                                <div className="h-full rounded-full bg-muted-foreground/30" style={{ width: `15%` }} />
+                              </div>
+                              <p className="mt-1.5 text-[9px] leading-tight text-muted-foreground">
+                                Needs at least 5 community signals (reviews + complaints) before we publish a health score.
+                              </p>
+                            </div>
+                          );
+                        }
+
                         const tier =
                           hs >= 80 ? { label: "Excellent", color: "text-green-500", bg: "bg-green-500/60" } :
                           hs >= 60 ? { label: "Healthy",   color: "text-primary",   bg: "bg-primary/60"   } :
@@ -602,20 +631,13 @@ const BrokerDetail = () => {
                                      { label: "Risk",      color: "text-destructive",bg: "bg-destructive/60"};
                         const updated = (broker as any).health_updated_at;
                         return (
-                          <div
-                            className="mt-3 pt-3 border-t border-border"
-                            title={updated ? `Updated ${new Date(updated).toLocaleDateString()}` : undefined}
-                          >
+                          <div className="mt-3 pt-3 border-t border-border" title={updated ? `Updated ${new Date(updated).toLocaleDateString()}` : undefined}>
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                                Broker Health
-                              </span>
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Broker Health</span>
                               <div className="flex items-baseline gap-1">
                                 <span className={`text-sm font-display font-extrabold ${tier.color}`}>{hs.toFixed(0)}</span>
                                 <span className="text-[10px] font-mono text-muted-foreground">/100</span>
-                                <span className={`ml-1.5 text-[9px] font-mono font-bold uppercase ${tier.color}`}>
-                                  {tier.label}
-                                </span>
+                                <span className={`ml-1.5 text-[9px] font-mono font-bold uppercase ${tier.color}`}>{tier.label}</span>
                               </div>
                             </div>
                             <div className="h-1 rounded-full bg-muted overflow-hidden">
@@ -788,16 +810,9 @@ const BrokerDetail = () => {
               {/* Scannable 4-second scorecard — only renders if long_review present */}
               {broker.long_review?.verdict?.tldr && (() => {
                 const v = broker.long_review!.verdict!;
-                const ag = broker.long_review!.at_a_glance || {};
                 const tp = broker.long_review!.trustpilot;
                 const rt = broker.long_review!.reading_time_minutes;
                 const cta = broker.long_review!.affiliate_cta;
-                const quickStats = [
-                  ag.min_deposit && { label: "Min deposit", value: String(ag.min_deposit).split("/")[0].trim() },
-                  ag.avg_spread_eurusd && { label: "EUR/USD spread", value: String(ag.avg_spread_eurusd).split("/")[0].trim() },
-                  ag.withdrawal_speed && { label: "Withdrawals", value: String(ag.withdrawal_speed).split("/")[0].trim() },
-                  ag.max_leverage && { label: "Max leverage", value: String(ag.max_leverage).split("/")[0].trim() },
-                ].filter(Boolean) as { label: string; value: string }[];
                 return (
                   <section className="glass-card rounded-2xl p-6 md:p-7 border-l-4 border-primary space-y-5">
                     {/* Hero strip */}
@@ -805,7 +820,8 @@ const BrokerDetail = () => {
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className="font-display font-extrabold text-xl text-foreground">{broker.name}</span>
                         {v.trust_score != null && (
-                          <span className="font-mono text-sm">
+                          <span className="font-mono text-sm inline-flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-primary bg-primary/10 px-1.5 py-0.5 rounded">NAFT</span>
                             <span className="text-primary font-bold text-lg">{v.trust_score}</span>
                             <span className="text-muted-foreground">/10</span>
                           </span>
@@ -818,8 +834,8 @@ const BrokerDetail = () => {
                           </span>
                         )}
                         {tp?.rating && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
-                            <Star className="w-3 h-3 fill-primary" /> Trustpilot {tp.rating}/5
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border border-border bg-muted/30 text-muted-foreground">
+                            <Star className="w-3 h-3" /> Trustpilot {tp.rating}/5
                             {tp.reviews ? ` · ${tp.reviews.toLocaleString()}` : ""}
                           </span>
                         )}
@@ -853,22 +869,10 @@ const BrokerDetail = () => {
                       </div>
                     )}
 
-                    {/* 4-stat row */}
-                    {quickStats.length > 0 && (
-                      <div className={`grid grid-cols-2 ${quickStats.length === 4 ? "md:grid-cols-4" : `md:grid-cols-${quickStats.length}`} rounded-xl border border-border/60 bg-background/40 divide-x divide-border/40 overflow-hidden`}>
-                        {quickStats.map((s) => (
-                          <div key={s.label} className="px-3 py-3 text-center">
-                            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">{s.label}</div>
-                            <div className="text-sm md:text-base font-display font-extrabold text-foreground">{s.value}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* TL;DR plain-English */}
-                    <div>
+                    {/* TL;DR — muted, low visual weight, easy on the eyes */}
+                    <div className="border-t border-border/40 pt-4">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">TL;DR</div>
-                      <p className="text-foreground/90 leading-relaxed">{v.tldr}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{v.tldr}</p>
                     </div>
 
                     {/* Bottom line + CTAs */}

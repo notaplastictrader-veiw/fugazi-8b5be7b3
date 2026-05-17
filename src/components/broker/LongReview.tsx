@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,6 +41,7 @@ export interface LongReviewData {
     trust_score?: number;
     star_rating?: number;
     bottom_line?: string;
+    trust_breakdown?: { label: string; score: number; max: number }[];
   };
   at_a_glance?: Record<string, any>;
   geo?: { accepted?: string[]; excluded?: string[] };
@@ -107,6 +108,7 @@ const AtAGlance = ({ data }: { data: Record<string, any> }) => {
     withdrawal_speed: "Withdrawal speed",
     platforms: "Platforms",
     islamic_account: "Islamic account",
+    deposit_methods: "Deposit methods",
   };
   const entries = Object.entries(data);
   return (
@@ -201,6 +203,24 @@ const MidCTA = ({ data, brokerName }: { data: LongReviewData; brokerName: string
 const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
   const sections = data.sections || [];
   const toc = useMemo(() => sections.map(s => ({ id: s.id, heading: s.heading })), [sections]);
+  const [activeId, setActiveId] = useState<string>("");
+
+  // Scrollspy: highlight TOC entry matching the section nearest the top
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ids = [...toc.map(t => t.id), ...(data.faq && data.faq.length > 0 ? ["faq"] : [])];
+    const elements = ids.map(id => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+    if (elements.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveId(visible[0].target.id);
+      },
+      { rootMargin: "-96px 0px -60% 0px", threshold: [0, 1] }
+    );
+    elements.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, [toc, data.faq]);
 
   return (
     <div className="mt-6 grid lg:grid-cols-[220px_1fr] gap-8">
@@ -208,13 +228,33 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
       <aside className="hidden lg:block">
         <div className="sticky top-24 space-y-2">
           <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">On this page</p>
-          {toc.map(t => (
-            <a key={t.id} href={`#${t.id}`} className="block text-sm text-foreground/70 hover:text-primary py-1 border-l-2 border-border hover:border-primary pl-3 transition-colors">
-              {t.heading}
-            </a>
-          ))}
+          {toc.map(t => {
+            const isActive = activeId === t.id;
+            return (
+              <a
+                key={t.id}
+                href={`#${t.id}`}
+                className={`block text-sm py-1 border-l-2 pl-3 transition-colors ${
+                  isActive
+                    ? "text-primary border-primary font-semibold bg-primary/5"
+                    : "text-foreground/70 border-border hover:text-primary hover:border-primary"
+                }`}
+              >
+                {t.heading}
+              </a>
+            );
+          })}
           {data.faq && data.faq.length > 0 && (
-            <a href="#faq" className="block text-sm text-foreground/70 hover:text-primary py-1 border-l-2 border-border hover:border-primary pl-3 transition-colors">FAQ</a>
+            <a
+              href="#faq"
+              className={`block text-sm py-1 border-l-2 pl-3 transition-colors ${
+                activeId === "faq"
+                  ? "text-primary border-primary font-semibold bg-primary/5"
+                  : "text-foreground/70 border-border hover:text-primary hover:border-primary"
+              }`}
+            >
+              FAQ
+            </a>
           )}
         </div>
       </aside>
@@ -232,13 +272,15 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
               <BookOpen className="w-3 h-3" /> {data.word_count.toLocaleString()} words
             </span>
           )}
+          {/* Trustpilot pill — muted (single mention site-wide) */}
           {data.trustpilot?.rating && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary">
-              <Star className="w-3 h-3 fill-primary" /> Trustpilot {data.trustpilot.rating}/5
-              {data.trustpilot.reviews ? ` · ${data.trustpilot.reviews.toLocaleString()} reviews` : ""}
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-full border border-border bg-muted/30 text-muted-foreground">
+              <Star className="w-3 h-3" /> Trustpilot {data.trustpilot.rating}/5
+              {data.trustpilot.reviews ? ` · ${data.trustpilot.reviews.toLocaleString()}` : ""}
             </span>
           )}
         </div>
+
 
         {/* Verdict card */}
         {data.verdict && (
@@ -282,6 +324,28 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
               </div>
               {data.verdict.bottom_line && (
                 <p className="text-sm text-foreground/75 italic border-l-2 border-primary/40 pl-3">{data.verdict.bottom_line}</p>
+              )}
+              {data.verdict.trust_breakdown && data.verdict.trust_breakdown.length > 0 && (
+                <div className="pt-3 border-t border-border/60 space-y-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">NAFT Trust Breakdown</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      Total <span className="text-primary font-bold">{data.verdict.trust_score}</span>/10
+                    </p>
+                  </div>
+                  {data.verdict.trust_breakdown.map((b, i) => {
+                    const pct = Math.round((b.score / b.max) * 100);
+                    return (
+                      <div key={i} className="flex items-center gap-3 text-xs">
+                        <span className="w-44 shrink-0 text-foreground/80 truncate" title={b.label}>{b.label}</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full bg-primary/70" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="w-14 text-right font-mono text-muted-foreground tabular-nums">{b.score}/{b.max}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </CardContent>
           </Card>
