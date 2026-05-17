@@ -31,6 +31,7 @@ import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositCheck
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
 import OfferRail from "@/components/common/OfferRail";
+import LongReview, { type LongReviewData } from "@/components/broker/LongReview";
 
 interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
 interface Broker {
@@ -67,6 +68,7 @@ interface Broker {
   warning_note?: string;
   last_verified_at?: string | null;
   updated_at?: string | null;
+  long_review?: LongReviewData | null;
 }
 
 const formatVerifiedAgo = (iso?: string | null) => {
@@ -756,6 +758,9 @@ const BrokerDetail = () => {
             <div className="sticky top-16 z-20 -mx-4 px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 py-2">
               <TabsList className="w-full justify-start overflow-x-auto bg-card border border-border rounded-lg h-auto p-1 flex-wrap">
                 <TabsTrigger value="overview" className="font-display text-sm">Overview</TabsTrigger>
+                {broker.long_review && (
+                  <TabsTrigger value="full-review" className="font-display text-sm">Full Review</TabsTrigger>
+                )}
                 {broker.type === "prop-firm" && (
                   <>
                     <TabsTrigger value="rules" className="font-display text-sm">Rules</TabsTrigger>
