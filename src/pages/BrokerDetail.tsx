@@ -1189,6 +1189,13 @@ const BrokerDetail = () => {
 
             </TabsContent>
 
+            {/* ===== FULL REVIEW TAB ===== */}
+            {broker.long_review && (
+              <TabsContent value="full-review" className="mt-4">
+                <LongReview brokerName={broker.name} brokerSlug={broker.slug} data={broker.long_review} />
+              </TabsContent>
+            )}
+
             {/* ===== REVIEWS TAB ===== */}
             <TabsContent value="reviews" className="mt-6" id="reviews-anchor">
               <div className="flex items-center justify-between mb-4">
