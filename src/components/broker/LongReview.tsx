@@ -10,11 +10,20 @@ export interface LongReviewSection { id: string; heading: string; body: string; 
 export interface LongReviewFaq { q: string; a: string; }
 export interface LongReviewData {
   seo?: { title?: string; description?: string; og_image_alt?: string; focus_keyword?: string; secondary_keywords?: string[] };
-  verdict?: { summary?: string; best_for?: string; not_ideal_for?: string; trust_score?: number; star_rating?: number };
+  verdict?: { summary?: string; tldr?: string; best_for?: string; not_ideal_for?: string; trust_score?: number; star_rating?: number };
   sections?: LongReviewSection[];
   faq?: LongReviewFaq[];
   affiliate_cta?: { label?: string; url?: string };
+  factuality_legend?: boolean;
 }
+
+const FACTUALITY_ITEMS: { dot: string; label: string }[] = [
+  { dot: "🟢", label: "Broker-advertised" },
+  { dot: "🔵", label: "Community-reported" },
+  { dot: "🟡", label: "Third-party reviewed" },
+  { dot: "🔴", label: "Could not independently verify" },
+  { dot: "⚪", label: "NAFT editorial" },
+];
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
 
@@ -82,6 +91,20 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
       </aside>
 
       <div className="min-w-0 space-y-8">
+        {/* Factuality legend */}
+        {data.factuality_legend !== false && (
+          <div className="rounded-md border border-border bg-muted/30 p-3">
+            <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Factuality key</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground/75">
+              {FACTUALITY_ITEMS.map(i => (
+                <span key={i.label} className="inline-flex items-center gap-1.5">
+                  <span aria-hidden>{i.dot}</span>{i.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Verdict card */}
         {data.verdict && (
           <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
