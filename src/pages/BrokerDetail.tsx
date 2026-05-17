@@ -491,8 +491,8 @@ const BrokerDetail = () => {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground truncate">{broker.name}</h1>
                         {broker.badge === "verified" && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
-                            <Shield className="w-3 h-3" /> Verified
+                          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20" title="NAFT-vetted: independently verified, not a fugazi">
+                            <Shield className="w-3 h-3" /> Not a Fugazi
                           </span>
                         )}
                         {broker.badge === "featured" && (
