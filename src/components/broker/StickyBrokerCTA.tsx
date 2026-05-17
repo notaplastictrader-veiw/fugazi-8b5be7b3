@@ -33,7 +33,7 @@ const StickyBrokerCTA = ({ broker, onWriteReview }: Props) => {
           )}
           <div className="min-w-0 flex-1">
             <div className="text-sm font-display font-bold text-foreground truncate">{broker.name}</div>
-            <div className="text-[11px] font-mono text-muted-foreground">Trust score {Math.round(broker.score * 10)}/100</div>
+            <div className="text-[11px] font-mono text-muted-foreground"><span className="text-primary font-bold">NAFT</span> {broker.score?.toFixed(1)}/10</div>
           </div>
           <button
             onClick={onWriteReview}
