@@ -785,13 +785,27 @@ const BrokerDetail = () => {
 
             {/* ===== OVERVIEW TAB ===== */}
             <TabsContent value="overview" className="mt-4 space-y-6">
+              {/* TL;DR — plain-English summary from long_review */}
+              {broker.long_review?.verdict?.tldr && (
+                <section>
+                  <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" /> TL;DR
+                  </h2>
+                  <div className="glass-card rounded-xl p-6 border-l-4 border-primary">
+                    <p className="text-foreground/90 leading-relaxed whitespace-pre-line">
+                      {broker.long_review.verdict.tldr}
+                    </p>
+                  </div>
+                </section>
+              )}
+
               {/* Our Verdict */}
               <section>
                 <h2 className="text-xl font-display font-bold text-foreground mb-3 flex items-center gap-2">
                   <Scale className="w-5 h-5 text-primary" /> Our Verdict
                 </h2>
                 <div className="glass-card rounded-xl p-6">
-                  <p className="text-muted-foreground leading-relaxed">{broker.description?.trim() || review.verdict}</p>
+                  <p className="text-muted-foreground leading-relaxed">{broker.long_review?.verdict?.summary || broker.description?.trim() || review.verdict}</p>
                 </div>
               </section>
 
