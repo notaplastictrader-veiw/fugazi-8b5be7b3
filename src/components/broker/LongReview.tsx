@@ -91,6 +91,20 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
       </aside>
 
       <div className="min-w-0 space-y-8">
+        {/* Factuality legend */}
+        {data.factuality_legend !== false && (
+          <div className="rounded-md border border-border bg-muted/30 p-3">
+            <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Factuality key</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground/75">
+              {FACTUALITY_ITEMS.map(i => (
+                <span key={i.label} className="inline-flex items-center gap-1.5">
+                  <span aria-hidden>{i.dot}</span>{i.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Verdict card */}
         {data.verdict && (
           <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
