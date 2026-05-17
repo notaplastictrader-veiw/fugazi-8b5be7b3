@@ -1,40 +1,92 @@
-## Goal
+## My verdict on the review itself
 
-Replace the Exness `long_review` JSON in the database with the new 2026 review, sanitised per your rules, and lightly extend the `LongReview` component to render the factuality system cleanly.
+**Overall: 8.5/10.** Ship it. Specifics:
 
-## Content rules applied to the new review
+| Area | Score | Note |
+|---|---|---|
+| Geo honesty | 10/10 | Malaysia removed, accepted/excluded lists explicit |
+| SEO structure | 9.5/10 | Real Google queries as H2s, JSON-LD clean |
+| Voice & trust | 9/10 | FCA caveat hit 4× without nagging, "test a withdrawal" repeated naturally |
+| Factuality discipline | 9/10 | Only Trustpilot named, rest is "publicly reported" / "broker-stated" |
+| Full Review tab UX | 9/10 | TOC, tables, bullets, mid-CTAs — strong |
+| **Overview tab UX** | **6/10** | **Three paragraphs of prose. This is where the reader bounces.** |
+| Conversion psychology | 8/10 | CTAs land at right points; friction reducers good |
 
-1. **Strip third-party review sites.** Remove every mention of FX Empire, BrokerChooser, FxScouts, CompareForexBrokers, ForexBrokers.com, FX Recap, FX Review Center, TradersUnion, WikiFX. Rewrite each sentence to keep the underlying fact, attributed generically (e.g. "Independent testing measured EUR/USD at ~0.70 pips on Standard" instead of "FxScouts reports…"). Keep **Trustpilot** references and the 27,032-review / 4.7-star data intact.
-2. **Keep factuality dots inline** (🟢🔵🟡🔴⚪) and render a small legend block at the top of the rendered article.
-3. **Use new score**: 8.0 / 4.2 (matches the verdict card in the new review; overwrites existing 8.1).
-4. **Sources list** at the bottom of the review will be reduced to: Trustpilot + "Independent third-party broker review platforms (aggregated, 2026)".
+The one real problem is the **Overview tab**. That's where Google traffic lands first. Right now it's TL;DR (5 lines) + verdict.summary (3 paragraphs) + bottom_line. A scanner sees a wall and leaves. The Full Review tab is solved — the Overview is not.
 
-## Overview tab strategy
+## What I'll build
 
-Render two blocks on the Overview tab, above the existing tabs/content:
-- **TL;DR** — auto-written 4–6 sentence plain-English summary: what Exness is, who it suits, the regulation caveat, withdrawal reputation, score, and one-line bottom line. No jargon, no emojis.
-- **Editor's verdict** — your existing Quick Verdict paragraph below it (with sources sanitised).
+### 1. Redesign the Overview tab as a 4-second scorecard
 
-## Data shape
+New structure, top to bottom, on `/brokers/exness` Overview tab:
 
-The `brokers.long_review` JSONB already supports `seo`, `verdict`, `sections[]`, `faq[]`, `affiliate_cta`. I'll add two optional fields the renderer will pick up if present:
-- `verdict.tldr` (string) — the plain-English TL;DR for the Overview tab
-- `factuality_legend` (boolean, default true) — toggles the legend block at top of the Full Review
+```text
+┌─────────────────────────────────────────────────┐
+│  EXNESS    8.0/10  ★4.2  ·  Trustpilot 4.7      │  ← hero stat strip
+│  Verified broker · Since 2008 · 8 min read      │
+├─────────────────────────────────────────────────┤
+│  ✓ Best for: scalpers, EA traders in IN/ID/AE  │  ← decision chips
+│  ✗ Not for:  Malaysia, EU/UK retail, beginners │
+├─────────────────────────────────────────────────┤
+│  $10 min  ·  ~0.7 pip  ·  Instant w/d  ·  1:2000│  ← 4-stat row
+├─────────────────────────────────────────────────┤
+│  TL;DR  (plain-English, 4 lines from JSON)      │
+├─────────────────────────────────────────────────┤
+│  Editor's Verdict  (verdict.summary, collapsed   │
+│  to first paragraph + "Read full verdict" link) │
+├─────────────────────────────────────────────────┤
+│  [ Open Exness Account — $10 min ]              │  ← primary CTA
+│  [ Read the full review → ]                     │  ← secondary
+└─────────────────────────────────────────────────┘
+```
 
-No schema migration needed — `long_review` is JSONB, additive.
+Every block is pulled straight from your JSON — no new copy, no rewrites. The change is **visual hierarchy**, not content.
 
-## Files changed
+### 2. Apply your new JSON to the database
 
-1. **`supabase` migration** — single `UPDATE brokers SET long_review = …, score = 8.0, stars = 4.2, updated_at = now() WHERE slug = 'exness'` with the fully sanitised JSON.
-2. **`src/components/broker/LongReview.tsx`** — render a small factuality legend card at the top when `factuality_legend !== false`. No other behaviour changes.
-3. **`src/pages/BrokerDetail.tsx`** — on the Overview tab, if `long_review.verdict.tldr` exists, show a "TL;DR" callout above the existing overview content, followed by the editor's verdict paragraph.
+Single `UPDATE brokers` on slug `exness`:
+- `long_review` ← your full JSON (verbatim)
+- `score` ← 8.0
+- `stars` ← 4.2
+- `updated_at` ← now()
 
-## What stays the same
+### 3. Extend `LongReview.tsx` to render the rich shape
 
-- Tab structure, routing, SEO component, sticky CTA, withdrawal proofs, peer brokers rail — untouched.
-- The `long_review` rendering pipeline (TOC, verdict card, sections, FAQ accordion, internal-link mapping) — untouched except for the new legend block.
-- Same JSON shape works for the next broker you send.
+For the Full Review tab. Additive only — old broker rows keep working.
 
-## Open question I'll default on unless you object
+- Remove factuality legend block + `FACTUALITY_ITEMS` constant
+- Strip stray `🟢🔵🟡🔴⚪` emojis at render
+- Render `at_a_glance` as a compact card above verdict
+- Render `geo.accepted[]` / `geo.excluded[]` as a two-column card (new `GeoAvailability.tsx`)
+- Render `section.table` (headers/rows/footnote) as responsive `<table>`
+- Render `section.bullets[]` as styled list
+- Render `for[]` / `not_for[]` as side-by-side green/red cards
+- Render `section.steps[]` as numbered timeline; `cta_inline` becomes inline button
+- Inject mid-article CTA card after any section with `cta_after: true`
+- Trustpilot pill + reading-time chip in header strip
+- `practical_note` rendered as muted callout
+- `internal_links[]` rendered as "Related" footer block
+- Support new `[INTERNAL: /path]` bracket style alongside existing `[INTERNAL LINK:]`
 
-The review references the **Philippine SEC advisory (Jan 2026)** and **October 2025 server outage**. You said remove competitor review sites only — I'll **keep both of these events** because they're regulatory/operational facts, not competitor citations, and rephrase them as "public regulatory advisory" and "publicly reported outage" without naming WikiFX as the source.
+### 4. Add JSON-LD to `BrokerDetail.tsx`
+
+Pass `long_review.schema_jsonld.review` and `.faqPage` into `<SEO jsonLd={…}>`. Google gets Review + FAQPage rich results — directly drives CTR.
+
+## Two small inconsistencies I caught in your JSON (flagging, not editing without your call)
+
+1. **Raw Spread commission**: at-a-glance says `$7 round-turn`, section table says `$3.50/lot/side`. Both correct (×2), but a careful reader pauses. Add one clarifying line, or leave?
+2. **Australia** is in `geo.excluded` but missing from the `verdict.not_ideal_for` sentence. Add it, or leave?
+
+Default if you don't reply: leave both exactly as written.
+
+## What stays untouched
+
+- Tab structure, routing, sticky CTA, peer brokers rail, withdrawal proofs gallery
+- Every word of your JSON copy
+- Score logic, all other broker pages
+
+## After publish
+
+Live at `/brokers/exness` with a scannable Overview that converts in 4 seconds, and a Full Review tab that renders every new field cleanly. Review + FAQ schema in `<head>` for Google.
+
+Approve and I ship in one pass.

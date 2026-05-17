@@ -4,56 +4,85 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
-import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle } from "lucide-react";
+import GeoAvailability from "@/components/broker/GeoAvailability";
+import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen } from "lucide-react";
 
-export interface LongReviewSection { id: string; heading: string; body: string; }
+export interface LongReviewTable {
+  headers: string[];
+  rows: (string | number)[][];
+  footnote?: string;
+}
+export interface LongReviewStep {
+  number: number;
+  title: string;
+  detail: string;
+  cta_inline?: { label: string; url: string };
+}
+export interface LongReviewSection {
+  id: string;
+  heading: string;
+  body?: string;
+  table?: LongReviewTable;
+  bullets?: string[];
+  for?: string[];
+  not_for?: string[];
+  steps?: LongReviewStep[];
+  practical_note?: string;
+  cta_after?: boolean;
+}
 export interface LongReviewFaq { q: string; a: string; }
 export interface LongReviewData {
   seo?: { title?: string; description?: string; og_image_alt?: string; focus_keyword?: string; secondary_keywords?: string[] };
-  verdict?: { summary?: string; tldr?: string; best_for?: string; not_ideal_for?: string; trust_score?: number; star_rating?: number };
+  verdict?: {
+    summary?: string;
+    tldr?: string;
+    best_for?: string;
+    not_ideal_for?: string;
+    trust_score?: number;
+    star_rating?: number;
+    bottom_line?: string;
+  };
+  at_a_glance?: Record<string, any>;
+  geo?: { accepted?: string[]; excluded?: string[] };
   sections?: LongReviewSection[];
   faq?: LongReviewFaq[];
-  affiliate_cta?: { label?: string; url?: string };
-  factuality_legend?: boolean;
+  affiliate_cta?: {
+    label?: string;
+    url?: string;
+    promo_code?: string | null;
+    friction_reducers?: string[];
+  };
+  trustpilot?: { rating?: number; reviews?: number; source_note?: string };
+  internal_links?: { anchor: string; url: string }[];
+  reading_time_minutes?: number;
+  word_count?: number;
+  schema_jsonld?: { review?: any; faqPage?: any };
+  factuality_legend?: boolean; // legacy, ignored
 }
-
-const FACTUALITY_ITEMS: { dot: string; label: string }[] = [
-  { dot: "🟢", label: "Broker-advertised" },
-  { dot: "🔵", label: "Community-reported" },
-  { dot: "🟡", label: "Third-party reviewed" },
-  { dot: "🔴", label: "Could not independently verify" },
-  { dot: "⚪", label: "NAFT editorial" },
-];
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
 
-// Map [INTERNAL LINK: …] placeholders to real routes
-const linkMap = (slug: string): { test: RegExp; to: string; sameTab?: boolean }[] => [
-  { test: /how we review|how we verify/i, to: "/how-we-review" },
-  { test: /withdrawal proofs/i, to: `/brokers/${slug}#reviews-anchor` },
-  { test: /how naft calculates|trust score/i, to: "/how-we-review" },
-  { test: /vs xm|exness vs/i, to: `/compare?brokers=${slug},xm-global` },
-  { test: /file a complaint/i, to: "/file-complaint" },
-  { test: /write a review/i, to: `/brokers/${slug}#reviews-anchor` },
-];
+// Strip leftover factuality dots from old content
+const stripDots = (s: string) => s.replace(/[🟢🔵🟡🔴⚪]\s?/g, "");
 
-// Render body text: split paragraphs, convert [INTERNAL LINK: ...] tokens to Links.
+// Map [INTERNAL: /path] and legacy [INTERNAL LINK: label] tokens
 function renderBody(text: string, slug: string) {
-  const map = linkMap(slug);
-  const paragraphs = text.split(/\n{2,}|\n(?=\d+\.\s)/).map(p => p.trim()).filter(Boolean);
+  const clean = stripDots(text);
+  const paragraphs = clean.split(/\n{2,}|\n(?=\d+\.\s)/).map(p => p.trim()).filter(Boolean);
   return paragraphs.map((p, i) => {
     const parts: (string | JSX.Element)[] = [];
-    const re = /\[INTERNAL LINK:\s*([^\]]+)\]|\[AFFILIATE LINK PLACEHOLDER[^\]]*\]/gi;
+    const re = /\[INTERNAL:\s*([^\]]+)\]|\[INTERNAL LINK:\s*([^\]]+)\]|\[AFFILIATE[^\]]*\]/gi;
     let last = 0; let m: RegExpExecArray | null; let key = 0;
     while ((m = re.exec(p)) !== null) {
       if (m.index > last) parts.push(p.slice(last, m.index));
       if (m[0].toUpperCase().includes("AFFILIATE")) {
-        parts.push(<span key={`a-${i}-${key++}`} className="inline-block text-xs font-mono text-muted-foreground">[affiliate link below]</span>);
+        parts.push(<span key={`a-${i}-${key++}`} className="inline-block text-xs font-mono text-muted-foreground">[link below]</span>);
       } else {
-        const label = m[1].trim();
-        const match = map.find(x => x.test.test(label));
+        const raw = (m[1] || m[2] || "").trim();
+        const to = raw.startsWith("/") ? raw : "#";
+        const label = raw.startsWith("/") ? raw.replace(/^\/+/, "").replace(/-/g, " ") : raw;
         parts.push(
-          <Link key={`l-${i}-${key++}`} to={match?.to || "#"} className="text-primary underline underline-offset-2 hover:text-primary/80">
+          <Link key={`l-${i}-${key++}`} to={to} className="text-primary underline underline-offset-2 hover:text-primary/80">
             {label}
           </Link>
         );
@@ -68,6 +97,106 @@ function renderBody(text: string, slug: string) {
     );
   });
 }
+
+const AtAGlance = ({ data }: { data: Record<string, any> }) => {
+  const labelMap: Record<string, string> = {
+    regulation: "Regulation",
+    min_deposit: "Min deposit",
+    max_leverage: "Max leverage",
+    avg_spread_eurusd: "Avg EUR/USD spread",
+    withdrawal_speed: "Withdrawal speed",
+    platforms: "Platforms",
+    islamic_account: "Islamic account",
+  };
+  const entries = Object.entries(data);
+  return (
+    <Card className="border-border">
+      <CardContent className="p-5">
+        <h3 className="font-display font-bold text-base mb-3">At a glance</h3>
+        <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+          {entries.map(([k, v]) => {
+            const label = labelMap[k] || k.replace(/_/g, " ");
+            let value: React.ReactNode;
+            if (Array.isArray(v)) {
+              value = (
+                <div className="flex flex-wrap gap-1">
+                  {v.map((item, i) => (
+                    <span key={i} className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-secondary/60 text-foreground border border-border">
+                      {String(item)}
+                    </span>
+                  ))}
+                </div>
+              );
+            } else if (typeof v === "boolean") {
+              value = v ? <span className="text-primary text-sm font-bold">Yes</span> : <span className="text-muted-foreground text-sm">No</span>;
+            } else {
+              value = <span className="text-sm text-foreground/90">{String(v)}</span>;
+            }
+            return (
+              <div key={k} className="flex flex-col gap-1 border-b border-border/40 pb-2 last:border-0">
+                <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground capitalize">{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            );
+          })}
+        </dl>
+      </CardContent>
+    </Card>
+  );
+};
+
+const SectionTable = ({ table }: { table: LongReviewTable }) => (
+  <div className="my-4 overflow-x-auto rounded-md border border-border">
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="bg-muted/40">
+          {table.headers.map((h, i) => (
+            <th key={i} className="px-3 py-2 text-left font-mono text-xs uppercase tracking-wider text-muted-foreground">{h}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {table.rows.map((row, ri) => (
+          <tr key={ri} className="border-t border-border/40">
+            {row.map((cell, ci) => (
+              <td key={ci} className="px-3 py-2 text-foreground/85 align-top">{String(cell)}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    {table.footnote && (
+      <p className="text-[11px] font-mono text-muted-foreground italic px-3 py-2 border-t border-border/40 bg-muted/20">{table.footnote}</p>
+    )}
+  </div>
+);
+
+const MidCTA = ({ data, brokerName }: { data: LongReviewData; brokerName: string }) => {
+  if (!data.affiliate_cta?.url || data.affiliate_cta.url === "AFFILIATE_PLACEHOLDER") return null;
+  return (
+    <Card className="border-primary/40 bg-primary/5 my-4">
+      <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+        <div className="min-w-0">
+          <p className="font-display font-bold">{data.affiliate_cta.label || `Open ${brokerName} Account`}</p>
+          {data.affiliate_cta.friction_reducers && data.affiliate_cta.friction_reducers.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {data.affiliate_cta.friction_reducers.map((f, i) => (
+                <span key={i} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-background border border-border text-muted-foreground">
+                  {f}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <Button asChild>
+          <a href={data.affiliate_cta.url} target="_blank" rel="sponsored noopener">
+            Open Account <ExternalLink className="w-4 h-4 ml-1.5" />
+          </a>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
 
 const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
   const sections = data.sections || [];
@@ -90,20 +219,26 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
         </div>
       </aside>
 
-      <div className="min-w-0 space-y-8">
-        {/* Factuality legend */}
-        {data.factuality_legend !== false && (
-          <div className="rounded-md border border-border bg-muted/30 p-3">
-            <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">Factuality key</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground/75">
-              {FACTUALITY_ITEMS.map(i => (
-                <span key={i.label} className="inline-flex items-center gap-1.5">
-                  <span aria-hidden>{i.dot}</span>{i.label}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="min-w-0 space-y-6">
+        {/* Header chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          {data.reading_time_minutes && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-full border border-border bg-muted/30 text-muted-foreground">
+              <Clock className="w-3 h-3" /> {data.reading_time_minutes} min read
+            </span>
+          )}
+          {data.word_count && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-full border border-border bg-muted/30 text-muted-foreground">
+              <BookOpen className="w-3 h-3" /> {data.word_count.toLocaleString()} words
+            </span>
+          )}
+          {data.trustpilot?.rating && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary">
+              <Star className="w-3 h-3 fill-primary" /> Trustpilot {data.trustpilot.rating}/5
+              {data.trustpilot.reviews ? ` · ${data.trustpilot.reviews.toLocaleString()} reviews` : ""}
+            </span>
+          )}
+        </div>
 
         {/* Verdict card */}
         {data.verdict && (
@@ -126,7 +261,7 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                   )}
                 </div>
               </div>
-              {data.verdict.summary && <p className="text-foreground/85 leading-relaxed">{data.verdict.summary}</p>}
+              {data.verdict.summary && <p className="text-foreground/85 leading-relaxed whitespace-pre-line">{stripDots(data.verdict.summary)}</p>}
               <div className="grid sm:grid-cols-2 gap-3 pt-2">
                 {data.verdict.best_for && (
                   <div className="rounded-md border border-primary/20 bg-primary/5 p-3">
@@ -145,21 +280,114 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                   </div>
                 )}
               </div>
+              {data.verdict.bottom_line && (
+                <p className="text-sm text-foreground/75 italic border-l-2 border-primary/40 pl-3">{data.verdict.bottom_line}</p>
+              )}
             </CardContent>
           </Card>
         )}
 
+        {/* At-a-glance */}
+        {data.at_a_glance && Object.keys(data.at_a_glance).length > 0 && (
+          <AtAGlance data={data.at_a_glance} />
+        )}
+
+        {/* Geo */}
+        {data.geo && <GeoAvailability accepted={data.geo.accepted} excluded={data.geo.excluded} />}
+
         {/* Sections */}
         {sections.map(s => (
-          <section key={s.id} id={s.id} className="scroll-mt-24">
-            <h2 className="text-2xl font-display font-bold mb-4 pb-2 border-b border-border">{s.heading}</h2>
-            <div className="prose prose-invert max-w-none">
-              {renderBody(s.body, brokerSlug)}
-            </div>
-          </section>
+          <div key={s.id}>
+            <section id={s.id} className="scroll-mt-24">
+              <h2 className="text-2xl font-display font-bold mb-4 pb-2 border-b border-border">{s.heading}</h2>
+              <div className="max-w-none">
+                {s.body && renderBody(s.body, brokerSlug)}
+                {s.table && <SectionTable table={s.table} />}
+                {s.bullets && s.bullets.length > 0 && (
+                  <ul className="space-y-2 my-3">
+                    {s.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2 text-foreground/85 leading-relaxed">
+                        <span className="text-primary mt-1.5 shrink-0">▸</span>
+                        <span>{stripDots(b)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {(s.for || s.not_for) && (
+                  <div className="grid sm:grid-cols-2 gap-3 my-3">
+                    {s.for && (
+                      <div className="rounded-md border border-primary/25 bg-primary/5 p-4">
+                        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-primary mb-2">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Right fit
+                        </div>
+                        <ul className="space-y-2">
+                          {s.for.map((it, i) => (
+                            <li key={i} className="text-sm text-foreground/85 flex gap-2">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                              <span>{it}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {s.not_for && (
+                      <div className="rounded-md border border-destructive/25 bg-destructive/5 p-4">
+                        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-destructive mb-2">
+                          <XCircle className="w-3.5 h-3.5" /> Wrong fit
+                        </div>
+                        <ul className="space-y-2">
+                          {s.not_for.map((it, i) => (
+                            <li key={i} className="text-sm text-foreground/85 flex gap-2">
+                              <XCircle className="w-3.5 h-3.5 text-destructive mt-0.5 shrink-0" />
+                              <span>{it}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {s.steps && s.steps.length > 0 && (
+                  <ol className="space-y-4 my-4">
+                    {s.steps.map((step, i) => (
+                      <li key={i} className="flex gap-4">
+                        <div className="shrink-0 w-9 h-9 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center font-display font-bold text-primary">
+                          {step.number}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-display font-bold text-base mb-1">{step.title}</h4>
+                          <p className="text-foreground/85 leading-relaxed text-sm">{stripDots(step.detail)}</p>
+                          {step.cta_inline && step.cta_inline.url !== "AFFILIATE_PLACEHOLDER" && (
+                            <Button asChild size="sm" className="mt-2">
+                              <a href={step.cta_inline.url} target="_blank" rel="sponsored noopener">
+                                {step.cta_inline.label} <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                              </a>
+                            </Button>
+                          )}
+                          {step.cta_inline && step.cta_inline.url === "AFFILIATE_PLACEHOLDER" && data.affiliate_cta?.url && data.affiliate_cta.url !== "AFFILIATE_PLACEHOLDER" && (
+                            <Button asChild size="sm" className="mt-2">
+                              <a href={data.affiliate_cta.url} target="_blank" rel="sponsored noopener">
+                                {step.cta_inline.label} <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                {s.practical_note && (
+                  <div className="mt-4 rounded-md border-l-2 border-primary/40 bg-muted/30 p-3 text-sm text-foreground/80 italic">
+                    {stripDots(s.practical_note)}
+                  </div>
+                )}
+              </div>
+            </section>
+            {s.cta_after && <MidCTA data={data} brokerName={brokerName} />}
+          </div>
         ))}
 
-        {/* Affiliate CTA */}
+        {/* Final affiliate CTA */}
         {data.affiliate_cta?.url && data.affiliate_cta.url !== "AFFILIATE_PLACEHOLDER" && (
           <Card className="border-primary/40 bg-primary/5">
             <CardContent className="p-6 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
@@ -187,10 +415,24 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
               {data.faq.map((f, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
                   <AccordionTrigger className="text-left font-display">{f.q}</AccordionTrigger>
-                  <AccordionContent className="text-foreground/80 leading-relaxed whitespace-pre-line">{f.a}</AccordionContent>
+                  <AccordionContent className="text-foreground/80 leading-relaxed whitespace-pre-line">{stripDots(f.a)}</AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
+          </section>
+        )}
+
+        {/* Internal links */}
+        {data.internal_links && data.internal_links.length > 0 && (
+          <section>
+            <h3 className="font-display font-bold text-base mb-3">Related</h3>
+            <ul className="grid sm:grid-cols-2 gap-2">
+              {data.internal_links.map((l, i) => (
+                <li key={i}>
+                  <Link to={l.url} className="text-sm text-primary hover:underline">→ {l.anchor}</Link>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
       </div>
