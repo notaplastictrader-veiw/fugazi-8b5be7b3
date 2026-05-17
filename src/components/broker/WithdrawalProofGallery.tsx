@@ -31,11 +31,14 @@ const DEMO_PROOFS: Proof[] = [
   { id: "demo-6", amount: 12400, currency: "USD", withdrawal_date: new Date(Date.now() - 25 * 86400000).toISOString(), payout_method: "Bank Wire", payout_time_hours: 36, proof_url: "", notes: "Large amount — extra verification but paid in full.", verified_at: new Date().toISOString() },
 ];
 
+const PAGE_SIZE = 3;
+
 const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
   const { user } = useAuth();
   const [proofs, setProofs] = useState<Proof[]>([]);
   const [loading, setLoading] = useState(true);
   const [openUpload, setOpenUpload] = useState(false);
+  const [page, setPage] = useState(0);
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +51,7 @@ const WithdrawalProofGallery = ({ brokerId, brokerName }: Props) => {
       .limit(12);
     setProofs((data as Proof[]) || []);
     setLoading(false);
+    setPage(0);
   };
 
   useEffect(() => { load(); }, [brokerId]);
