@@ -1,92 +1,111 @@
-## My verdict on the review itself
+# Exness Review Polish — Round 2
 
-**Overall: 8.5/10.** Ship it. Specifics:
+Goal: make the review feel calmer to read, more BD-focused, internally consistent (everything = 8/10), and cleaner in the side rail + card chrome. All changes are presentation + JSON content only — no schema work.
 
-| Area | Score | Note |
-|---|---|---|
-| Geo honesty | 10/10 | Malaysia removed, accepted/excluded lists explicit |
-| SEO structure | 9.5/10 | Real Google queries as H2s, JSON-LD clean |
-| Voice & trust | 9/10 | FCA caveat hit 4× without nagging, "test a withdrawal" repeated naturally |
-| Factuality discipline | 9/10 | Only Trustpilot named, rest is "publicly reported" / "broker-stated" |
-| Full Review tab UX | 9/10 | TOC, tables, bullets, mid-CTAs — strong |
-| **Overview tab UX** | **6/10** | **Three paragraphs of prose. This is where the reader bounces.** |
-| Conversion psychology | 8/10 | CTAs land at right points; friction reducers good |
+---
 
-The one real problem is the **Overview tab**. That's where Google traffic lands first. Right now it's TL;DR (5 lines) + verdict.summary (3 paragraphs) + bottom_line. A scanner sees a wall and leaves. The Full Review tab is solved — the Overview is not.
+## 1. Overview tab readability
 
-## What I'll build
+- **TL;DR block** — drop visual weight. Smaller font, muted foreground, no card border / no primary accent. Reads like a quiet pull-quote, not a banner. More improved readability.
+- **Stat row** (`Min deposit / EUR/USD spread / Withdrawals / Max leverage`) — **remove entirely**. Same info already lives in the sidebar broker card, so it's noise here.
+- **NAFT Trust Score widget** — change `80/100 Excellent` → `**8/10**` with the word **NAFT** highlighted (primary color, bold). Keep the small "Excellent" label.
+- **Hero strip** (`Exness 8/10 · 4.2/5 · Trustpilot 4.7/5 · 27,032`) — highlight **NAFT** label before the 8/10; **remove the Trustpilot highlight styling** (plain muted text). Trustpilot only appears here, nowhere else on the page.
+- **Reading time chip** — change `8 min read` → 3-`5 min read` every broker review it shows on.
 
-### 1. Redesign the Overview tab as a 4-second scorecard
+## 2. Sidebar broker card (sticky right rail)
 
-New structure, top to bottom, on `/brokers/exness` Overview tab:
+- Score badge: **8/10** (currently shows 80/100 only: `NAFT 8/10`.
+- Category label: `Forex` → `**Forex Broker**`.
+- Replace the generic **"Trusted"** pill (used on every card) with **"Not a Fugazi or can be a fugazi"** — our brand voice tag. Apply across all broker cards, not just Exness.
+- "Write review / Compare / Visit · Affiliate" buttons currently overflow / wrap awkwardly at this viewport. Tighten: stack vertically below ~1200px, smaller font, single-line truncate.
+- Move the **4 quick stats** (min dep, spread, leverage, withdrawal) back into this card, above the CTA buttons — compact 2×2 grid. This is where readers expect them.
+- **Broker Health 100/100 "Excellent"** — misleading for a new platform with 0 internal reviews. Options:
+  - Show **"Pending — needs community data"** with a neutral grey ring until ≥5 reviews exist, OR
+  - Hide the health widget on the card and only show it inside the Scam Score tab.
+  - Recommend option A (transparent + still visible).
+- **Add a seed admin review** so "0 reviews but stars showing" goes away. Insert one editorial review (author: "NAFT Editorial", rating 4, role: "editor") tied to broker_id via `supabase--insert`. Then the star block makes sense.
 
-```text
-┌─────────────────────────────────────────────────┐
-│  EXNESS    8.0/10  ★4.2  ·  Trustpilot 4.7      │  ← hero stat strip
-│  Verified broker · Since 2008 · 8 min read      │
-├─────────────────────────────────────────────────┤
-│  ✓ Best for: scalpers, EA traders in IN/ID/AE  │  ← decision chips
-│  ✗ Not for:  Malaysia, EU/UK retail, beginners │
-├─────────────────────────────────────────────────┤
-│  $10 min  ·  ~0.7 pip  ·  Instant w/d  ·  1:2000│  ← 4-stat row
-├─────────────────────────────────────────────────┤
-│  TL;DR  (plain-English, 4 lines from JSON)      │
-├─────────────────────────────────────────────────┤
-│  Editor's Verdict  (verdict.summary, collapsed   │
-│  to first paragraph + "Read full verdict" link) │
-├─────────────────────────────────────────────────┤
-│  [ Open Exness Account — $10 min ]              │  ← primary CTA
-│  [ Read the full review → ]                     │  ← secondary
-└─────────────────────────────────────────────────┘
-```
+## 3. Scrollspy on TOC
 
-Every block is pulled straight from your JSON — no new copy, no rewrites. The change is **visual hierarchy**, not content.
+The left "On this page" rail in `LongReview.tsx` currently doesn't highlight the active section. Add an `IntersectionObserver` that watches each `<section id>` and toggles an `active` class (primary border-left + primary text) on the matching anchor as the user scrolls.
 
-### 2. Apply your new JSON to the database
+## 4. Content edits inside the JSON (`long_review`)
 
-Single `UPDATE brokers` on slug `exness`:
-- `long_review` ← your full JSON (verbatim)
-- `score` ← 8.0
-- `stars` ← 4.2
-- `updated_at` ← now()
+Single `supabase--insert` UPDATE on `brokers` for `exness`. Changes:
 
-### 3. Extend `LongReview.tsx` to render the rich shape
+### a. `at_a_glance.deposit_methods`
 
-For the Full Review tab. Additive only — old broker rows keep working.
+From the full list → `["bKash", "Visa/Mastercard", "Skrill", "Crypto (BTC, USDT)"]` — bKash first (only BD local kept, drop Nagad/Rocket per "we said previousely to you that we're not BD-focused, but keep bKash"), Visa/Mastercard merged into one entry and placed second.
 
-- Remove factuality legend block + `FACTUALITY_ITEMS` constant
-- Strip stray `🟢🔵🟡🔴⚪` emojis at render
-- Render `at_a_glance` as a compact card above verdict
-- Render `geo.accepted[]` / `geo.excluded[]` as a two-column card (new `GeoAvailability.tsx`)
-- Render `section.table` (headers/rows/footnote) as responsive `<table>`
-- Render `section.bullets[]` as styled list
-- Render `for[]` / `not_for[]` as side-by-side green/red cards
-- Render `section.steps[]` as numbered timeline; `cta_inline` becomes inline button
-- Inject mid-article CTA card after any section with `cta_after: true`
-- Trustpilot pill + reading-time chip in header strip
-- `practical_note` rendered as muted callout
-- `internal_links[]` rendered as "Related" footer block
-- Support new `[INTERNAL: /path]` bracket style alongside existing `[INTERNAL LINK:]`
+### b. Deposits & Withdrawals section table
 
-### 4. Add JSON-LD to `BrokerDetail.tsx`
+Replace long list with **4 rows only**, columns: Method | Min Deposit | Processing | Fee.
 
-Pass `long_review.schema_jsonld.review` and `.faqPage` into `<SEO jsonLd={…}>`. Google gets Review + FAQPage rich results — directly drives CTR.
 
-## Two small inconsistencies I caught in your JSON (flagging, not editing without your call)
+| Method             | Min | Processing       | Fee                    |
+| ------------------ | --- | ---------------- | ---------------------- |
+| Local Method       | $10 | Instant          | N/A                    |
+| Visa / Mastercard  | $10 | Instant – 30 min | 0% (broker side)       |
+| Skrill / Neteller  | $10 | Instant          | 0%                     |
+| Crypto (BTC, USDT) | $10 | Instant          | 0% or Network fee only |
 
-1. **Raw Spread commission**: at-a-glance says `$7 round-turn`, section table says `$3.50/lot/side`. Both correct (×2), but a careful reader pauses. Add one clarifying line, or leave?
-2. **Australia** is in `geo.excluded` but missing from the `verdict.not_ideal_for` sentence. Add it, or leave?
 
-Default if you don't reply: leave both exactly as written.
+### c. `at_a_glance.avg_spread_eurusd`
 
-## What stays untouched
+`~0.7 pips` → `**0 – 0.7 pips (Raw to Standard)**` so the card range reads honestly.
 
-- Tab structure, routing, sticky CTA, peer brokers rail, withdrawal proofs gallery
-- Every word of your JSON copy
-- Score logic, all other broker pages
+### d. `verdict` — Who is this best/not-for
 
-## After publish
+Expand `best_for` to name 3–4 lead-gen countries:  
+Vietnam, Thailand, **"Bangladeshi, Pakistani, Sri Lankan, more asian country and South africa traders — low-deposit accounts, local payment method available,local rails, and Asia-friendly support hours."**  
+Keep `not_ideal_for` mostly as is, but add **Australia, UK, EU** explicitly (since `geo.excluded` already lists them).
 
-Live at `/brokers/exness` with a scannable Overview that converts in 4 seconds, and a Full Review tab that renders every new field cleanly. Review + FAQ schema in `<head>` for Google.
+### e. `verdict.trust_score`
 
-Approve and I ship in one pass.
+Recompute to **8.0** with a transparent breakdown block (new field `trust_breakdown`) — Regulation 2.0/2.5, Execution 1.8/2.0, Costs 1.7/2.0, Withdrawals 1.5/2.0, Transparency 1.0/1.5 → **8.0/10**. Render as a small bar list under the verdict card so the math is visible.
+
+### f. "Where it works" / Geo section
+
+Trim heavily. Keep:
+
+- One short paragraph: "Exness enforces geo + KYC checks. Restricted in US, Canada, UK, EU, Australia, Malaysia, and sanctioned jurisdictions. Full list on their site."
+- Then a **"See full restricted list →"** external link to Exness.
+- Remove the long bulleted continent breakdown + citation numbers (`+2`, `1`, `2`).
+
+### g. "Who Should Use Exness — and Who Should Not"
+
+Rewrite as two short cards (already styled via `for[] / not_for[]`) — 3 bullets each, plain language, no repetition of what verdict.best_for already said. Use this section to go deeper (trading style + experience level), not geography.
+
+### h. Trustpilot mention
+
+Currently appears in hero chip + verdict + FAQ + footer. **Keep only the hero chip mention.** Strip from all other sections or maybe in explanation can keep so max 2 place 
+
+### i. `reading_time_minutes`
+
+`8` → 3-`5`.
+
+---
+
+## Technical summary
+
+**Files to edit:**
+
+- `src/components/broker/LongReview.tsx` — mute TL;DR styling, remove 4-stat row, highlight "NAFT" label, change chip to 4 min, add IntersectionObserver scrollspy, render new `trust_breakdown` bars.
+- `src/pages/BrokerDetail.tsx` — sidebar card: rework score display (NAFT 8/10), category label, replace "Trusted" → "Not a Fugazi", move 4 stats into card, conditional health widget ("Pending" state when reviews < 5), tighten button stack.
+- `src/components/broker/BrokerCard.tsx` (and any list card) — same "Forex Broker" label + "Not a Fugazi" pill globally.
+- `src/components/broker/BrokerHealthScore.tsx` — add `pending` state when no community signals.
+
+**Data ops (two `supabase--insert` calls):**
+
+1. `UPDATE brokers SET long_review = <new JSON>, score = 8.0, stars = 4.2 WHERE slug = 'exness'` — applies all content edits in §4.
+2. `INSERT INTO reviews (...) VALUES (...)` — one seed editorial review for Exness so stars/review-count aren't orphaned.
+
+**No DB migrations. No new components. No new routes.**
+
+---
+
+## Open question (one)
+
+For the **"Trusted" → "Not a Fugazi"** pill: should this replace it on **every broker card sitewide**, or only on verified/high-trust brokers (and unverified ones show nothing)? Recommend **only on verified brokers** so the phrase keeps meaning.
+
+Tell me yes/no on that and I'll execute the full plan above in one pass.
