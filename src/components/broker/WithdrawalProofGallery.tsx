@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Banknote, Clock, Upload } from "lucide-react";
+import { CheckCircle2, Banknote, Clock, Upload, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WithdrawalProofUploadModal from "./WithdrawalProofUploadModal";
 import { useAuth } from "@/contexts/AuthContext";
