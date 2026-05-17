@@ -398,8 +398,8 @@ const BrokerDetail = () => {
   return (
     <MainLayout>
       <SEO
-        title={`${broker.name} Review ${new Date().getFullYear()} — Spreads, Regulation & Real User Feedback`}
-        description={`In-depth ${broker.name} review: regulation (${(broker.regulation || []).join(", ") || "N/A"}), spreads ${broker.avg_spread || "N/A"}, ${broker.review_count || 0}+ trader reviews. Trust score: ${broker.score}/10.`}
+        title={broker.long_review?.seo?.title || `${broker.name} Review ${new Date().getFullYear()} — Spreads, Regulation & Real User Feedback`}
+        description={broker.long_review?.seo?.description || `In-depth ${broker.name} review: regulation (${(broker.regulation || []).join(", ") || "N/A"}), spreads ${broker.avg_spread || "N/A"}, ${broker.review_count || 0}+ trader reviews. Trust score: ${broker.score}/10.`}
         path={`/brokers/${broker.slug}`}
       />
       <JsonLd data={breadcrumbSchema([
@@ -422,14 +422,18 @@ const BrokerDetail = () => {
           date: (r.created_at || new Date().toISOString()).slice(0, 10),
         })),
       })} />
-      <JsonLd data={faqSchema([
-        { question: `Is ${broker.name} regulated?`, answer: (broker.regulation && broker.regulation.length > 0)
-            ? `${broker.name} is regulated by ${broker.regulation.join(", ")}. Always verify the licence number on the regulator's official register before depositing.`
-            : `${broker.name} has no verified top-tier regulation on file. Treat this as elevated risk and start with a minimal deposit.` },
-        { question: `Is ${broker.name} safe for traders?`, answer: `Our independent trust score for ${broker.name} is ${Math.round((broker.score || 0) * 10)}/100, based on regulation, complaint history, withdrawal reliability and ${broker.review_count || 0} verified user reviews.` },
-        { question: `What is the minimum deposit at ${broker.name}?`, answer: broker.min_deposit ? `The minimum deposit at ${broker.name} starts from ${broker.min_deposit}.` : `Minimum deposit details for ${broker.name} are not published. Contact the broker before funding an account.` },
-        { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
-      ])} />
+      <JsonLd data={faqSchema(
+        broker.long_review?.faq && broker.long_review.faq.length > 0
+          ? broker.long_review.faq.map(f => ({ question: f.q, answer: f.a }))
+          : [
+              { question: `Is ${broker.name} regulated?`, answer: (broker.regulation && broker.regulation.length > 0)
+                  ? `${broker.name} is regulated by ${broker.regulation.join(", ")}. Always verify the licence number on the regulator's official register before depositing.`
+                  : `${broker.name} has no verified top-tier regulation on file. Treat this as elevated risk and start with a minimal deposit.` },
+              { question: `Is ${broker.name} safe for traders?`, answer: `Our independent trust score for ${broker.name} is ${Math.round((broker.score || 0) * 10)}/100, based on regulation, complaint history, withdrawal reliability and ${broker.review_count || 0} verified user reviews.` },
+              { question: `What is the minimum deposit at ${broker.name}?`, answer: broker.min_deposit ? `The minimum deposit at ${broker.name} starts from ${broker.min_deposit}.` : `Minimum deposit details for ${broker.name} are not published. Contact the broker before funding an account.` },
+              { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
+            ]
+      )} />
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
 
