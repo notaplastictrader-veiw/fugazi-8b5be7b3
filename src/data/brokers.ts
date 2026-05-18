@@ -20,7 +20,7 @@ export const brokers: Broker[] = [
     name: "Exness",
     slug: "exness",
     type: "forex",
-    tags: ["forex", "ecn", "low-spread", "bd-friendly"],
+    tags: ["forex", "ecn", "low-spread"],
     regulation: ["FCA", "CySEC"],
     score: 9.2,
     avgSpread: "0.1 pips",
