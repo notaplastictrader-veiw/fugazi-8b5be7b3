@@ -130,12 +130,34 @@ const HeroSection = () => {
           </span>
         </div>
 
-        {/* 3. Headline */}
-        <div className="hero-grain">
-          <h1 className="font-display font-black tracking-[-1px] leading-[1.1] mb-3 animate-[fade-up_0.6s_ease_0.1s_both]" style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
-            <span className="grunge-text grunge-high">{cms.headline || "Broker Reviews"}</span>
-            <br />
-            <span className="grunge-text-accent grunge-high">{cms.subheadline || "That Actually Matter."}</span>
+        {/* 3. Headline — 3D layered extrusion */}
+        <div className="hero-grain" style={{ perspective: "1000px" }}>
+          <h1
+            className="font-display font-black tracking-[-1px] leading-[1.05] mb-3 animate-[fade-up_0.6s_ease_0.1s_both] select-none"
+            style={{
+              fontSize: "clamp(36px, 6vw, 72px)",
+              transform: "rotateX(6deg)",
+              transformStyle: "preserve-3d",
+            }}
+          >
+            <span
+              className="grunge-text grunge-high block"
+              style={{
+                textShadow:
+                  "1px 1px 0 hsl(var(--foreground) / 0.55), 2px 2px 0 hsl(var(--foreground) / 0.45), 3px 3px 0 hsl(var(--foreground) / 0.35), 4px 4px 0 hsl(var(--foreground) / 0.25), 5px 5px 0 hsl(var(--foreground) / 0.18), 6px 8px 24px hsl(0 0% 0% / 0.55)",
+              }}
+            >
+              {cms.headline || "Broker Reviews"}
+            </span>
+            <span
+              className="grunge-text-accent grunge-high block"
+              style={{
+                textShadow:
+                  "1px 1px 0 hsl(var(--primary) / 0.85), 2px 2px 0 hsl(var(--primary) / 0.7), 3px 3px 0 hsl(var(--primary) / 0.55), 4px 4px 0 hsl(var(--primary) / 0.4), 5px 5px 0 hsl(var(--primary) / 0.28), 6px 10px 28px hsl(var(--primary) / 0.35), 0 0 40px hsl(var(--primary) / 0.15)",
+              }}
+            >
+              {cms.subheadline || "That Actually Matter."}
+            </span>
           </h1>
         </div>
 
