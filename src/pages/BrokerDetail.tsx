@@ -1230,6 +1230,15 @@ const BrokerDetail = () => {
                           { label: "Withdrawal Speed", weight: "25%", value: wdScore, hint: broker.withdrawal_time ? `Reported processing: ${broker.withdrawal_time}.` : "Processing time inferred from user reports." },
                           { label: "Complaint History", weight: "20%", value: complaintScore, hint: `${broker.complaints || 0} complaint${(broker.complaints || 0) === 1 ? "" : "s"} filed on NAFT.` },
                         ];
+                    // Normalise sub-scores so weighted average == broker.score
+                    const weights = items.map(it => parseFloat(it.weight) / 100);
+                    const rawWeighted = items.reduce((s, it, i) => s + it.value * weights[i], 0);
+                    if (rawWeighted > 0 && broker.score > 0) {
+                      const factor = broker.score / rawWeighted;
+                      items.forEach((it, i) => {
+                        it.value = Math.max(0, Math.min(10, Math.round(it.value * factor * 10) / 10));
+                      });
+                    }
                     return items.map((it) => {
                       const color = it.value >= 8 ? "bg-primary" : it.value >= 6 ? "bg-accent" : "bg-destructive";
                       return (
