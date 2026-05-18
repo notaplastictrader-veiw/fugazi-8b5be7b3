@@ -1156,7 +1156,7 @@ const BrokerDetail = () => {
                 </h2>
                 <div className="glass-card rounded-xl p-6">
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {["Live Chat", "Email", "Phone", "Telegram"].map(c => (
+                    {["Live Chat", "Email", "Phone"].map(c => (
                       <span key={c} className="text-xs font-mono bg-primary/10 text-primary px-2.5 py-1 rounded-full">{c}</span>
                     ))}
                   </div>
