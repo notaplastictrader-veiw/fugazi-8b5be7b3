@@ -140,7 +140,7 @@ const getPlaceholderReview = (broker: Broker) => ({
     "Inactivity fees may apply",
     "Some account types have higher minimum deposits",
   ],
-  bestFor: `${broker.tags?.includes("bd-friendly") ? "Bangladeshi and South Asian traders due to local payment support and low minimum deposit." : "Active forex traders looking for tight spreads and reliable execution."}`,
+  bestFor: (broker as any).long_review?.verdict?.best_for || "Active forex traders looking for tight spreads and reliable execution.",
   notIdealFor: "Traders seeking guaranteed stop-loss or US-based traders (not available).",
   ratings: {
     safety: Math.min(10, broker.score + 0.3),
