@@ -79,6 +79,29 @@ const HeroSection = () => {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
 
+      {/* 3D perspective floor text — "NO FUGAZI" */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 flex items-end justify-center pointer-events-none overflow-hidden select-none"
+        style={{ perspective: "800px" }}
+      >
+        <div
+          className="font-display font-black tracking-tighter text-primary leading-none whitespace-nowrap opacity-[0.18] blur-[2px]"
+          style={{
+            fontSize: "26vw",
+            transform: "rotateX(68deg) translateY(22%)",
+            transformOrigin: "50% 100%",
+            WebkitMaskImage:
+              "linear-gradient(to top, hsl(var(--background)) 0%, transparent 75%)",
+            maskImage:
+              "linear-gradient(to top, hsl(var(--background)) 0%, transparent 75%)",
+          }}
+        >
+          NO FUGAZI
+        </div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80%] h-[260px] bg-primary/10 blur-[120px] rounded-full" />
+      </div>
+
       <div className="relative z-10 max-w-[760px] mx-auto px-4 text-center">
 
         {/* 1. Brand badge */}
