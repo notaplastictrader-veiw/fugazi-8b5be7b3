@@ -1270,9 +1270,11 @@ const BrokerDetail = () => {
 
               {/* How to Open Account / Get Funded */}
               <section>
-                <h2 className="text-xl font-display font-bold text-foreground mb-3">
-                  {broker.type === "prop-firm" ? "How to Get Funded" : "How to Open an Account"}
-                </h2>
+                {broker.type === "prop-firm" && (
+                  <h2 className="text-xl font-display font-bold text-foreground mb-3">
+                    How to Get Funded
+                  </h2>
+                )}
                 <div className="glass-card rounded-xl p-6">
                   <div className="space-y-4">
                     {(broker.type === "prop-firm"
@@ -1285,7 +1287,7 @@ const BrokerDetail = () => {
                           "Request payout on demand, fee refunded with first payout",
                         ]
                       : [
-                          'Click "Open Account" button above',
+                          'Click "Open Account" Button above',
                           "Fill in your personal details",
                           "Verify your identity (KYC)",
                           "Make your first deposit",
