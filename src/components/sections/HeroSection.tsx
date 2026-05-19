@@ -144,7 +144,7 @@ const HeroSection = () => {
               className="grunge-text grunge-high block"
               style={{
                 textShadow:
-                  "1px 1px 0 hsl(var(--foreground) / 0.55), 2px 2px 0 hsl(var(--foreground) / 0.45), 3px 3px 0 hsl(var(--foreground) / 0.35), 4px 4px 0 hsl(var(--foreground) / 0.25), 5px 5px 0 hsl(var(--foreground) / 0.18), 6px 8px 24px hsl(0 0% 0% / 0.55)",
+                  "1px 1px 0 hsl(var(--foreground) / 0.9), 2px 2px 0 hsl(var(--foreground) / 0.8), 3px 3px 0 hsl(var(--foreground) / 0.7), 4px 4px 0 hsl(var(--foreground) / 0.55), 5px 5px 0 hsl(var(--foreground) / 0.4), 6px 6px 0 hsl(var(--foreground) / 0.25)",
               }}
             >
               {cms.headline || "Broker Reviews"}
