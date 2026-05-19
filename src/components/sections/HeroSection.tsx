@@ -136,22 +136,18 @@ const HeroSection = () => {
             className="font-display font-black tracking-[-1px] leading-[1.05] mb-3 animate-[fade-up_0.6s_ease_0.1s_both] select-none"
             style={{
               fontSize: "clamp(36px, 6vw, 72px)",
-              transform: "rotateX(6deg)",
-              transformStyle: "preserve-3d",
             }}
           >
             <span
-              className="grunge-text grunge-high block"
+              className="block text-foreground"
               style={{
                 textShadow:
-                  "1px 1px 0 hsl(var(--foreground) / 0.9), 2px 2px 0 hsl(var(--foreground) / 0.8), 3px 3px 0 hsl(var(--foreground) / 0.7), 4px 4px 0 hsl(var(--foreground) / 0.55), 5px 5px 0 hsl(var(--foreground) / 0.4), 6px 6px 0 hsl(var(--foreground) / 0.25)",
+                  "1px 1px 0 hsl(var(--foreground) / 0.35), 2px 2px 0 hsl(var(--foreground) / 0.25), 3px 3px 0 hsl(var(--foreground) / 0.18), 4px 4px 0 hsl(var(--foreground) / 0.12)",
               }}
             >
               {cms.headline || "Broker Reviews"}
             </span>
-            <span
-              className="grunge-text-accent grunge-high block"
-            >
+            <span className="block text-primary">
               {cms.subheadline || "That Actually Matter."}
             </span>
           </h1>
