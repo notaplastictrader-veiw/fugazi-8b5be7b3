@@ -141,10 +141,10 @@ const HeroSection = () => {
             }}
           >
             <span
-              className="block"
+              className="grunge-text grunge-high block"
               style={{
                 textShadow:
-                  "1px 1px 0 hsl(var(--foreground) / 0.9), 2px 2px 0 hsl(var(--foreground) / 0.75), 3px 3px 0 hsl(var(--foreground) / 0.6), 4px 4px 0 hsl(var(--foreground) / 0.45), 5px 5px 0 hsl(var(--foreground) / 0.3)",
+                  "1px 1px 0 hsl(var(--foreground) / 0.55), 2px 2px 0 hsl(var(--foreground) / 0.45), 3px 3px 0 hsl(var(--foreground) / 0.35), 4px 4px 0 hsl(var(--foreground) / 0.25), 5px 5px 0 hsl(var(--foreground) / 0.18), 6px 8px 24px hsl(0 0% 0% / 0.55)",
               }}
             >
               {cms.headline || "Broker Reviews"}
