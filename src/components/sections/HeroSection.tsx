@@ -88,7 +88,7 @@ const HeroSection = () => {
         <div
           className="font-display font-black tracking-tighter text-primary leading-none whitespace-nowrap opacity-[0.18] blur-[2px]"
           style={{
-            fontSize: "clamp(80px, 18vw, 240px)",
+            fontSize: "26vw",
             transform: "rotateX(68deg) translateY(22%)",
             transformOrigin: "50% 100%",
             WebkitMaskImage:
