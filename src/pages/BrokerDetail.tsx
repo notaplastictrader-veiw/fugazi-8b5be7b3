@@ -1287,7 +1287,7 @@ const BrokerDetail = () => {
                           "Request payout on demand, fee refunded with first payout",
                         ]
                       : [
-                          'Click "Open Account" button above',
+                          'Click "Open Account" Button above',
                           "Fill in your personal details",
                           "Verify your identity (KYC)",
                           "Make your first deposit",
