@@ -151,10 +151,6 @@ const HeroSection = () => {
             </span>
             <span
               className="grunge-text-accent grunge-high block"
-              style={{
-                textShadow:
-                  "1px 1px 0 hsl(var(--primary) / 0.85), 2px 2px 0 hsl(var(--primary) / 0.7), 3px 3px 0 hsl(var(--primary) / 0.55), 4px 4px 0 hsl(var(--primary) / 0.4), 5px 5px 0 hsl(var(--primary) / 0.28), 6px 10px 28px hsl(var(--primary) / 0.35), 0 0 40px hsl(var(--primary) / 0.15)",
-              }}
             >
               {cms.subheadline || "That Actually Matter."}
             </span>
