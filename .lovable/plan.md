@@ -1,41 +1,38 @@
-## Problem
+## Goal
+Replace the existing Bullwaves broker record's content with the new May 2026 review you provided, mapped correctly to our database schema so it renders in the existing `LongReview` component on the broker detail page.
 
-On `/brokers/exness#overview` the Trust Score Breakdown shows four sub-scores whose weighted sum is **9.1**, but the Overall Trust Score row prints **8.1** (because it shows `broker.score`, not the weighted average). The user wants Overall to stay 8.1 and the four bars to reconcile to it.
+## What I'll update
 
-Current rows (Exness):
+Target row: `brokers` where `slug = 'bullwaves-1776493644406'` (id `54dda4db-09e7-4b21-b6d6-ae217cb24973`).
 
-| Row | Score | Weight |
-|---|---|---|
-| Regulation | 10.0 | 30% |
-| User Reviews | 8.2 | 25% |
-| Withdrawal Speed | 8.1 | 25% |
-| Complaint History | 10.0 | 20% |
-| Weighted sum | **9.075** | |
-| Overall displayed | **8.1** | |
+Top-level columns (refreshed from the new content):
+- `score` → 7.2, `stars` → 3.7
+- `min_deposit` → "$100", `leverage` → "1:500", `avg_spread` → "1.6"
+- `regulation` → ["FSA Seychelles — SD185", "MISA Comoros — T2022122"]
+- `license_number` → "SD185"
+- `founded_year` → 2023, `headquarters` → "Victoria, Seychelles"
+- `platforms` → ["MetaTrader 5", "MT5 Mobile", "MT5 WebTrader"]
+- `withdrawal_time` → "24–48 hours (verified)"
+- `tags` → ["mt5", "high-leverage", "ecn", "islamic-account", "bonus"]
+- `pros` / `cons` → derived from "for / not_for" + red flags
+- `last_verified_at` → now()
 
-## Cause
+`long_review` JSONB → the full review, normalized to what `LongReview.tsx` expects:
+- `seo`, `verdict` (trust_score, star_rating, tldr → mapped to `summary`, best_for, not_ideal_for, bottom_line)
+- `at_a_glance` (regulation, founded, min_deposit, max_leverage, avg_spread_eurusd, withdrawal_speed, platforms, islamic_account)
+- `geo` (cleaned accepted/excluded arrays — the source JSON had unquoted strings in `excluded`; I'll fix and dedupe Iran etc.)
+- `sections` mapped one-for-one; renamed `entity_table` / `account_table` → `table` (the only key the renderer reads); kept `bullets`, `for`, `not_for`, `steps`, `practical_note`, `cta_after`
+- `faq`, `internal_links`, `reading_time_minutes`, `word_count`
+- `affiliate_cta` (label, friction_reducers, telegram note appended). URL left as `AFFILIATE_PLACEHOLDER` since you haven't provided the actual affiliate link — the mid-CTA renderer hides itself in that case, which is the intended behavior until you supply it.
 
-`src/pages/BrokerDetail.tsx` lines ~1213–1232 compute each sub-score from a different raw signal (license count × 2.5, stars × 2, score + instant bonus, 10 − complaints × 0.3). The bottom row prints `broker.score` independently, so the math drifts whenever the inputs don't happen to average to `broker.score`.
+## What I'll NOT change
+- Slug stays `bullwaves-1776493644406` (changing it would break existing inbound links and the sitemap). Tell me if you want it renamed to `/brokers/bullwaves`.
+- `affiliate_url` / `promo_code` columns on the broker row — give me the real link + bonus terms and I'll wire them through both the row and the CTA.
+- The promo ticker text (`💰 Bullwaves — Start with $10`) in `src/data/brokers.ts` — current copy is stale ($10 vs $100). I'll fix it to "Start with $100 + 30% Bonus" only if you confirm.
 
-## Fix
+## Open questions before I run the migration
+1. Affiliate link URL to use (otherwise the mid-page CTA stays hidden).
+2. OK to fix the promo-ticker line to match the new minimum + bonus?
+3. Keep the existing slug, or rename to `bullwaves`?
 
-Inside the existing IIFE (`src/pages/BrokerDetail.tsx` ~line 1213), after building the `items` array, normalise the four scores so their weighted average equals `broker.score`:
-
-1. Parse each `weight` string (`"30%"` → `0.30`).
-2. Compute `rawWeighted = Σ value × weight`.
-3. If `rawWeighted > 0`, multiply each `value` by `factor = broker.score / rawWeighted`, then clamp to `[0, 10]` and round to 1 decimal.
-4. Render unchanged — Overall row keeps showing `broker.score`.
-
-Applied to both branches (`prop-firm` and the default broker branch) so the math reconciles for every broker, not just Exness.
-
-For Exness this produces approximately:
-- Regulation 8.9 · User Reviews 7.3 · Withdrawal 7.2 · Complaints 8.9
-- Weighted ≈ 8.1 ✓
-
-The hint text under each bar (license count, review count, processing time, complaint count) is not changed — it describes the underlying real-world signal; only the numeric score is rescaled so the breakdown reconciles to the overall.
-
-## Technical surface
-
-- Edit one IIFE in `src/pages/BrokerDetail.tsx` (~lines 1213–1251).
-- No DB change, no design change, no new components.
-- No other files touched.
+Once you answer (or say "just do it with placeholders"), I'll execute one migration `UPDATE` and confirm in the preview.
