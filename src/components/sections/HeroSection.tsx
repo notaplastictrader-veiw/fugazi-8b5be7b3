@@ -147,7 +147,13 @@ const HeroSection = () => {
             >
               {cms.headline || "Broker Reviews"}
             </span>
-            <span className="block text-primary">
+            <span
+              className="block text-primary"
+              style={{
+                textShadow:
+                  "1px 1px 0 hsl(var(--primary) / 0.35), 2px 2px 0 hsl(var(--primary) / 0.25), 3px 3px 0 hsl(var(--primary) / 0.18), 4px 4px 0 hsl(var(--primary) / 0.12)",
+              }}
+            >
               {cms.subheadline || "That Actually Matter."}
             </span>
           </h1>
