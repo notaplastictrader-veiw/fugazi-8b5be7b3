@@ -1,0 +1,1 @@
+ALTER TABLE public.reviews ALTER COLUMN rating TYPE numeric(2,1) USING rating::numeric(2,1);
