@@ -1394,19 +1394,37 @@ const BrokerDetail = () => {
                             {new Date(r.created_at).toLocaleDateString()}
                           </span>
                           <ReviewReactions reviewId={r.id} />
-                          {canReply && !isEditing && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 text-xs"
-                              onClick={() => {
-                                setReplyOpen((s) => ({ ...s, [r.id]: true }));
-                                setReplyDrafts((s) => ({ ...s, [r.id]: reply?.content || "" }));
-                              }}
-                            >
-                              {reply ? "Edit Reply" : "Reply"}
-                            </Button>
-                          )}
+                          {(() => {
+                            const isEditorial = r.author === "NAFT Editorial" || (r.role || "").toLowerCase() === "editor";
+                            if (isEditorial && broker.long_review) {
+                              return (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
+                                  onClick={() => handleTabChange("full-review")}
+                                >
+                                  Read Full Review →
+                                </Button>
+                              );
+                            }
+                            if (canReply && !isEditing) {
+                              return (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 text-xs"
+                                  onClick={() => {
+                                    setReplyOpen((s) => ({ ...s, [r.id]: true }));
+                                    setReplyDrafts((s) => ({ ...s, [r.id]: reply?.content || "" }));
+                                  }}
+                                >
+                                  {reply ? "Edit Reply" : "Reply"}
+                                </Button>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
 
                         {/* Existing broker reply */}
