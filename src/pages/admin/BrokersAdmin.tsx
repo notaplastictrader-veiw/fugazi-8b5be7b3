@@ -89,6 +89,7 @@ const BrokersAdmin = () => {
   const [form, setForm] = useState<typeof emptyBroker>(emptyBroker);
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [longReview, setLongReview] = useState<LREditorState>(emptyLREditor);
 
   const fetchBrokers = async () => {
     const { data } = await supabase.from("brokers").select("*").order("created_at", { ascending: false });
