@@ -152,6 +152,7 @@ const BrokersAdmin = () => {
       homepage_position: form.show_on_homepage && form.homepage_position
         ? Number(form.homepage_position)
         : null,
+      long_review: buildLongReview(longReview),
     };
 
     if (editing) {
