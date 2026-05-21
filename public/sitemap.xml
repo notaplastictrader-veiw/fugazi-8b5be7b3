@@ -145,6 +145,12 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/pepperstone</loc>
+    <lastmod>2026-05-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/ic-markets</loc>
     <lastmod>2026-04-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -195,12 +201,6 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/topstep</loc>
     <lastmod>2026-04-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://fugazi.lovable.app/brokers/pepperstone</loc>
-    <lastmod>2026-04-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
