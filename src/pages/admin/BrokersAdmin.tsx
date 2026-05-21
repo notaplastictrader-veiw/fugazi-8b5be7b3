@@ -449,6 +449,11 @@ const BrokersAdmin = () => {
                 </div>
               </TabsContent>
 
+              {/* LONG REVIEW */}
+              <TabsContent value="long-review" className="mt-0">
+                <LongReviewEditor value={longReview} onChange={setLongReview} />
+              </TabsContent>
+
               {/* DISPLAY */}
               <TabsContent value="display" className="mt-0 space-y-5">
                 <div className="rounded-lg border border-border p-4 space-y-4">
