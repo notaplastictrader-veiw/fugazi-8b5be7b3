@@ -294,10 +294,11 @@ const BrokersAdmin = () => {
           </DialogHeader>
 
           <Tabs defaultValue="basics" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="mx-6 mt-4 grid grid-cols-5 w-auto">
+            <TabsList className="mx-6 mt-4 grid grid-cols-6 w-auto">
               <TabsTrigger value="basics">Basics</TabsTrigger>
               <TabsTrigger value="trading">Trading</TabsTrigger>
               <TabsTrigger value="funding">Funding</TabsTrigger>
+              <TabsTrigger value="long-review">Long Review</TabsTrigger>
               <TabsTrigger value="display">Display</TabsTrigger>
               <TabsTrigger value="status">Status</TabsTrigger>
             </TabsList>
