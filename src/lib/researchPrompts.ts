@@ -46,13 +46,16 @@ export const ENTITIES: EntityDefinition[] = [
   {
     key: "broker",
     label: "Broker",
-    description: "Forex / CFD / Crypto broker review entry",
+    description: "Forex / CFD / Crypto broker review entry (full canonical schema)",
     table: "brokers",
-    prompt: (name) => `You are a senior forex broker analyst. Research the broker "${name}" using only verifiable sources: the broker's official website, regulator public registers (FCA, CySEC, ASIC, FSCA, NFA, etc.), Trustpilot, ForexPeaceArmy, and at least two independent broker-review sites.
+    prompt: (name) => `You are a senior forex broker analyst writing a full editorial review for NAFT. Research the broker "${name}" using only verifiable sources: the broker's official website, regulator public registers (FCA, CySEC, ASIC, FSCA, NFA, DFSA, IFSC, etc.), Trustpilot, ForexPeaceArmy, and at least two independent broker-review sites.
 
 ${baseRules}
 
-Return a JSON object with this exact shape:
+You MUST return BOTH the top-level summary fields AND a complete "long_review" object that follows the canonical schema (verdict, at_a_glance, geo, sections[], affiliate_cta, trustpilot, faq, meta). The "sections" array must contain 6–8 sections with these exact ids in this order:
+quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
+
+Return a single JSON object with this exact shape:
 
 {
   "name": "string",
@@ -63,47 +66,232 @@ Return a JSON object with this exact shape:
   "website_url": "https://..." | null,
   "description": "2-4 sentence neutral overview",
   "regulation": ["FCA (UK) — 730729", "CySEC (Cyprus) — 178/12"],
-  "min_deposit": "$10",
-  "leverage": "1:500",
-  "avg_spread": "0.3 pips",
+  "license_number": "string" | null,
+  "min_deposit": "$5",
+  "leverage": "1:1000",
+  "avg_spread": "1.6 pips",
   "score": number 0-10,
   "stars": number 0-5,
-  "account_types": [{ "name": "Standard", "min_deposit": "$10", "spread_from": "0.3 pips", "commission": "$0" }],
-  "platforms": ["MT4", "MT5"],
-  "payment_methods": ["Visa", "Skrill"],
+  "account_types": [
+    { "name": "Standard", "min_deposit": "$5", "spread": "1.6 pips", "leverage": "1:1000", "commission": "None" }
+  ],
+  "platforms": ["MT4", "MT5", "WebTrader", "Mobile App"],
+  "payment_methods": ["Visa", "Mastercard", "Skrill", "Neteller", "Bank Wire", "Crypto"],
+  "payment_method_details": [
+    { "method": "Visa/Mastercard", "min": "$5", "processing": "Instant", "fee": "Free" }
+  ],
   "pros": ["..."],
   "cons": ["..."],
   "support_email": "support@broker.com" | null,
   "support_phone": "+...." | null,
-  "withdrawal_time": "Instant" | null,
-  "tags": ["forex", "low-spread"],
+  "withdrawal_time": "Instant – 24h" | null,
+  "withdrawal_fee": "Free" | null,
+  "warning_note": "" | "regulatory note if any",
+  "tags": ["forex", "low-spread", "bd-friendly"],
   "badge": "verified" | "featured" | "warning" | "none",
+  "promo_label": "$30 No-Deposit Bonus" | null,
+  "promo_code": "NAFT30" | null,
+  "affiliate_url": "https://..." | null,
+
+  "long_review": {
+    "verdict": {
+      "tldr": "One-breath summary: who this is for + the headline trade-off.",
+      "summary": "Longer paragraph (optional).",
+      "best_for": "Beginners with small accounts",
+      "not_ideal_for": "Scalpers needing raw ECN spreads",
+      "bottom_line": "Closing one-line take.",
+      "star_rating": 4.2,
+      "trust_score": 8.2,
+      "trust_breakdown": [
+        { "label": "Regulation", "score": 9, "max": 10, "weight": 0.3 },
+        { "label": "Withdrawal speed", "score": 8, "max": 10, "weight": 0.2 },
+        { "label": "Cost transparency", "score": 7, "max": 10, "weight": 0.2 },
+        { "label": "Platform quality", "score": 8, "max": 10, "weight": 0.15 },
+        { "label": "Community sentiment", "score": 7, "max": 10, "weight": 0.15 }
+      ]
+    },
+    "at_a_glance": {
+      "regulation": "ASIC, CySEC, IFSC, DFSA",
+      "min_deposit": "$5",
+      "max_leverage": "1:1000",
+      "avg_spread_eurusd": "1.6 / 0.6 Ultra Low",
+      "withdrawal_speed": "Instant – 24h",
+      "platforms": "MT4, MT5, WebTrader, App",
+      "islamic_account": "Yes",
+      "deposit_methods": "Card, Skrill, Neteller, Wire, Crypto"
+    },
+    "geo": {
+      "accepted": ["Bangladesh", "India", "Pakistan", "UAE", "Saudi Arabia"],
+      "excluded": ["United States", "Canada", "Israel", "Iran"]
+    },
+    "sections": [
+      {
+        "id": "quick-verdict",
+        "heading": "Is <Broker> Worth It in 2026?",
+        "body": "2–4 paragraphs. Use blank line between paragraphs. Use [INTERNAL: /brokers] tokens to link to other pages."
+      },
+      {
+        "id": "regulation-safety",
+        "heading": "Regulation & Safety",
+        "body": "How the multi-entity license model routes clients.",
+        "table": {
+          "headers": ["Entity", "Regulator", "License #", "Client Routing"],
+          "rows": [
+            ["Broker Ltd", "ASIC (Australia)", "443670", "AU residents"],
+            ["Broker (CY) Ltd", "CySEC (EU)", "178/12", "EU residents"]
+          ],
+          "footnote": "Always check which entity holds your account before depositing."
+        }
+      },
+      {
+        "id": "geo-availability",
+        "heading": "Who Can Open an Account",
+        "body": "Short note on accepted vs excluded regions.",
+        "practical_note": "Practical advice for the target region."
+      },
+      {
+        "id": "spreads-accounts-fees",
+        "heading": "Spreads, Accounts & Fees",
+        "body": "Compare account tiers, commissions, swap, inactivity.",
+        "table": {
+          "headers": ["Account", "Min Deposit", "Spread (EUR/USD)", "Commission"],
+          "rows": [
+            ["Standard", "$5", "1.6 pips", "None"],
+            ["Ultra Low", "$50", "0.6 pips", "None"]
+          ]
+        }
+      },
+      {
+        "id": "deposits-withdrawals",
+        "heading": "Deposits & Withdrawals",
+        "body": "Payment method coverage + withdrawal experience.",
+        "table": {
+          "headers": ["Method", "Min", "Processing", "Fee"],
+          "rows": [
+            ["Visa/Mastercard", "$5", "Instant", "Free"],
+            ["Skrill / Neteller", "$5", "Instant", "Free"],
+            ["Bank Wire", "$200", "1–3 days", "Free"],
+            ["Crypto (USDT)", "$10", "Instant", "Free"]
+          ]
+        }
+      },
+      {
+        "id": "platforms-tools",
+        "heading": "Platforms & Tools",
+        "body": "What platforms are supported and any in-house tooling.",
+        "bullets": ["MT4 — classic EA support", "MT5 — broader assets", "WebTrader — no install", "Mobile App — biometric login"]
+      },
+      {
+        "id": "pros-cons",
+        "heading": "Pros & Cons",
+        "for": ["Low minimum deposit", "Strong regulation in 4 jurisdictions", "Swap-free available"],
+        "not_for": ["Tight ECN-style scalping", "US residents"]
+      },
+      {
+        "id": "final-verdict",
+        "heading": "Final Verdict",
+        "body": "Closing editorial paragraph + recommended next step."
+      }
+    ],
+    "affiliate_cta": {
+      "label": "Open <Broker> Account",
+      "url": "https://...",
+      "promo_code": "NAFT30",
+      "friction_reducers": ["$5 minimum", "MT4/MT5", "Swap-free available", "$30 no-deposit bonus (select regions)"]
+    },
+    "trustpilot": { "rating": 4.1, "reviews": 1240, "source_note": "Trustpilot, fetched manually." },
+    "faq": [
+      { "q": "Is <Broker> regulated?", "a": "Yes — under ASIC, CySEC, IFSC, and DFSA across different entities." },
+      { "q": "What is the minimum deposit?", "a": "$5 on the Standard account." }
+    ],
+    "reading_time_minutes": 7,
+    "word_count": 1450
+  },
+
   "sources": ["https://...", "https://..."]
 }
 
 Broker name to research: ${name}`,
     example: {
-      name: "Exness",
-      slug: "exness",
+      name: "",
+      slug: "",
       type: "forex",
-      founded_year: 2008,
-      headquarters: "Limassol, Cyprus",
-      website_url: "https://www.exness.com",
-      description: "Multi-jurisdictional forex and CFD broker founded in 2008.",
-      regulation: ["FCA (UK) — 730729", "CySEC (Cyprus) — 178/12"],
-      min_deposit: "$10",
-      leverage: "Unlimited (Pro)",
-      avg_spread: "0.3 pips",
-      score: 8.1,
-      stars: 4.3,
-      account_types: [{ name: "Standard", min_deposit: "$10", spread_from: "0.3 pips", commission: "$0" }],
-      platforms: ["MT4", "MT5"],
-      payment_methods: ["Visa", "Skrill"],
-      pros: ["Instant withdrawals"],
-      cons: ["No US clients"],
-      tags: ["forex", "low-spread"],
-      badge: "verified",
-      sources: ["https://www.exness.com", "https://register.fca.org.uk/"],
+      founded_year: null,
+      headquarters: "",
+      website_url: "",
+      description: "",
+      regulation: [],
+      license_number: "",
+      min_deposit: "",
+      leverage: "",
+      avg_spread: "",
+      score: 0,
+      stars: 0,
+      account_types: [
+        { name: "", min_deposit: "", spread: "", leverage: "", commission: "" }
+      ],
+      platforms: [],
+      payment_methods: [],
+      payment_method_details: [
+        { method: "", min: "", processing: "", fee: "" }
+      ],
+      pros: [],
+      cons: [],
+      support_email: "",
+      support_phone: "",
+      withdrawal_time: "",
+      withdrawal_fee: "",
+      warning_note: "",
+      tags: [],
+      badge: "none",
+      promo_label: "",
+      promo_code: "",
+      affiliate_url: "",
+      long_review: {
+        verdict: {
+          tldr: "",
+          summary: "",
+          best_for: "",
+          not_ideal_for: "",
+          bottom_line: "",
+          star_rating: 0,
+          trust_score: 0,
+          trust_breakdown: [
+            { label: "Regulation", score: 0, max: 10, weight: 0.3 },
+            { label: "Withdrawal speed", score: 0, max: 10, weight: 0.2 },
+            { label: "Cost transparency", score: 0, max: 10, weight: 0.2 },
+            { label: "Platform quality", score: 0, max: 10, weight: 0.15 },
+            { label: "Community sentiment", score: 0, max: 10, weight: 0.15 }
+          ]
+        },
+        at_a_glance: {
+          regulation: "",
+          min_deposit: "",
+          max_leverage: "",
+          avg_spread_eurusd: "",
+          withdrawal_speed: "",
+          platforms: "",
+          islamic_account: "",
+          deposit_methods: ""
+        },
+        geo: { accepted: [], excluded: [] },
+        sections: [
+          { id: "quick-verdict", heading: "", body: "" },
+          { id: "regulation-safety", heading: "", body: "", table: { headers: ["Entity", "Regulator", "License #", "Client Routing"], rows: [["", "", "", ""]], footnote: "" } },
+          { id: "geo-availability", heading: "", body: "", practical_note: "" },
+          { id: "spreads-accounts-fees", heading: "", body: "", table: { headers: ["Account", "Min Deposit", "Spread (EUR/USD)", "Commission"], rows: [["", "", "", ""]] } },
+          { id: "deposits-withdrawals", heading: "", body: "", table: { headers: ["Method", "Min", "Processing", "Fee"], rows: [["", "", "", ""]] } },
+          { id: "platforms-tools", heading: "", body: "", bullets: [] },
+          { id: "pros-cons", heading: "Pros & Cons", for: [], not_for: [] },
+          { id: "final-verdict", heading: "", body: "" }
+        ],
+        affiliate_cta: { label: "", url: "", promo_code: "", friction_reducers: [] },
+        trustpilot: { rating: 0, reviews: 0, source_note: "" },
+        faq: [{ q: "", a: "" }],
+        reading_time_minutes: 0,
+        word_count: 0
+      },
+      sources: []
     },
     schema: {
       table: "brokers",
@@ -117,6 +305,7 @@ Broker name to research: ${name}`,
         website_url: { type: "url" },
         description: { type: "string" },
         regulation: { type: "array", itemType: "string" },
+        license_number: { type: "string" },
         min_deposit: { type: "string" },
         leverage: { type: "string" },
         avg_spread: { type: "string" },
@@ -125,13 +314,20 @@ Broker name to research: ${name}`,
         account_types: { type: "array" },
         platforms: { type: "array", itemType: "string" },
         payment_methods: { type: "array", itemType: "string" },
+        payment_method_details: { type: "array" },
         pros: { type: "array", itemType: "string" },
         cons: { type: "array", itemType: "string" },
         support_email: { type: "string" },
         support_phone: { type: "string" },
         withdrawal_time: { type: "string" },
+        withdrawal_fee: { type: "string" },
+        warning_note: { type: "string" },
         tags: { type: "array", itemType: "string" },
         badge: { type: "string", enum: ["verified", "featured", "warning", "none"] },
+        promo_label: { type: "string" },
+        promo_code: { type: "string" },
+        affiliate_url: { type: "url" },
+        long_review: { type: "object", description: "Canonical long-review JSON (verdict, at_a_glance, geo, sections, affiliate_cta, trustpilot, faq)" },
       },
     },
   },
