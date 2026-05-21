@@ -17,6 +17,7 @@ import { exportToCSV } from "@/lib/adminExport";
 import { Download } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Switch } from "@/components/ui/switch";
+import { LongReviewEditor, emptyLREditor, buildLongReview, parseLongReview, type LREditorState } from "@/components/admin/LongReviewEditor";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
