@@ -98,7 +98,7 @@ const BrokersAdmin = () => {
 
   useEffect(() => { fetchBrokers(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyBroker); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyBroker); setLongReview(emptyLREditor); setModalOpen(true); };
   const openEdit = (b: Broker) => {
     setEditing(b);
     setForm({
