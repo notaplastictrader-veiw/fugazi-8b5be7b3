@@ -33,7 +33,7 @@ import PositionSizeCalculator from "@/components/calculators/PositionSizeCalcula
 import OfferRail from "@/components/common/OfferRail";
 import LongReview, { type LongReviewData } from "@/components/broker/LongReview";
 
-interface AccountType { name: string; min_deposit: string; spread: string; leverage?: string; commission: string; }
+interface AccountType { name: string; min_deposit: string; spread?: string; spread_from?: string; leverage?: string; commission: string; }
 interface Broker {
   id: string;
   name: string;
@@ -1069,7 +1069,7 @@ const BrokerDetail = () => {
                               <tr key={i} className="border-t border-border/50">
                                 <td className="px-4 py-2.5 text-foreground">{at.name}</td>
                                 <td className="px-4 py-2.5 text-muted-foreground">{at.min_deposit}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{at.spread}</td>
+                                <td className="px-4 py-2.5 text-muted-foreground">{at.spread || at.spread_from || "—"}</td>
                                 <td className="px-4 py-2.5 text-muted-foreground">{at.leverage || broker.leverage}</td>
                                 <td className="px-4 py-2.5 text-muted-foreground">{at.commission || "—"}</td>
                               </tr>
