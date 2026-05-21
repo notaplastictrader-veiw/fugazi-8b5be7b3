@@ -133,6 +133,7 @@ const BrokersAdmin = () => {
       promo_label: (b as any).promo_label || "",
       affiliate_url: (b as any).affiliate_url || "",
     });
+    setLongReview(parseLongReview((b as any).long_review));
     setModalOpen(true);
   };
 
