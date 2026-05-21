@@ -17,6 +17,7 @@ import { exportToCSV } from "@/lib/adminExport";
 import { Download } from "lucide-react";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Switch } from "@/components/ui/switch";
+import { LongReviewEditor, emptyLREditor, buildLongReview, parseLongReview, type LREditorState } from "@/components/admin/LongReviewEditor";
 
 const formatDate = (d: string) => {
   const date = new Date(d);
@@ -88,6 +89,7 @@ const BrokersAdmin = () => {
   const [form, setForm] = useState<typeof emptyBroker>(emptyBroker);
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [longReview, setLongReview] = useState<LREditorState>(emptyLREditor);
 
   const fetchBrokers = async () => {
     const { data } = await supabase.from("brokers").select("*").order("created_at", { ascending: false });
@@ -96,7 +98,7 @@ const BrokersAdmin = () => {
 
   useEffect(() => { fetchBrokers(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyBroker); setModalOpen(true); };
+  const openCreate = () => { setEditing(null); setForm(emptyBroker); setLongReview(emptyLREditor); setModalOpen(true); };
   const openEdit = (b: Broker) => {
     setEditing(b);
     setForm({
@@ -131,6 +133,7 @@ const BrokersAdmin = () => {
       promo_label: (b as any).promo_label || "",
       affiliate_url: (b as any).affiliate_url || "",
     });
+    setLongReview(parseLongReview((b as any).long_review));
     setModalOpen(true);
   };
 
@@ -149,6 +152,7 @@ const BrokersAdmin = () => {
       homepage_position: form.show_on_homepage && form.homepage_position
         ? Number(form.homepage_position)
         : null,
+      long_review: buildLongReview(longReview),
     };
 
     if (editing) {
@@ -290,10 +294,11 @@ const BrokersAdmin = () => {
           </DialogHeader>
 
           <Tabs defaultValue="basics" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="mx-6 mt-4 grid grid-cols-5 w-auto">
+            <TabsList className="mx-6 mt-4 grid grid-cols-6 w-auto">
               <TabsTrigger value="basics">Basics</TabsTrigger>
               <TabsTrigger value="trading">Trading</TabsTrigger>
               <TabsTrigger value="funding">Funding</TabsTrigger>
+              <TabsTrigger value="long-review">Long Review</TabsTrigger>
               <TabsTrigger value="display">Display</TabsTrigger>
               <TabsTrigger value="status">Status</TabsTrigger>
             </TabsList>
@@ -442,6 +447,11 @@ const BrokersAdmin = () => {
                     ))}
                   </div>
                 </div>
+              </TabsContent>
+
+              {/* LONG REVIEW */}
+              <TabsContent value="long-review" className="mt-0">
+                <LongReviewEditor value={longReview} onChange={setLongReview} />
               </TabsContent>
 
               {/* DISPLAY */}

@@ -1,60 +1,79 @@
-## Keno design alada hocche
+## Goal
 
-XM `brokers.long_review` JSON e top-level keys gulo holo:
-```
-quick_verdict, regulation, geo_availability, spreads_accounts_fees,
-deposits_withdrawals, platforms, pros_cons, final_verdict
-```
+`BrokersAdmin.tsx` modal e ekta notun **"Long Review"** tab add kora, jate admin form fill kore dilei `brokers.long_review` jsonb te **canonical schema** save hoy — exactly jeta `LongReview.tsx` (Full Review tab) ar `BrokerDetail.tsx` (Overview) porhe. Last 3 brokers (Exness, Bullwaves, XM) er moto Full Review properly render hobe.
 
-Kintu `LongReview.tsx` ar `BrokerDetail.tsx` (Overview tab) Exness/Bullwaves er canonical schema porhe:
-```
-{
-  verdict: { tldr, best_for, not_ideal_for, trust_score, star_rating, bottom_line, trust_breakdown },
-  at_a_glance: { regulation, min_deposit, max_leverage, ... },
-  geo: { accepted, excluded },
-  sections: [ { id, heading, body, table?, bullets?, ... } ],   ← array
-  affiliate_cta: { label, url, friction_reducers },
-  trustpilot: { rating, reviews },
-  faq: [...],
-  reading_time_minutes, word_count
-}
-```
+Kono backend/schema migration lagbe na — `brokers.long_review` already `jsonb nullable` ache. Sudhu admin UI + ekta save mapper.
 
-Tar fole:
-1. **Overview tab** — `broker.long_review.verdict.tldr` nai, tai scannable hero scorecard render hoy na, "Our Verdict" fallback (plain card) dekhay.
-2. **Full Review tab** — `LongReview` component `data.sections || []` porhe; XM-er section_count = 0, tai full review **completely empty**. TOC, "At a glance", table, geo block — kichuI render hoy na.
+## Notun tab structure (form sections)
 
-## Fix
+Ekta naya tab `<TabsTrigger value="long-review">Long Review</TabsTrigger>` add hobe, niche grouped sub-forms thakbe:
 
-Ekta SQL `UPDATE` diye XM-er `long_review` JSON canonical schema te re-shape kora — kono code/component bodlabe na. Form theke deya shob content (8 sections, pros/cons, $30 bonus, regulation list, account types, deposits etc.) protected — sudhu key naming + structure shift.
+1. **Verdict block**
+   - tldr (textarea, 1–2 line)
+   - summary (textarea)
+   - best_for (input)
+   - not_ideal_for (input)
+   - bottom_line (textarea)
+   - star_rating (number 0–5, 0.1 step)
+   - trust_score (number 0–10, 0.1 step)
+   - trust_breakdown (repeater rows: label / score / max / weight)
 
-### Notun structure (XM)
+2. **At a glance** (key/value repeater)
+   - Pairs of label + value (regulation, min_deposit, max_leverage, avg_spread_eurusd, withdrawal_speed, platforms, islamic_account, deposit_methods, etc.)
 
-- `verdict` — quick_verdict theke tldr/summary/best_for/not_ideal_for/bottom_line/star_rating=4.2/trust_score=8.2/trust_breakdown
-- `at_a_glance` — regulation (CySEC/ASIC/IFSC/DFSA), min_deposit `$5`, max_leverage `1:1000`, avg_spread_eurusd `1.6 / 0.6 Ultra Low`, withdrawal_speed, platforms (MT4/MT5/XM App/WebTrader), islamic_account, deposit_methods
-- `geo` — accepted/excluded list (Bangladesh/India/Pakistan/MENA accepted; US/Canada/Israel/Iran excluded)
-- `sections[]` — 8 ta object, prottek tar `id`, `heading`, `body`, optional `table`/`bullets`/`for`/`not_for`:
-  1. `quick-verdict` — "Is XM Worth It in 2026?"
-  2. `regulation-safety` — multi-entity license table (ASIC/CySEC/IFSC/DFSA + entity routing)
-  3. `geo-availability` — accepted/excluded note + practical_note
-  4. `spreads-accounts-fees` — 4-row account table (Micro $5 / Standard $5 / Ultra Low $50 / Shares $10K) + commissions/swap row
-  5. `deposits-withdrawals` — payment method table (Card / Skrill / Neteller / Bank Wire / Crypto USDT) min + speed + fee
-  6. `platforms-tools` — MT4 / MT5 / XM App / WebTrader + copy-trading note
-  7. `pros-cons` — bullets from pros_cons block, also mirrored to top-level `pros`/`cons` already
-  8. `final-verdict` — bottom_line + closing editorial note
-- `affiliate_cta` — `{ label: "Open XM Account", url: <broker.website_url>, friction_reducers: ["$5 minimum", "MT4/MT5", "Swap-free available", "$30 no-deposit bonus (select regions)"] }`
-- `trustpilot` — rating/reviews from form (if provided)
-- `faq` — FAQ items from form
-- `reading_time_minutes`, `word_count`
+3. **Geo availability**
+   - accepted (comma-separated → string[])
+   - excluded (comma-separated → string[])
 
-### Mapping source
+4. **Sections repeater** (sob theke important — eta full review er backbone)
+   Prottek section card e:
+   - id (slug input — auto-suggest: quick-verdict / regulation-safety / geo-availability / spreads-accounts-fees / deposits-withdrawals / platforms-tools / pros-cons / final-verdict)
+   - heading (input)
+   - body (textarea, multi-paragraph — `[INTERNAL: /path]` token supported)
+   - optional **table**: headers (CSV), rows (textarea — prottek line ekta row, cells pipe `|` separated), footnote
+   - optional **bullets** (one per line)
+   - optional **for** / **not_for** (one per line — for "Best for / Not ideal for" lists)
+   - optional **practical_note**
+   - Add row / Remove row / Move up-down buttons
 
-Shob content already DB te ache — XM `long_review` er existing top-level keys (`quick_verdict`, `regulation`, etc.) theke direct map kora hobe. Kono notun copy lekha hocche na, sudhu structure shift.
+5. **Affiliate CTA**
+   - label (input — default "Open Account")
+   - url (input — fallback: broker.website_url)
+   - promo_code (input)
+   - friction_reducers (one per line)
 
-## Touched
+6. **Trustpilot**
+   - rating (number)
+   - reviews (number)
+   - source_note (input)
 
-- `brokers` table — 1 row UPDATE, sudhu `long_review` column.
-- Kono code file change na (component already canonical schema follow kore).
-- Migration na, sudhu `supabase--insert` (UPDATE) tool.
+7. **FAQ repeater**
+   - q (input) / a (textarea)
 
-Approve korle build mode e migration query likhbo.
+8. **Meta**
+   - reading_time_minutes (number — auto-calc button optional)
+   - word_count (number — auto-calc from sections bodies)
+
+## Save logic
+
+`handleSave` e ekta `buildLongReview(form)` helper:
+- Sob block ke canonical schema te assemble korbe
+- Empty strings/arrays drop korbe (cleaner JSON)
+- `payload.long_review = buildLongReview(form)` set korbe
+- Existing fields (account_types, pros, cons, platforms, payment_method_details, etc.) **untouched** thake — Overview tab oi gula porhe
+
+Editor open korle existing `broker.long_review` JSON ke form state e load korbe (reverse mapper).
+
+## Touched files
+
+- `src/pages/admin/BrokersAdmin.tsx` — notun tab, form state extension, mapper functions
+- `src/components/admin/LongReviewEditor.tsx` (notun) — boro tab content ke alada component e rakhbo, jate parent file 700+ line na hoye jay
+
+## Out of scope
+
+- Kono DB migration na (column already exists)
+- `LongReview.tsx` public component touch na — already canonical schema porhe
+- Sections-er drag-and-drop reorder (simple up/down button diye)
+- Markdown rich-text editor (plain textarea — existing convention)
+
+Approve korle build mode e implement korbo.
