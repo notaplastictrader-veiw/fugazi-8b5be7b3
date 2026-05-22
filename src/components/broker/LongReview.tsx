@@ -147,20 +147,24 @@ const AtAGlance = ({ data }: { data: Record<string, any> }) => {
   );
 };
 
-const SectionTable = ({ table }: { table: LongReviewTable }) => (
+const SectionTable = ({ table }: { table: LongReviewTable }) => {
+  const headers = Array.isArray(table?.headers) ? table.headers : [];
+  const rows = Array.isArray(table?.rows) ? table.rows : [];
+  if (headers.length === 0 && rows.length === 0) return null;
+  return (
   <div className="my-4 overflow-x-auto rounded-md border border-border">
     <table className="w-full text-sm">
       <thead>
         <tr className="bg-muted/40">
-          {table.headers.map((h, i) => (
+          {headers.map((h, i) => (
             <th key={i} className="px-3 py-2 text-left font-mono text-xs uppercase tracking-wider text-muted-foreground">{h}</th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {table.rows.map((row, ri) => (
+        {rows.map((row, ri) => (
           <tr key={ri} className="border-t border-border/40">
-            {row.map((cell, ci) => (
+            {(Array.isArray(row) ? row : []).map((cell, ci) => (
               <td key={ci} className="px-3 py-2 text-foreground/85 align-top">{String(cell)}</td>
             ))}
           </tr>
@@ -171,7 +175,8 @@ const SectionTable = ({ table }: { table: LongReviewTable }) => (
       <p className="text-[11px] font-mono text-muted-foreground italic px-3 py-2 border-t border-border/40 bg-muted/20">{table.footnote}</p>
     )}
   </div>
-);
+  );
+};
 
 const MidCTA = ({ data, brokerName }: { data: LongReviewData; brokerName: string }) => {
   if (!data.affiliate_cta?.url || data.affiliate_cta.url === "AFFILIATE_PLACEHOLDER") return null;
