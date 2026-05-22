@@ -36,7 +36,7 @@ const Compare = () => {
   // Fetch brokers once
   useEffect(() => {
     supabase.from("brokers").select("*").eq("status", "published").then(({ data }) => {
-      if (data) setAllBrokers(data as BrokerRow[]);
+      if (data) setAllBrokers((data as BrokerRow[]).filter(b => !(b as any).tags?.includes('upcoming')));
     });
   }, []);
 
