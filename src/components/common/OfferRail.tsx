@@ -83,7 +83,7 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
           "group relative w-full inline-flex items-center justify-center gap-2 rounded-lg overflow-hidden",
           "border border-primary/40 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10",
           "hover:border-primary hover:from-primary/20 hover:to-accent/20",
-          "text-primary font-display font-extrabold text-xs tracking-wide uppercase",
+          "text-white font-display font-extrabold text-xs tracking-wide uppercase",
           "transition-all py-2.5 px-3 shadow-[0_0_0_hsl(var(--primary)/0)] hover:shadow-[0_0_18px_hsl(var(--primary)/0.25)]",
           isWide && "py-3 text-sm",
           className
