@@ -56,130 +56,150 @@ export const verifiedAgoShort = (iso?: string | null) => {
   return m < 12 ? `${m}mo ago` : `${Math.floor(m / 12)}y ago`;
 };
 
-const badgeConfig = {
-  verified: { className: "text-primary bg-primary/10 border-primary/20" },
-  featured: { className: "text-accent bg-accent/10 border-accent/20" },
-};
-
 const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: boolean }) => {
   const scoreColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
+  const railColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
   const verifiedLabel = verifiedAgoShort(broker.last_verified_at);
   const viewers = 80 + (parseInt((broker.id || "0").replace(/\D/g, "").slice(-3) || "0", 10) % 320);
+  const regs = broker.regulation || [];
+  const isVerified = broker.badge === "verified" || broker.badge === "featured";
 
   return (
-    <div className="glass-card rounded-xl p-5 hover:border-primary/20 transition-all group">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-3 min-w-0">
-          {broker.logo_url ? (
-            <div className="w-11 h-11 shrink-0 flex items-center justify-center">
-              <img src={broker.logo_url} alt={`${broker.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
-            </div>
-          ) : (
-            <div className="w-11 h-11 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-              <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg font-bold text-foreground truncate">{broker.name}</h3>
-              {broker.tags?.includes('upcoming') && (
-                <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded border border-dashed border-muted-foreground/40 text-muted-foreground">Upcoming</span>
+    <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-primary/30 transition-all">
+      {/* Side rail */}
+      <div className={`w-1.5 shrink-0 ${railColor}`} />
+
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <div className="p-5 pb-4">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start gap-3 min-w-0">
+              {broker.logo_url ? (
+                <div className="w-11 h-11 shrink-0 flex items-center justify-center">
+                  <img src={broker.logo_url} alt={`${broker.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
+                </div>
+              ) : (
+                <div className="w-11 h-11 rounded bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <span className="text-lg font-display font-extrabold text-primary">{broker.name.charAt(0)}</span>
+                </div>
               )}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-display text-2xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{broker.name}</h3>
+                  {broker.tags?.includes('upcoming') && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-muted/40 text-muted-foreground">Upcoming</span>
+                  )}
+                </div>
+                {regs.length > 0 && (
+                  <p className="text-[11px] text-muted-foreground/70 mt-1.5 uppercase tracking-wide truncate" title={regs.join(", ")}>
+                    {regs.slice(0, 3).map(formatRegulator).join(" · ")}
+                    {regs.length > 3 && (
+                      <Link to={`/brokers/${broker.slug}`} className="text-muted-foreground/40 hover:text-primary ml-1">+{regs.length - 3} more</Link>
+                    )}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
-              {broker.regulation?.slice(0, 3).map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{formatRegulator(r)}</span>
-              ))}
-              {(broker.regulation?.length || 0) > 3 && (
-                <Link
-                  to={`/brokers/${broker.slug}`}
-                  className="text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-primary/20 transition-colors"
-                  title={broker.regulation!.slice(3).join(", ")}
+            <WatchlistButton brokerId={broker.id} brokerName={broker.name} variant="icon" />
+          </div>
+
+          {/* Status row */}
+          {(isVerified || broker.badge === "featured") && (
+            <div className="flex items-center gap-3 mb-5">
+              {isVerified && (
+                <span
+                  className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 px-2 py-1 rounded-sm"
+                  title="NAFT-vetted: independently verified, not a fugazi"
                 >
-                  +{broker.regulation!.length - 3} more
-                </Link>
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Not a Fugazi</span>
+                </span>
+              )}
+              {broker.badge === "featured" && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-accent uppercase tracking-widest">
+                  <Award className="w-3 h-3" /> Featured
+                </span>
               )}
             </div>
+          )}
+
+          {/* Metrics */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Avg Spread</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Min Dep.</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{broker.min_deposit}</p>
+            </div>
+          </div>
+
+          {/* Trust Score */}
+          <div className="mb-3">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">Trust Score</span>
+              <span className="font-display text-xl font-bold text-primary leading-none">
+                {broker.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
+              </span>
+            </div>
+            <div className="h-1 bg-muted/30 rounded-full overflow-hidden">
+              <div className={`h-full ${scoreColor} rounded-full transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
+            </div>
+          </div>
+
+          {/* Meta line */}
+          <div className="flex justify-between items-center text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wide mt-3">
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle className="w-3 h-3 text-primary/70" />
+              {verifiedLabel ? `Verified ${verifiedLabel}` : "Verified by NAFT"}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-primary pulse-dot" />
+              {viewers} viewing
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-1 shrink-0">
-          {(broker.badge === "verified" || broker.badge === "featured") && (
-            <span
-              className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badgeConfig.verified.className}`}
-              title="NAFT-vetted: independently verified, not a fugazi"
-            >
-              <Shield className="w-3 h-3" /> Not a Fugazi
-            </span>
+
+        {/* Action area */}
+        <div className="mt-auto px-5 py-4 border-t border-border/40 bg-foreground/[0.015]">
+          {(broker.affiliate_url || broker.website_url) ? (
+            <OfferRail
+              code={null}
+              label={broker.promo_label}
+              url={broker.affiliate_url || broker.website_url}
+              entityName={broker.name}
+            />
+          ) : (
+            <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/20 text-muted-foreground font-display font-extrabold text-xs tracking-wide uppercase py-2.5 px-3">
+              Coming Soon
+            </div>
           )}
-          {broker.badge === "featured" && (
-            <span className={`flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full ${badgeConfig.featured.className}`}>
-              <Award className="w-3 h-3" /> Featured
-            </span>
-          )}
-          <WatchlistButton brokerId={broker.id} brokerName={broker.name} variant="icon" />
-        </div>
-      </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Avg Spread</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</div></div>
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</div></div>
-        <div className="min-w-0"><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground truncate" title={broker.min_deposit}>{broker.min_deposit}</div></div>
-      </div>
-
-      <div className="mb-3">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-muted-foreground">Trust Score</span>
-          <span className="text-sm font-mono font-semibold text-muted-foreground">{broker.score}/10</span>
-        </div>
-        <div className="score-bar">
-          <div className={`score-bar-fill ${scoreColor} opacity-70 transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />
-        </div>
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <CheckCircle className="w-3 h-3 text-primary/70" />
-          {verifiedLabel ? `Verified ${verifiedLabel}` : "Verified by NAFT"}
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary pulse-dot" />
-          {viewers} viewing this week
-        </span>
-      </div>
-
-      <div className="mt-3">
-        {(broker.affiliate_url || broker.website_url) ? (
-          <OfferRail
-            code={null}
-            label={broker.promo_label}
-            url={broker.affiliate_url || broker.website_url}
-            entityName={broker.name}
-          />
-        ) : (
-          <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/20 text-muted-foreground font-display font-extrabold text-xs tracking-wide uppercase py-2.5 px-3">
-            Coming Soon
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <StarRating value={broker.stars} size={14} />
+              <span className="text-[10px] font-bold text-muted-foreground/60 tracking-widest uppercase ml-1">({broker.review_count})</span>
+            </div>
+            {(broker.complaints || 0) > 20 ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-destructive uppercase tracking-widest shrink-0">
+                <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
+              </span>
+            ) : (
+              <Link
+                to={`/brokers/${broker.slug}`}
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground/70 hover:text-primary uppercase tracking-widest transition-colors shrink-0 group/link"
+              >
+                Read Review
+                <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
           </div>
-        )}
-      </div>
-
-
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1 min-w-0">
-          <StarRating value={broker.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1 truncate">({broker.review_count})</span>
         </div>
-        {(broker.complaints || 0) > 20 ? (
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-destructive shrink-0">
-            <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
-          </span>
-        ) : (
-          <Link
-            to={`/brokers/${broker.slug}`}
-            className="inline-flex items-center gap-1 text-xs font-bold text-primary px-2.5 py-1 rounded-md bg-primary/10 border border-primary/30 hover:bg-primary/20 hover:border-primary/60 transition-all shrink-0"
-          >
-            Read Full Review <ExternalLink className="w-3 h-3" />
-          </Link>
-        )}
       </div>
     </div>
   );
