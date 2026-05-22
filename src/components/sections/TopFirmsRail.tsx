@@ -45,7 +45,7 @@ const TopFirmsRail = ({ variant, limit = 7, title }: TopFirmsRailProps) => {
       } else {
         const q = supabase
           .from("brokers")
-          .select("id, name, slug, score, badge, type")
+          .select("id, name, slug, score, badge, type, tags")
           .eq("status", "published")
           .order("score", { ascending: false })
           .limit(limit);
@@ -54,13 +54,15 @@ const TopFirmsRail = ({ variant, limit = 7, title }: TopFirmsRailProps) => {
           : await q.neq("type", "prop-firm");
         if (cancelled || !data) return;
         setItems(
-          data.map((r: any) => ({
-            id: r.id,
-            slug: r.slug,
-            name: r.name,
-            score: r.score,
-            badge: r.badge,
-          }))
+          data
+            .filter((r: any) => !r.tags?.includes('upcoming'))
+            .map((r: any) => ({
+              id: r.id,
+              slug: r.slug,
+              name: r.name,
+              score: r.score,
+              badge: r.badge,
+            }))
         );
       }
     })();
