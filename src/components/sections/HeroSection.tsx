@@ -3,7 +3,17 @@ import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, Info } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useTheme } from "@/hooks/useTheme";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import heroBgDark from "@/assets/hero-bg-dark.jpg";
+import heroBgLight from "@/assets/hero-bg-light.jpg";
+import heroBgSentinel from "@/assets/hero-bg-sentinel.jpg";
+
+const heroBgByTheme: Record<string, string> = {
+  dark: heroBgDark,
+  light: heroBgLight,
+  sentinel: heroBgSentinel,
+};
 
 const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
