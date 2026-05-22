@@ -62,7 +62,7 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
           className={cn(
             "w-full inline-flex items-center justify-center gap-2 rounded-lg",
             "border border-border bg-muted/30",
-            "text-muted-foreground font-mono text-[11px] tracking-wide uppercase",
+            "text-muted-foreground font-display font-extrabold text-xs tracking-wide uppercase",
             "py-2.5 px-3",
             isWide && "py-3 text-xs",
             className
@@ -82,7 +82,7 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
         className={cn(
           "group w-full inline-flex items-center justify-center gap-1.5 rounded-lg",
           "bg-transparent border-0",
-          "text-muted-foreground hover:text-foreground font-mono text-[11px] tracking-[0.15em] uppercase",
+          "text-muted-foreground hover:text-foreground font-display font-extrabold text-xs tracking-wide uppercase",
           "transition-colors py-2.5 px-3",
           isWide && "py-3 text-xs",
           className
