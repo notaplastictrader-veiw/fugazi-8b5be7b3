@@ -49,7 +49,7 @@ function relativeDate(iso: string | null) {
 
 export default function WithdrawalProofWall() {
   const [proofs, setProofs] = useState<Proof[]>([]);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
