@@ -130,7 +130,7 @@ export default function TrustTimeline() {
   const [brokers, setBrokers] = useState<BrokerTimeline[]>([]);
   const [activeBrokerId, setActiveBrokerId] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     (async () => {
