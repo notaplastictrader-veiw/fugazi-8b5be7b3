@@ -166,7 +166,7 @@ const BrokerTrustHub = () => {
   const propViewAllText = cms.prop_view_all_text || "View All Prop Firms →";
   const propFirmCategories = (cms.prop_firm_categories?.length ? cms.prop_firm_categories : ["All Prop Firms", "Instant Funding", "1-Step Clg", "2-Step Clg", "Dis% Offers", "No Time Limit"]) as string[];
   const [brokerFilter, setBrokerFilter] = useState("All");
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [brokerPage, setBrokerPage] = useState(0);
   const [propPage, setPropPage] = useState(0);
