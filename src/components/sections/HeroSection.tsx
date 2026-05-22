@@ -37,6 +37,9 @@ const HeroSection = () => {
   const [displayText, setDisplayText] = useState("");
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
+  const { theme } = useTheme();
+  const heroBg = heroBgByTheme[theme] ?? heroBgDark;
+  const isLight = theme === "light";
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
