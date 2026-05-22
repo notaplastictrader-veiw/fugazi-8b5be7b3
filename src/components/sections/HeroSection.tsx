@@ -88,9 +88,25 @@ const HeroSection = () => {
 
   return (
     <section className="relative flex items-center justify-center overflow-hidden py-6">
+      {/* Theme-aware cinematic background — silhouette + spotlight */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${heroBg})`,
+          opacity: isLight ? 0.18 : 0.13,
+          filter: "blur(2px)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 70% at 50% 55%, black 30%, transparent 85%)",
+          maskImage:
+            "radial-gradient(ellipse 80% 70% at 50% 55%, black 30%, transparent 85%)",
+        }}
+      />
+
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
       </div>
+
 
       {/* 3D perspective floor text — "NO FUGAZI" */}
       <div
