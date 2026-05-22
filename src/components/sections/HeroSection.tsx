@@ -94,7 +94,7 @@ const HeroSection = () => {
         className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center"
         style={{
           backgroundImage: `url(${heroBg})`,
-          opacity: isLight ? 0.18 : 0.13,
+          opacity: isLight ? 0.25 : 0.22,
           filter: "blur(2px)",
           WebkitMaskImage:
             "radial-gradient(ellipse 80% 70% at 50% 55%, black 30%, transparent 85%)",
