@@ -175,7 +175,8 @@ const SectionTable = ({ table }: { table: LongReviewTable }) => {
       <p className="text-[11px] font-mono text-muted-foreground italic px-3 py-2 border-t border-border/40 bg-muted/20">{table.footnote}</p>
     )}
   </div>
-);
+  );
+};
 
 const MidCTA = ({ data, brokerName }: { data: LongReviewData; brokerName: string }) => {
   if (!data.affiliate_cta?.url || data.affiliate_cta.url === "AFFILIATE_PLACEHOLDER") return null;
