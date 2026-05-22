@@ -35,7 +35,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
   return (
     <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-accent/30 transition-all">
       {/* Side rail */}
-      <div className="w-1.5 shrink-0 bg-accent" />
+      <div className="w-0.5 shrink-0 bg-accent" />
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="p-5 pb-4">

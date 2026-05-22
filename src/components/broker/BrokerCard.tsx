@@ -67,7 +67,7 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
   return (
     <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-primary/30 transition-all">
       {/* Side rail */}
-      <div className={`w-1.5 shrink-0 ${railColor}`} />
+      <div className={`w-0.5 shrink-0 ${railColor}`} />
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
