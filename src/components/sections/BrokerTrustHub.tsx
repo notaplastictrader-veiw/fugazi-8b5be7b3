@@ -137,13 +137,20 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
               <StarRating value={firm.stars} size={14} />
               <span className="text-[10px] font-bold text-muted-foreground/60 tracking-widest uppercase ml-1">({firm.review_count})</span>
             </div>
-            <Link
-              to={`/brokers/${firm.slug}`}
-              className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground/70 hover:text-accent uppercase tracking-widest transition-colors shrink-0 group/link"
-            >
-              Read Review
-              <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
-            </Link>
+            {(firm.review_count || 0) === 0 ? (
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-widest shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                NAFT Testing In Progress
+              </span>
+            ) : (
+              <Link
+                to={`/brokers/${firm.slug}`}
+                className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground/70 hover:text-accent uppercase tracking-widest transition-colors shrink-0 group/link"
+              >
+                Read Review
+                <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
+              </Link>
+            )}
           </div>
         </div>
       </div>
