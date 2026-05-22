@@ -27,108 +27,125 @@ const filterMap: Record<string, string> = {
 
 
 const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => {
-  const scoreColor = firm.score >= 8 ? "bg-primary" : firm.score >= 6 ? "bg-accent" : "bg-destructive";
+  const scoreColor = firm.score >= 8 ? "bg-accent" : firm.score >= 6 ? "bg-accent/70" : "bg-destructive";
   const hasInstantFunding = firm.tags?.includes("instant-funding");
+  const regs = firm.regulation || [];
+  const isVerified = firm.badge === "verified" || firm.badge === "featured";
 
   return (
-    <div className="glass-card rounded-xl p-5 hover:border-accent/20 transition-all group">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-3 min-w-0">
-          {firm.logo_url ? (
-            <div className="w-11 h-11 shrink-0 flex items-center justify-center">
-              <img src={firm.logo_url} alt={`${firm.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
-            </div>
-          ) : (
-            <div className="w-11 h-11 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-              <span className="text-lg font-display font-extrabold text-accent">{firm.name.charAt(0)}</span>
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-bold text-foreground truncate">{firm.name}</h3>
-            <div className="flex items-center gap-1.5 mt-1 flex-nowrap overflow-hidden">
-              {firm.regulation?.slice(0, 3).map((r) => (
-                <span key={r} className="text-[10px] font-mono text-muted-foreground bg-secondary px-1.5 py-0.5 rounded shrink-0">{formatRegulator(r)}</span>
-              ))}
-              {(firm.regulation?.length || 0) > 3 && (
-                <Link
-                  to={`/brokers/${firm.slug}`}
-                  className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0 hover:bg-accent/20 transition-colors"
-                  title={firm.regulation!.slice(3).join(", ")}
-                >
-                  +{firm.regulation!.length - 3} more
-                </Link>
+    <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-accent/30 transition-all">
+      {/* Side rail */}
+      <div className="w-1.5 shrink-0 bg-accent" />
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="p-5 pb-4">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start gap-3 min-w-0">
+              {firm.logo_url ? (
+                <div className="w-11 h-11 shrink-0 flex items-center justify-center">
+                  <img src={firm.logo_url} alt={`${firm.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
+                </div>
+              ) : (
+                <div className="w-11 h-11 rounded bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                  <span className="text-lg font-display font-extrabold text-accent">{firm.name.charAt(0)}</span>
+                </div>
               )}
+              <div className="min-w-0 flex-1">
+                <h3 className="font-display text-2xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{firm.name}</h3>
+                {regs.length > 0 && (
+                  <p className="text-[11px] text-muted-foreground/70 mt-1.5 uppercase tracking-wide truncate" title={regs.join(", ")}>
+                    {regs.slice(0, 3).map(formatRegulator).join(" · ")}
+                    {regs.length > 3 && (
+                      <Link to={`/brokers/${firm.slug}`} className="text-muted-foreground/40 hover:text-accent ml-1">+{regs.length - 3} more</Link>
+                    )}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-        {(firm.badge === "verified" || firm.badge === "featured") && (
-          <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20 shrink-0">
-            <Shield className="w-3 h-3" /> Verified
-          </span>
-        )}
-      </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-        <div>
-          <div className="text-xs text-muted-foreground">Account Size</div>
-          <div className="text-sm font-mono font-semibold text-foreground">{firm.avg_spread || "$5K–$400K"}</div>
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">Leverage</div>
-          <div className="text-sm font-mono font-semibold text-foreground">{formatLeverage(firm.leverage)}</div>
-        </div>
-        <div>
-          <div className="text-xs text-muted-foreground">Start From</div>
-          <div className="text-sm font-mono font-semibold text-foreground">{firm.min_deposit || "$10"}</div>
-        </div>
-      </div>
+          {isVerified && (
+            <div className="flex items-center gap-3 mb-5">
+              <span className="inline-flex items-center gap-1.5 bg-accent/10 border border-accent/20 px-2 py-1 rounded-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Verified</span>
+              </span>
+              {hasInstantFunding && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-widest">
+                  <CheckCircle className="w-3 h-3" /> Instant Funding
+                </span>
+              )}
+            </div>
+          )}
 
-      <div className="flex items-center justify-between mb-4 px-1">
-        <span className="text-xs text-muted-foreground">Instant Funding</span>
-        {hasInstantFunding ? (
-          <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-            <CheckCircle className="w-3.5 h-3.5" /> Yes
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-            <XCircle className="w-3.5 h-3.5" /> No
-          </span>
-        )}
-      </div>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Account</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={firm.avg_spread}>{firm.avg_spread || "$5K–$400K"}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={firm.leverage}>{formatLeverage(firm.leverage)}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Start From</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate">{firm.min_deposit || "$10"}</p>
+            </div>
+          </div>
 
-      <div className="mb-3">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs text-muted-foreground">Trust Score</span>
-          <span className="text-sm font-mono font-semibold text-muted-foreground">{firm.score}/10</span>
-        </div>
-        <div className="score-bar">
-          <div className={`score-bar-fill ${scoreColor} opacity-70 transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
-        </div>
-      </div>
+          <div className="mb-3">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">Trust Score</span>
+              <span className="font-display text-xl font-bold text-accent leading-none">
+                {firm.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
+              </span>
+            </div>
+            <div className="h-1 bg-muted/30 rounded-full overflow-hidden">
+              <div className={`h-full ${scoreColor} rounded-full transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
+            </div>
+          </div>
 
-      {(firm.affiliate_url || firm.website_url) && (
-        <div className="mb-3">
-          {/* Prop firms → discount code rail */}
-          <OfferRail
-            code={firm.promo_code}
-            label={firm.promo_label}
-            url={firm.affiliate_url || firm.website_url}
-            entityName={firm.name}
-          />
+          {!isVerified && (
+            <div className="flex justify-between items-center text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wide mt-3">
+              <span className="inline-flex items-center gap-1.5">
+                {hasInstantFunding ? (
+                  <><CheckCircle className="w-3 h-3 text-primary/70" /> Instant Funding</>
+                ) : (
+                  <><XCircle className="w-3 h-3" /> No Instant Funding</>
+                )}
+              </span>
+            </div>
+          )}
         </div>
-      )}
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1 min-w-0">
-          <StarRating value={firm.stars} size={14} />
-          <span className="text-xs text-muted-foreground ml-1 truncate">({firm.review_count})</span>
+        <div className="mt-auto px-5 py-4 border-t border-border/40 bg-foreground/[0.015]">
+          {(firm.affiliate_url || firm.website_url) ? (
+            <OfferRail
+              code={firm.promo_code}
+              label={firm.promo_label}
+              url={firm.affiliate_url || firm.website_url}
+              entityName={firm.name}
+            />
+          ) : (
+            <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/60 bg-muted/20 text-muted-foreground font-display font-extrabold text-xs tracking-wide uppercase py-2.5 px-3">
+              Coming Soon
+            </div>
+          )}
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <StarRating value={firm.stars} size={14} />
+              <span className="text-[10px] font-bold text-muted-foreground/60 tracking-widest uppercase ml-1">({firm.review_count})</span>
+            </div>
+            <Link
+              to={`/brokers/${firm.slug}`}
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground/70 hover:text-accent uppercase tracking-widest transition-colors shrink-0 group/link"
+            >
+              Read Review
+              <ExternalLink className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
+            </Link>
+          </div>
         </div>
-        <Link
-          to={`/brokers/${firm.slug}`}
-          className="inline-flex items-center gap-1 text-xs font-bold text-accent px-2.5 py-1 rounded-md bg-accent/10 border border-accent/30 hover:bg-accent/20 hover:border-accent/60 transition-all shrink-0"
-        >
-          Read Full Review <ExternalLink className="w-3 h-3" />
-        </Link>
       </div>
     </div>
   );
