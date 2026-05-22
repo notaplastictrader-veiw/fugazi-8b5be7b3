@@ -43,8 +43,9 @@ const PromoTicker = () => {
         <div className="ticker-track-fast">
           {items.map((text, i) => (
             <a key={i} href="#" className="flex-shrink-0 flex items-center gap-2 text-xs hover:text-primary transition-colors cursor-pointer">
-              <span className="text-muted-foreground/60">{text}</span>
+              <span className="text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{text}</span>
             </a>
+
           ))}
         </div>
       </div>
