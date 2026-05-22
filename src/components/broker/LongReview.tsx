@@ -64,7 +64,7 @@ export interface LongReviewData {
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
 
 // Strip leftover factuality dots from old content
-const stripDots = (s: string) => s.replace(/[🟢🔵🟡🔴⚪]\s?/g, "");
+const stripDots = (s: string | null | undefined) => (s ?? "").toString().replace(/[🟢🔵🟡🔴⚪]\s?/g, "");
 
 // Map [INTERNAL: /path] and legacy [INTERNAL LINK: label] tokens
 function renderBody(text: string, slug: string) {
