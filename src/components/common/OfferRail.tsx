@@ -81,15 +81,16 @@ const OfferRail = ({ code, label, url, entityName, variant = "card", className }
         onClick={claim}
         className={cn(
           "group w-full inline-flex items-center justify-center gap-1.5 rounded-lg",
-          "bg-transparent border-0",
-          "text-muted-foreground hover:text-foreground font-display font-extrabold text-xs tracking-wide uppercase",
-          "transition-colors py-2.5 px-3",
+          "bg-primary text-primary-foreground hover:bg-primary/90",
+          "font-display font-extrabold text-xs tracking-wide uppercase",
+          "shadow-[0_4px_14px_-4px_hsl(var(--primary)/0.5)] hover:shadow-[0_6px_18px_-4px_hsl(var(--primary)/0.6)]",
+          "transition-all py-2.5 px-3",
           isWide && "py-3 text-xs",
           className
         )}
       >
         <span>{ctaText}</span>
-        <ArrowUpRight className="w-3 h-3 opacity-70 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </button>
     );
   }
