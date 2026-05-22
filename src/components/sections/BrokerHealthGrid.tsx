@@ -50,7 +50,7 @@ const PAGE = 6;
 
 const BrokerHealthGrid = () => {
   const [rows, setRows] = useState<Row[]>([]);
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [page, setPage] = useState(0);
   const ref = useRef<HTMLElement>(null);
 
