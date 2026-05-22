@@ -29,12 +29,12 @@ const CountryBrokers = () => {
     if (!country) return;
     supabase
       .from("brokers")
-      .select("id,name,slug,regulation,score,stars,review_count,logo_url")
+      .select("id,name,slug,regulation,score,stars,review_count,logo_url,tags")
       .eq("status", "published")
       .overlaps("regulation", country.preferredRegulators)
       .order("score", { ascending: false })
       .limit(15)
-      .then(({ data }) => setBrokers((data as BrokerRow[]) || []));
+      .then(({ data }) => setBrokers(((data as BrokerRow[]) || []).filter(b => !(b as any).tags?.includes('upcoming'))));
   }, [country]);
 
   if (!country) return <NotFound />;

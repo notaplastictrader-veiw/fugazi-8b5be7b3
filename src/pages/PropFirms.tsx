@@ -30,7 +30,7 @@ const PropFirms = () => {
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").order("score", { ascending: false });
-      if (data) setFirms(data as Broker[]);
+      if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming')));
     };
     fetch();
   }, []);

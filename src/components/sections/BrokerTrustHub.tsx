@@ -198,7 +198,7 @@ const BrokerTrustHub = () => {
         .order("homepage_position", { ascending: true, nullsFirst: false })
         .limit(brokerCount);
 
-      let result: Broker[] = (curated as Broker[]) || [];
+      let result: Broker[] = ((curated as Broker[]) || []).filter(b => !b.tags?.includes('upcoming'));
 
       // 2) Fallback: top-scored published brokers fill remaining slots
       if (result.length < brokerCount) {
@@ -214,11 +214,11 @@ const BrokerTrustHub = () => {
           fillerQuery = fillerQuery.not("id", "in", `(${excludeIds.join(",")})`);
         }
         const { data: fillers } = await fillerQuery;
-        if (fillers) result = [...result, ...(fillers as Broker[])];
+        if (fillers) result = [...result, ...(fillers as Broker[]).filter(b => !b.tags?.includes('upcoming'))];
       }
 
       if (result.length > 0) setBrokers(result);
-      else setBrokers(fallbackBrokers);
+      else setBrokers(fallbackBrokers.filter(b => !b.tags?.includes('upcoming')));
     };
     fetchBrokers();
   }, [brokerCount]);
