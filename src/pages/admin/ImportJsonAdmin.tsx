@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { ENTITIES, getEntity } from "@/lib/researchPrompts";
 import { tryParseJson, validate, type ValidationResult } from "@/lib/jsonValidator";
-import { importEntity } from "@/lib/jsonImporter";
+import { importEntity, type BrokerImportMode } from "@/lib/jsonImporter";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface PreviewItem {
@@ -26,8 +26,10 @@ const ImportJsonAdmin = () => {
   const [previews, setPreviews] = useState<PreviewItem[] | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [inserting, setInserting] = useState(false);
+  const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("smart-merge");
 
   const entity = useMemo(() => getEntity(entityKey)!, [entityKey]);
+  const isBroker = entity.table === "brokers";
 
   const runPreview = () => {
     setPreviews(null);
@@ -51,10 +53,14 @@ const ImportJsonAdmin = () => {
       return;
     }
     setInserting(true);
-    const res = await importEntity(entity, item.result.cleaned, user?.id || null);
+    const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
     setInserting(false);
     if (res.success) {
-      toast.success(`Inserted as draft (id: ${res.id?.slice(0, 8)}…)`);
+      if (res.mode === "smart-merge" || res.mode === "overwrite") {
+        toast.success(`${res.mode === "overwrite" ? "Overwrote" : "Smart-merged"} broker · ${res.updated?.length || 0} fields updated, ${res.preserved?.length || 0} preserved`);
+      } else {
+        toast.success(`Inserted as draft (id: ${res.id?.slice(0, 8)}…)`);
+      }
     } else {
       toast.error(res.error || "Insert failed");
     }
@@ -71,13 +77,13 @@ const ImportJsonAdmin = () => {
     let okCount = 0;
     let failCount = 0;
     for (const item of valid) {
-      const res = await importEntity(entity, item.result.cleaned, user?.id || null);
+      const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
       if (res.success) okCount++;
       else failCount++;
     }
     setInserting(false);
     toast[failCount === 0 ? "success" : "warning"](
-      `Inserted ${okCount} / ${valid.length}${failCount > 0 ? ` (${failCount} failed)` : ""}`
+      `Processed ${okCount} / ${valid.length}${failCount > 0 ? ` (${failCount} failed)` : ""}`
     );
   };
 
