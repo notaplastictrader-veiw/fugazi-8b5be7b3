@@ -133,6 +133,7 @@ const BrokersAdmin = () => {
       promo_code: (b as any).promo_code || "",
       promo_label: (b as any).promo_label || "",
       affiliate_url: (b as any).affiliate_url || "",
+      naft_verified: (b as any).naft_verified ?? false,
     });
     setLongReview(parseLongReview((b as any).long_review));
     setModalOpen(true);
