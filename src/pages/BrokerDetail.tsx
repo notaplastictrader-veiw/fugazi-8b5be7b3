@@ -575,7 +575,14 @@ const BrokerDetail = () => {
                             <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
                           </span>
                         )}
+                        <NaftVerifiedBadge verified={broker.naft_verified} />
                       </div>
+
+                      <NaftVerificationBanner
+                        verified={broker.naft_verified}
+                        entityLabel="broker"
+                        className="mt-4"
+                      />
 
                     </div>
                   </div>
