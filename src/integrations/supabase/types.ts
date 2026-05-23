@@ -552,6 +552,9 @@ export type Database = {
           license: string | null
           logo: string | null
           min_deposit: string | null
+          naft_verified: boolean
+          naft_verified_at: string | null
+          naft_verified_by: string | null
           name: string
           promo_code: string | null
           promo_label: string | null
@@ -574,6 +577,9 @@ export type Database = {
           license?: string | null
           logo?: string | null
           min_deposit?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name: string
           promo_code?: string | null
           promo_label?: string | null
@@ -596,6 +602,9 @@ export type Database = {
           license?: string | null
           logo?: string | null
           min_deposit?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name?: string
           promo_code?: string | null
           promo_label?: string | null
@@ -690,6 +699,9 @@ export type Database = {
           logo_url: string | null
           long_review: Json | null
           min_deposit: string | null
+          naft_verified: boolean
+          naft_verified_at: string | null
+          naft_verified_by: string | null
           name: string
           payment_method_details: Json
           payment_methods: string[] | null
@@ -737,6 +749,9 @@ export type Database = {
           logo_url?: string | null
           long_review?: Json | null
           min_deposit?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name: string
           payment_method_details?: Json
           payment_methods?: string[] | null
@@ -784,6 +799,9 @@ export type Database = {
           logo_url?: string | null
           long_review?: Json | null
           min_deposit?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name?: string
           payment_method_details?: Json
           payment_methods?: string[] | null
@@ -1622,6 +1640,9 @@ export type Database = {
           image_url: string | null
           is_featured: boolean | null
           link_url: string | null
+          naft_verified: boolean
+          naft_verified_at: string | null
+          naft_verified_by: string | null
           promo_type: string
           referral_url: string | null
           slug: string | null
@@ -1644,6 +1665,9 @@ export type Database = {
           image_url?: string | null
           is_featured?: boolean | null
           link_url?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           promo_type?: string
           referral_url?: string | null
           slug?: string | null
@@ -1666,6 +1690,9 @@ export type Database = {
           image_url?: string | null
           is_featured?: boolean | null
           link_url?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           promo_type?: string
           referral_url?: string | null
           slug?: string | null
@@ -2031,6 +2058,9 @@ export type Database = {
           full_report: string | null
           id: string
           is_repeat_offender: boolean
+          naft_verified: boolean
+          naft_verified_at: string | null
+          naft_verified_by: string | null
           severity: string
           show_full_report: boolean
           status: Database["public"]["Enums"]["content_status"]
@@ -2045,6 +2075,9 @@ export type Database = {
           full_report?: string | null
           id?: string
           is_repeat_offender?: boolean
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           severity?: string
           show_full_report?: boolean
           status?: Database["public"]["Enums"]["content_status"]
@@ -2059,6 +2092,9 @@ export type Database = {
           full_report?: string | null
           id?: string
           is_repeat_offender?: boolean
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           severity?: string
           show_full_report?: boolean
           status?: Database["public"]["Enums"]["content_status"]
@@ -2088,6 +2124,9 @@ export type Database = {
           logo_url: string | null
           members: string | null
           monthly_signals: string | null
+          naft_verified: boolean
+          naft_verified_at: string | null
+          naft_verified_by: string | null
           name: string
           pricing_tiers: Json | null
           promo_code: string | null
@@ -2112,6 +2151,9 @@ export type Database = {
           logo_url?: string | null
           members?: string | null
           monthly_signals?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name: string
           pricing_tiers?: Json | null
           promo_code?: string | null
@@ -2136,6 +2178,9 @@ export type Database = {
           logo_url?: string | null
           members?: string | null
           monthly_signals?: string | null
+          naft_verified?: boolean
+          naft_verified_at?: string | null
+          naft_verified_by?: string | null
           name?: string
           pricing_tiers?: Json | null
           promo_code?: string | null
