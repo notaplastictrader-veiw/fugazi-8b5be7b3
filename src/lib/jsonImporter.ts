@@ -5,42 +5,112 @@ export interface ImportResult {
   success: boolean;
   id?: string;
   error?: string;
+  mode?: "insert" | "smart-merge" | "overwrite";
+  preserved?: string[];
+  updated?: string[];
 }
+
+export type BrokerImportMode = "insert" | "smart-merge" | "overwrite";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+// Considered "empty" for smart-merge purposes
+const isEmpty = (v: any) =>
+  v === null ||
+  v === undefined ||
+  v === "" ||
+  v === 0 ||
+  (Array.isArray(v) && v.length === 0) ||
+  (typeof v === "object" && !Array.isArray(v) && v !== null && Object.keys(v).length === 0);
+
+// Top-level broker columns that smart-merge will preserve when already set
+const BROKER_PROTECTED_FIELDS = [
+  "score", "stars", "regulation", "avg_spread", "leverage", "min_deposit",
+  "pros", "cons", "payment_methods", "platforms", "account_types",
+  "payment_method_details", "withdrawal_time", "withdrawal_fee",
+  "support_email", "support_phone", "description", "headquarters",
+  "founded_year", "tags", "promo_label", "promo_code", "affiliate_url",
+  "warning_note", "license_number", "logo_url",
+];
+
 /**
- * Insert a validated payload into the entity's target Supabase table.
- * Always inserts as `status='draft'` (where supported) and stamps `created_by`.
+ * Insert (or smart-merge / overwrite) a validated payload into the entity's target table.
+ * - "insert": always insert as draft (legacy behaviour).
+ * - "smart-merge" (brokers only): if a broker with the same slug exists, update — long_review is fully
+ *   replaced, top-level fields are only overwritten when the existing value is empty.
+ * - "overwrite" (brokers only): update existing row by slug, overwriting every provided field.
  */
 export async function importEntity(
   entity: EntityDefinition,
   cleaned: Record<string, any>,
-  userId: string | null
+  userId: string | null,
+  mode: BrokerImportMode = "insert"
 ): Promise<ImportResult> {
   const table = entity.table;
   const payload: Record<string, any> = { ...cleaned };
 
-  // Default slug from name/title if missing
   if ("slug" in entity.schema.fields && !payload.slug) {
     const base = payload.name || payload.title || "";
     if (base) payload.slug = slugify(base);
   }
 
-  // Force draft on tables that support `status`
-  const draftableTables = new Set([
-    "brokers", "promotions", "news_articles", "calendar_events", "forecasts", "scam_alerts",
-  ]);
-  if (draftableTables.has(table)) payload.status = payload.status || "draft";
+  const draftableTables = new Set(["brokers", "promotions", "news_articles", "calendar_events", "forecasts", "scam_alerts"]);
+  const trackedTables = new Set(["brokers", "promotions", "news_articles", "calendar_events", "forecasts"]);
 
-  // Stamp creator on tables that have created_by
-  const trackedTables = new Set([
-    "brokers", "promotions", "news_articles", "calendar_events", "forecasts",
-  ]);
+  // For brokers in smart-merge/overwrite mode, try to find an existing row by slug.
+  if (table === "brokers" && (mode === "smart-merge" || mode === "overwrite") && payload.slug) {
+    const { data: existing } = await (supabase as any)
+      .from("brokers")
+      .select("*")
+      .eq("slug", payload.slug)
+      .maybeSingle();
+
+    if (existing) {
+      const updated: string[] = [];
+      const preserved: string[] = [];
+      const updatePayload: Record<string, any> = {};
+
+      // long_review is ALWAYS fully replaced when provided
+      if ("long_review" in payload) {
+        updatePayload.long_review = payload.long_review;
+        updated.push("long_review");
+      }
+
+      for (const [key, val] of Object.entries(payload)) {
+        if (key === "long_review" || key === "id" || key === "slug" || key === "created_at" || key === "created_by") continue;
+        if (mode === "overwrite") {
+          updatePayload[key] = val;
+          updated.push(key);
+          continue;
+        }
+        // smart-merge
+        if (BROKER_PROTECTED_FIELDS.includes(key) && !isEmpty(existing[key])) {
+          preserved.push(key);
+          continue;
+        }
+        if (!isEmpty(val)) {
+          updatePayload[key] = val;
+          updated.push(key);
+        }
+      }
+
+      updatePayload.updated_at = new Date().toISOString();
+
+      const { error } = await (supabase as any)
+        .from("brokers")
+        .update(updatePayload)
+        .eq("id", existing.id);
+      if (error) return { success: false, error: error.message, mode };
+      return { success: true, id: existing.id, mode, preserved, updated };
+    }
+    // no existing — fall through to insert
+  }
+
+  if (draftableTables.has(table)) payload.status = payload.status || "draft";
   if (trackedTables.has(table) && userId) payload.created_by = userId;
 
   const { data, error } = await (supabase as any).from(table).insert(payload).select("id").single();
-  if (error) return { success: false, error: error.message };
-  return { success: true, id: data?.id };
+  if (error) return { success: false, error: error.message, mode: "insert" };
+  return { success: true, id: data?.id, mode: "insert", updated: Object.keys(payload) };
 }

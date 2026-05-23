@@ -435,8 +435,19 @@ const BrokerDetail = () => {
               { question: `How long do withdrawals take at ${broker.name}?`, answer: broker.withdrawal_time ? `${broker.name} typically processes withdrawals in ${broker.withdrawal_time}${broker.withdrawal_fee ? `, with fees around ${broker.withdrawal_fee}` : ""}.` : `Withdrawal speed at ${broker.name} varies by payment method. Check our verified user complaints below for real timing reports.` },
             ]
       )} />
+      {/* v4.7 extra structured data — only when provided by the v4.7 master prompt */}
+      {broker.long_review?.schema_jsonld?.review && <JsonLd data={broker.long_review.schema_jsonld.review} />}
+      {broker.long_review?.schema_jsonld?.aggregateRating && <JsonLd data={broker.long_review.schema_jsonld.aggregateRating} />}
+      {broker.long_review?.schema_jsonld?.breadcrumbList && <JsonLd data={broker.long_review.schema_jsonld.breadcrumbList} />}
+      {broker.long_review?.schema_jsonld?.organization && <JsonLd data={broker.long_review.schema_jsonld.organization} />}
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
+          {broker.long_review?.regulatory_risk_warning && (
+            <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs font-mono text-amber-700 dark:text-amber-400 flex items-start gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              <span>{broker.long_review.regulatory_risk_warning}</span>
+            </div>
+          )}
 
           {/* ===== HEADER — at-a-glance ===== */}
           {(() => {
