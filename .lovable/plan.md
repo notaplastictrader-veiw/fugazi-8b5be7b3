@@ -1,123 +1,112 @@
 ## Goal
 
-Bring the entire NAFT review pipeline up to **Master Prompt v4.7**:
-1. Update the in-app broker prompt the Admin uses
-2. Save the canonical v4.7 doc as project memory
-3. Extend the broker `long_review` JSON shape + renderer to support every new v4.7 field
-4. Give Admin a clean way to re-import the 17 already-reviewed brokers without losing manual edits ("smart merge")
+Add a **"Verification Pending" disclaimer banner** on every broker, prop firm, and signal/scam/promotion detail page that warns visitors NAFT's data may not be 100% accurate and to cross-check with the company. Give Super Admin a per-entity toggle to mark the entity as "NAFT Verified" — once toggled on, the banner disappears for that entity.
 
-No automatic regeneration — researcher runs v4.7 outside the app, pastes JSON into **Admin → Import JSON**, reviews, publishes.
+This keeps NAFT in a safe legal zone by default, while letting you stamp entities you've personally fact-checked as verified.
 
 ---
 
-## Scope — 17 brokers to refresh (manual workflow)
+## Where the banner shows
 
-AvaTrade, Bullwaves, Capital.com, Exness, FP Markets, FXPRIMUS, Giraffe Markets, HFM, HYCM, Interactive Brokers, MultiBank Group, Octa, Pepperstone, PrimeXBT, Vantage Markets, VT Markets, XM
+By default (verified = false) on:
+- `/brokers/:slug` — BrokerDetail.tsx (in the red-circled area on the screenshot, right under the "Verified 1 month ago" chip and above the stats grid)
+- `/prop-firms` cards + any future prop firm detail page
+- `/signals/:slug` — SignalGroupDetail.tsx
+- `/scam-alerts/:slug` — ScamAlertDetail.tsx
+- `/promotions/:slug` — PromotionDetail.tsx
+
+On list pages (Brokers, PropFirms, Signals, etc.), no banner per-card — just on the detail page (cards stay clean).
 
 ---
 
-## Changes
+## Banner design
 
-### 1. Save v4.7 master prompt
-
-- Copy uploaded file to `mem://content/broker-review-master-prompt.md` (full 1522 lines)
-- Update `mem://index.md` to reference it under a new "Content / Master Prompts" group
-
-### 2. Update in-app broker prompt — `src/lib/researchPrompts.ts`
-
-- Replace the `broker` entity's `prompt(name)` body with a condensed v4.7 instruction set (research protocol, factuality rules, voice rules, schema spec) that still asks the model to return the **expanded JSON shape** below
-- Update the `example` object + `schema.fields` to include new top-level / nested fields
-- Keep `table: "brokers"` and `reserved` unchanged
-- Other entities (prop, betting, signal, scam, promo, education, news, calendar, forecast) untouched
-
-### 3. Expanded `long_review` JSON shape (additions vs current)
-
-New keys added to existing structure (existing keys preserved):
+Subtle, non-alarming, theme-aware. Sits inline (not modal, not toast):
 
 ```text
-long_review.author         { name, role, bio, experience_years, avatar_url, sameAs[] }
-long_review.toc[]          [ { id, label } ]   // auto from sections
-long_review.social_snippet { x, whatsapp, telegram }
-long_review.comparison_block { headline, brokers: [{slug,name,score,verdict}] }
-long_review.regulatory_risk_warning  // string, e.g. "73% of retail CFD accounts lose money"
-long_review.conflict_note            // affiliate / sponsorship disclosure
-long_review.last_human_review_at     // ISO date
-long_review.schema_jsonld  {
-    review: { @type, datePublished, dateModified, ... },
-    aggregateRating: { ratingValue, reviewCount },
-    breadcrumbList: [...],
-    organization: { sameAs[] }
-}
-long_review.image_assets[]  [ { url, alt, caption } ]
-long_review.all_in_cost     { eurusd_spread_usd, commission_usd, total_per_lot_usd }
+┌──────────────────────────────────────────────────────────────────┐
+│  ⓘ  Heads up — this listing is still being verified by NAFT.    │
+│     Some details may not be 100% accurate. Always cross-check    │
+│     with the broker directly or other trusted sources.           │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-All new keys are **optional** so existing 17 broker records keep rendering until refreshed.
-
-### 4. Renderer upgrade — `src/components/broker/LongReview.tsx` + `src/pages/BrokerDetail.tsx`
-
-- **TOC**: render `long_review.toc[]` as sticky anchor links above sections (auto-build from sections[] if toc missing)
-- **Author byline card**: above `quick-verdict` — avatar, name, role, bio, experience years, "sameAs" links
-- **Last reviewed / human-reviewed badge**: small chip below author
-- **Risk warning banner**: top of page, before hero — uses `regulatory_risk_warning`
-- **Conflict disclosure**: subtle note under affiliate CTA
-- **Social share block**: render `social_snippet` with WhatsApp / X / Telegram share buttons
-- **Comparison block**: card rail above `final-verdict` with linked broker comparison
-- **JSON-LD**: inject `schema_jsonld` blob via existing SEO component — adds BreadcrumbList + AggregateRating + Review + Organization
-- **Image assets**: support optional inline images per section using alt text
-- Fallbacks for every new field so brokers not yet refreshed don't break
-
-### 5. Admin → Import JSON — smart merge
-
-Update the broker importer (`src/pages/admin/...` or existing import handler) to support **"Smart merge"** mode for brokers that already exist:
-
-- Always replace `long_review` jsonb entirely with the new payload
-- For top-level columns (`score`, `stars`, `regulation`, `avg_spread`, `leverage`, `min_deposit`, `pros`, `cons`, `payment_methods`, `platforms`, `account_types`, `payment_method_details`, `withdrawal_time`, `withdrawal_fee`, `support_email`, `support_phone`, `description`, `headquarters`, `founded_year`, `tags`, `promo_label`, `promo_code`, `affiliate_url`, `warning_note`):
-  - If the existing value is empty / null / 0 / `[]` → take new value
-  - Otherwise keep existing (preserves manual admin edits)
-- Show a diff preview before save: "X fields updated, Y fields preserved"
-- Toggle to override smart merge → "Overwrite all"
-
-### 6. Project memory
-
-- Add `mem://content/broker-review-master-prompt` reference + a `mem://features/broker-long-review-schema` note listing the new long_review fields and renderer expectations
+- Background: muted amber/accent tint with 1px border (uses `--accent` token, low opacity)
+- Icon: lucide `Info` or `ShieldAlert`
+- Text in `text-muted-foreground` with one bold lead phrase
+- Rounded, full-width of the hero content column
+- Mobile: text wraps, icon stays top-left
+- Multi-language ready — wired through `t()` from `I18nContext`
 
 ---
 
-## Out of scope
+## Admin verification toggle
 
-- No automatic AI regeneration — researcher uses v4.7 externally
-- No translation pipeline (v4.7 mentions `target_locale`; we keep English source only for now)
-- No DB schema migration (long_review stays jsonb; no new columns)
-- No changes to other entity prompts (prop firm, signals, etc.)
+### Schema change
+Add a single boolean column to each entity table:
+
+```text
+brokers.naft_verified            boolean default false
+prop_firms.naft_verified         boolean default false   (if/when table exists; else skip)
+signal_groups.naft_verified      boolean default false
+scam_alerts.naft_verified        boolean default false
+promotions.naft_verified         boolean default false
+```
+
+Plus optional metadata:
+```text
+naft_verified_at                 timestamptz null
+naft_verified_by                 uuid null    (admin user id)
+```
+
+RLS: read-public, write-admin-only (same pattern as existing fields).
+
+### Admin UI
+- In `BrokersAdmin.tsx` row actions: a small "Mark as NAFT Verified" toggle (Switch component) — green ✓ when on
+- Same toggle in SignalsAdmin, ScamAlertsAdmin, PromotionsAdmin row editors
+- Bulk action in toolbar: "Mark selected as Verified"
+- Audit log entry written when toggled
+
+### Frontend behavior
+- Detail page reads `entity.naft_verified`
+- If `true` → hide banner, optionally show small green chip near the title: "✓ NAFT Verified" (mono caps, primary color)
+- If `false` → show the disclaimer banner
 
 ---
 
 ## Files touched
 
 ```text
-mem://content/broker-review-master-prompt.md         (new)
-mem://features/broker-long-review-schema.md          (new)
-mem://index.md                                       (edited)
-src/lib/researchPrompts.ts                           (edited — broker entity only)
-src/components/broker/LongReview.tsx                 (edited — new sections)
-src/components/broker/LongReviewAuthor.tsx           (new)
-src/components/broker/LongReviewTOC.tsx              (new)
-src/components/broker/LongReviewSocialShare.tsx      (new)
-src/components/broker/LongReviewComparisonBlock.tsx  (new)
-src/components/broker/RiskWarningBanner.tsx          (new)
-src/pages/BrokerDetail.tsx                           (edited — wire new components + JSON-LD)
-src/pages/admin/<ImportJson page>                    (edited — smart-merge logic + diff preview)
-src/lib/brokerSmartMerge.ts                          (new helper)
+src/components/common/NaftVerificationBanner.tsx   (new — reusable)
+src/components/common/NaftVerifiedBadge.tsx        (new — tiny green chip)
+src/pages/BrokerDetail.tsx                         (edit — render banner/badge)
+src/pages/SignalGroupDetail.tsx                    (edit)
+src/pages/ScamAlertDetail.tsx                      (edit)
+src/pages/PromotionDetail.tsx                      (edit)
+src/pages/PropFirms.tsx                            (edit — banner on detail card area)
+src/pages/admin/BrokersAdmin.tsx                   (edit — verified toggle)
+src/pages/admin/SignalsAdmin.tsx                   (edit)
+src/pages/admin/ScamAlertsAdmin.tsx                (edit)
+src/pages/admin/PromotionsAdmin.tsx                (edit)
+src/contexts/I18nContext.tsx                       (edit — add 2 strings)
+supabase migration                                 (add naft_verified columns)
 ```
 
 ---
 
-## QA checklist after build
+## Out of scope
 
-- Existing 17 brokers still render (no missing-field crashes)
-- AvaTrade page shows TOC + risk banner with **fallback** values (no v4.7 data yet)
-- Import a sample v4.7 JSON for AvaTrade → diff preview shows preserved vs updated fields → save → page renders new TOC, author card, social, comparison, JSON-LD
-- View page source on a v4.7 broker → BreadcrumbList + AggregateRating + Review JSON-LD present
-- Re-importing the same JSON twice produces no duplicates
-- Mobile viewport: TOC collapses, social buttons stack, author card stays readable
+- No global site-wide footer disclaimer change (existing `AffiliateDisclosure` stays as-is)
+- No change to News/Calendar/Forecast/Education entities (those are editorial, not company facts)
+- No notification when admin verifies (can add later)
+
+---
+
+## QA checklist
+
+- Pepperstone page shows the banner exactly in the red-circled spot
+- Toggle on in admin → banner disappears, green "✓ NAFT Verified" chip appears
+- Toggle off → banner returns
+- Banner is bilingual (renders via t())
+- Mobile layout doesn't break
+- All existing 17 brokers default to `naft_verified = false` (banner shows)
