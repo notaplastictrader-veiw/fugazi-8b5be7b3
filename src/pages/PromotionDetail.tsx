@@ -7,6 +7,8 @@ import { getPromoBySlug, PromotionDetail as PromotionType } from "@/data/promoti
 import { ArrowLeft, Clock, ExternalLink, CheckCircle2, AlertTriangle, Gift, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
