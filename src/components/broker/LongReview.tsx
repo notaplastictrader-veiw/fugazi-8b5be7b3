@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
 import GeoAvailability from "@/components/broker/GeoAvailability";
-import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen } from "lucide-react";
+import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare } from "lucide-react";
 
 export interface LongReviewTable {
   headers: string[];
@@ -31,6 +31,16 @@ export interface LongReviewSection {
   cta_after?: boolean;
 }
 export interface LongReviewFaq { q: string; a: string; }
+export interface LongReviewAuthor {
+  name?: string;
+  role?: string;
+  bio?: string;
+  experience_years?: number;
+  avatar_url?: string;
+  sameAs?: string[];
+}
+export interface LongReviewComparisonBroker { slug?: string; name?: string; score?: number; verdict?: string; }
+export interface LongReviewImageAsset { url?: string; alt?: string; caption?: string; section_id?: string; }
 export interface LongReviewData {
   seo?: { title?: string; description?: string; og_image_alt?: string; focus_keyword?: string; secondary_keywords?: string[] };
   verdict?: {
@@ -57,8 +67,19 @@ export interface LongReviewData {
   internal_links?: { anchor: string; url: string }[];
   reading_time_minutes?: number;
   word_count?: number;
-  schema_jsonld?: { review?: any; faqPage?: any };
+  schema_jsonld?: { review?: any; faqPage?: any; aggregateRating?: any; breadcrumbList?: any; organization?: any };
   factuality_legend?: boolean; // legacy, ignored
+  // v4.7 additions
+  author?: LongReviewAuthor;
+  toc?: { id: string; label: string }[];
+  social_snippet?: { x?: string; whatsapp?: string; telegram?: string };
+  comparison_block?: { headline?: string; brokers?: LongReviewComparisonBroker[] };
+  regulatory_risk_warning?: string;
+  conflict_note?: string;
+  last_human_review_at?: string;
+  image_assets?: LongReviewImageAsset[];
+  all_in_cost?: { eurusd_spread_usd?: number; commission_usd?: number; total_per_lot_usd?: number };
+  target_locale?: string;
 }
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
