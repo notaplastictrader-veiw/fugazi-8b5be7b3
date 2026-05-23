@@ -59,12 +59,12 @@ const Advertise = () => {
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    supabase
-      .from("ad_placements")
+    (supabase as any)
+      .from("ad_placements_public")
       .select("id, slug, title, description, icon, display_order")
       .eq("is_active", true)
       .order("display_order", { ascending: true })
-      .then(({ data }) => {
+      .then(({ data }: { data: Placement[] | null }) => {
         if (data && data.length > 0) setPlacements(data as Placement[]);
       });
   }, []);

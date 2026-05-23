@@ -16,13 +16,13 @@ const UserProfile = () => {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
+      const { data, error } = await (supabase as any)
+        .from("profiles_public")
         .select("*")
         .eq("username", username!)
         .single();
       if (error) throw error;
-      return data;
+      return data as any;
     },
     enabled: !!username,
   });
