@@ -18,14 +18,12 @@ export const useReferralTracking = () => {
       const tracked = sessionStorage.getItem(`ref-tracked-${refCode}`);
       if (tracked) return;
 
-      // Look up the referral code
-      const { data: codeData } = await supabase
-        .from("referral_codes")
-        .select("id")
-        .eq("code", refCode)
-        .maybeSingle();
+      // Look up the referral code via security-definer RPC
+      const { data: codeId } = await supabase
+        .rpc("lookup_referral_code" as any, { _code: refCode });
 
-      if (!codeData) return;
+      if (!codeId) return;
+      const codeData = { id: codeId as string };
 
       // Insert click record
       await supabase.from("referral_clicks").insert({

@@ -2581,7 +2581,274 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ad_placements_public: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          icon: string | null
+          id: string | null
+          is_active: boolean | null
+          slug: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          slug?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          slug?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      betting_profiles_public: {
+        Row: {
+          affiliate_url: string | null
+          claim_status: string | null
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string | null
+          is_featured: boolean | null
+          is_verified: boolean | null
+          site_name: string | null
+          slug: string | null
+          supported_sports: string[] | null
+          tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_url?: string | null
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name?: string | null
+          slug?: string | null
+          supported_sports?: string[] | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_url?: string | null
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          site_name?: string | null
+          slug?: string | null
+          supported_sports?: string[] | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      broker_profiles_public: {
+        Row: {
+          broker_id: string | null
+          claim_status: string | null
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string | null
+          is_featured: boolean | null
+          is_verified: boolean | null
+          tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_profiles_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string | null
+          experience_level: string | null
+          full_name: string | null
+          id: string | null
+          is_public: boolean | null
+          reputation_score: number | null
+          reputation_tier: string | null
+          show_complaints: boolean | null
+          show_country: boolean | null
+          show_journal_stats: boolean | null
+          show_real_name: boolean | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_telegram: string | null
+          social_tiktok: string | null
+          social_twitter: string | null
+          social_youtube: string | null
+          theme_preference: string | null
+          trading_style: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_journal_stats?: boolean | null
+          show_real_name?: boolean | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_telegram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_youtube?: string | null
+          theme_preference?: string | null
+          trading_style?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string | null
+          experience_level?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          reputation_score?: number | null
+          reputation_tier?: string | null
+          show_complaints?: boolean | null
+          show_country?: boolean | null
+          show_journal_stats?: boolean | null
+          show_real_name?: boolean | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_telegram?: string | null
+          social_tiktok?: string | null
+          social_twitter?: string | null
+          social_youtube?: string | null
+          theme_preference?: string | null
+          trading_style?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      signal_profiles_public: {
+        Row: {
+          claim_status: string | null
+          claimed_by: string | null
+          created_at: string | null
+          featured_position: number | null
+          id: string | null
+          is_featured: boolean | null
+          is_verified: boolean | null
+          signal_group_id: string | null
+          tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id?: string | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          claim_status?: string | null
+          claimed_by?: string | null
+          created_at?: string | null
+          featured_position?: number | null
+          id?: string | null
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          signal_group_id?: string | null
+          tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_profiles_signal_group_id_fkey"
+            columns: ["signal_group_id"]
+            isOneToOne: true
+            referencedRelation: "signal_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calc_broker_health_score: {
@@ -2603,6 +2870,7 @@ export type Database = {
       }
       is_pro_user: { Args: { _user_id: string }; Returns: boolean }
       is_verified_trader: { Args: { _user_id: string }; Returns: boolean }
+      lookup_referral_code: { Args: { _code: string }; Returns: string }
       recalc_all_broker_health: { Args: never; Returns: number }
       submit_application: {
         Args: {
