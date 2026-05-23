@@ -224,6 +224,14 @@ const BrokerTrustHub = () => {
         if (fillers) result = [...result, ...(fillers as Broker[]).filter(b => !b.tags?.includes('upcoming'))];
       }
 
+      // Sort: reviewed brokers first (by score), then unreviewed (by score)
+      result.sort((a, b) => {
+        const ar = (a.review_count ?? 0) > 0 ? 1 : 0;
+        const br = (b.review_count ?? 0) > 0 ? 1 : 0;
+        if (ar !== br) return br - ar;
+        return (b.score ?? 0) - (a.score ?? 0);
+      });
+
       if (result.length > 0) setBrokers(result);
       else setBrokers(fallbackBrokers.filter(b => !b.tags?.includes('upcoming')));
     };
