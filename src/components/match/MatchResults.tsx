@@ -162,7 +162,7 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
                 <div className="flex items-center gap-3 mb-3 text-xs text-muted-foreground">
                   <StarRating value={m.broker.stars} size={12} />
                   <span>· {m.broker.review_count} reviews</span>
-                  <span>· {m.broker.avg_spread} spread</span>
+                  <span>· {formatSpreadNumber(m.broker.avg_spread)} spread</span>
                   <span>· min {m.broker.min_deposit}</span>
                 </div>
 
