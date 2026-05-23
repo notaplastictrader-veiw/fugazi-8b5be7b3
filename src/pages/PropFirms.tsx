@@ -98,6 +98,11 @@ const PropFirms = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {visibleItems.map(broker => (
                     <NeonCard key={broker.id} accent="accent" className="p-5">
+                      {broker.tags?.includes('nfft-testing') && (
+                        <div className="mb-3 px-2 py-1 text-[10px] font-mono font-bold tracking-wider text-center rounded border border-accent/40 bg-accent/10 text-accent uppercase animate-pulse">
+                          NFFT Testing in Progress
+                        </div>
+                      )}
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="text-lg font-bold text-foreground">{broker.name}</h3>
