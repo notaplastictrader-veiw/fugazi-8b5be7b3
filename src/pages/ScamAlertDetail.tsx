@@ -5,6 +5,8 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema, articleSchema } from "@/components/seo/JsonLd";
 import { AlertTriangle, ArrowLeft, ShieldAlert, ExternalLink } from "lucide-react";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 
 interface ScamAlertFull {
   id: string;
@@ -17,6 +19,7 @@ interface ScamAlertFull {
   show_full_report?: boolean;
   full_report?: string | null;
   broker_id?: string | null;
+  naft_verified?: boolean | null;
 }
 
 const fallbackAlerts: ScamAlertFull[] = [
