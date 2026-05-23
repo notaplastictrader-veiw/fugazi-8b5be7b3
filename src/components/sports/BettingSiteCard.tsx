@@ -18,11 +18,18 @@ const BettingSiteCard = forwardRef<HTMLDivElement, { site: BettingSite }>(({ sit
           </div>
         </div>
         <div className="text-right">
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-primary fill-primary" />
-            <span className="text-lg font-extrabold text-foreground">{site.rating}</span>
-            <span className="text-xs text-muted-foreground">/10</span>
-          </div>
+          {site.rating > 0 ? (
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-primary fill-primary" />
+              <span className="text-lg font-extrabold text-foreground">{site.rating}</span>
+              <span className="text-xs text-muted-foreground">/10</span>
+            </div>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-widest">
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              NAFT Testing In Progress
+            </span>
+          )}
         </div>
       </div>
 
