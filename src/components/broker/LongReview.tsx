@@ -339,7 +339,18 @@ const ComparisonBlock = ({ block }: { block: LongReviewData["comparison_block"] 
 
 const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
   const sections = data.sections || [];
-  const toc = useMemo(() => sections.map(s => ({ id: s.id, heading: s.heading })), [sections]);
+  const toc = useMemo(() => {
+    if (data.toc && data.toc.length > 0) return data.toc.map(t => ({ id: t.id, heading: t.label }));
+    return sections.map(s => ({ id: s.id, heading: s.heading }));
+  }, [sections, data.toc]);
+  const imagesBySection = useMemo(() => {
+    const m: Record<string, LongReviewImageAsset[]> = {};
+    (data.image_assets || []).forEach(img => {
+      const key = img.section_id || "_unassigned";
+      (m[key] ||= []).push(img);
+    });
+    return m;
+  }, [data.image_assets]);
   const [activeId, setActiveId] = useState<string>("");
 
   // Scrollspy: highlight TOC entry matching the section nearest the top
