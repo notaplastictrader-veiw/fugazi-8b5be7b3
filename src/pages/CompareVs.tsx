@@ -8,6 +8,7 @@ import { ArrowRight, Shield, GitCompare, Trophy, Zap, ScrollText, AlertOctagon }
 import { Badge } from "@/components/ui/badge";
 import CTABand from "@/components/common/CTABand";
 import NotFound from "./NotFound";
+import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null;
@@ -21,8 +22,8 @@ const ROWS: { key: keyof BrokerRow; label: string; format?: (v: any) => string }
   { key: "score", label: "Trust Score", format: v => v != null ? `${Number(v).toFixed(1)}/10` : "—" },
   { key: "stars", label: "User Rating", format: v => v != null ? `${Number(v).toFixed(1)} ★` : "—" },
   { key: "regulation", label: "Regulation", format: v => Array.isArray(v) && v.length ? v.join(", ") : "—" },
-  { key: "avg_spread", label: "Avg Spread" },
-  { key: "leverage", label: "Max Leverage" },
+  { key: "avg_spread", label: "Avg Spread", format: v => formatSpreadNumber(v) },
+  { key: "leverage", label: "Max Leverage", format: v => formatLeverageNumber(v) },
   { key: "min_deposit", label: "Min Deposit" },
   { key: "review_count", label: "Reviews", format: v => v?.toLocaleString() || "0" },
   { key: "complaints", label: "Complaints", format: v => v?.toLocaleString() || "0" },

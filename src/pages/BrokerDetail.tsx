@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { brokers as localBrokers } from "@/data/brokers";
+import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
 import { useToast } from "@/hooks/use-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -442,23 +443,9 @@ const BrokerDetail = () => {
             const isProp = broker.type === "prop-firm";
             const scoreOutOf100 = Math.round((broker.score || 0) * 10);
             const scoreLabel = broker.score >= 8 ? "Excellent" : broker.score >= 6 ? "Average" : broker.score >= 4 ? "Caution" : "High Risk";
-            // Clean headline numbers from messy raw values
-            const cleanSpread = (raw?: string) => {
-              if (!raw) return "—";
-              // Take first chunk before "," or "(" → e.g. "0.3 pips (Standard), 0.0..." → "0.3 pips"
-              const first = raw.split(/[,(]/)[0].trim();
-              return first || raw;
-            };
-            const cleanLeverage = (raw?: string) => {
-              if (!raw) return "—";
-              if (/unlimited/i.test(raw)) return "Unlimited";
-              const matches = raw.match(/1:\s*\d+/g);
-              if (!matches?.length) return raw.split(/[,(]/)[0].trim() || raw;
-              const max = matches
-                .map((m) => parseInt(m.replace(/\D/g, ""), 10))
-                .reduce((a, b) => Math.max(a, b), 0);
-              return `1:${max}`;
-            };
+            // Clean headline numbers — numbers only, no descriptive words
+            const cleanSpread = (raw?: string) => formatSpreadNumber(raw);
+            const cleanLeverage = (raw?: string) => formatLeverageNumber(raw);
             const stats = isProp
               ? [
                   { label: "Account Size", value: "$2K – $200K" },

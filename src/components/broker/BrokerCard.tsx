@@ -27,20 +27,9 @@ export interface Broker {
   website_url?: string | null;
 }
 
-export const formatSpread = (v?: string) => {
-  if (!v) return "—";
-  const m = v.match(/[\d.]+/);
-  return m ? m[0] : v;
-};
-
-export const formatLeverage = (v?: string) => {
-  if (!v) return "—";
-  if (/unlimited/i.test(v)) return "Unlimited";
-  const matches = [...v.matchAll(/1:(\d+)/g)];
-  if (!matches.length) return v;
-  const max = matches.reduce((a, b) => (parseInt(b[1]) > parseInt(a[1]) ? b : a));
-  return `1:${max[1]}`;
-};
+import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
+export const formatSpread = formatSpreadNumber;
+export const formatLeverage = formatLeverageNumber;
 
 export const formatRegulator = (v: string) => {
   if (!v) return v;

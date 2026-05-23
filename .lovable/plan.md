@@ -1,41 +1,55 @@
-
 ## Goal
-Backfill logos for the 107 entries added today (16 forex brokers, 5 crypto exchanges, 86 betting sites) using a free public logo service. No paid API, no edge function — one SQL update.
+
+Across the entire site, every broker/prop-firm card and the broker detail header must show **numbers only** for Avg Spread and Max Leverage — no descriptive words like "Fixed spreads from…", "Up to…", "all commission-free", etc.
+
+Example (AvaTrade, current):
+- Avg Spread: "Fixed spreads from 0.5 pips on EUR/USD; variable spreads from 0.6 pips; all commission-free"
+- Max Leverage: "Up to 30:1"
+
+After fix:
+- Avg Spread: `0.5 pips` (number + unit only)
+- Max Leverage: `1:30` (normalized ratio, largest if multiple)
 
 ## Approach
-For each brand, map name → official domain, then set the logo URL to Clearbit's free logo CDN:
 
-```
-https://logo.clearbit.com/{domain}
-```
+Centralize two pure formatters in `src/lib/utils.ts` (or a new `src/lib/brokerFormat.ts`) and replace every ad-hoc cleaner with them.
 
-Clearbit returns transparent PNGs for known brands and 404s for unknown ones. Since the existing card components already fall back gracefully when `logo`/`logo_url` is empty or fails to load (initial letter placeholder shows), broken/unknown logos won't break the UI. For brands Clearbit doesn't know (small regional betting sites like Khelibet, Krikya, Planbet), the placeholder + NAFT Testing badge will stay — and you can manually replace later from the admin panel.
+### `formatSpreadNumber(raw)`
+- Strip everything; return the first numeric token followed by an optional unit `pips` / `pip` / `%`.
+- Examples:
+  - "Fixed spreads from 0.5 pips on EUR/USD; …" → `0.5 pips`
+  - "0.02 pips" → `0.02 pips`
+  - "1.6 pips" → `1.6 pips`
+  - "$5K–$400K" (prop firms — keep as-is, no `pips` in source) → `$5K–$400K`
+  - "N/A" / empty → `—`
+- Regex: match the first `\d+(?:\.\d+)?` then look ahead for `pips?` or `%` within ~20 chars; otherwise return just the number; for prop-firm account-size ranges (contain `$` or `K`), passthrough.
 
-## Steps
+### `formatLeverageNumber(raw)`
+- Always output `1:N` (N = largest integer found).
+- Examples:
+  - "Up to 30:1" → `1:30`
+  - "1:500" → `1:500`
+  - "1:100, 1:500 (pro)" → `1:500`
+  - "Unlimited" → `Unlimited`
+  - "30:1" → `1:30` (swap)
+  - empty → `—`
+- Regex: find all `\d+\s*:\s*\d+` pairs (or `1:\d+` / `\d+:1`), normalize so the side that equals 1 is on the left, take max of the other side. If no ratio found, extract first integer and render `1:N`.
 
-1. **Build a brand→domain map** for all 107 new entries by best-guess of the official domain:
-   - Forex: avatrade.com, blueberrymarkets.com, dupoin.com, markets4you.com, traze.com, imperialfx.com, finsaitrade.com, cribmarkets.com, tagmarkets.com, skyriss.com, nxgmarkets.com, smbcnikko.co.jp, hirose-fx.co.jp, fxbroadnet.com, moneypartners.co.jp, everbright-sec.com, gtht.com (Guotai Haitong)
-   - Crypto: margex.com, bisq.network, localcoinswap.com, bestwallet.com, coin.space
-   - Betting: 86 entries — use slug+`.com` for popular names, override known ones (baji.live, jeetbuzz.com, krikya9.com, jaya9.com, mostbet.com, 1win.com, melbet.com, dafabet.com, bet365.com, etc.)
+## Files to update
 
-2. **One SQL UPDATE per table** (in build mode):
-   ```sql
-   UPDATE brokers SET logo_url = 'https://logo.clearbit.com/<domain>'
-   WHERE slug = '<slug>' AND (logo_url IS NULL OR logo_url = '');
+1. **Create** `src/lib/brokerFormat.ts` — export `formatSpreadNumber`, `formatLeverageNumber`.
+2. `src/pages/BrokerDetail.tsx` — replace inline `cleanSpread` / `cleanLeverage` (lines 446–461) with the new helpers; also use them in the account-types table (line ~1067/1073) and in the description string (line ~1051, 402).
+3. `src/components/broker/BrokerCard.tsx` — replace existing `formatSpread` / `formatLeverage` with re-exports of the new helpers (keeps all current imports working). `BrokerTrustHub.tsx` already imports `formatLeverage` from here so it auto-benefits.
+4. `src/pages/PropFirms.tsx` (line 115) — wrap `broker.leverage` and `broker.avg_spread` in the new helpers.
+5. `src/pages/Compare.tsx` & `src/pages/CompareVs.tsx` — format the `avg_spread` and `leverage` cells via the new helpers (the comparison logic `parseSpread` already extracts numbers, just the displayed value needs cleaning).
+6. `src/components/match/MatchResults.tsx` (lines 98, 164) — apply `formatSpreadNumber` to `avg_spread`.
 
-   UPDATE betting_sites SET logo = 'https://logo.clearbit.com/<domain>'
-   WHERE slug = '<slug>' AND (logo IS NULL OR logo = '');
-   ```
-   Batched as a single `CASE WHEN` per table to do all rows at once.
+No DB changes, no business logic change — purely a presentation cleanup. Raw values stay intact in DB and in the `title` tooltip on hover.
 
-3. **Verify** by spot-checking 5–10 cards in `/sports`, forex broker grid, and crypto category in the preview.
+## QA checklist
 
-## What stays placeholder
-- Bangla/regional betting brands without crawlable websites (~10-15 entries probably)
-- Any brand Clearbit hasn't indexed
-- You can fix these one-by-one from admin → broker/betting site edit later
-
-## Out of scope
-- Uploading custom logos to Supabase Storage (manual work for you)
-- Building an admin bulk-logo uploader
-- Edge function-based logo scraper (overkill for 107 one-time entries)
+- AvaTrade `/brokers/avatrade` header → `0.5 pips` and `1:30`.
+- Exness card → `0.1 pips` and `1:Unlimited` (or `Unlimited`).
+- IC Markets card → `0.02 pips` and `1:500`.
+- Prop firm card (FTMO) → leverage `1:100`, "spread" column keeps account-size range as-is.
+- Compare page rows show short numeric values.
