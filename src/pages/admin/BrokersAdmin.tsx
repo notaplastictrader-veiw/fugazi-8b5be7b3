@@ -78,6 +78,7 @@ const emptyBroker = {
   show_on_homepage: false, homepage_position: null as number | null,
   license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
   promo_code: "", promo_label: "", affiliate_url: "",
+  naft_verified: false,
 };
 
 const BrokersAdmin = () => {
