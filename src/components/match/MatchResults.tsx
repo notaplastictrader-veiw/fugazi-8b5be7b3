@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import { useEffect } from "react";
+import { formatSpreadNumber } from "@/lib/brokerFormat";
 
 interface Match {
   id: string;
