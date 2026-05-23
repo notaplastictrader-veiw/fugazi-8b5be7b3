@@ -8,6 +8,7 @@ import { ArrowRight, Shield, GitCompare, Trophy, Zap, ScrollText, AlertOctagon }
 import { Badge } from "@/components/ui/badge";
 import CTABand from "@/components/common/CTABand";
 import NotFound from "./NotFound";
+import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null;
