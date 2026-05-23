@@ -199,7 +199,7 @@ const BrokerDetail = () => {
     if (b) {
       const [{ data: r }, { data: bp }, { count: liveReviewCount }, { count: liveComplaintCount }, { data: alerts }] = await Promise.all([
         supabase.from("reviews").select("id, author, content, rating, role, created_at, photo_urls, verified_account, account_proof_url, account_id_masked").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
-        supabase.from("broker_profiles").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
+        (supabase as any).from("broker_profiles_public").select("claim_status, claimed_by").eq("broker_id", b.id).maybeSingle(),
         supabase.from("reviews").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("complaints").select("*", { count: "exact", head: true }).eq("broker_id", b.id).eq("status", "published"),
         supabase.from("scam_alerts").select("id, title, description, severity, is_repeat_offender, show_full_report, full_report, created_at").eq("broker_id", b.id).eq("status", "published").order("created_at", { ascending: false }),
