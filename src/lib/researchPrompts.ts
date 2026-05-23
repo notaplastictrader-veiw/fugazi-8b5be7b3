@@ -48,7 +48,22 @@ export const ENTITIES: EntityDefinition[] = [
     label: "Broker",
     description: "Forex / CFD / Crypto broker review entry (full canonical schema)",
     table: "brokers",
-    prompt: (name) => `You are a senior forex broker analyst writing a full editorial review for NAFT. Research the broker "${name}" using only verifiable sources: the broker's official website, regulator public registers (FCA, CySEC, ASIC, FSCA, NFA, DFSA, IFSC, etc.), Trustpilot, ForexPeaceArmy, and at least two independent broker-review sites.
+    prompt: (name) => `You are NAFT's senior broker analyst writing for the trader who typed "${name} review" at midnight before depositing their savings. You have 10+ years inside this industry. Follow NAFT Master Prompt v4.7.
+
+RESEARCH PROTOCOL (complete before writing):
+- Tier 1 primary sources only for verifiable facts: broker's official site (regulation, accounts/spreads, payments, T&Cs), regulator registers (FCA register.fca.org.uk, ASIC asic.gov.au, CySEC cysec.gov.cy, DFSA dfsa.ae, FSCA fsca.co.za, SCB scb.gov.bs, CMA cma.or.ke, BaFin bafin.de), and Trustpilot (the ONLY named third party allowed). If Trustpilot has zero reviews, omit the trustpilot block entirely — never invent.
+- Tier 2 public data may inform tone (forum sentiment, public complaints) but never name the source.
+- If a field cannot be confirmed from a primary source, use "" / [] / null. Never guess. Never pad. Never invent.
+
+FACTUALITY RULES (non-negotiable):
+- Word count: 2,400–3,800 in body sections combined.
+- Never use absolute safety claims ("100% safe", "guaranteed", "scam-proof"). Always include risk language.
+- For CFD/Forex providers, populate "regulatory_risk_warning" with a real retail-loss percentage (e.g. "73% of retail CFD accounts lose money").
+- All license numbers must be verifiable on the named register.
+
+VOICE: Direct, skeptical, helpful. One trader talking to another. No corporate fluff.
+
+OUTPUT: A single JSON object with the shape below. All v4.7 additions (author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost) live INSIDE "long_review". Sections array MUST contain these 8 ids in order: quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
 
 ${baseRules}
 
@@ -204,6 +219,47 @@ Return a single JSON object with this exact shape:
       { "q": "Is <Broker> regulated?", "a": "Yes — under ASIC, CySEC, IFSC, and DFSA across different entities." },
       { "q": "What is the minimum deposit?", "a": "$5 on the Standard account." }
     ],
+
+    "author": {
+      "name": "Editorial reviewer name",
+      "role": "Senior Broker Analyst",
+      "bio": "Short 1-2 sentence bio establishing expertise.",
+      "experience_years": 10,
+      "avatar_url": "https://...",
+      "sameAs": ["https://linkedin.com/in/...", "https://x.com/..."]
+    },
+    "toc": [
+      { "id": "quick-verdict", "label": "Quick Verdict" },
+      { "id": "regulation-safety", "label": "Regulation & Safety" }
+    ],
+    "social_snippet": {
+      "x": "Short tweet under 240 chars with the headline trade-off.",
+      "whatsapp": "Forwardable one-liner with the trust score + key fact.",
+      "telegram": "Punchy 2-line summary for Telegram channels."
+    },
+    "comparison_block": {
+      "headline": "How <Broker> stacks up",
+      "brokers": [
+        { "slug": "exness", "name": "Exness", "score": 8.4, "verdict": "Tighter spreads, weaker EU coverage." }
+      ]
+    },
+    "regulatory_risk_warning": "73% of retail CFD accounts lose money with this provider.",
+    "conflict_note": "NAFT may earn a commission if you open an account via our link. This never affects the review.",
+    "last_human_review_at": "2026-05-23",
+    "image_assets": [
+      { "url": "https://...", "alt": "Specific descriptive alt text", "caption": "Optional caption", "section_id": "regulation-safety" }
+    ],
+    "all_in_cost": {
+      "eurusd_spread_usd": 1.6,
+      "commission_usd": 0,
+      "total_per_lot_usd": 1.6
+    },
+    "schema_jsonld": {
+      "review": { "@context": "https://schema.org", "@type": "Review", "datePublished": "2026-05-23", "dateModified": "2026-05-23" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": 4.2, "reviewCount": 1240 },
+      "breadcrumbList": { "@type": "BreadcrumbList", "itemListElement": [] },
+      "organization": { "@type": "Organization", "name": "<Broker>", "sameAs": ["https://..."] }
+    },
     "reading_time_minutes": 7,
     "word_count": 1450
   },
@@ -327,7 +383,7 @@ Broker name to research: ${name}`,
         promo_label: { type: "string" },
         promo_code: { type: "string" },
         affiliate_url: { type: "url" },
-        long_review: { type: "object", description: "Canonical long-review JSON (verdict, at_a_glance, geo, sections, affiliate_cta, trustpilot, faq)" },
+        long_review: { type: "object", description: "Canonical long-review JSON (v4.7): verdict, at_a_glance, geo, sections, affiliate_cta, trustpilot, faq, author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost" },
       },
     },
   },
