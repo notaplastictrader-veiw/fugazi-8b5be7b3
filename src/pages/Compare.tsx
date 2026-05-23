@@ -9,6 +9,7 @@ import { Plus, X, Star, Shield, AlertTriangle, GitCompare, Globe, ArrowRight } f
 import { Link } from "react-router-dom";
 import CostCalculator from "@/components/calculators/CostCalculator";
 import { countryGuides } from "@/data/countryGuides";
+import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
 
 interface BrokerRow {
   id: string; name: string; slug: string; regulation: string[] | null; score: number | null;
