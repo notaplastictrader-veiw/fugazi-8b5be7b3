@@ -501,6 +501,23 @@ const BrokersAdmin = () => {
 
               {/* STATUS */}
               <TabsContent value="status" className="mt-0 space-y-5">
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-foreground text-base">NAFT Verified</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Turn on once you've personally fact-checked this broker. Hides the
+                        "verification pending" disclaimer on the public page and shows a green
+                        ✓ NAFT Verified chip.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={form.naft_verified}
+                      onCheckedChange={(checked) => setForm({ ...form, naft_verified: checked })}
+                    />
+                  </div>
+                </div>
+
                 <div className="rounded-lg border border-border p-4 space-y-3">
                   <Label className="text-base">Publication Status</Label>
                   <p className="text-xs text-muted-foreground">Controls whether the broker appears publicly. New brokers go through approval queue.</p>
