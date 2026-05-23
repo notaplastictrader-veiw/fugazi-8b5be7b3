@@ -96,7 +96,7 @@ const MatchResults = ({ matches, onReset, answers }: { matches: Match[]; onReset
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(90);
-      const meta = `Score ${m.broker.score}/10  ·  Spread ${m.broker.avg_spread}  ·  Min ${m.broker.min_deposit}  ·  ${m.broker.review_count} reviews`;
+      const meta = `Score ${m.broker.score}/10  ·  Spread ${formatSpreadNumber(m.broker.avg_spread)}  ·  Min ${m.broker.min_deposit}  ·  ${m.broker.review_count} reviews`;
       doc.text(meta, margin, y); y += 16;
 
       doc.setTextColor(40);
