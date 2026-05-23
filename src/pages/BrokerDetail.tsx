@@ -69,6 +69,7 @@ interface Broker {
   warning_note?: string;
   last_verified_at?: string | null;
   updated_at?: string | null;
+  naft_verified?: boolean | null;
   long_review?: LongReviewData | null;
 }
 
