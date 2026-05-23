@@ -611,10 +611,24 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                   </div>
                 )}
               </div>
+              {imagesBySection[s.id] && imagesBySection[s.id].length > 0 && (
+                <div className="grid sm:grid-cols-2 gap-3 mt-4">
+                  {imagesBySection[s.id].map((img, i) => img.url && (
+                    <figure key={i} className="rounded-md border border-border overflow-hidden bg-muted/20">
+                      <img src={img.url} alt={img.alt || `${brokerName} ${s.heading}`} loading="lazy" className="w-full h-auto block" />
+                      {img.caption && <figcaption className="text-[11px] font-mono text-muted-foreground px-2 py-1.5">{img.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+              )}
             </section>
             {s.cta_after && <MidCTA data={data} brokerName={brokerName} />}
           </div>
         ))}
+
+        {/* Comparison block (v4.7) */}
+        {data.comparison_block && <ComparisonBlock block={data.comparison_block} />}
+
 
         {/* Final affiliate CTA */}
         {data.affiliate_cta?.url && data.affiliate_cta.url !== "AFFILIATE_PLACEHOLDER" && (
@@ -631,10 +645,17 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
                   </a>
                 </Button>
                 <AffiliateDisclosure />
+                {data.conflict_note && (
+                  <p className="text-[10px] font-mono text-muted-foreground italic max-w-xs sm:text-right">{data.conflict_note}</p>
+                )}
               </div>
             </CardContent>
           </Card>
         )}
+
+        {/* Social share (v4.7) */}
+        {data.social_snippet && <SocialShare snippet={data.social_snippet} brokerName={brokerName} brokerSlug={brokerSlug} />}
+
 
         {/* FAQ */}
         {data.faq && data.faq.length > 0 && (
