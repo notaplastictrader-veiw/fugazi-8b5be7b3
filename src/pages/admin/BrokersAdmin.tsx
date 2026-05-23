@@ -154,6 +154,9 @@ const BrokersAdmin = () => {
       homepage_position: form.show_on_homepage && form.homepage_position
         ? Number(form.homepage_position)
         : null,
+      naft_verified: !!form.naft_verified,
+      naft_verified_at: form.naft_verified ? new Date().toISOString() : null,
+      naft_verified_by: form.naft_verified ? user?.id ?? null : null,
       long_review: buildLongReview(longReview),
     };
 
