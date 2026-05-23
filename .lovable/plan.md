@@ -1,41 +1,26 @@
-## Problem
+# Fix remaining nested long_review brokers
 
-Full Review tab is blank because the broker's content fields (`verdict`, `sections`, `faq`, `at_a_glance`, `hot_take`, `trustpilot`, `word_count`, `reading_time_minutes`, `sources`, `disclaimer`, etc.) live **one level too deep** in the DB.
+## Status check (just ran)
+- Total brokers: 905
+- With `long_review` content: 23
+- Properly shaped (verdict + sections at top level): 20 ✅
+- **Still nested (broken Full Review tab): 3** ❌
+  - `bdswiss`
+  - `blackbull-markets`
+  - `centfx`
 
-Current DB shape for `brokers.long_review`:
-```
-{
-  toc: [...],            // ✅ top level — sidebar renders
-  author: {...},
-  editorial_review_row: {...},
-  long_review: {         // ❌ everything the page needs is nested here
-    verdict, sections, faq, at_a_glance, hot_take,
-    trustpilot, word_count, reading_time_minutes,
-    sources, disclaimer, schema_jsonld, ...
-  }
-}
-```
-
-`LongReview.tsx` reads from `data.verdict`, `data.sections`, etc. — none exist at the top, so almost nothing renders.
-
-Root cause: the source JSON wrapped the body under a key literally named `long_review`. The importer treated it as just another "extra" and merged it as-is, producing the nested structure.
+The other 882 brokers simply have no `long_review` yet — that's expected (only the ones you've imported so far have content).
 
 ## Fix
+Run the same flatten UPDATE used previously, scoped to the 3 remaining slugs:
 
-### 1. Flatten the 2 already-imported brokers
-Update both `cmc-markets` and `cxm-trading` rows: merge `long_review->'long_review'` into `long_review` and drop the inner key.
-
-SQL (data update):
 ```sql
 UPDATE public.brokers
 SET long_review = (long_review - 'long_review') || (long_review->'long_review')
-WHERE slug IN ('cmc-markets','cxm-trading')
+WHERE slug IN ('bdswiss','blackbull-markets','centfx')
   AND long_review ? 'long_review';
 ```
 
-### 2. Patch the importer
-In `/tmp/import_broker.mjs`, when building `extras`, if `extras.long_review` exists, spread it into `extras` and delete the wrapper key. This prevents future double-nesting for any uploaded JSON that follows the same shape.
+Then re-verify all 23 show `has_verdict=true`, `has_sections=true`, `still_nested=false`.
 
-## Result
-
-Full Review tab renders verdict card, all section blocks, TOC anchors, FAQ, and footer chips (reading time, word count, Trustpilot pill) as designed.
+No code changes needed — importer was already patched to auto-flatten future uploads.
