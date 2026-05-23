@@ -106,6 +106,8 @@ const SignalGroupDetail = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Signal Groups
           </Link>
 
+          <NaftVerificationBanner verified={(group as any).naft_verified} entityLabel="signal group" className="mb-6" />
+
           {/* Header */}
           <div className="glass-card rounded-xl p-6 md:p-8 mb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
@@ -114,13 +116,14 @@ const SignalGroupDetail = () => {
                   <span className="text-2xl font-display font-extrabold text-primary">{group.name.charAt(0)}</span>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{group.name}</h1>
                     {group.verified && (
                       <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20">
                         <CheckCircle className="w-3 h-3" /> Verified
                       </span>
                     )}
+                    <NaftVerifiedBadge verified={(group as any).naft_verified} />
                   </div>
                   <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1"><Users className="w-4 h-4" /> {group.members} members</span>
