@@ -13,6 +13,7 @@ import NeonCard from "@/components/ui/NeonCard";
 import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import TopFirmsRail from "@/components/sections/TopFirmsRail";
 import TrustLight from "@/components/broker/TrustLight";
+import { formatLeverageNumber } from "@/lib/brokerFormat";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
