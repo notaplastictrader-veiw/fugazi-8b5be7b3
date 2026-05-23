@@ -113,6 +113,8 @@ const Compare = () => {
         {val === "none" ? "Standard" : (val as string) ?? "Standard"}
       </span>
     );
+    if (key === "avg_spread") return formatSpreadNumber(val as string | null);
+    if (key === "leverage") return formatLeverageNumber(val as string | null);
     return String(val ?? "—");
   };
 
