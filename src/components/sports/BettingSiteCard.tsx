@@ -9,7 +9,29 @@ const BettingSiteCard = forwardRef<HTMLDivElement, { site: BettingSite }>(({ sit
     <div ref={ref} className="glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">{site.logo}</span>
+          {site.logo && /^https?:\/\//.test(site.logo) ? (
+            <img
+              src={site.logo}
+              alt={`${site.name} logo`}
+              className="w-10 h-10 rounded-lg object-contain bg-background/40 p-1"
+              onError={(e) => {
+                const t = e.currentTarget;
+                t.style.display = "none";
+                const fb = t.nextElementSibling as HTMLElement | null;
+                if (fb) fb.style.display = "flex";
+              }}
+            />
+          ) : null}
+          <span
+            className={
+              site.logo && /^https?:\/\//.test(site.logo)
+                ? "w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold items-center justify-center hidden"
+                : "text-3xl"
+            }
+            style={site.logo && /^https?:\/\//.test(site.logo) ? { display: "none" } : undefined}
+          >
+            {site.logo && /^https?:\/\//.test(site.logo) ? site.name.charAt(0) : site.logo}
+          </span>
           <div>
             <h3 className="text-lg font-bold text-foreground">{site.name}</h3>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
