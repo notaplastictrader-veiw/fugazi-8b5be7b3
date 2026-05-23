@@ -1,26 +1,19 @@
-# Fix remaining nested long_review brokers
+## Goal
+Apnar upload kora `Doo_Prime_rebranded_as_D_Prime_in_2025.json` file ta database e import korte hobe — slug: `doo-prime-d-prime`.
 
-## Status check (just ran)
-- Total brokers: 905
-- With `long_review` content: 23
-- Properly shaped (verdict + sections at top level): 20 ✅
-- **Still nested (broken Full Review tab): 3** ❌
-  - `bdswiss`
-  - `blackbull-markets`
-  - `centfx`
+## Steps
+1. Apni `/admin/import-json` page e jaben.
+2. **Entity Type**: `Broker` select korben.
+3. **Existing broker mode**: `Smart merge (recommended)` — eta default e ase, kichu change korte hobe na.
+4. JSON file er content ta copy kore textarea e paste korben.
+5. **Validate & Preview** click korben → green "Valid" badge dekhle thik ase.
+6. **Insert as Draft** (ba **Insert All Valid**) click korben.
 
-The other 882 brokers simply have no `long_review` yet — that's expected (only the ones you've imported so far have content).
+## What happens
+- Slug `doo-prime-d-prime` database e na thakle notun draft broker create hobe.
+- Thakle smart-merge hobe — `long_review` fully replace hobe (v4.7 content), baki top-level fields shudhu empty hole overwrite hobe.
+- Importer already auto-flatten kore, tai nested `long_review` issue hobe na.
+- Insert hoyar por `/admin/brokers` theke draft → published korte hobe homepage e dekhanor jonno.
 
-## Fix
-Run the same flatten UPDATE used previously, scoped to the 3 remaining slugs:
-
-```sql
-UPDATE public.brokers
-SET long_review = (long_review - 'long_review') || (long_review->'long_review')
-WHERE slug IN ('bdswiss','blackbull-markets','centfx')
-  AND long_review ? 'long_review';
-```
-
-Then re-verify all 23 show `has_verdict=true`, `has_sections=true`, `still_nested=false`.
-
-No code changes needed — importer was already patched to auto-flatten future uploads.
+## No code changes needed
+Importer, validator, flatten logic — shob ready. Eta shudhu ekta data import action, tai kono file edit lagbe na.
