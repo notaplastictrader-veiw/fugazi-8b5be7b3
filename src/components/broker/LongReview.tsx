@@ -226,6 +226,117 @@ const MidCTA = ({ data, brokerName }: { data: LongReviewData; brokerName: string
   );
 };
 
+const AuthorCard = ({ author, lastReviewedAt }: { author: LongReviewAuthor; lastReviewedAt?: string }) => {
+  if (!author?.name) return null;
+  return (
+    <Card className="border-border">
+      <CardContent className="p-4 flex items-start gap-4">
+        {author.avatar_url ? (
+          <img src={author.avatar_url} alt={author.name} className="w-12 h-12 rounded-full object-cover border border-border shrink-0" />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0">
+            <UserCheck className="w-5 h-5 text-primary" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-display font-bold text-sm">{author.name}</p>
+            {author.role && <span className="text-[11px] font-mono text-muted-foreground">· {author.role}</span>}
+            {author.experience_years != null && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                {author.experience_years}+ yrs
+              </span>
+            )}
+            {lastReviewedAt && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                <CheckCircle2 className="w-3 h-3" /> Human-reviewed {lastReviewedAt}
+              </span>
+            )}
+          </div>
+          {author.bio && <p className="text-xs text-foreground/75 mt-1 leading-relaxed">{author.bio}</p>}
+          {author.sameAs && author.sameAs.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {author.sameAs.map((u, i) => (
+                <a key={i} href={u} target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-primary hover:underline truncate max-w-[200px]">
+                  {u.replace(/^https?:\/\//, "")}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const SocialShare = ({ snippet, brokerName, brokerSlug }: { snippet: LongReviewData["social_snippet"]; brokerName: string; brokerSlug: string }) => {
+  if (!snippet || (!snippet.x && !snippet.whatsapp && !snippet.telegram)) return null;
+  const url = typeof window !== "undefined" ? `${window.location.origin}/brokers/${brokerSlug}` : `/brokers/${brokerSlug}`;
+  const enc = (s?: string) => encodeURIComponent(`${s || `Check out our ${brokerName} review`}\n${url}`);
+  return (
+    <Card className="border-border">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
+          <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Share this review</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {snippet.x && (
+            <Button asChild variant="outline" size="sm">
+              <a href={`https://twitter.com/intent/tweet?text=${enc(snippet.x)}`} target="_blank" rel="noopener noreferrer">
+                <span className="font-bold">𝕏</span> Tweet
+              </a>
+            </Button>
+          )}
+          {snippet.whatsapp && (
+            <Button asChild variant="outline" size="sm">
+              <a href={`https://wa.me/?text=${enc(snippet.whatsapp)}`} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="w-3.5 h-3.5 mr-1" /> WhatsApp
+              </a>
+            </Button>
+          )}
+          {snippet.telegram && (
+            <Button asChild variant="outline" size="sm">
+              <a href={`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(snippet.telegram)}`} target="_blank" rel="noopener noreferrer">
+                <Send className="w-3.5 h-3.5 mr-1" /> Telegram
+              </a>
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ComparisonBlock = ({ block }: { block: LongReviewData["comparison_block"] }) => {
+  if (!block?.brokers || block.brokers.length === 0) return null;
+  return (
+    <Card className="border-border">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <GitCompare className="w-4 h-4 text-primary" />
+          <h3 className="font-display font-bold text-base">{block.headline || "How it stacks up"}</h3>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {block.brokers.map((b, i) => (
+            <Link
+              key={i}
+              to={b.slug ? `/brokers/${b.slug}` : "#"}
+              className="block rounded-md border border-border bg-muted/20 p-3 hover:border-primary/40 hover:bg-primary/5 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <p className="font-display font-bold text-sm">{b.name || b.slug}</p>
+                {b.score != null && <span className="font-mono text-xs text-primary">{b.score}/10</span>}
+              </div>
+              {b.verdict && <p className="text-xs text-foreground/75 leading-relaxed">{b.verdict}</p>}
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
   const sections = data.sections || [];
   const toc = useMemo(() => sections.map(s => ({ id: s.id, heading: s.heading })), [sections]);
