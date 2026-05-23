@@ -1,0 +1,1 @@
+UPDATE public.reviews SET author='NAFT Editorial', role='Editor' WHERE id='8d07b590-2630-4dd9-8d76-7651b1feff45';
