@@ -78,6 +78,7 @@ const emptyBroker = {
   show_on_homepage: false, homepage_position: null as number | null,
   license_number: "", withdrawal_time: "", withdrawal_fee: "", warning_note: "",
   promo_code: "", promo_label: "", affiliate_url: "",
+  naft_verified: false,
 };
 
 const BrokersAdmin = () => {
@@ -132,6 +133,7 @@ const BrokersAdmin = () => {
       promo_code: (b as any).promo_code || "",
       promo_label: (b as any).promo_label || "",
       affiliate_url: (b as any).affiliate_url || "",
+      naft_verified: (b as any).naft_verified ?? false,
     });
     setLongReview(parseLongReview((b as any).long_review));
     setModalOpen(true);
@@ -152,6 +154,9 @@ const BrokersAdmin = () => {
       homepage_position: form.show_on_homepage && form.homepage_position
         ? Number(form.homepage_position)
         : null,
+      naft_verified: !!form.naft_verified,
+      naft_verified_at: form.naft_verified ? new Date().toISOString() : null,
+      naft_verified_by: form.naft_verified ? user?.id ?? null : null,
       long_review: buildLongReview(longReview),
     };
 
@@ -496,6 +501,23 @@ const BrokersAdmin = () => {
 
               {/* STATUS */}
               <TabsContent value="status" className="mt-0 space-y-5">
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-foreground text-base">NAFT Verified</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Turn on once you've personally fact-checked this broker. Hides the
+                        "verification pending" disclaimer on the public page and shows a green
+                        ✓ NAFT Verified chip.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={form.naft_verified}
+                      onCheckedChange={(checked) => setForm({ ...form, naft_verified: checked })}
+                    />
+                  </div>
+                </div>
+
                 <div className="rounded-lg border border-border p-4 space-y-3">
                   <Label className="text-base">Publication Status</Label>
                   <p className="text-xs text-muted-foreground">Controls whether the broker appears publicly. New brokers go through approval queue.</p>

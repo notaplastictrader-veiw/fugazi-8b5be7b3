@@ -7,6 +7,8 @@ import { getPromoBySlug, PromotionDetail as PromotionType } from "@/data/promoti
 import { ArrowLeft, Clock, ExternalLink, CheckCircle2, AlertTriangle, Gift, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 
 const typeColors: Record<string, string> = {
   bonus: "bg-primary/20 text-primary",
@@ -156,10 +158,12 @@ const PromotionDetail = () => {
           <ArrowLeft className="w-4 h-4" /> Back to Promotions
         </Link>
 
+        <NaftVerificationBanner verified={(promo as any).naft_verified} entityLabel="promotion" className="mb-6" />
+
         <div className="glass-card rounded-2xl p-6 md:p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <Badge className={`text-[10px] font-mono uppercase ${typeColors[promo.promo_type] || "bg-muted text-muted-foreground"}`}>
                   {promo.promo_type.replace("-", " ")}
                 </Badge>
@@ -168,6 +172,7 @@ const PromotionDetail = () => {
                     <Star className="w-3 h-3 mr-1 fill-accent" /> Featured
                   </Badge>
                 )}
+                <NaftVerifiedBadge verified={(promo as any).naft_verified} />
               </div>
               <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground mb-2">
                 {promo.title}

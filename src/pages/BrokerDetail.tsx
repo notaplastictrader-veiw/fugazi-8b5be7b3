@@ -28,6 +28,8 @@ import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
 import TrustLight from "@/components/broker/TrustLight";
 import BrokerHealthScore from "@/components/broker/BrokerHealthScore";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
@@ -69,6 +71,7 @@ interface Broker {
   warning_note?: string;
   last_verified_at?: string | null;
   updated_at?: string | null;
+  naft_verified?: boolean | null;
   long_review?: LongReviewData | null;
 }
 
@@ -572,7 +575,14 @@ const BrokerDetail = () => {
                             <CheckCircle className="w-3 h-3" /> Verified {formatVerifiedAgo(broker.last_verified_at)}
                           </span>
                         )}
+                        <NaftVerifiedBadge verified={broker.naft_verified} />
                       </div>
+
+                      <NaftVerificationBanner
+                        verified={broker.naft_verified}
+                        entityLabel="broker"
+                        className="mt-4"
+                      />
 
                     </div>
                   </div>
