@@ -1,0 +1,1 @@
+DELETE FROM public.brokers WHERE id = '8575ddd2-ee3d-45ee-b1f6-50abdd31553a';
