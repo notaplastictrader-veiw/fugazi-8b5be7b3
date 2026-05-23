@@ -10,6 +10,8 @@ import {
   ArrowLeft, CheckCircle, Users, TrendingUp, BarChart3,
   Clock, Target, Shield, Star, MessageSquare
 } from "lucide-react";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 
 interface PricingTier { name: string; price: string; period: string; features: string[]; }
 interface SignalGroup {
