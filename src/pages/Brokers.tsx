@@ -65,7 +65,12 @@ const Brokers = () => {
   } = usePaginatedList(categoryFiltered, {
     searchKeys: ["name"],
     sortOptions: [
-      { value: "score-desc", label: "Top rated", compare: (a, b) => (b.score ?? 0) - (a.score ?? 0) },
+      { value: "score-desc", label: "Top rated", compare: (a, b) => {
+        const ar = (a.review_count ?? 0) > 0 ? 1 : 0;
+        const br = (b.review_count ?? 0) > 0 ? 1 : 0;
+        if (ar !== br) return br - ar;
+        return (b.score ?? 0) - (a.score ?? 0);
+      } },
       { value: "score-asc", label: "Lowest rated", compare: (a, b) => (a.score ?? 0) - (b.score ?? 0) },
       { value: "name-asc", label: "Name A–Z", compare: (a, b) => a.name.localeCompare(b.name) },
       { value: "reviews-desc", label: "Most reviewed", compare: (a, b) => (b.review_count ?? 0) - (a.review_count ?? 0) },
