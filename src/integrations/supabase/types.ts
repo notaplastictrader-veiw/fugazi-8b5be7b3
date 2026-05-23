@@ -2917,6 +2917,10 @@ export type Database = {
       is_verified_trader: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { _code: string }; Returns: string }
       recalc_all_broker_health: { Args: never; Returns: number }
+      record_referral_click: {
+        Args: { _code: string; _referrer_url?: string; _user_agent?: string }
+        Returns: undefined
+      }
       submit_application: {
         Args: {
           _application_data: Json
