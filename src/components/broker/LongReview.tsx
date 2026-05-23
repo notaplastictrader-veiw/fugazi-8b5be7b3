@@ -429,10 +429,8 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
           )}
         </div>
 
-        {/* Author byline (v4.7) */}
-        {data.author?.name && (
-          <AuthorCard author={data.author} lastReviewedAt={data.last_human_review_at} />
-        )}
+        {/* Author byline moved to Reviews tab (editorial review row) */}
+
 
 
 
