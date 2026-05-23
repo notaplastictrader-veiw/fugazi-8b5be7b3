@@ -131,10 +131,13 @@ const ScamAlertDetail = () => {
             <ArrowLeft className="w-4 h-4" /> Back to Scam Alerts
           </Link>
 
+          <NaftVerificationBanner verified={alert.naft_verified} entityLabel="scam report" className="mb-4" />
+
           <div className="glass-card rounded-xl p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
               <AlertTriangle className="w-6 h-6 text-destructive flex-shrink-0" />
               <h1 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">{alert.title}</h1>
+              <NaftVerifiedBadge verified={alert.naft_verified} />
             </div>
 
             <div className="flex items-center flex-wrap gap-2 mb-6">
