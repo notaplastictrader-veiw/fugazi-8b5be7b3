@@ -112,7 +112,7 @@ const PropFirms = () => {
                       </div>
                       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
                         <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
-                        <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{broker.leverage}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{formatLeverageNumber(broker.leverage)}</div></div>
                         <div><div className="text-xs text-muted-foreground">Score</div><div className="text-sm font-mono font-semibold text-foreground">{broker.score}/10</div></div>
                       </div>
                       <div className="mb-3">
