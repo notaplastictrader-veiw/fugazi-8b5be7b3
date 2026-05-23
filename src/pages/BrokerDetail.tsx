@@ -28,6 +28,8 @@ import FileComplaintModal from "@/components/modals/FileComplaintModal";
 import AuthModal from "@/components/modals/AuthModal";
 import TrustLight from "@/components/broker/TrustLight";
 import BrokerHealthScore from "@/components/broker/BrokerHealthScore";
+import NaftVerificationBanner from "@/components/common/NaftVerificationBanner";
+import NaftVerifiedBadge from "@/components/common/NaftVerifiedBadge";
 import BeforeYouDepositChecklist from "@/components/broker/BeforeYouDepositChecklist";
 import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
