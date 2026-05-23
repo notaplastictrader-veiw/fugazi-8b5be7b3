@@ -93,7 +93,11 @@ const BettingDashboardsList = () => {
           <Link key={s.slug} to={`/admin/betting-dashboards/${s.slug}`} className="hud-card p-1 block hover:scale-[1.01] transition-transform">
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{s.logo}</span>
+                {s.logo && /^https?:\/\//.test(s.logo) ? (
+                  <img src={s.logo} alt={s.name} className="w-8 h-8 rounded object-contain bg-background/40 p-0.5" />
+                ) : (
+                  <span className="text-2xl">{s.logo}</span>
+                )}
                 <div>
                   <span className="text-sm font-bold text-foreground">{s.name}</span>
                   <p className="text-[10px] text-muted-foreground font-mono">{s.bonus}</p>
