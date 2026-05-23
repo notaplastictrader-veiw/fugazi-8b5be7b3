@@ -39,7 +39,7 @@ const BrokerClaimProfile = () => {
       const { data } = await supabase.from("signal_groups").select("id, name, win_rate, members, status").ilike("name", `%${query}%`).eq("status", "published").limit(10);
       setResults(data || []);
     } else {
-      const { data } = await supabase.from("betting_profiles").select("id, site_name, slug, tier").ilike("site_name", `%${query}%`).limit(10);
+      const { data } = await (supabase as any).from("betting_profiles_public").select("id, site_name, slug, tier").ilike("site_name", `%${query}%`).limit(10);
       setResults(data || []);
     }
   };
