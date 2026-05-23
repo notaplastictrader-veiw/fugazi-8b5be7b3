@@ -134,6 +134,26 @@ const ImportJsonAdmin = () => {
           </div>
         </div>
 
+        {isBroker && (
+          <div className="grid sm:grid-cols-[240px_1fr] gap-4 items-end">
+            <div>
+              <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Existing broker mode</Label>
+              <Select value={brokerMode} onValueChange={(v) => setBrokerMode(v as BrokerImportMode)}>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="smart-merge">Smart merge (recommended)</SelectItem>
+                  <SelectItem value="overwrite">Overwrite all fields</SelectItem>
+                  <SelectItem value="insert">Always insert new draft</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              <strong>Smart merge:</strong> if a broker with this slug exists, <code className="font-mono">long_review</code> is fully replaced (v4.7 content). Top-level fields (score, regulation, spreads, pros/cons, etc.) are only overwritten when the existing value is empty — manual admin edits are preserved.
+            </p>
+          </div>
+        )}
+
+
         <div>
           <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
             JSON Payload
