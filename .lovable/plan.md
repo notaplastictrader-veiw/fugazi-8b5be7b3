@@ -1,38 +1,41 @@
+
 ## Goal
-Homepage Hero section er pichone reference image er moto cinematic background — ekjon manush + spotlight glow — subtle texture hisebe (10-15% opacity, heavy blur), 3 ta theme er jonno 3 ta alada variant.
+Backfill logos for the 107 entries added today (16 forex brokers, 5 crypto exchanges, 86 betting sites) using a free public logo service. No paid API, no edge function — one SQL update.
 
-## Visual concept
-- **Composition**: Lone silhouette figure, edge of a cliff/platform, spotlight glow rising from below
-- **Treatment**: Heavy blur (40-60px), 10-15% opacity, vignette overlay so text fully readable
-- **Position**: Behind hero content, above the existing "NO FUGAZI" 3D floor text (layered)
-- **Mobile**: Same image, slightly higher opacity OK since less text density
+## Approach
+For each brand, map name → official domain, then set the logo URL to Clearbit's free logo CDN:
 
-## Theme variants (3 images)
-1. **Dark theme** → Lime/electric green spotlight glow (matches `--primary` lime)
-2. **Light theme** → Soft green glow on lighter charcoal-cream gradient backdrop (lighter base so it doesn't fight light bg)
-3. **Sentinel theme** → Red/crimson spotlight glow (matches Sentinel red accent)
+```
+https://logo.clearbit.com/{domain}
+```
 
-## Demo-first workflow
-Step 1: Generate **3 preview images** (one per theme) using imagegen, save to `src/assets/hero-bg-{dark,light,sentinel}.jpg`
-Step 2: Wire them into `HeroSection.tsx` behind existing layers, theme-switched via `useTheme()` hook
-Step 3: User reviews live preview across all 3 themes → approves/rejects/asks for tweaks
-Step 4: If rejected, easy rollback (single component, no global changes)
+Clearbit returns transparent PNGs for known brands and 404s for unknown ones. Since the existing card components already fall back gracefully when `logo`/`logo_url` is empty or fails to load (initial letter placeholder shows), broken/unknown logos won't break the UI. For brands Clearbit doesn't know (small regional betting sites like Khelibet, Krikya, Planbet), the placeholder + NAFT Testing badge will stay — and you can manually replace later from the admin panel.
 
-## Technical details
-- **File**: `src/components/sections/HeroSection.tsx` — add one `<div>` layer absolutely positioned, `z-0`, behind existing content (which is `z-10`)
-- **Theme detection**: Use existing `useTheme()` hook from `src/hooks/useTheme.ts` to switch `background-image`
-- **CSS**: `bg-cover bg-center opacity-[0.12] blur-[2px]` + radial vignette mask (`mask-image: radial-gradient`) so edges fade to background
-- **Performance**: JPG format, ~1600x1000 max, lazy not needed (above fold but small)
-- **Light theme caveat**: Lighter version with inverted treatment — may need a soft gradient overlay to maintain contrast
+## Steps
+
+1. **Build a brand→domain map** for all 107 new entries by best-guess of the official domain:
+   - Forex: avatrade.com, blueberrymarkets.com, dupoin.com, markets4you.com, traze.com, imperialfx.com, finsaitrade.com, cribmarkets.com, tagmarkets.com, skyriss.com, nxgmarkets.com, smbcnikko.co.jp, hirose-fx.co.jp, fxbroadnet.com, moneypartners.co.jp, everbright-sec.com, gtht.com (Guotai Haitong)
+   - Crypto: margex.com, bisq.network, localcoinswap.com, bestwallet.com, coin.space
+   - Betting: 86 entries — use slug+`.com` for popular names, override known ones (baji.live, jeetbuzz.com, krikya9.com, jaya9.com, mostbet.com, 1win.com, melbet.com, dafabet.com, bet365.com, etc.)
+
+2. **One SQL UPDATE per table** (in build mode):
+   ```sql
+   UPDATE brokers SET logo_url = 'https://logo.clearbit.com/<domain>'
+   WHERE slug = '<slug>' AND (logo_url IS NULL OR logo_url = '');
+
+   UPDATE betting_sites SET logo = 'https://logo.clearbit.com/<domain>'
+   WHERE slug = '<slug>' AND (logo IS NULL OR logo = '');
+   ```
+   Batched as a single `CASE WHEN` per table to do all rows at once.
+
+3. **Verify** by spot-checking 5–10 cards in `/sports`, forex broker grid, and crypto category in the preview.
+
+## What stays placeholder
+- Bangla/regional betting brands without crawlable websites (~10-15 entries probably)
+- Any brand Clearbit hasn't indexed
+- You can fix these one-by-one from admin → broker/betting site edit later
 
 ## Out of scope
-- Other sections (Signal Channel, CTAs, etc.) — Hero only
-- Spotlight as animated/interactive element — pure static background
-- Replacing existing "NO FUGAZI" 3D floor text or hero-grain texture (layered together)
-- Other pages (Brokers, Compare, etc.)
-
-## Files touched
-1. `src/assets/hero-bg-dark.jpg` (new, generated)
-2. `src/assets/hero-bg-light.jpg` (new, generated)
-3. `src/assets/hero-bg-sentinel.jpg` (new, generated)
-4. `src/components/sections/HeroSection.tsx` (add background layer + theme switching)
+- Uploading custom logos to Supabase Storage (manual work for you)
+- Building an admin bulk-logo uploader
+- Edge function-based logo scraper (overkill for 107 one-time entries)
