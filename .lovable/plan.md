@@ -1,34 +1,41 @@
 ## Problem
 
-The "NAFT Editorial Team" author card is rendering at the top of the **Full Review** tab (via `AuthorCard` in `src/components/broker/LongReview.tsx`), but the **Reviews (0)** tab stays empty. The intent is the opposite: the editorial entry should appear as the first review (so the counter goes 0 → 1), with a **"Read Full Review →"** CTA that jumps to the Full Review tab.
+Full Review tab is blank because the broker's content fields (`verdict`, `sections`, `faq`, `at_a_glance`, `hot_take`, `trustpilot`, `word_count`, `reading_time_minutes`, `sources`, `disclaimer`, etc.) live **one level too deep** in the DB.
 
-Root cause: the JSON uploads contain two separate fields:
-- `long_review.author` — used by `AuthorCard` on the Full Review page (shouldn't be there).
-- `long_review.editorial_review_row` — meant to become a row in the `reviews` table, but the importer never inserted it. So Reviews stays at 0.
+Current DB shape for `brokers.long_review`:
+```
+{
+  toc: [...],            // ✅ top level — sidebar renders
+  author: {...},
+  editorial_review_row: {...},
+  long_review: {         // ❌ everything the page needs is nested here
+    verdict, sections, faq, at_a_glance, hot_take,
+    trustpilot, word_count, reading_time_minutes,
+    sources, disclaimer, schema_jsonld, ...
+  }
+}
+```
 
-`BrokerDetail.tsx` already has the correct CTA logic (lines 1405–1417) — it shows "Read Full Review →" whenever a review's `author === "NAFT Editorial"` or `role === "editor"`. It just needs that row to actually exist.
+`LongReview.tsx` reads from `data.verdict`, `data.sections`, etc. — none exist at the top, so almost nothing renders.
 
-## Changes
+Root cause: the source JSON wrapped the body under a key literally named `long_review`. The importer treated it as just another "extra" and merged it as-is, producing the nested structure.
 
-### 1. Hide AuthorCard on Full Review tab
-`src/components/broker/LongReview.tsx` (~line 433): remove the `<AuthorCard …>` render (or gate it off). The author info now lives only inside the Reviews tab as the first entry.
+## Fix
 
-### 2. Backfill editorial review rows for the 2 already-imported brokers
-Insert one row into `public.reviews` for each of `cmc-markets` and `cxm-trading`, sourced from `brokers.long_review->'editorial_review_row'`:
-- `author = 'NAFT Editorial'`
-- `role = 'editor'`
-- `status = 'published'`
-- `verified_account = true`
-- `rating`, `content` from the JSON (e.g. CMC: 3.6 / full paragraph)
-- `broker_id` = matching broker's id
+### 1. Flatten the 2 already-imported brokers
+Update both `cmc-markets` and `cxm-trading` rows: merge `long_review->'long_review'` into `long_review` and drop the inner key.
 
-The existing `sync_broker_avg_rating` trigger will auto-bump `review_count` to 1 and recompute `stars`.
+SQL (data update):
+```sql
+UPDATE public.brokers
+SET long_review = (long_review - 'long_review') || (long_review->'long_review')
+WHERE slug IN ('cmc-markets','cxm-trading')
+  AND long_review ? 'long_review';
+```
 
-### 3. Update the importer for future broker uploads
-Update `/tmp/import_broker.mjs` so that whenever the source JSON contains an `editorial_review_row`, the script also upserts a matching row into `reviews` (idempotent: skip if a row with `broker_id + author='NAFT Editorial'` already exists). This way every future broker import (e.g. next time you drop a `*.json`) automatically lands the editorial review in the Reviews tab.
+### 2. Patch the importer
+In `/tmp/import_broker.mjs`, when building `extras`, if `extras.long_review` exists, spread it into `extras` and delete the wrapper key. This prevents future double-nesting for any uploaded JSON that follows the same shape.
 
 ## Result
 
-- Full Review tab: no more author card at the top — only the actual review content (TOC + sections).
-- Reviews tab: counter shows **Reviews (1)** with the NAFT Editorial entry + star rating + **Read Full Review →** button that switches to the Full Review tab.
-- Future imports: editorial row is created automatically; no manual step needed.
+Full Review tab renders verdict card, all section blocks, TOC anchors, FAQ, and footer chips (reading time, word count, Trustpilot pill) as designed.
