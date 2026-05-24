@@ -94,8 +94,9 @@ export async function importEntity(
   const draftableTables = new Set(["brokers", "promotions", "news_articles", "calendar_events", "forecasts", "scam_alerts"]);
   const trackedTables = new Set(["brokers", "promotions", "news_articles", "calendar_events", "forecasts"]);
 
-  // For brokers in smart-merge/overwrite mode, try to find an existing row by slug.
-  if (table === "brokers" && (mode === "smart-merge" || mode === "overwrite") && payload.slug) {
+  // For brokers, if a row with the same slug exists, update instead of failing on duplicate.
+  // insert mode auto-upgrades to overwrite on conflict so re-imports always work.
+  if (table === "brokers" && payload.slug) {
     const { data: existing } = await (supabase as any)
       .from("brokers")
       .select("*")
@@ -103,11 +104,11 @@ export async function importEntity(
       .maybeSingle();
 
     if (existing) {
+      const effectiveMode: BrokerImportMode = mode === "smart-merge" ? "smart-merge" : "overwrite";
       const updated: string[] = [];
       const preserved: string[] = [];
       const updatePayload: Record<string, any> = {};
 
-      // long_review is ALWAYS fully replaced when provided
       if ("long_review" in payload) {
         updatePayload.long_review = payload.long_review;
         updated.push("long_review");
@@ -115,12 +116,11 @@ export async function importEntity(
 
       for (const [key, val] of Object.entries(payload)) {
         if (key === "long_review" || key === "id" || key === "slug" || key === "created_at" || key === "created_by") continue;
-        if (mode === "overwrite") {
+        if (effectiveMode === "overwrite") {
           updatePayload[key] = val;
           updated.push(key);
           continue;
         }
-        // smart-merge
         if (BROKER_PROTECTED_FIELDS.includes(key) && !isEmpty(existing[key])) {
           preserved.push(key);
           continue;
@@ -131,16 +131,16 @@ export async function importEntity(
         }
       }
 
+      if (autoPublish) updatePayload.status = "published";
       updatePayload.updated_at = new Date().toISOString();
 
       const { error } = await (supabase as any)
         .from("brokers")
         .update(updatePayload)
         .eq("id", existing.id);
-      if (error) return { success: false, error: error.message, mode };
-      return { success: true, id: existing.id, mode, preserved, updated };
+      if (error) return { success: false, error: error.message, mode: effectiveMode };
+      return { success: true, id: existing.id, mode: effectiveMode, preserved, updated };
     }
-    // no existing — fall through to insert
   }
 
   if (draftableTables.has(table)) payload.status = payload.status || (autoPublish ? "published" : "draft");
