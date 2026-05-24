@@ -27,7 +27,7 @@ export interface Broker {
   website_url?: string | null;
 }
 
-import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
+import { formatSpreadNumber, formatLeverageNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
 export const formatSpread = formatSpreadNumber;
 export const formatLeverage = formatLeverageNumber;
 
@@ -124,7 +124,7 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Min Dep.</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{broker.min_deposit}</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{formatMinDepositNumber(broker.min_deposit)}</p>
             </div>
           </div>
 
