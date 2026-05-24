@@ -8,8 +8,9 @@ export const formatSpreadNumber = (raw?: string | null): string => {
   const s = String(raw).trim();
   if (!s || /^n\/?a$/i.test(s)) return "—";
 
-  // Prop-firm account size ranges like "$5K–$400K" — passthrough
-  if (/[$€£]/.test(s) || /\bK\b/i.test(s)) return s;
+  // Prop-firm account size ranges like "$5K–$400K" / "$5K-$400K" — passthrough only when it really is a $-range with K/M
+  if (/^[$€£]\s*\d+(?:\.\d+)?\s*[kKmM]?\s*[–\-—to]+\s*[$€£]?\s*\d+(?:\.\d+)?\s*[kKmM]/.test(s)) return s;
+
 
   // First numeric token
   const numMatch = s.match(/\d+(?:\.\d+)?/);
