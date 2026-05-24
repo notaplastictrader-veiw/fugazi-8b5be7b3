@@ -234,14 +234,16 @@ const ImportJsonAdmin = () => {
             <FileJson className="h-4 w-4 mr-2" />
             Validate &amp; Preview
           </Button>
-          {previews && validCount > 0 && (
+          {previews && (validCount > 0 || reviewSidecars.length > 0) && (
             <Button variant="default" onClick={insertAll} disabled={inserting}>
               {inserting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <CheckCircle2 className="h-4 w-4 mr-2" />
               )}
-              Insert All Valid ({validCount})
+              {validCount > 0
+                ? `Insert All Valid (${validCount})${reviewSidecars.length > 0 ? ` + ${reviewSidecars.length} editorial` : ""}`
+                : `Insert ${reviewSidecars.length} Editorial Review${reviewSidecars.length > 1 ? "s" : ""}`}
             </Button>
           )}
         </div>
