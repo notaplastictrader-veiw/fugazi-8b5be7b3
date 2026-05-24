@@ -25,6 +25,7 @@ export interface Broker {
   promo_label?: string | null;
   affiliate_url?: string | null;
   website_url?: string | null;
+  long_review?: any;
 }
 
 import { formatSpreadNumber, formatLeverageNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
