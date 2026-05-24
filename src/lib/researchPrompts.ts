@@ -115,6 +115,20 @@ Return a single JSON object with this exact shape:
   "affiliate_url": "https://..." | null,
 
   "long_review": {
+    "schema_version": "4.8",
+    "hot_take": "2–4 sentence editorial punch rendered at the TOP of the review. Decision-helper, not marketing. Tell the reader in 5 seconds whether this broker is right for them and why.",
+    "telegram_summary": "Short shareable 2-line summary for Telegram / WhatsApp forwarding.",
+    "seo_audit": {
+      "primary_keyword_count": 0,
+      "broker_name_count": 0,
+      "year_mentioned_count": 0,
+      "question_headings_count": 0,
+      "faq_items_count": 0,
+      "internal_links_count": 0,
+      "affiliate_cta_included": true,
+      "legit_keyword_present": false,
+      "all_tone_rules_applied": true
+    },
     "verdict": {
       "tldr": "One-breath summary: who this is for + the headline trade-off.",
       "summary": "Longer paragraph (optional).",
