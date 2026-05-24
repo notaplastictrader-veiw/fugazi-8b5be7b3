@@ -143,7 +143,8 @@ export async function importEntity(
     // no existing — fall through to insert
   }
 
-  if (draftableTables.has(table)) payload.status = payload.status || "draft";
+  if (draftableTables.has(table)) payload.status = payload.status || (autoPublish ? "published" : "draft");
+  if (autoPublish && draftableTables.has(table)) payload.status = "published";
   if (trackedTables.has(table) && userId) payload.created_by = userId;
 
   const { data, error } = await (supabase as any).from(table).insert(payload).select("id").single();
