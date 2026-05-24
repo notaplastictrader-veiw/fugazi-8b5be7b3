@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
 import GeoAvailability from "@/components/broker/GeoAvailability";
-import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare } from "lucide-react";
+import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare, Flame } from "lucide-react";
 
 export interface LongReviewTable {
   headers: string[];
