@@ -421,7 +421,70 @@ Broker name to research: ${name}`,
     },
   },
 
-  // -------------------------------- PROP FIRM --------------------------------
+  // -------------------------------- EDITORIAL REVIEW (v4.8 sidecar) --------------------------------
+  {
+    key: "editorial_review",
+    label: "Editorial Review",
+    description: "Standalone NAFT Editorial opinion row (v4.8 sidecar) → public.reviews",
+    table: "reviews",
+    prompt: (name) => `You are NAFT's senior editor writing a signed editorial opinion about the broker "${name}". This is the v4.8 editorial sidecar that appears next to the long review with a "verified editor" badge.
+
+VOICE: Direct, skeptical, helpful. One trader talking to another. Decision-helper, not marketing. No "legit", "best", "trusted" filler.
+
+LENGTH: 150–250 words. One tight paragraph or two.
+
+STRUCTURE (in order):
+1. Open with what the broker IS — regulator(s) + years in business + headline fact.
+2. Name the trade-off clearly (the thing the marketing copy hides).
+3. End with WHO should use it and who should NOT.
+
+RATING SCALE (0–5):
+- 4.0–4.5: Tier-1 regulated, strong execution, clean withdrawal record. (Pepperstone, IC Markets tier.)
+- 3.0–3.9: Real broker, mixed regulatory or jurisdiction trade-offs. (Exness, XM tier.)
+- 2.0–2.9: Offshore-heavy, weak protection, but operational. (FBS tier.)
+- 1.0–1.9: Misleading licence claims, no real retail oversight. (CXM, D Prime tier.)
+- 0–0.9: Active regulator warnings, scam pattern.
+
+${baseRules}
+
+OUTPUT — a single JSON object with this exact wrapper shape (the importer detects this wrapper and routes it to the reviews table):
+
+{
+  "editorial_review_row": {
+    "broker_slug": "${(name || "").toLowerCase().replace(/\\s+/g, "-")}",
+    "author": "NAFT Editorial",
+    "role": "editor",
+    "rating": 0,
+    "content": "150–250 word signed editorial opinion here.",
+    "verified_account": true,
+    "status": "published"
+  }
+}
+
+Broker name: ${name}`,
+    example: {
+      editorial_review_row: {
+        broker_slug: "",
+        author: "NAFT Editorial",
+        role: "editor",
+        rating: 0,
+        content: "",
+        verified_account: true,
+        status: "published",
+      },
+    },
+    schema: {
+      table: "reviews",
+      reserved: ["id", "created_at", "broker_id", "user_id"],
+      fields: {
+        // The importer auto-detects the wrapper `{ editorial_review_row: {...} }` and bypasses field validation,
+        // resolving broker_slug → broker_id before insert. Schema fields here are informational.
+        editorial_review_row: { type: "object", description: "Wrapper object — required" },
+      },
+    },
+  },
+
+
   {
     key: "prop_firm",
     label: "Prop Firm",
