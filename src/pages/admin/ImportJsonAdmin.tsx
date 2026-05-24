@@ -32,20 +32,56 @@ const ImportJsonAdmin = () => {
   const entity = useMemo(() => getEntity(entityKey)!, [entityKey]);
   const isBroker = entity.table === "brokers";
 
+  // v4.8 sidecars: editorial_review_row wrappers (one per broker payload), routed to `reviews` table
+  const [reviewSidecars, setReviewSidecars] = useState<any[]>([]);
+
   const runPreview = () => {
     setPreviews(null);
     setParseError(null);
+    setReviewSidecars([]);
     const parsed = tryParseJson(jsonText);
     if (parsed.ok === false) {
       setParseError(parsed.error);
       return;
     }
     const list = Array.isArray(parsed.data) ? parsed.data : [parsed.data];
-    const items: PreviewItem[] = list.map((raw) => ({
+    const sidecars: any[] = [];
+    const brokerLike: any[] = [];
+    for (const raw of list) {
+      if (raw && typeof raw === "object" && !Array.isArray(raw) && raw.editorial_review_row && Object.keys(raw).length === 1) {
+        sidecars.push(raw.editorial_review_row);
+      } else {
+        brokerLike.push(raw);
+      }
+    }
+    setReviewSidecars(sidecars);
+    const items: PreviewItem[] = brokerLike.map((raw) => ({
       raw,
       result: validate(raw, entity.schema),
     }));
     setPreviews(items);
+  };
+
+  const insertSidecars = async () => {
+    if (!isBroker || reviewSidecars.length === 0) return { ok: 0, fail: 0 };
+    let ok = 0, fail = 0;
+    for (const row of reviewSidecars) {
+      // Resolve broker_id from slug if needed
+      let broker_id = row.broker_id;
+      if (!broker_id && row.broker_slug) {
+        const { data: b } = await (supabase as any).from("brokers").select("id").eq("slug", row.broker_slug).maybeSingle();
+        broker_id = b?.id;
+      }
+      if (!broker_id) { fail++; continue; }
+      const { broker_slug: _bs, ...rest } = row;
+      // Replace any existing NAFT Editorial review for this broker (idempotent)
+      if (rest.author_name) {
+        await (supabase as any).from("reviews").delete().eq("broker_id", broker_id).eq("author_name", rest.author_name);
+      }
+      const { error } = await (supabase as any).from("reviews").insert({ ...rest, broker_id });
+      if (error) fail++; else ok++;
+    }
+    return { ok, fail };
   };
 
   const insertOne = async (item: PreviewItem) => {
