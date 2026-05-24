@@ -80,6 +80,7 @@ export interface LongReviewData {
   image_assets?: LongReviewImageAsset[];
   all_in_cost?: { eurusd_spread_usd?: number; commission_usd?: number; total_per_lot_usd?: number };
   target_locale?: string;
+  hot_take?: string;
 }
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
