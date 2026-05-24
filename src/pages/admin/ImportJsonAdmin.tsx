@@ -13,6 +13,7 @@ import { ENTITIES, getEntity } from "@/lib/researchPrompts";
 import { tryParseJson, validate, type ValidationResult } from "@/lib/jsonValidator";
 import { importEntity, type BrokerImportMode } from "@/lib/jsonImporter";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PreviewItem {
   raw: any;
