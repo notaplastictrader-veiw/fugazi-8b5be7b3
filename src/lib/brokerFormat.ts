@@ -46,3 +46,21 @@ export const formatLeverageNumber = (raw?: string | null): string => {
   const n = s.match(/\d+/);
   return n ? `1:${n[0]}` : "—";
 };
+
+export const formatMinDepositNumber = (raw?: string | null): string => {
+  if (!raw) return "—";
+  const s = String(raw).trim();
+  if (!s || /^n\/?a$/i.test(s)) return "—";
+  if (/free|no\s*min|zero/i.test(s) && !/\d/.test(s)) return "$0";
+
+  // Match currency symbol + number (e.g. "$10", "€100", "£50", "$5K")
+  const cur = s.match(/([$€£¥₹])\s*(\d+(?:[.,]\d+)?)\s*(k|m)?/i);
+  if (cur) {
+    const suffix = cur[3] ? cur[3].toUpperCase() : "";
+    return `${cur[1]}${cur[2]}${suffix}`;
+  }
+
+  // Fallback: first number, prefix with $
+  const n = s.match(/\d+(?:[.,]\d+)?/);
+  return n ? `$${n[0]}` : "—";
+};
