@@ -128,7 +128,7 @@ const ImportJsonAdmin = () => {
       else failCount++;
     }
     let sidecarMsg = "";
-    if (isBroker && reviewSidecars.length > 0) {
+    if (reviewSidecars.length > 0) {
       const { ok, fail } = await insertSidecars();
       sidecarMsg = ` · editorial sidecar: ${ok} ok${fail ? `, ${fail} failed` : ""}`;
     }
