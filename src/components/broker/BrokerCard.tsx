@@ -27,7 +27,7 @@ export interface Broker {
   website_url?: string | null;
 }
 
-import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
+import { formatSpreadNumber, formatLeverageNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
 export const formatSpread = formatSpreadNumber;
 export const formatLeverage = formatLeverageNumber;
 
