@@ -103,7 +103,7 @@ const ImportJsonAdmin = () => {
       } else {
         toast.success(`Inserted as ${autoPublish ? "published" : "draft"} (id: ${res.id?.slice(0, 8)}…)`);
       }
-      if (isBroker && reviewSidecars.length > 0) {
+      if (reviewSidecars.length > 0) {
         const { ok, fail } = await insertSidecars();
         toast[fail === 0 ? "success" : "warning"](`Editorial review sidecar · ${ok} inserted${fail ? `, ${fail} failed` : ""}`);
       }
