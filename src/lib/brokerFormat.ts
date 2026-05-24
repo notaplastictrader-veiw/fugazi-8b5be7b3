@@ -16,7 +16,15 @@ export const formatSpreadNumber = (raw?: string | null): string => {
   const standard = s.match(/standard[^.]*?(\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?)\s*(pips?|%)?/i);
   if (standard) {
     const unit = standard[2] ? standard[2].toLowerCase() : "pips";
-    return `${standard[1]} ${unit}`.trim();
+    const value = standard[1].split(/[-–]/).pop()?.trim() || standard[1];
+    return `${value} ${unit}`.trim();
+  }
+
+  // Ranges like "0.2–0.9 pips" should show the actual average/standard card value: the upper spread.
+  const range = s.match(/\b\d+(?:\.\d+)?\s*[-–]\s*(\d+(?:\.\d+)?)\s*(pips?|%)?/i);
+  if (range) {
+    const unit = range[2] ? range[2].toLowerCase() : "pips";
+    return `${range[1]} ${unit}`.trim();
   }
 
   // First numeric token
