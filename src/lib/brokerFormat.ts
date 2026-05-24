@@ -12,7 +12,15 @@ export const formatSpreadNumber = (raw?: string | null): string => {
   if (/^[$€£]\s*\d+(?:\.\d+)?\s*[kKmM]?\s*[–\-—to]+\s*[$€£]?\s*\d+(?:\.\d+)?\s*[kKmM]/.test(s)) return s;
 
 
+  // If text describes multiple account tiers, prefer the Standard account spread
+  const standard = s.match(/standard[^.]*?(\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?)\s*(pips?|%)?/i);
+  if (standard) {
+    const unit = standard[2] ? standard[2].toLowerCase() : "pips";
+    return `${standard[1]} ${unit}`.trim();
+  }
+
   // First numeric token
+
   const numMatch = s.match(/\d+(?:\.\d+)?/);
   if (!numMatch) return "—";
   const num = numMatch[0];
