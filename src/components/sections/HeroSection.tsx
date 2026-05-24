@@ -91,7 +91,8 @@ const HeroSection = () => {
         style={{ perspective: "800px" }}
       >
         <div
-          className="font-display font-black tracking-tighter text-primary leading-none whitespace-nowrap opacity-[0.18] blur-[2px]"
+          className="font-display font-black tracking-widest text-primary leading-none whitespace-nowrap opacity-[0.18] blur-[2px]"
+
           style={{
             fontSize: "26vw",
             transform: "rotateX(68deg) translateY(22%)",
