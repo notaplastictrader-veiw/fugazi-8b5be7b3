@@ -91,7 +91,7 @@ const ImportJsonAdmin = () => {
       return;
     }
     setInserting(true);
-    const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
+    const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert", autoPublish);
     setInserting(false);
     if (res.success) {
       if (res.mode === "smart-merge" || res.mode === "overwrite") {
