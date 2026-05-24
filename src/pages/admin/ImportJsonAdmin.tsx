@@ -174,10 +174,22 @@ const ImportJsonAdmin = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="text-xs text-muted-foreground">
-            <span className="font-mono">Target table:</span>{" "}
-            <Badge variant="outline" className="font-mono">{entity.table}</Badge>{" "}
-            — inserts as <Badge variant="outline" className="font-mono">draft</Badge> where supported.
+          <div className="text-xs text-muted-foreground space-y-2">
+            <div>
+              <span className="font-mono">Target table:</span>{" "}
+              <Badge variant="outline" className="font-mono">{entity.table}</Badge>{" "}
+              — inserts as <Badge variant="outline" className="font-mono">{autoPublish ? "published" : "draft"}</Badge> where supported.
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={autoPublish}
+                onChange={(e) => setAutoPublish(e.target.checked)}
+                className="h-4 w-4 rounded border-input accent-primary"
+              />
+              <span className="font-mono uppercase tracking-wider">Auto-publish on insert</span>
+              <span className="text-muted-foreground/70">(sets status = published instead of draft)</span>
+            </label>
           </div>
         </div>
 
