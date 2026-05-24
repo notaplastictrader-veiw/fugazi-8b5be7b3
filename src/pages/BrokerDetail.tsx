@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { brokers as localBrokers } from "@/data/brokers";
-import { formatSpreadNumber, formatLeverageNumber } from "@/lib/brokerFormat";
+import { formatSpreadNumber, formatLeverageNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
 import { useToast } from "@/hooks/use-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
@@ -469,7 +469,7 @@ const BrokerDetail = () => {
                   { label: "Payout Speed", value: "Same Day" },
                 ]
               : [
-                  { label: "Min Deposit", value: broker.min_deposit || "—" },
+                  { label: "Min Deposit", value: formatMinDepositNumber(broker.min_deposit) },
                   { label: "Avg Spread", value: cleanSpread(broker.avg_spread) },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Complaints", value: String(broker.complaints || 0) },
