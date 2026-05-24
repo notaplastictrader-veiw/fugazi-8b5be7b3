@@ -469,7 +469,7 @@ const BrokerDetail = () => {
                   { label: "Payout Speed", value: "Same Day" },
                 ]
               : [
-                  { label: "Min Deposit", value: broker.min_deposit || "—" },
+                  { label: "Min Deposit", value: formatMinDepositNumber(broker.min_deposit) },
                   { label: "Avg Spread", value: cleanSpread(broker.avg_spread) },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) },
                   { label: "Complaints", value: String(broker.complaints || 0) },
