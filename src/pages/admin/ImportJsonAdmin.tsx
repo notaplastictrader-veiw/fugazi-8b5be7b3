@@ -119,7 +119,7 @@ const ImportJsonAdmin = () => {
     let okCount = 0;
     let failCount = 0;
     for (const item of valid) {
-      const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
+      const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert", autoPublish);
       if (res.success) okCount++;
       else failCount++;
     }
