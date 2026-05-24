@@ -97,7 +97,7 @@ const ImportJsonAdmin = () => {
       if (res.mode === "smart-merge" || res.mode === "overwrite") {
         toast.success(`${res.mode === "overwrite" ? "Overwrote" : "Smart-merged"} broker · ${res.updated?.length || 0} fields updated, ${res.preserved?.length || 0} preserved`);
       } else {
-        toast.success(`Inserted as draft (id: ${res.id?.slice(0, 8)}…)`);
+        toast.success(`Inserted as ${autoPublish ? "published" : "draft"} (id: ${res.id?.slice(0, 8)}…)`);
       }
       if (isBroker && reviewSidecars.length > 0) {
         const { ok, fail } = await insertSidecars();
