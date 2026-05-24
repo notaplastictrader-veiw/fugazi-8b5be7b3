@@ -243,7 +243,7 @@ const ImportJsonAdmin = () => {
         <Card className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-condensed uppercase">
-              Preview ({validCount} / {totalCount} valid)
+              Preview ({validCount} / {totalCount} valid){reviewSidecars.length > 0 ? ` · +${reviewSidecars.length} editorial review sidecar${reviewSidecars.length > 1 ? "s" : ""}` : ""}
             </h2>
           </div>
 
