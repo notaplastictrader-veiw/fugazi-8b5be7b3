@@ -202,12 +202,12 @@ const ImportJsonAdmin = () => {
                 <SelectContent>
                   <SelectItem value="smart-merge">Smart merge (recommended)</SelectItem>
                   <SelectItem value="overwrite">Overwrite all fields</SelectItem>
-                  <SelectItem value="insert">Always insert new draft</SelectItem>
+                  <SelectItem value="insert">Always insert (auto-replace on duplicate slug)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <p className="text-xs text-muted-foreground">
-              <strong>Smart merge:</strong> if a broker with this slug exists, <code className="font-mono">long_review</code> is fully replaced (v4.7 content). Top-level fields (score, regulation, spreads, pros/cons, etc.) are only overwritten when the existing value is empty — manual admin edits are preserved.
+              <strong>Smart merge:</strong> existing broker → <code className="font-mono">long_review</code> fully replaced; top-level fields only filled when empty (manual edits preserved). <strong>Insert mode:</strong> now auto-overwrites any broker with the same slug instead of failing on duplicates — safe to re-run.
             </p>
           </div>
         )}
