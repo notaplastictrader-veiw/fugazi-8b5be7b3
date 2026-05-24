@@ -29,8 +29,13 @@ export const formatSpreadNumber = (raw?: string | null): string => {
     return null;
   };
 
-  // Split into segments on common separators between account tiers (;, |, ., newline, " / ")
-  const segments = s.split(/[;|.\n]|\s+\/\s+/).map(x => x.trim()).filter(Boolean);
+  // Split into segments on common separators between account tiers (;, |, newline, " / ", ". " sentence-end).
+  // Note: don't split on bare "." — that breaks decimals like "0.9".
+  const segments = s
+    .split(/[;|\n]|\s+\/\s+|\.\s+(?=[A-Z])/)
+    .map(x => x.trim())
+    .filter(Boolean);
+
 
   // 1) Prefer a segment that mentions Standard (or Average)
   const stdSeg = segments.find(seg => /\b(standard|average|avg)\b/i.test(seg));
