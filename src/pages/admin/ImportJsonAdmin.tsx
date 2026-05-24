@@ -64,7 +64,7 @@ const ImportJsonAdmin = () => {
   };
 
   const insertSidecars = async () => {
-    if (!isBroker || reviewSidecars.length === 0) return { ok: 0, fail: 0 };
+    if (reviewSidecars.length === 0) return { ok: 0, fail: 0 };
     let ok = 0, fail = 0;
     for (const row of reviewSidecars) {
       // Resolve broker_id from slug if needed
