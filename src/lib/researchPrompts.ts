@@ -287,6 +287,18 @@ Return a single JSON object with this exact shape:
   "sources": ["https://...", "https://..."]
 }
 
+{
+  "editorial_review_row": {
+    "broker_slug": "<same-slug-as-above>",
+    "author": "NAFT Editorial",
+    "role": "editor",
+    "rating": 4.2,
+    "content": "150–250 word signed editorial opinion. Open with what this broker is (regulator + years), name the trade-off clearly, and end with who should/should not use it. No marketing fluff.",
+    "verified_account": true,
+    "status": "published"
+  }
+}
+
 Broker name to research: ${name}`,
     example: {
       name: "",
