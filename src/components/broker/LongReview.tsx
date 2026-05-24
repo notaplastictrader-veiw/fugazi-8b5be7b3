@@ -515,6 +515,20 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
           </Card>
         )}
 
+        {/* Hot Take */}
+        {data.hot_take && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-5 flex gap-3">
+              <Flame className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-destructive mb-1.5">Hot Take</p>
+                <p className="text-foreground/90 leading-relaxed text-sm whitespace-pre-line">{stripDots(data.hot_take)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+
         {/* At-a-glance */}
         {data.at_a_glance && Object.keys(data.at_a_glance).length > 0 && (
           <AtAGlance data={data.at_a_glance} />
