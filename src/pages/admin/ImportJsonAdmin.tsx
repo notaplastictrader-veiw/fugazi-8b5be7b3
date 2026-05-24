@@ -28,6 +28,7 @@ const ImportJsonAdmin = () => {
   const [parseError, setParseError] = useState<string | null>(null);
   const [inserting, setInserting] = useState(false);
   const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("smart-merge");
+  const [autoPublish, setAutoPublish] = useState(false);
 
   const entity = useMemo(() => getEntity(entityKey)!, [entityKey]);
   const isBroker = entity.table === "brokers";
@@ -90,13 +91,13 @@ const ImportJsonAdmin = () => {
       return;
     }
     setInserting(true);
-    const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
+    const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert", autoPublish);
     setInserting(false);
     if (res.success) {
       if (res.mode === "smart-merge" || res.mode === "overwrite") {
         toast.success(`${res.mode === "overwrite" ? "Overwrote" : "Smart-merged"} broker · ${res.updated?.length || 0} fields updated, ${res.preserved?.length || 0} preserved`);
       } else {
-        toast.success(`Inserted as draft (id: ${res.id?.slice(0, 8)}…)`);
+        toast.success(`Inserted as ${autoPublish ? "published" : "draft"} (id: ${res.id?.slice(0, 8)}…)`);
       }
       if (isBroker && reviewSidecars.length > 0) {
         const { ok, fail } = await insertSidecars();
@@ -118,7 +119,7 @@ const ImportJsonAdmin = () => {
     let okCount = 0;
     let failCount = 0;
     for (const item of valid) {
-      const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert");
+      const res = await importEntity(entity, item.result.cleaned, user?.id || null, isBroker ? brokerMode : "insert", autoPublish);
       if (res.success) okCount++;
       else failCount++;
     }
@@ -173,10 +174,22 @@ const ImportJsonAdmin = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="text-xs text-muted-foreground">
-            <span className="font-mono">Target table:</span>{" "}
-            <Badge variant="outline" className="font-mono">{entity.table}</Badge>{" "}
-            — inserts as <Badge variant="outline" className="font-mono">draft</Badge> where supported.
+          <div className="text-xs text-muted-foreground space-y-2">
+            <div>
+              <span className="font-mono">Target table:</span>{" "}
+              <Badge variant="outline" className="font-mono">{entity.table}</Badge>{" "}
+              — inserts as <Badge variant="outline" className="font-mono">{autoPublish ? "published" : "draft"}</Badge> where supported.
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={autoPublish}
+                onChange={(e) => setAutoPublish(e.target.checked)}
+                className="h-4 w-4 rounded border-input accent-primary"
+              />
+              <span className="font-mono uppercase tracking-wider">Auto-publish on insert</span>
+              <span className="text-muted-foreground/70">(sets status = published instead of draft)</span>
+            </label>
           </div>
         </div>
 
