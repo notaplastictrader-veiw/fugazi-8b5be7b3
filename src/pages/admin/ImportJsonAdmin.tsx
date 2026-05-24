@@ -98,6 +98,10 @@ const ImportJsonAdmin = () => {
       } else {
         toast.success(`Inserted as draft (id: ${res.id?.slice(0, 8)}…)`);
       }
+      if (isBroker && reviewSidecars.length > 0) {
+        const { ok, fail } = await insertSidecars();
+        toast[fail === 0 ? "success" : "warning"](`Editorial review sidecar · ${ok} inserted${fail ? `, ${fail} failed` : ""}`);
+      }
     } else {
       toast.error(res.error || "Insert failed");
     }
@@ -106,7 +110,7 @@ const ImportJsonAdmin = () => {
   const insertAll = async () => {
     if (!previews) return;
     const valid = previews.filter((p) => p.result.valid);
-    if (valid.length === 0) {
+    if (valid.length === 0 && reviewSidecars.length === 0) {
       toast.error("No valid records to insert");
       return;
     }
@@ -118,9 +122,14 @@ const ImportJsonAdmin = () => {
       if (res.success) okCount++;
       else failCount++;
     }
+    let sidecarMsg = "";
+    if (isBroker && reviewSidecars.length > 0) {
+      const { ok, fail } = await insertSidecars();
+      sidecarMsg = ` · editorial sidecar: ${ok} ok${fail ? `, ${fail} failed` : ""}`;
+    }
     setInserting(false);
     toast[failCount === 0 ? "success" : "warning"](
-      `Processed ${okCount} / ${valid.length}${failCount > 0 ? ` (${failCount} failed)` : ""}`
+      `Processed ${okCount} / ${valid.length}${failCount > 0 ? ` (${failCount} failed)` : ""}${sidecarMsg}`
     );
   };
 
