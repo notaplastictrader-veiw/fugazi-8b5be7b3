@@ -50,17 +50,21 @@ export function nestSidecarsIntoLongReview(raw: Record<string, any>): Record<str
   const lr: Record<string, any> = (out.long_review && typeof out.long_review === "object" && !Array.isArray(out.long_review))
     ? { ...out.long_review }
     : {};
-  let moved = false;
+  let touched = false;
   for (const key of LONG_REVIEW_SIDECAR_KEYS) {
-    if (key in out && out[key] !== undefined && out[key] !== null && out[key] !== "") {
-      if (!(key in lr) || lr[key] === undefined || lr[key] === null || lr[key] === "") {
-        lr[key] = out[key];
+    if (key in out) {
+      const val = out[key];
+      const hasValue = val !== undefined && val !== null && val !== "";
+      if (hasValue) {
+        const lrEmpty = !(key in lr) || lr[key] === undefined || lr[key] === null || lr[key] === "";
+        if (lrEmpty) lr[key] = val;
       }
+      // Always strip sidecar key from top level so it never shows as "Unknown field"
       delete out[key];
-      moved = true;
+      touched = true;
     }
   }
-  if (moved || out.long_review) out.long_review = lr;
+  if (touched || out.long_review) out.long_review = lr;
   return out;
 }
 
