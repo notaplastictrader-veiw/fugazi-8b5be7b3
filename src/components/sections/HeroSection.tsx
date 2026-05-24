@@ -91,10 +91,9 @@ const HeroSection = () => {
         style={{ perspective: "800px" }}
       >
         <div
-          className="font-display font-black tracking-[0.01em] sm:tracking-[0.02em] text-primary leading-none whitespace-nowrap opacity-[0.18] blur-[2px]"
-
+          className="font-display font-black tracking-[0.01em] sm:tracking-[0.02em] text-primary leading-none whitespace-nowrap opacity-[0.22]"
           style={{
-            fontSize: "26vw",
+            fontSize: "22vw",
             transform: "rotateX(68deg) translateY(22%)",
             transformOrigin: "50% 100%",
             WebkitMaskImage:
