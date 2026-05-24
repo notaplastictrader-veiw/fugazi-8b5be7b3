@@ -64,7 +64,7 @@ const ImportJsonAdmin = () => {
   };
 
   const insertSidecars = async () => {
-    if (!isBroker || reviewSidecars.length === 0) return { ok: 0, fail: 0 };
+    if (reviewSidecars.length === 0) return { ok: 0, fail: 0 };
     let ok = 0, fail = 0;
     for (const row of reviewSidecars) {
       // Resolve broker_id from slug if needed
@@ -103,7 +103,7 @@ const ImportJsonAdmin = () => {
       } else {
         toast.success(`Inserted as ${autoPublish ? "published" : "draft"} (id: ${res.id?.slice(0, 8)}…)`);
       }
-      if (isBroker && reviewSidecars.length > 0) {
+      if (reviewSidecars.length > 0) {
         const { ok, fail } = await insertSidecars();
         toast[fail === 0 ? "success" : "warning"](`Editorial review sidecar · ${ok} inserted${fail ? `, ${fail} failed` : ""}`);
       }
@@ -128,7 +128,7 @@ const ImportJsonAdmin = () => {
       else failCount++;
     }
     let sidecarMsg = "";
-    if (isBroker && reviewSidecars.length > 0) {
+    if (reviewSidecars.length > 0) {
       const { ok, fail } = await insertSidecars();
       sidecarMsg = ` · editorial sidecar: ${ok} ok${fail ? `, ${fail} failed` : ""}`;
     }
@@ -234,14 +234,16 @@ const ImportJsonAdmin = () => {
             <FileJson className="h-4 w-4 mr-2" />
             Validate &amp; Preview
           </Button>
-          {previews && validCount > 0 && (
+          {previews && (validCount > 0 || reviewSidecars.length > 0) && (
             <Button variant="default" onClick={insertAll} disabled={inserting}>
               {inserting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <CheckCircle2 className="h-4 w-4 mr-2" />
               )}
-              Insert All Valid ({validCount})
+              {validCount > 0
+                ? `Insert All Valid (${validCount})${reviewSidecars.length > 0 ? ` + ${reviewSidecars.length} editorial` : ""}`
+                : `Insert ${reviewSidecars.length} Editorial Review${reviewSidecars.length > 1 ? "s" : ""}`}
             </Button>
           )}
         </div>

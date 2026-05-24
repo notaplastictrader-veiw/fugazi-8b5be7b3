@@ -48,7 +48,7 @@ export const ENTITIES: EntityDefinition[] = [
     label: "Broker",
     description: "Forex / CFD / Crypto broker review entry (full canonical schema)",
     table: "brokers",
-    prompt: (name) => `You are NAFT's senior broker analyst writing for the trader who typed "${name} review" at midnight before depositing their savings. You have 10+ years inside this industry. Follow NAFT Master Prompt v4.7.
+    prompt: (name) => `You are NAFT's senior broker analyst writing for the trader who typed "${name} review" at midnight before depositing their savings. You have 10+ years inside this industry. Follow NAFT Master Prompt v4.8.
 
 RESEARCH PROTOCOL (complete before writing):
 - Tier 1 primary sources only for verifiable facts: broker's official site (regulation, accounts/spreads, payments, T&Cs), regulator registers (FCA register.fca.org.uk, ASIC asic.gov.au, CySEC cysec.gov.cy, DFSA dfsa.ae, FSCA fsca.co.za, SCB scb.gov.bs, CMA cma.or.ke, BaFin bafin.de), and Trustpilot (the ONLY named third party allowed). If Trustpilot has zero reviews, omit the trustpilot block entirely — never invent.
@@ -61,14 +61,20 @@ FACTUALITY RULES (non-negotiable):
 - For CFD/Forex providers, populate "regulatory_risk_warning" with a real retail-loss percentage (e.g. "73% of retail CFD accounts lose money").
 - All license numbers must be verifiable on the named register.
 
-VOICE: Direct, skeptical, helpful. One trader talking to another. No corporate fluff.
+⚡ v4.8 REGULATOR WARNING KILL-SWITCH (decision-grade):
+- If a named regulator (FCA, ASIC, BaFin, CySEC, CONSOB, AMF, FMA, CFTC, etc.) has publicly warned against this broker, set the top-level "warning_note" to a strong red-banner statement that STARTS with "AVOID" or "WARNING" — name the regulator, the date, and the consequence. Example: "AVOID — FCA flagged this broker on 2024-08-12 as unauthorised. UK clients have NO FSCS protection. Withdrawals are not legally enforceable."
+- If no regulator warning exists, leave "warning_note" empty ("").
 
-OUTPUT: A single JSON object with the shape below. All v4.7 additions (author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost) live INSIDE "long_review". Sections array MUST contain these 8 ids in order: quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
+VOICE: Direct, skeptical, helpful. One trader talking to another. No corporate fluff. No "legit", "best", "trusted" filler.
+
+OUTPUT — TWO JSON OBJECTS, in this exact order, concatenated (no array wrapper, no markdown fences):
+
+  1. **broker_payload** — the full row for public.brokers (shape below). All v4.8 additions (hot_take, telegram_summary, seo_audit, author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost) live INSIDE "long_review". Sections array MUST contain these 8 ids in order: quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
+
+  2. **editorial_review_row** — sidecar wrapper for public.reviews:
+     { "editorial_review_row": { "broker_slug": "<slug>", "author": "NAFT Editorial", "role": "editor", "rating": <0-5>, "content": "150–250 word signed editorial opinion — decision helper, not marketing", "verified_account": true, "status": "published" } }
 
 ${baseRules}
-
-You MUST return BOTH the top-level summary fields AND a complete "long_review" object that follows the canonical schema (verdict, at_a_glance, geo, sections[], affiliate_cta, trustpilot, faq, meta). The "sections" array must contain 6–8 sections with these exact ids in this order:
-quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
 
 Return a single JSON object with this exact shape:
 
@@ -109,6 +115,20 @@ Return a single JSON object with this exact shape:
   "affiliate_url": "https://..." | null,
 
   "long_review": {
+    "schema_version": "4.8",
+    "hot_take": "2–4 sentence editorial punch rendered at the TOP of the review. Decision-helper, not marketing. Tell the reader in 5 seconds whether this broker is right for them and why.",
+    "telegram_summary": "Short shareable 2-line summary for Telegram / WhatsApp forwarding.",
+    "seo_audit": {
+      "primary_keyword_count": 0,
+      "broker_name_count": 0,
+      "year_mentioned_count": 0,
+      "question_headings_count": 0,
+      "faq_items_count": 0,
+      "internal_links_count": 0,
+      "affiliate_cta_included": true,
+      "legit_keyword_present": false,
+      "all_tone_rules_applied": true
+    },
     "verdict": {
       "tldr": "One-breath summary: who this is for + the headline trade-off.",
       "summary": "Longer paragraph (optional).",
@@ -267,6 +287,18 @@ Return a single JSON object with this exact shape:
   "sources": ["https://...", "https://..."]
 }
 
+{
+  "editorial_review_row": {
+    "broker_slug": "<same-slug-as-above>",
+    "author": "NAFT Editorial",
+    "role": "editor",
+    "rating": 4.2,
+    "content": "150–250 word signed editorial opinion. Open with what this broker is (regulator + years), name the trade-off clearly, and end with who should/should not use it. No marketing fluff.",
+    "verified_account": true,
+    "status": "published"
+  }
+}
+
 Broker name to research: ${name}`,
     example: {
       name: "",
@@ -384,12 +416,75 @@ Broker name to research: ${name}`,
         promo_code: { type: "string" },
         affiliate_url: { type: "url" },
         logo_url: { type: "string" },
-        long_review: { type: "object", description: "Canonical long-review JSON (v4.7): verdict, at_a_glance, geo, sections, affiliate_cta, trustpilot, faq, author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost" },
+        long_review: { type: "object", description: "Canonical long-review JSON (v4.8): hot_take, telegram_summary, seo_audit, schema_version, verdict, at_a_glance, geo, sections, affiliate_cta, trustpilot, faq, author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost" },
       },
     },
   },
 
-  // -------------------------------- PROP FIRM --------------------------------
+  // -------------------------------- EDITORIAL REVIEW (v4.8 sidecar) --------------------------------
+  {
+    key: "editorial_review",
+    label: "Editorial Review",
+    description: "Standalone NAFT Editorial opinion row (v4.8 sidecar) → public.reviews",
+    table: "reviews",
+    prompt: (name) => `You are NAFT's senior editor writing a signed editorial opinion about the broker "${name}". This is the v4.8 editorial sidecar that appears next to the long review with a "verified editor" badge.
+
+VOICE: Direct, skeptical, helpful. One trader talking to another. Decision-helper, not marketing. No "legit", "best", "trusted" filler.
+
+LENGTH: 150–250 words. One tight paragraph or two.
+
+STRUCTURE (in order):
+1. Open with what the broker IS — regulator(s) + years in business + headline fact.
+2. Name the trade-off clearly (the thing the marketing copy hides).
+3. End with WHO should use it and who should NOT.
+
+RATING SCALE (0–5):
+- 4.0–4.5: Tier-1 regulated, strong execution, clean withdrawal record. (Pepperstone, IC Markets tier.)
+- 3.0–3.9: Real broker, mixed regulatory or jurisdiction trade-offs. (Exness, XM tier.)
+- 2.0–2.9: Offshore-heavy, weak protection, but operational. (FBS tier.)
+- 1.0–1.9: Misleading licence claims, no real retail oversight. (CXM, D Prime tier.)
+- 0–0.9: Active regulator warnings, scam pattern.
+
+${baseRules}
+
+OUTPUT — a single JSON object with this exact wrapper shape (the importer detects this wrapper and routes it to the reviews table):
+
+{
+  "editorial_review_row": {
+    "broker_slug": "${(name || "").toLowerCase().replace(/\\s+/g, "-")}",
+    "author": "NAFT Editorial",
+    "role": "editor",
+    "rating": 0,
+    "content": "150–250 word signed editorial opinion here.",
+    "verified_account": true,
+    "status": "published"
+  }
+}
+
+Broker name: ${name}`,
+    example: {
+      editorial_review_row: {
+        broker_slug: "",
+        author: "NAFT Editorial",
+        role: "editor",
+        rating: 0,
+        content: "",
+        verified_account: true,
+        status: "published",
+      },
+    },
+    schema: {
+      table: "reviews",
+      reserved: ["id", "created_at", "broker_id", "user_id"],
+      fields: {
+        // The importer auto-detects the wrapper `{ editorial_review_row: {...} }` and bypasses field validation,
+        // resolving broker_slug → broker_id before insert. Schema fields here are informational.
+        editorial_review_row: { type: "object", description: "Wrapper object — required" },
+      },
+    },
+  },
+
+
   {
     key: "prop_firm",
     label: "Prop Firm",
