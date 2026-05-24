@@ -7,6 +7,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import OfferRail from "@/components/common/OfferRail";
 import BrokerCard, { Broker, formatLeverage, formatRegulator } from "@/components/broker/BrokerCard";
+import { formatSpreadNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
 
 const brokerFilters = ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"];
 const propFirmFilters = ["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"];
