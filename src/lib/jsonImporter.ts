@@ -80,7 +80,8 @@ export async function importEntity(
   entity: EntityDefinition,
   cleaned: Record<string, any>,
   userId: string | null,
-  mode: BrokerImportMode = "insert"
+  mode: BrokerImportMode = "insert",
+  autoPublish: boolean = false
 ): Promise<ImportResult> {
   const table = entity.table;
   const payload: Record<string, any> = { ...cleaned };
