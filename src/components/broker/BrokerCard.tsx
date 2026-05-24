@@ -25,6 +25,7 @@ export interface Broker {
   promo_label?: string | null;
   affiliate_url?: string | null;
   website_url?: string | null;
+  long_review?: any;
 }
 
 import { formatSpreadNumber, formatLeverageNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
@@ -178,7 +179,7 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-destructive uppercase tracking-widest shrink-0">
                 <AlertTriangle className="w-3 h-3" /> {broker.complaints} complaints
               </span>
-            ) : (broker.review_count || 0) === 0 ? (
+            ) : (broker.review_count || 0) === 0 && !broker.long_review ? (
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-widest shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                 NAFT Testing In Progress

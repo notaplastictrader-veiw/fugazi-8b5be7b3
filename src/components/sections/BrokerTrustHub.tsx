@@ -138,7 +138,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
               <StarRating value={firm.stars} size={14} />
               <span className="text-[10px] font-bold text-muted-foreground/60 tracking-widest uppercase ml-1">({firm.review_count})</span>
             </div>
-            {(firm.review_count || 0) === 0 ? (
+            {(firm.review_count || 0) === 0 && !firm.long_review ? (
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-widest shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                 NAFT Testing In Progress
