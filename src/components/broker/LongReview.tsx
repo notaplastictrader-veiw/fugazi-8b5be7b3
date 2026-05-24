@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
 import GeoAvailability from "@/components/broker/GeoAvailability";
-import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare } from "lucide-react";
+import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare, Flame } from "lucide-react";
 
 export interface LongReviewTable {
   headers: string[];
@@ -80,6 +80,7 @@ export interface LongReviewData {
   image_assets?: LongReviewImageAsset[];
   all_in_cost?: { eurusd_spread_usd?: number; commission_usd?: number; total_per_lot_usd?: number };
   target_locale?: string;
+  hot_take?: string;
 }
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
@@ -513,6 +514,20 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
             </CardContent>
           </Card>
         )}
+
+        {/* Hot Take */}
+        {data.hot_take && (
+          <Card className="border-destructive/40 bg-destructive/5">
+            <CardContent className="p-5 flex gap-3">
+              <Flame className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-destructive mb-1.5">Hot Take</p>
+                <p className="text-foreground/90 leading-relaxed text-sm whitespace-pre-line">{stripDots(data.hot_take)}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
 
         {/* At-a-glance */}
         {data.at_a_glance && Object.keys(data.at_a_glance).length > 0 && (
