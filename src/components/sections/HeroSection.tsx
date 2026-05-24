@@ -3,17 +3,8 @@ import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, Info } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-import { useTheme } from "@/hooks/useTheme";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
-import heroBgDark from "@/assets/hero-bg-dark.jpg";
-import heroBgLight from "@/assets/hero-bg-light.jpg";
-import heroBgSentinel from "@/assets/hero-bg-sentinel.jpg";
 
-const heroBgByTheme: Record<string, string> = {
-  dark: heroBgDark,
-  light: heroBgLight,
-  sentinel: heroBgSentinel,
-};
 
 const defaultTypewriterTexts = [
   "Search Brokers, Signals, News...",
@@ -37,9 +28,7 @@ const HeroSection = () => {
   const [displayText, setDisplayText] = useState("");
   const typewriterRef = useRef({ textIndex: 0, charIndex: 0, isDeleting: false });
   const { t } = useI18n();
-  const { theme } = useTheme();
-  const heroBg = heroBgByTheme[theme] ?? heroBgDark;
-  const isLight = theme === "light";
+
 
   const eyebrowItems = [
     { text: "Built for real traders, not ", highlight: "Fugazi Ones", suffix: "", color: "hsl(var(--primary))" },
@@ -88,20 +77,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative flex items-center justify-center overflow-hidden py-6">
-      {/* Theme-aware cinematic background — silhouette + spotlight */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${heroBg})`,
-          opacity: isLight ? 0.25 : 0.22,
-          filter: "blur(2px)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 80% 70% at 50% 55%, black 30%, transparent 85%)",
-          maskImage:
-            "radial-gradient(ellipse 80% 70% at 50% 55%, black 30%, transparent 85%)",
-        }}
-      />
+
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px]" />
