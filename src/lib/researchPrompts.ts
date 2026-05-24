@@ -48,7 +48,7 @@ export const ENTITIES: EntityDefinition[] = [
     label: "Broker",
     description: "Forex / CFD / Crypto broker review entry (full canonical schema)",
     table: "brokers",
-    prompt: (name) => `You are NAFT's senior broker analyst writing for the trader who typed "${name} review" at midnight before depositing their savings. You have 10+ years inside this industry. Follow NAFT Master Prompt v4.7.
+    prompt: (name) => `You are NAFT's senior broker analyst writing for the trader who typed "${name} review" at midnight before depositing their savings. You have 10+ years inside this industry. Follow NAFT Master Prompt v4.8.
 
 RESEARCH PROTOCOL (complete before writing):
 - Tier 1 primary sources only for verifiable facts: broker's official site (regulation, accounts/spreads, payments, T&Cs), regulator registers (FCA register.fca.org.uk, ASIC asic.gov.au, CySEC cysec.gov.cy, DFSA dfsa.ae, FSCA fsca.co.za, SCB scb.gov.bs, CMA cma.or.ke, BaFin bafin.de), and Trustpilot (the ONLY named third party allowed). If Trustpilot has zero reviews, omit the trustpilot block entirely — never invent.
@@ -61,14 +61,20 @@ FACTUALITY RULES (non-negotiable):
 - For CFD/Forex providers, populate "regulatory_risk_warning" with a real retail-loss percentage (e.g. "73% of retail CFD accounts lose money").
 - All license numbers must be verifiable on the named register.
 
-VOICE: Direct, skeptical, helpful. One trader talking to another. No corporate fluff.
+⚡ v4.8 REGULATOR WARNING KILL-SWITCH (decision-grade):
+- If a named regulator (FCA, ASIC, BaFin, CySEC, CONSOB, AMF, FMA, CFTC, etc.) has publicly warned against this broker, set the top-level "warning_note" to a strong red-banner statement that STARTS with "AVOID" or "WARNING" — name the regulator, the date, and the consequence. Example: "AVOID — FCA flagged this broker on 2024-08-12 as unauthorised. UK clients have NO FSCS protection. Withdrawals are not legally enforceable."
+- If no regulator warning exists, leave "warning_note" empty ("").
 
-OUTPUT: A single JSON object with the shape below. All v4.7 additions (author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost) live INSIDE "long_review". Sections array MUST contain these 8 ids in order: quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
+VOICE: Direct, skeptical, helpful. One trader talking to another. No corporate fluff. No "legit", "best", "trusted" filler.
+
+OUTPUT — TWO JSON OBJECTS, in this exact order, concatenated (no array wrapper, no markdown fences):
+
+  1. **broker_payload** — the full row for public.brokers (shape below). All v4.8 additions (hot_take, telegram_summary, seo_audit, author, toc, social_snippet, comparison_block, regulatory_risk_warning, conflict_note, last_human_review_at, schema_jsonld, image_assets, all_in_cost) live INSIDE "long_review". Sections array MUST contain these 8 ids in order: quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
+
+  2. **editorial_review_row** — sidecar wrapper for public.reviews:
+     { "editorial_review_row": { "broker_slug": "<slug>", "author": "NAFT Editorial", "role": "editor", "rating": <0-5>, "content": "150–250 word signed editorial opinion — decision helper, not marketing", "verified_account": true, "status": "published" } }
 
 ${baseRules}
-
-You MUST return BOTH the top-level summary fields AND a complete "long_review" object that follows the canonical schema (verdict, at_a_glance, geo, sections[], affiliate_cta, trustpilot, faq, meta). The "sections" array must contain 6–8 sections with these exact ids in this order:
-quick-verdict, regulation-safety, geo-availability, spreads-accounts-fees, deposits-withdrawals, platforms-tools, pros-cons, final-verdict.
 
 Return a single JSON object with this exact shape:
 
