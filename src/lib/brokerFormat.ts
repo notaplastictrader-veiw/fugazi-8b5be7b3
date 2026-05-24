@@ -12,20 +12,39 @@ export const formatSpreadNumber = (raw?: string | null): string => {
   if (/^[$€£]\s*\d+(?:\.\d+)?\s*[kKmM]?\s*[–\-—to]+\s*[$€£]?\s*\d+(?:\.\d+)?\s*[kKmM]/.test(s)) return s;
 
 
-  // If text describes multiple account tiers, prefer the Standard account spread
-  const standard = s.match(/standard[^.]*?(\d+(?:\.\d+)?(?:\s*[-–]\s*\d+(?:\.\d+)?)?)\s*(pips?|%)?/i);
-  if (standard) {
-    const unit = standard[2] ? standard[2].toLowerCase() : "pips";
-    const value = standard[1].split(/[-–]/).pop()?.trim() || standard[1];
-    return `${value} ${unit}`.trim();
+  // Helper: extract spread number from a text segment.
+  // Returns the upper bound of a range (e.g. "0.2-0.9 pips" → "0.9 pips"),
+  // or the first number with its unit (e.g. "1.0 pip" → "1.0 pip").
+  const extractFromSegment = (seg: string): string | null => {
+    const range = seg.match(/(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*(pips?|%|bps|basis\s*points?)?/i);
+    if (range) {
+      const unit = range[3] ? range[3].toLowerCase().replace(/\s+/g, " ") : "pips";
+      return `${range[2]} ${unit}`.trim();
+    }
+    const single = seg.match(/(\d+(?:\.\d+)?)\s*(pips?|%|bps|basis\s*points?)/i);
+    if (single) {
+      const unit = single[2].toLowerCase().replace(/\s+/g, " ");
+      return `${single[1]} ${unit}`.trim();
+    }
+    return null;
+  };
+
+  // Split into segments on common separators between account tiers (;, |, ., newline, " / ")
+  const segments = s.split(/[;|.\n]|\s+\/\s+/).map(x => x.trim()).filter(Boolean);
+
+  // 1) Prefer a segment that mentions Standard (or Average)
+  const stdSeg = segments.find(seg => /\b(standard|average|avg)\b/i.test(seg));
+  if (stdSeg) {
+    const out = extractFromSegment(stdSeg);
+    if (out) return out;
   }
 
-  // Ranges like "0.2–0.9 pips" should show the actual average/standard card value: the upper spread.
-  const range = s.match(/\b\d+(?:\.\d+)?\s*[-–]\s*(\d+(?:\.\d+)?)\s*(pips?|%)?/i);
-  if (range) {
-    const unit = range[2] ? range[2].toLowerCase() : "pips";
-    return `${range[1]} ${unit}`.trim();
+  // 2) Otherwise, take the first segment that has a spread number with unit
+  for (const seg of segments) {
+    const out = extractFromSegment(seg);
+    if (out) return out;
   }
+
 
   // First numeric token
 
