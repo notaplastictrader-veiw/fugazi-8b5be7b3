@@ -1378,7 +1378,7 @@ const BrokerDetail = () => {
                           </div>
                           <div className="flex items-center gap-0.5 shrink-0">
                             {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
+                              <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
                             ))}
                           </div>
                         </div>

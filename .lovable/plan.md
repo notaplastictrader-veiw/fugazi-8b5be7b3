@@ -1,37 +1,33 @@
-# Fix v4.8 import: auto-nest sidecar fields into `long_review`
+## Issues found
 
-## Asol problem (jeta age bujhi nai)
+**1. 5 ta NAFT Editorial review keno?**
+`src/pages/admin/ImportJsonAdmin.tsx` line 80 e import sidecar handler review delete kortese `author_name` column diye — kintu actual `reviews` table column hocche `author`. Tai dedupe delete kono row match kore na, ar prottek import e notun row insert hoye jay. Tomi CMC 4 bar import korecho → 4 ta notun + 1 ta purono = 5 ta.
 
-Ei "Unknown field" warning gulo asholei amader UI te **already supported**. Master prompt v4.7/v4.8 spec onujayi `author`, `conflict_note`, `regulatory_risk_warning`, `toc`, `social_snippet`, `comparison_block`, `video_embed`, `assets`, `target_locale` — egulo shob `long_review` jsonb er **bhitore** thakar kotha. BrokerDetail.tsx ekhonoi `broker.long_review?.regulatory_risk_warning` etc render kore.
+**2. Rating 4.1 hoileo 5 ta star fully filled keno?**
+`src/pages/BrokerDetail.tsx` line 1381 e:
+```
+i < (r.rating || 0)
+```
+Rating `4.1` → `i=4 < 4.1` true → 5 ta star fill. Round-down kora uchit chilo.
 
-Kintu AI agent (Exness JSON e dekhlam) egulo **top-level** e bashate diyeche. Tai validator "unknown field" bole strip kore dey ar data harie jay.
+## Plan
 
-Tai column add korar dorkar nai. Just importer ke smart banai.
+### A. Importer dedupe fix (`src/pages/admin/ImportJsonAdmin.tsx`)
+- Line 80 e `author_name` → `author` korbo (review sidecar payload e `author_name` field thakleo, DB column `author`)
+- Sidecar payload e `author_name` ele setake `author` e map kore insert korbo, taile schema match thakbe
+- Result: shame broker er editorial review re-import e replace hobe, duplicate banabe na
 
-## Ki bodlabo
+### B. Existing duplicate cleanup
+CMC Markets er 4 ta duplicate editorial review (rating 4.1) ache + 1 ta purono (3.6). Latest ta (17:10) rakhbo, baki 3 ta 4.1 + purono 3.6 ta delete korbo. Exness o check kore same cleanup.
 
-### 1. `src/lib/researchPrompts.ts` — chhoto fix
-- Broker schema `fields` e `logo_url: { type: "string" }` add koro. Eta brokers table e real column kintu schema te missing chilo (bug).
+### C. Star fill bug fix (`src/pages/BrokerDetail.tsx` line 1381)
+`i < (r.rating || 0)` → `i < Math.round(r.rating || 0)` 
+(ba half-star support chao kina seta tomar choice — round most natural for review listings)
 
-### 2. `src/lib/jsonImporter.ts` — auto-nest pre-processor
-- Ekta helper banao: `nestSidecarsIntoLongReview(raw)`.
-- Ei whitelist field gulo top-level e thakle `long_review` er bhitore move kore dey:
-  - `author`, `conflict_note`, `regulatory_risk_warning`, `target_locale`
-  - `toc`, `social_snippet`, `comparison_block`, `video_embed`, `assets`
-  - `last_human_review_at`, `image_assets`, `all_in_cost`, `schema_jsonld`
-- `long_review` na thakle banai dey. Already inside thakle override koro na.
-- `importEntity()` start e brokers er jonno apply koro.
+## Question for you
+Star rendering — kon ta chao?
+- **Option 1:** `Math.round` — 4.1 → 4 filled, 4.6 → 5 filled (simplest)
+- **Option 2:** `Math.floor` — 4.1 → 4 filled, 4.9 → 4 filled (strict)
+- **Option 3:** Half-star support — 4.1 → 4 full + empty, 4.5 → 4 full + half (most accurate, but needs new icon logic)
 
-### 3. `src/pages/admin/ImportJsonAdmin.tsx` — preview o same logic
-- `runPreview()` e validate korar age same nesting apply koro, jate warning na ase ar user dekhte pay field gulo `long_review` te ja66e.
-
-## Ja change hocche na
-- Database schema (no migration)
-- BrokerDetail.tsx (render already kaaj korche)
-- Existing brokers (untouched until re-imported)
-
-## Result
-- Exness import korle: 11 warning theke ~0-1 te nambe
-- `regulatory_risk_warning` amber banner page top e show korbe
-- `conflict_note`, `author`, `toc` etc `long_review` te properly store hobe, future UI work er jonno ready
-- Future v4.8 import o seamless
+Default e Option 1 korbo jodi tumi na bolo.

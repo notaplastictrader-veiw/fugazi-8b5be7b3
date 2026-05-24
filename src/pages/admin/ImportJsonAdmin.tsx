@@ -74,12 +74,16 @@ const ImportJsonAdmin = () => {
         broker_id = b?.id;
       }
       if (!broker_id) { fail++; continue; }
-      const { broker_slug: _bs, ...rest } = row;
-      // Replace any existing NAFT Editorial review for this broker (idempotent)
-      if (rest.author_name) {
-        await (supabase as any).from("reviews").delete().eq("broker_id", broker_id).eq("author_name", rest.author_name);
+      const { broker_slug: _bs, author_name, ...rest } = row;
+      // Map sidecar `author_name` → DB column `author`
+      const author = author_name ?? rest.author;
+      const payload: any = { ...rest, broker_id };
+      if (author) payload.author = author;
+      // Replace any existing editorial review for this broker (idempotent re-import)
+      if (author) {
+        await (supabase as any).from("reviews").delete().eq("broker_id", broker_id).eq("author", author);
       }
-      const { error } = await (supabase as any).from("reviews").insert({ ...rest, broker_id });
+      const { error } = await (supabase as any).from("reviews").insert(payload);
       if (error) fail++; else ok++;
     }
     return { ok, fail };
