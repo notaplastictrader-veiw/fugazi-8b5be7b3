@@ -99,6 +99,44 @@ export function tryParseJson(raw: string): { ok: true; data: any } | { ok: false
   try {
     return { ok: true, data: JSON.parse(trimmed) };
   } catch (e: any) {
-    return { ok: false, error: e?.message || "Invalid JSON" };
+    // Try parsing as multiple concatenated JSON values
+    // (e.g. v4.8 broker_payload + editorial_review_row sidecar pasted together)
+    try {
+      const results: any[] = [];
+      let i = 0;
+      const s = trimmed;
+      while (i < s.length) {
+        while (i < s.length && /\s/.test(s[i])) i++;
+        if (i >= s.length) break;
+        const openCh = s[i];
+        if (openCh !== "{" && openCh !== "[") throw e;
+        let depth = 0;
+        let inStr = false;
+        let esc = false;
+        const start = i;
+        for (; i < s.length; i++) {
+          const c = s[i];
+          if (inStr) {
+            if (esc) esc = false;
+            else if (c === "\\") esc = true;
+            else if (c === '"') inStr = false;
+            continue;
+          }
+          if (c === '"') { inStr = true; continue; }
+          if (c === "{" || c === "[") depth++;
+          else if (c === "}" || c === "]") {
+            depth--;
+            if (depth === 0) { i++; break; }
+          }
+        }
+        results.push(JSON.parse(s.slice(start, i)));
+      }
+      if (results.length >= 1) {
+        return { ok: true, data: results.length === 1 ? results[0] : results };
+      }
+      throw e;
+    } catch {
+      return { ok: false, error: e?.message || "Invalid JSON" };
+    }
   }
 }
