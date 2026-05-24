@@ -409,6 +409,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/primexbt</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/blackbull-markets</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/express-funded</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
@@ -423,6 +435,18 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/willis-capital</loc>
     <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/vantage-markets</loc>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/cxm-trading</loc>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -673,6 +697,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/bdswiss</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/top-one-trader</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
@@ -721,12 +751,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fugazi.lovable.app/brokers/bdswiss</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://fugazi.lovable.app/brokers/xpert-funding</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
@@ -735,6 +759,12 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/drivewealth</loc>
     <lastmod>2026-05-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/centfx</loc>
+    <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -782,12 +812,6 @@
   </url>
   <url>
     <loc>https://fugazi.lovable.app/brokers/fundingtraders</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://fugazi.lovable.app/brokers/centfx</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1573,6 +1597,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/sky-forex-skyfx</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/trader-funder</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
@@ -1580,6 +1610,12 @@
   </url>
   <url>
     <loc>https://fugazi.lovable.app/brokers/impact-trader</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/blueberry-markets</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1597,14 +1633,14 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fugazi.lovable.app/brokers/blueberry-markets</loc>
+    <loc>https://fugazi.lovable.app/brokers/pro-traders-fund</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fugazi.lovable.app/brokers/pro-traders-fund</loc>
-    <lastmod>2026-05-23</lastmod>
+    <loc>https://fugazi.lovable.app/brokers/startrader</loc>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -1681,6 +1717,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/titan-fx</loc>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/qantex</loc>
     <lastmod>2026-05-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -1719,6 +1761,12 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/marusan</loc>
     <lastmod>2026-05-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/squared-financial</loc>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -2707,12 +2755,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fugazi.lovable.app/brokers/blackbull-markets</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://fugazi.lovable.app/brokers/nsfx</loc>
     <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -3205,12 +3247,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://fugazi.lovable.app/brokers/vantage-markets</loc>
-    <lastmod>2026-05-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://fugazi.lovable.app/brokers/bitget</loc>
     <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -3273,12 +3309,6 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/imperial-funded</loc>
     <lastmod>2026-05-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://fugazi.lovable.app/brokers/primexbt</loc>
-    <lastmod>2026-05-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
