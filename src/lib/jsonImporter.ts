@@ -34,6 +34,37 @@ const BROKER_PROTECTED_FIELDS = [
   "warning_note", "license_number", "logo_url",
 ];
 
+// v4.7/v4.8 master-prompt spec puts these INSIDE long_review, but AI agents
+// often emit them at the top level. Move them in so the data is preserved
+// and BrokerDetail.tsx (which reads broker.long_review.regulatory_risk_warning etc.)
+// can render them. Does not overwrite values already present inside long_review.
+const LONG_REVIEW_SIDECAR_KEYS = [
+  "author", "conflict_note", "regulatory_risk_warning", "target_locale",
+  "toc", "social_snippet", "comparison_block", "video_embed", "assets",
+  "last_human_review_at", "image_assets", "all_in_cost", "schema_jsonld",
+];
+
+export function nestSidecarsIntoLongReview(raw: Record<string, any>): Record<string, any> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
+  const out: Record<string, any> = { ...raw };
+  const lr: Record<string, any> = (out.long_review && typeof out.long_review === "object" && !Array.isArray(out.long_review))
+    ? { ...out.long_review }
+    : {};
+  let moved = false;
+  for (const key of LONG_REVIEW_SIDECAR_KEYS) {
+    if (key in out && out[key] !== undefined && out[key] !== null && out[key] !== "") {
+      if (!(key in lr) || lr[key] === undefined || lr[key] === null || lr[key] === "") {
+        lr[key] = out[key];
+      }
+      delete out[key];
+      moved = true;
+    }
+  }
+  if (moved || out.long_review) out.long_review = lr;
+  return out;
+}
+
+
 /**
  * Insert (or smart-merge / overwrite) a validated payload into the entity's target table.
  * - "insert": always insert as draft (legacy behaviour).

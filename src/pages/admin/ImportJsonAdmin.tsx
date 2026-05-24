@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { ENTITIES, getEntity } from "@/lib/researchPrompts";
 import { tryParseJson, validate, type ValidationResult } from "@/lib/jsonValidator";
-import { importEntity, type BrokerImportMode } from "@/lib/jsonImporter";
+import { importEntity, nestSidecarsIntoLongReview, type BrokerImportMode } from "@/lib/jsonImporter";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -51,7 +51,7 @@ const ImportJsonAdmin = () => {
       if (raw && typeof raw === "object" && !Array.isArray(raw) && raw.editorial_review_row && Object.keys(raw).length === 1) {
         sidecars.push(raw.editorial_review_row);
       } else {
-        brokerLike.push(raw);
+        brokerLike.push(isBroker ? nestSidecarsIntoLongReview(raw) : raw);
       }
     }
     setReviewSidecars(sidecars);
