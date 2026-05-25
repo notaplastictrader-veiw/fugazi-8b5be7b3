@@ -973,7 +973,7 @@ Signal group to research: ${name}`,
     label: "Scam Alert",
     description: "Documented warning about a fraudulent broker / signal / firm",
     table: "scam_alerts",
-    prompt: (name) => `You are a fraud-investigation analyst. Research scam reports for "${name}" using regulator warning lists (FCA Warning List, CySEC, ASIC, SEC), ForexPeaceArmy complaints, Trustpilot 1-star reviews, and Reddit threads.
+    prompt: (name) => `You are a fraud-investigation analyst. Research scam reports for "${name}" using regulator warning lists (FCA Warning List, CySEC, ASIC, SEC), Trustpilot 1-star reviews, and publicly reported complaint records. NEVER name third-party review sites, forums, or community platforms in visible text — refer to them generically as "public complaint records", "publicly reported broker analysis", or "community-reported feedback". Trustpilot is the only third-party brand you may name.
 
 ${baseRules}
 
