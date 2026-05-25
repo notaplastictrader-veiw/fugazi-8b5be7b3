@@ -1707,29 +1707,60 @@ const BrokerDetail = () => {
             </TabsContent>
 
             {/* ===== PROP-FIRM: RULES TAB ===== */}
-            {broker.type === "prop-firm" && (
+            {broker.type === "prop-firm" && (() => {
+              const lr: any = (broker as any).long_review || {};
+              const aag: any = lr.at_a_glance || {};
+              const hasRealData = Object.keys(aag).length > 0;
+              const rules = hasRealData ? [
+                { k: "Max Daily Drawdown", v: aag.max_daily_drawdown },
+                { k: "Max Overall Drawdown", v: aag.max_overall_drawdown },
+                { k: "Max DD Type", v: aag.max_dd_type },
+                { k: "Profit Target", v: aag.profit_target },
+                { k: "Minimum Trading Days", v: aag.min_trading_days },
+                { k: "Time Limit", v: aag.time_limit },
+                { k: "Weekend Holding", v: aag.weekend_holding },
+                { k: "News Trading", v: aag.news_trading },
+                { k: "Expert Advisors (EAs)", v: aag.ea_allowed },
+                { k: "Hedging", v: aag.hedging },
+                { k: "Copy Trading", v: aag.copy_trading },
+                { k: "Profit Split", v: aag.profit_split },
+                { k: "Payout Frequency", v: aag.payout_frequency },
+                { k: "First Payout", v: aag.first_payout_eligibility },
+                { k: "Consistency Rule", v: aag.consistency_rule },
+                { k: "Account Currencies", v: aag.account_currency },
+                { k: "Instruments", v: aag.instruments },
+                { k: "Backing Broker", v: aag.backing_broker },
+              ].filter(r => r.v) : [
+                { k: "Max Daily Loss", v: "5% of account balance" },
+                { k: "Max Overall Drawdown", v: "Balanced / Trailing — varies by plan" },
+                { k: "Profit Target — Phase 1", v: "8% – 10%" },
+                { k: "Profit Target — Phase 2", v: "5%" },
+                { k: "Minimum Trading Days", v: "4 days" },
+                { k: "Max Trading Period", v: "Unlimited" },
+                { k: "Weekend Holding", v: "Varies by plan" },
+                { k: "News Trading", v: "Check firm policy" },
+                { k: "Expert Advisors (EAs)", v: "Allowed" },
+                { k: "Hedging", v: "Allowed" },
+              ];
+              const platforms = aag.platforms
+                ? String(aag.platforms).split(/[,/]/).map((s: string) => s.trim()).filter(Boolean)
+                : ["cTrader", "MetaTrader"];
+              return (
               <TabsContent value="rules" className="mt-6 space-y-6">
                 <div className="glass-card rounded-xl p-6">
                   <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <ListChecks className="w-5 h-5 text-primary" />
                     <h2 className="text-xl font-display font-bold text-foreground">Rules &amp; conditions for {broker.name}</h2>
-                    <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
+                    {hasRealData ? (
+                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Verified · NAFT Research</span>
+                    ) : (
+                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
+                    )}
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
-                    {[
-                      { k: "Max Daily Loss", v: "5% of account balance" },
-                      { k: "Max Overall Drawdown", v: "Balanced / Trailing — varies by plan" },
-                      { k: "Profit Target — Phase 1", v: "8% – 10%" },
-                      { k: "Profit Target — Phase 2", v: "5%" },
-                      { k: "Minimum Trading Days", v: "4 days" },
-                      { k: "Max Trading Period", v: "Unlimited" },
-                      { k: "Weekend Holding", v: "Varies by plan" },
-                      { k: "News Trading", v: "Check firm policy" },
-                      { k: "Expert Advisors (EAs)", v: "Allowed" },
-                      { k: "Hedging", v: "Allowed" },
-                    ].map(r => (
+                    {rules.map(r => (
                       <div key={r.k} className="flex justify-between gap-3 p-3 bg-background/50 border border-border/40 rounded-lg text-sm">
-                        <span className="text-muted-foreground">{r.k}</span>
+                        <span className="text-muted-foreground shrink-0">{r.k}</span>
                         <span className="font-mono font-semibold text-foreground text-right">{r.v}</span>
                       </div>
                     ))}
@@ -1737,25 +1768,28 @@ const BrokerDetail = () => {
 
                   <div className="grid sm:grid-cols-2 gap-3 mt-6">
                     <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
-                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Available Challenges</div>
-                      <div className="text-base font-display font-bold text-foreground">Up to $300K funded accounts</div>
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Model</div>
+                      <div className="text-base font-display font-bold text-foreground">{aag.model || "Up to $300K funded accounts"}</div>
                     </div>
                     <div className="p-4 bg-background/50 border border-border/40 rounded-lg">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Platforms</div>
                       <div className="flex flex-wrap gap-1.5">
-                        {["cTrader", "MetaTrader"].map(p => (
+                        {platforms.map((p: string) => (
                           <span key={p} className="px-2 py-0.5 text-xs font-mono bg-primary/10 text-primary border border-primary/20 rounded">{p}</span>
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-[11px] font-mono text-muted-foreground/80 mt-4 leading-relaxed">
-                    Demo data shown — exact rules are being verified with {broker.name}. Always confirm on the official site before purchasing a challenge.
-                  </p>
+                  {!hasRealData && (
+                    <p className="text-[11px] font-mono text-muted-foreground/80 mt-4 leading-relaxed">
+                      Demo data shown — exact rules are being verified with {broker.name}. Always confirm on the official site before purchasing a challenge.
+                    </p>
+                  )}
                 </div>
               </TabsContent>
-            )}
+              );
+            })()}
 
             {/* ===== PROP-FIRM: CHALLENGES TAB ===== */}
             {broker.type === "prop-firm" && (
