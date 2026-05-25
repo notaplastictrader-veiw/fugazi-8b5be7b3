@@ -915,7 +915,7 @@ ${baseRules}
   "win_rate": number 0-100,
   "monthly_signals": "30+",
   "avg_rr": "1:2",
-  "track_record": "Verified by Myfxbook (link)" | null,
+  "track_record": "Publicly verified track record (link in sources)" | null,
   "members": "10K+",
   "verified": boolean,
   "telegram_url": "https://t.me/..." | null,
