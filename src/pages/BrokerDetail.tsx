@@ -1412,10 +1412,23 @@ const BrokerDetail = () => {
                             </div>
                             <span className="text-xs text-muted-foreground">{r.role}</span>
                           </div>
-                          <div className="flex items-center gap-0.5 shrink-0">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star key={i} className={`w-3.5 h-3.5 ${i < Math.round(r.rating || 0) ? "text-accent fill-accent" : "text-border"}`} />
-                            ))}
+                          <div className="flex items-center gap-1 shrink-0">
+                            <div className="relative inline-flex items-center gap-0.5">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={`bg-${i}`} className="w-3.5 h-3.5 text-border" />
+                              ))}
+                              <div
+                                className="absolute inset-0 flex items-center gap-0.5 overflow-hidden pointer-events-none"
+                                style={{ width: `${Math.max(0, Math.min(5, Number(r.rating) || 0)) / 5 * 100}%` }}
+                              >
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={`fg-${i}`} className="w-3.5 h-3.5 text-accent fill-accent shrink-0" />
+                                ))}
+                              </div>
+                            </div>
+                            <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+                              {(Number(r.rating) || 0).toFixed(1)}
+                            </span>
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground">{r.content}</p>
