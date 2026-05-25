@@ -613,7 +613,7 @@ const BrokerDetail = () => {
 
                       <NaftVerificationBanner
                         verified={broker.naft_verified}
-                        entityLabel="broker"
+                        entityLabel={broker.type === "prop-firm" ? "prop firm" : broker.type === "betting-site" ? "betting site" : broker.type === "signal-provider" ? "signal provider" : "broker"}
                         className="mt-4"
                       />
 
