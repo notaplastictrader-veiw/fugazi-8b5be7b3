@@ -142,6 +142,30 @@ const ImportJsonAdmin = () => {
     );
   };
 
+  const generateWithAI = async () => {
+    if (!aiBrokerName.trim()) {
+      toast.error("Enter a broker name");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const prompt = entity.prompt(aiBrokerName.trim());
+      const { data, error } = await supabase.functions.invoke("generate-broker-review", {
+        body: { prompt, model: aiModel },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const text = (data as any)?.text || "";
+      if (!text) throw new Error("Empty response");
+      setJsonText(text);
+      toast.success(`Generated with ${aiModel.split("/").pop()}. Click Validate & Preview.`);
+    } catch (e: any) {
+      toast.error(e?.message || "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const validCount = previews?.filter((p) => p.result.valid).length ?? 0;
   const totalCount = previews?.length ?? 0;
 
