@@ -1939,9 +1939,9 @@ const BrokerDetail = () => {
                 {/* Payout terms */}
                 <div className="grid sm:grid-cols-3 gap-3">
                   {[
-                    { k: "Payout Frequency", v: "On Demand", icon: Clock },
-                    { k: "Profit Split", v: "80% to 95%", icon: TrendingUp },
-                    { k: "Max Allocation", v: "$300K", icon: Coins },
+                    { k: "Payout Frequency", v: aag.payout_frequency || "—", icon: Clock },
+                    { k: "Profit Split", v: aag.profit_split || "—", icon: TrendingUp },
+                    { k: "First Payout", v: aag.first_payout_eligibility || "—", icon: Coins },
                   ].map(({ k, v, icon: Ic }) => (
                     <div key={k} className="glass-card rounded-xl p-4 flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -1955,19 +1955,35 @@ const BrokerDetail = () => {
                   ))}
                 </div>
 
-                <div className="glass-card rounded-xl p-5">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Supported Methods</div>
-                  <div className="flex flex-wrap gap-2">
-                    {["Bank Wire", "USDT (TRC20)", "USDT (ERC20)", "Rise", "Deel", "Crypto BTC"].map(m => (
-                      <span key={m} className="px-3 py-1 text-xs font-mono bg-background/60 border border-border/40 rounded-full text-foreground">{m}</span>
-                    ))}
+                {(pv.payout_consistency_note || pv.denial_context || pv.verification_method) && (
+                  <div className="glass-card rounded-xl p-5 space-y-3">
+                    {pv.payout_consistency_note && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Consistency</div>
+                        <p className="text-sm text-foreground leading-relaxed">{pv.payout_consistency_note}</p>
+                      </div>
+                    )}
+                    {pv.denial_context && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Denial Context</div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{pv.denial_context}</p>
+                      </div>
+                    )}
+                    {pv.verification_method && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Verification Method</div>
+                        <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">{pv.verification_method}</p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[11px] font-mono text-muted-foreground/80 mt-3">
-                    Demo data — verified payout proofs from real traders appear in the gallery below the tabs.
-                  </p>
-                </div>
+                )}
+
+                <p className="text-[11px] font-mono text-muted-foreground/80">
+                  For accurate, current payout terms always confirm directly with {broker.name}.
+                </p>
               </TabsContent>
-            )}
+              );
+            })()}
 
             {/* ===== PROP-FIRM: FORUM TAB ===== */}
             {broker.type === "prop-firm" && (
