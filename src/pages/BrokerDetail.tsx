@@ -476,13 +476,30 @@ const BrokerDetail = () => {
             const propProfitSplit = ag.profit_split || (firstAcct as Record<string, any> | null)?.profit_split || "—";
             const propPayoutFreq = ag.payout_frequency || broker.withdrawal_time || "—";
             const propMaxDD = ag.max_overall_drawdown || "—";
+            // Short-form helpers: numbers-only, no verbose descriptions
+            const shortPercentRange = (raw: string) => {
+              const nums = (raw.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+              if (!nums.length) return raw;
+              const min = Math.min(...nums), max = Math.max(...nums);
+              return min === max ? `${min}%` : `${min}-${max}%`;
+            };
+            const shortMoneyRange = (raw: string) => {
+              const matches = raw.match(/[€$£¥₹]\s?[\d,]+(?:\.\d+)?[KMk]?/g);
+              if (!matches?.length) return raw;
+              if (matches.length === 1) return matches[0].replace(/\s/g, "");
+              return `${matches[0].replace(/\s/g, "")}–${matches[matches.length - 1].replace(/\s/g, "")}`;
+            };
+            const shortFreq = (raw: string) => {
+              const m = raw.match(/\b(daily|weekly|bi[- ]?weekly|monthly|on[- ]?demand|on demand|14 days?|7 days?|every \d+ days?)\b/i);
+              return m ? m[0].replace(/\bon[- ]?demand\b/i, "On Demand") : raw.split(/[(.,]/)[0].trim();
+            };
             const stats = isProp
               ? [
-                  { label: "Challenge Fee", value: broker.min_deposit || "—" },
+                  { label: "Challenge Fee", value: shortMoneyRange(broker.min_deposit || "—") },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) || "1:100" },
-                  { label: "Profit Split", value: propProfitSplit },
-                  { label: "Max DD", value: propMaxDD },
-                  { label: "Payouts", value: propPayoutFreq },
+                  { label: "Profit Split", value: shortPercentRange(propProfitSplit) },
+                  { label: "Max DD", value: shortPercentRange(propMaxDD) },
+                  { label: "Payouts", value: shortFreq(propPayoutFreq) },
                 ]
               : [
                   { label: "Min Deposit", value: formatMinDepositNumber(broker.min_deposit) },
