@@ -5,7 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, AlertCircle, Loader2, FileJson, ArrowLeft } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, FileJson, ArrowLeft, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
@@ -29,6 +30,9 @@ const ImportJsonAdmin = () => {
   const [inserting, setInserting] = useState(false);
   const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("smart-merge");
   const [autoPublish, setAutoPublish] = useState(false);
+  const [aiBrokerName, setAiBrokerName] = useState("");
+  const [aiModel, setAiModel] = useState("google/gemini-2.5-pro");
+  const [generating, setGenerating] = useState(false);
 
   const entity = useMemo(() => getEntity(entityKey)!, [entityKey]);
   const isBroker = entity.table === "brokers";
@@ -138,6 +142,30 @@ const ImportJsonAdmin = () => {
     );
   };
 
+  const generateWithAI = async () => {
+    if (!aiBrokerName.trim()) {
+      toast.error("Enter a broker name");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const prompt = entity.prompt(aiBrokerName.trim());
+      const { data, error } = await supabase.functions.invoke("generate-broker-review", {
+        body: { prompt, model: aiModel },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const text = (data as any)?.text || "";
+      if (!text) throw new Error("Empty response");
+      setJsonText(text);
+      toast.success(`Generated with ${aiModel.split("/").pop()}. Click Validate & Preview.`);
+    } catch (e: any) {
+      toast.error(e?.message || "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const validCount = previews?.filter((p) => p.result.valid).length ?? 0;
   const totalCount = previews?.length ?? 0;
 
@@ -216,6 +244,36 @@ const ImportJsonAdmin = () => {
           </div>
         )}
 
+        <div className="rounded-md border border-primary/30 bg-primary/5 p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <Label className="text-xs font-mono uppercase tracking-wider">Auto-generate with Lovable AI</Label>
+          </div>
+          <div className="grid sm:grid-cols-[1fr_220px_auto] gap-2">
+            <Input
+              placeholder={isBroker ? "Broker name (e.g. Exness, FBS, IC Markets)" : `${entity.label} name / topic`}
+              value={aiBrokerName}
+              onChange={(e) => setAiBrokerName(e.target.value)}
+              disabled={generating}
+            />
+            <Select value={aiModel} onValueChange={setAiModel}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="google/gemini-2.5-pro">Gemini 2.5 Pro (best quality)</SelectItem>
+                <SelectItem value="google/gemini-2.5-flash">Gemini 2.5 Flash (faster)</SelectItem>
+                <SelectItem value="openai/gpt-5">GPT-5 (premium)</SelectItem>
+                <SelectItem value="openai/gpt-5-mini">GPT-5 Mini (balanced)</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={generateWithAI} disabled={generating || !aiBrokerName.trim()}>
+              {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              {generating ? "Generating…" : "Generate"}
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Runs the <code className="font-mono">{entity.key}</code> research prompt through Lovable AI Gateway and fills the JSON box below. Pro models take 30–90s. Review & validate before inserting.
+          </p>
+        </div>
 
         <div>
           <Label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
