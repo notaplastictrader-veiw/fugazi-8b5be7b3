@@ -1897,24 +1897,37 @@ const BrokerDetail = () => {
             })()}
 
             {/* ===== PROP-FIRM: PAYOUTS TAB ===== */}
-            {broker.type === "prop-firm" && (
+            {broker.type === "prop-firm" && (() => {
+              const lr: any = (broker as any).long_review || {};
+              const pv: any = lr.payout_verification || {};
+              const aag: any = lr.at_a_glance || {};
+              const ctaUrl = (broker as any).affiliate_url || broker.website_url;
+              const hasReal = Object.keys(pv).length > 0;
+              const headline = [
+                { k: "Verified Payouts Seen", v: pv.verified_payouts_seen ? String(pv.verified_payouts_seen) : "—", sub: hasReal ? "NAFT-verified count" : "Pending verification" },
+                { k: "Largest Single Payout", v: pv.largest_single_payout_seen || "—", sub: "All-time recorded" },
+                { k: "Avg Processing", v: pv.average_processing_days ? `${pv.average_processing_days} days` : "—", sub: "Time to receive" },
+                { k: "Denial Reports (90d)", v: pv.payout_denial_reports_90d != null ? String(pv.payout_denial_reports_90d) : "—", sub: "Rule-breach excluded" },
+              ];
+              return (
               <TabsContent value="payouts" className="mt-6 space-y-6">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Coins className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-display font-bold text-foreground">Payouts</h2>
-                  <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> LIVE
+                  <h2 className="text-xl font-display font-bold text-foreground">Payout Track Record</h2>
+                  <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    For accurate info always confirm with broker
                   </span>
+                  {ctaUrl && (
+                    <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
+                      className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                      Visit {broker.name} →
+                    </a>
+                  )}
                 </div>
 
                 {/* Headline payout stats */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {[
-                    { k: "Total Payouts", v: "$311.69M", sub: "$311,693,538.65" },
-                    { k: "No. of Payouts", v: "48,955", sub: "Verified on-chain" },
-                    { k: "Largest Single", v: "$7,492,465", sub: "All-time record" },
-                    { k: "Last Payout", v: "41m ago", sub: new Date().toLocaleDateString() },
-                  ].map((s) => (
+                  {headline.map((s) => (
                     <div key={s.k} className="glass-card rounded-xl p-4">
                       <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.k}</div>
                       <div className="text-xl font-display font-extrabold text-foreground mt-1">{s.v}</div>
