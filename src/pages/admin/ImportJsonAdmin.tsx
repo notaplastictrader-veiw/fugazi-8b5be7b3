@@ -28,7 +28,7 @@ const ImportJsonAdmin = () => {
   const [previews, setPreviews] = useState<PreviewItem[] | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const [inserting, setInserting] = useState(false);
-  const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("smart-merge");
+  const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("insert");
   const [autoPublish, setAutoPublish] = useState(false);
   const [aiBrokerName, setAiBrokerName] = useState("");
   const [aiModel, setAiModel] = useState("google/gemini-2.5-pro");
