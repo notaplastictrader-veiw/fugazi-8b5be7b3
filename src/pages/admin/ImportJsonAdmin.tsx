@@ -55,6 +55,11 @@ const ImportJsonAdmin = () => {
     for (const raw of list) {
       if (raw && typeof raw === "object" && !Array.isArray(raw) && raw.editorial_review_row && Object.keys(raw).length === 1) {
         sidecars.push(raw.editorial_review_row);
+      } else if (isBroker && raw && typeof raw === "object" && raw.editorial_review_row) {
+        // Sidecar nested inside broker payload — extract it, then process broker portion
+        const { editorial_review_row, ...brokerPart } = raw;
+        sidecars.push(editorial_review_row);
+        brokerLike.push(nestSidecarsIntoLongReview(brokerPart));
       } else {
         brokerLike.push(isBroker ? nestSidecarsIntoLongReview(raw) : raw);
       }
