@@ -141,6 +141,16 @@ export async function importEntity(
       if (autoPublish) updatePayload.status = "published";
       updatePayload.updated_at = new Date().toISOString();
 
+      // In overwrite mode, clear stale promo/warning fields if the new payload omits them
+      if (effectiveMode === "overwrite") {
+        for (const key of BROKER_CLEARABLE_ON_OVERWRITE) {
+          if (!(key in payload)) {
+            updatePayload[key] = null;
+            updated.push(`${key} (cleared)`);
+          }
+        }
+      }
+
       const { error } = await (supabase as any)
         .from("brokers")
         .update(updatePayload)
