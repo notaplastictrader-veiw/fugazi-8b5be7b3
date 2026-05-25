@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AffiliateDisclosure from "@/components/common/AffiliateDisclosure";
 import GeoAvailability from "@/components/broker/GeoAvailability";
-import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare, Flame } from "lucide-react";
+import { Star, ShieldCheck, ExternalLink, CheckCircle2, XCircle, Clock, BookOpen, UserCheck, Share2, MessageCircle, Send, GitCompare, Flame, TrendingDown, Target, Wallet, AlertOctagon } from "lucide-react";
 
 export interface LongReviewTable {
   headers: string[];
@@ -81,6 +81,44 @@ export interface LongReviewData {
   all_in_cost?: { eurusd_spread_usd?: number; commission_usd?: number; total_per_lot_usd?: number };
   target_locale?: string;
   hot_take?: string;
+  // v4.9 prop-firm additions
+  schema_version?: string;
+  drawdown_explainer?: {
+    daily_dd_base?: string;
+    daily_dd_reset_time?: string;
+    daily_dd_includes_open_trades?: boolean;
+    max_dd_type?: string;
+    trailing_locks_at_breakeven?: boolean;
+    worked_example?: string;
+    common_killer_scenario?: string;
+  };
+  pass_rate_data?: {
+    claimed_by_firm?: string;
+    claimed_source?: string;
+    industry_benchmark?: string;
+    naft_estimate?: string;
+    note?: string;
+  };
+  red_flag_scan?: {
+    sudden_rule_changes_90d?: boolean;
+    recent_broker_switch_6m?: boolean;
+    trustpilot_velocity_anomaly?: boolean;
+    discord_mass_complaints_90d?: boolean;
+    founder_anonymous?: boolean;
+    registration_mismatch?: boolean;
+    website_age_vs_founded_mismatch?: boolean;
+    flags_found?: number;
+    notes?: string;
+  };
+  payout_verification?: {
+    verified_payouts_seen?: number;
+    largest_single_payout_seen?: string;
+    verification_method?: string;
+    payout_denial_reports_90d?: number;
+    denial_context?: string;
+    average_processing_days?: string;
+    payout_consistency_note?: string;
+  };
 }
 
 interface Props { brokerName: string; brokerSlug: string; data: LongReviewData; onScrollToReviews?: () => void; }
@@ -131,6 +169,28 @@ const AtAGlance = ({ data }: { data: Record<string, any> }) => {
     platforms: "Platforms",
     islamic_account: "Islamic account",
     deposit_methods: "Deposit methods",
+    // v4.9 prop-firm keys
+    model: "Model",
+    profit_target: "Profit target",
+    max_daily_drawdown: "Max daily DD",
+    daily_dd_calculation: "Daily DD calc",
+    max_overall_drawdown: "Max overall DD",
+    max_dd_type: "Max DD type",
+    min_trading_days: "Min trading days",
+    time_limit: "Time limit",
+    profit_split: "Profit split",
+    payout_frequency: "Payout frequency",
+    first_payout_eligibility: "First payout eligibility",
+    consistency_rule: "Consistency rule",
+    news_trading: "News trading",
+    weekend_holding: "Weekend holding",
+    ea_allowed: "EAs allowed",
+    copy_trading: "Copy trading",
+    hedging: "Hedging",
+    martingale: "Martingale",
+    backing_broker: "Backing broker",
+    account_currency: "Account currency",
+    instruments: "Instruments",
   };
   const entries = Object.entries(data);
   return (
@@ -338,6 +398,171 @@ const ComparisonBlock = ({ block }: { block: LongReviewData["comparison_block"] 
   );
 };
 
+// ===== v4.9 Prop-Firm Insights =====
+const PropFirmInsights = ({ data }: { data: LongReviewData }) => {
+  const dd = data.drawdown_explainer;
+  const pr = data.pass_rate_data;
+  const rf = data.red_flag_scan;
+  const pv = data.payout_verification;
+  const hasAny = dd || pr || (rf && (rf.flags_found ?? 0) > 0) || pv;
+  if (!hasAny) return null;
+
+  const flagLabels: Record<string, string> = {
+    sudden_rule_changes_90d: "Sudden rule changes (90d)",
+    recent_broker_switch_6m: "Recent broker switch (6m)",
+    trustpilot_velocity_anomaly: "Trustpilot velocity anomaly",
+    discord_mass_complaints_90d: "Discord mass complaints (90d)",
+    founder_anonymous: "Anonymous founder",
+    registration_mismatch: "Registration jurisdiction mismatch",
+    website_age_vs_founded_mismatch: "Website age vs founded year mismatch",
+  };
+  const activeFlags = rf
+    ? Object.entries(flagLabels).filter(([k]) => (rf as Record<string, unknown>)[k] === true).map(([, v]) => v)
+    : [];
+
+  return (
+    <div className="space-y-4">
+      {/* Drawdown Explainer — the money section */}
+      {dd && (dd.worked_example || dd.common_killer_scenario) && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingDown className="w-4 h-4 text-destructive" />
+              <h3 className="font-display font-bold text-base">Drawdown — the part that kills accounts</h3>
+            </div>
+            <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-2 mb-4">
+              {dd.daily_dd_base && (
+                <div className="text-xs"><dt className="font-mono uppercase tracking-wider text-muted-foreground">Daily DD base</dt><dd className="font-mono text-foreground/90 mt-0.5">{dd.daily_dd_base}</dd></div>
+              )}
+              {dd.daily_dd_reset_time && (
+                <div className="text-xs"><dt className="font-mono uppercase tracking-wider text-muted-foreground">Resets at</dt><dd className="font-mono text-foreground/90 mt-0.5">{dd.daily_dd_reset_time}</dd></div>
+              )}
+              {dd.max_dd_type && (
+                <div className="text-xs"><dt className="font-mono uppercase tracking-wider text-muted-foreground">Max DD type</dt><dd className="font-mono text-foreground/90 mt-0.5">{dd.max_dd_type}</dd></div>
+              )}
+              {dd.daily_dd_includes_open_trades != null && (
+                <div className="text-xs"><dt className="font-mono uppercase tracking-wider text-muted-foreground">Includes open trades</dt><dd className="font-mono text-foreground/90 mt-0.5">{dd.daily_dd_includes_open_trades ? "Yes" : "No"}</dd></div>
+              )}
+            </dl>
+            {dd.worked_example && (
+              <div className="rounded-md border-l-2 border-destructive/60 bg-background/40 p-3 mb-3">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-destructive mb-1.5">Worked example</p>
+                <p className="text-sm text-foreground/85 leading-relaxed whitespace-pre-line">{dd.worked_example}</p>
+              </div>
+            )}
+            {dd.common_killer_scenario && (
+              <div className="rounded-md border border-border bg-muted/30 p-3">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">Common killer scenario</p>
+                <p className="text-sm text-foreground/80 leading-relaxed">{dd.common_killer_scenario}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pass Rate */}
+      {pr && (pr.claimed_by_firm || pr.naft_estimate) && (
+        <Card className="border-border">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="w-4 h-4 text-primary" />
+              <h3 className="font-display font-bold text-base">Pass rate</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {pr.claimed_by_firm && (
+                <div className="rounded-md border border-border bg-muted/20 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Claimed by firm</p>
+                  <p className="font-mono text-lg font-bold text-foreground mt-1">{pr.claimed_by_firm}</p>
+                </div>
+              )}
+              {pr.industry_benchmark && (
+                <div className="rounded-md border border-border bg-muted/20 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Industry benchmark</p>
+                  <p className="font-mono text-lg font-bold text-foreground mt-1">{pr.industry_benchmark}</p>
+                </div>
+              )}
+              {pr.naft_estimate && (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-primary">NAFT estimate</p>
+                  <p className="font-mono text-lg font-bold text-primary mt-1">{pr.naft_estimate}</p>
+                </div>
+              )}
+            </div>
+            {pr.note && <p className="text-xs text-muted-foreground italic mt-3">{pr.note}</p>}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Red Flag Scan — only if flags found */}
+      {rf && (rf.flags_found ?? 0) > 0 && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertOctagon className="w-4 h-4 text-destructive" />
+              <h3 className="font-display font-bold text-base">Red flags detected ({rf.flags_found})</h3>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {activeFlags.map((label, i) => (
+                <span key={i} className="text-[11px] font-mono px-2 py-1 rounded-full border border-destructive/40 bg-destructive/10 text-destructive">
+                  {label}
+                </span>
+              ))}
+            </div>
+            {rf.notes && <p className="text-sm text-foreground/80 leading-relaxed mt-2">{rf.notes}</p>}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Payout Verification */}
+      {pv && (pv.verified_payouts_seen != null || pv.largest_single_payout_seen || pv.average_processing_days) && (
+        <Card className="border-border">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Wallet className="w-4 h-4 text-primary" />
+              <h3 className="font-display font-bold text-base">Payout verification</h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {pv.verified_payouts_seen != null && (
+                <div className="rounded-md border border-border bg-muted/20 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Verified payouts</p>
+                  <p className="font-mono text-lg font-bold text-foreground mt-1">{pv.verified_payouts_seen}</p>
+                </div>
+              )}
+              {pv.largest_single_payout_seen && (
+                <div className="rounded-md border border-border bg-muted/20 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Largest payout</p>
+                  <p className="font-mono text-lg font-bold text-foreground mt-1">{pv.largest_single_payout_seen}</p>
+                </div>
+              )}
+              {pv.average_processing_days && (
+                <div className="rounded-md border border-border bg-muted/20 p-3">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Avg processing</p>
+                  <p className="font-mono text-lg font-bold text-foreground mt-1">{pv.average_processing_days}</p>
+                </div>
+              )}
+              {pv.payout_denial_reports_90d != null && (
+                <div className={`rounded-md border p-3 ${pv.payout_denial_reports_90d > 0 ? "border-destructive/40 bg-destructive/10" : "border-border bg-muted/20"}`}>
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Denials (90d)</p>
+                  <p className={`font-mono text-lg font-bold mt-1 ${pv.payout_denial_reports_90d > 0 ? "text-destructive" : "text-foreground"}`}>{pv.payout_denial_reports_90d}</p>
+                </div>
+              )}
+            </div>
+            {pv.payout_consistency_note && (
+              <p className="text-xs text-muted-foreground italic mt-3">{pv.payout_consistency_note}</p>
+            )}
+            {pv.denial_context && pv.payout_denial_reports_90d ? (
+              <p className="text-xs text-destructive/80 mt-2">{pv.denial_context}</p>
+            ) : null}
+            {pv.verification_method && (
+              <p className="text-[10px] font-mono text-muted-foreground mt-3 pt-2 border-t border-border/40">Source: {pv.verification_method}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
   const sections = data.sections || [];
   const toc = useMemo(() => {
@@ -533,6 +758,9 @@ const LongReview = ({ brokerName, brokerSlug, data }: Props) => {
         {data.at_a_glance && Object.keys(data.at_a_glance).length > 0 && (
           <AtAGlance data={data.at_a_glance} />
         )}
+
+        {/* v4.9 Prop-Firm Insights */}
+        <PropFirmInsights data={data} />
 
         {/* Geo */}
         {data.geo && <GeoAvailability accepted={data.geo.accepted} excluded={data.geo.excluded} />}
