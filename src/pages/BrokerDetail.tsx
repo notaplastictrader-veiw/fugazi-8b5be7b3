@@ -1756,7 +1756,7 @@ const BrokerDetail = () => {
                       return (
                         <div className="ml-auto flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                            For accurate info always confirm with broker
+                            For accurate info always confirm with broker and public source or community
                           </span>
                           {ctaUrl && (
                             <a
@@ -1925,7 +1925,7 @@ const BrokerDetail = () => {
                   <Coins className="w-5 h-5 text-primary" />
                   <h2 className="text-xl font-display font-bold text-foreground">Payout Track Record</h2>
                   <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    For accurate info always confirm with broker
+                    For accurate info always confirm with broker and public source or community
                   </span>
                   {ctaUrl && (
                     <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
