@@ -1858,15 +1858,9 @@ const BrokerDetail = () => {
               const aag: any = lr.at_a_glance || {};
               const ctaUrl = (broker as any).affiliate_url || broker.website_url;
               const realChallenges: any[] = Array.isArray(lr.challenges) ? lr.challenges : [];
-              const demoChallenges = [
-                { name: `${broker.name} 1-Step Challenge`, type: "One Phase", badge: "Beginner Friendly", maxDD: aag.max_overall_drawdown || "6.00%", dailyDD: aag.max_daily_drawdown || "3.00%", target: aag.profit_target || "10%", sizes: [
-                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
-                ] },
-                { name: `${broker.name} 2-Step Challenge`, type: "Two Phase", badge: "Most Popular", maxDD: aag.max_overall_drawdown || "10.00%", dailyDD: aag.max_daily_drawdown || "5.00%", target: aag.profit_target || "8% – 5%", sizes: [
-                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
-                ] },
-              ];
-              const plans = realChallenges.length > 0 ? realChallenges : demoChallenges;
+              const hasRealChallenges = realChallenges.length > 0;
+              const plans = realChallenges;
+
               return (
               <TabsContent value="challenges" className="mt-6 space-y-6">
                 <div className="glass-card rounded-xl p-4 flex items-start gap-3 flex-wrap">
