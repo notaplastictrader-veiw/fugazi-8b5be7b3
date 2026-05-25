@@ -905,7 +905,7 @@ Sportsbook to research: ${name}`,
     label: "Signal Group",
     description: "Forex / crypto trading signal provider (Telegram, Discord)",
     table: "signal_groups",
-    prompt: (name) => `You are a trading-signals research analyst. Research the signal group "${name}" using its official channels (Telegram, Discord, website), Myfxbook track records, and independent reviews. Be skeptical: only count win rates from third-party verified sources.
+    prompt: (name) => `You are a trading-signals research analyst. Research the signal group "${name}" using its official channels (Telegram, Discord, website), publicly available verified track records, and community-reported feedback. Be skeptical: only count win rates from independently verified sources. Do NOT name third-party review sites or aggregators in any visible text — use neutral phrasing like "publicly verified track record" instead.
 
 ${baseRules}
 
