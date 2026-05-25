@@ -1375,11 +1375,29 @@ const BrokerDetail = () => {
 
             {/* ===== REVIEWS TAB ===== */}
             <TabsContent value="reviews" className="mt-6" id="reviews-anchor">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3 flex-wrap mb-4">
                 <h2 className="text-xl font-display font-bold text-foreground">Community Reviews</h2>
-                <Button size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
-                  Write a Review
-                </Button>
+                <div className="ml-auto flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    For accurate info always confirm with broker and public source or community
+                  </span>
+                  {(() => {
+                    const ctaUrl = (broker as any).affiliate_url || broker.website_url;
+                    return ctaUrl ? (
+                      <a
+                        href={ctaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer sponsored"
+                        className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                      >
+                        Visit {broker.name} →
+                      </a>
+                    ) : null;
+                  })()}
+                  <Button size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
+                    Write a Review
+                  </Button>
+                </div>
               </div>
 
               {showReviewForm && (
@@ -1441,15 +1459,28 @@ const BrokerDetail = () => {
                           {(() => {
                             const isEditorial = r.author === "NAFT Editorial" || (r.role || "").toLowerCase() === "editor";
                             if (isEditorial && broker.long_review) {
+                              const ctaUrl = (broker as any).affiliate_url || broker.website_url;
                               return (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-7 text-xs border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
-                                  onClick={() => handleTabChange("full-review")}
-                                >
-                                  Read Full Review →
-                                </Button>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {ctaUrl && (
+                                    <a
+                                      href={ctaUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer sponsored"
+                                      className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                                    >
+                                      Visit {broker.name} →
+                                    </a>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 text-xs border-primary/40 text-primary hover:bg-primary/10 hover:text-primary"
+                                    onClick={() => handleTabChange("full-review")}
+                                  >
+                                    Read Full Review →
+                                  </Button>
+                                </div>
                               );
                             }
                             if (canReply && !isEditing) {
