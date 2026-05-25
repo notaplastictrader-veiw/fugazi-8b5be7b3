@@ -34,6 +34,13 @@ const BROKER_PROTECTED_FIELDS = [
   "warning_note", "license_number", "logo_url",
 ];
 
+// In overwrite mode, these fields are CLEARED (set to null/empty) when omitted
+// from the incoming payload. Prevents stale promo codes / warnings persisting
+// across re-imports when the new JSON no longer carries them.
+const BROKER_CLEARABLE_ON_OVERWRITE = [
+  "promo_code", "promo_label", "affiliate_url", "warning_note",
+];
+
 // v4.7/v4.8 master-prompt spec puts these INSIDE long_review, but AI agents
 // often emit them at the top level. Move them in so the data is preserved
 // and BrokerDetail.tsx (which reads broker.long_review.regulatory_risk_warning etc.)
