@@ -1751,11 +1751,26 @@ const BrokerDetail = () => {
                   <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <ListChecks className="w-5 h-5 text-primary" />
                     <h2 className="text-xl font-display font-bold text-foreground">Rules &amp; conditions for {broker.name}</h2>
-                    {hasRealData ? (
-                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Verified · NAFT Research</span>
-                    ) : (
-                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo · pending verification</span>
-                    )}
+                    {(() => {
+                      const ctaUrl = (broker as any).affiliate_url || broker.website_url;
+                      return (
+                        <div className="ml-auto flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                            For accurate info always confirm with broker
+                          </span>
+                          {ctaUrl && (
+                            <a
+                              href={ctaUrl}
+                              target="_blank"
+                              rel="noopener noreferrer sponsored"
+                              className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                            >
+                              Visit {broker.name} →
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     {rules.map(r => (
