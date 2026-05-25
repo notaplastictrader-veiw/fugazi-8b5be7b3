@@ -39,6 +39,14 @@ STRICT OUTPUT RULES:
 - Use ISO 8601 for any date.
 - Slugs must be lowercase-hyphenated, ASCII only.
 - Enum values MUST match exactly (case-sensitive).
+
+THIRD-PARTY ATTRIBUTION RULE (NON-NEGOTIABLE — applies to ALL narrative text, body_md, hot_take, editorial content, descriptions, faqs, and any visible field):
+- The ONLY third-party review/aggregator brand you may name in user-visible prose is "Trustpilot".
+- NEVER name any other review site, aggregator, watchdog, forum, or community in the visible review text. Forbidden examples (non-exhaustive): DayTrading.com, WikiFX, ForexPeaceArmy / FPA, BrokerChooser, Investopedia, ForexBrokers.com, Myfxbook, BabyPips, Reddit, Quora, Trustpedia, PropFirmMatch, Discord servers by name, Telegram channels by name, YouTube reviewers by name.
+- Instead use neutral, generic phrasing such as: "publicly reported broker analysis", "independent broker watchdog sources", "community-reported feedback", "public complaint records", "industry forum sentiment", "verified payout reports from public channels".
+- You MAY still consult those sources for research and list their URLs inside the internal "sources" array (not shown verbatim to users) — but DO NOT name them in any human-readable string.
+- Official regulators (FCA, CySEC, ASIC, BaFin, DFSA, FSCA, SEC, CFTC, etc.) are NOT third parties and MUST be named precisely with licence numbers.
+- Backing brokers / liquidity providers / payment processors (e.g. Purple Trading, ThinkMarkets, Eightcap) are partners, not review competitors — they may be named.
 `.trim();
 
 export const ENTITIES: EntityDefinition[] = [
