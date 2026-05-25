@@ -655,6 +655,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://fugazi.lovable.app/brokers/saxo-bank</loc>
+    <lastmod>2026-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fugazi.lovable.app/brokers/plus500</loc>
+    <lastmod>2026-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fugazi.lovable.app/brokers/d-prime</loc>
     <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
@@ -1658,12 +1670,6 @@
   </url>
   <url>
     <loc>https://fugazi.lovable.app/brokers/olymp-trade</loc>
-    <lastmod>2026-05-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://fugazi.lovable.app/brokers/saxo-bank</loc>
     <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -3830,7 +3836,7 @@
   </url>
   <url>
     <loc>https://fugazi.lovable.app/brokers/oanda</loc>
-    <lastmod>2026-05-16</lastmod>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -3855,12 +3861,6 @@
   <url>
     <loc>https://fugazi.lovable.app/brokers/fortune-prime-global</loc>
     <lastmod>2026-05-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://fugazi.lovable.app/brokers/plus500</loc>
-    <lastmod>2026-05-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
