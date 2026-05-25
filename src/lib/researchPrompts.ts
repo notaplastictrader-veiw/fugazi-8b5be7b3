@@ -39,6 +39,14 @@ STRICT OUTPUT RULES:
 - Use ISO 8601 for any date.
 - Slugs must be lowercase-hyphenated, ASCII only.
 - Enum values MUST match exactly (case-sensitive).
+
+THIRD-PARTY ATTRIBUTION RULE (NON-NEGOTIABLE — applies to ALL narrative text, body_md, hot_take, editorial content, descriptions, faqs, and any visible field):
+- The ONLY third-party review/aggregator brand you may name in user-visible prose is "Trustpilot".
+- NEVER name any other review site, aggregator, watchdog, forum, or community in the visible review text. Forbidden examples (non-exhaustive): DayTrading.com, WikiFX, ForexPeaceArmy / FPA, BrokerChooser, Investopedia, ForexBrokers.com, Myfxbook, BabyPips, Reddit, Quora, Trustpedia, PropFirmMatch, Discord servers by name, Telegram channels by name, YouTube reviewers by name.
+- Instead use neutral, generic phrasing such as: "publicly reported broker analysis", "independent broker watchdog sources", "community-reported feedback", "public complaint records", "industry forum sentiment", "verified payout reports from public channels".
+- You MAY still consult those sources for research and list their URLs inside the internal "sources" array (not shown verbatim to users) — but DO NOT name them in any human-readable string.
+- Official regulators (FCA, CySEC, ASIC, BaFin, DFSA, FSCA, SEC, CFTC, etc.) are NOT third parties and MUST be named precisely with licence numbers.
+- Backing brokers / liquidity providers / payment processors (e.g. Purple Trading, ThinkMarkets, Eightcap) are partners, not review competitors — they may be named.
 `.trim();
 
 export const ENTITIES: EntityDefinition[] = [
@@ -897,7 +905,7 @@ Sportsbook to research: ${name}`,
     label: "Signal Group",
     description: "Forex / crypto trading signal provider (Telegram, Discord)",
     table: "signal_groups",
-    prompt: (name) => `You are a trading-signals research analyst. Research the signal group "${name}" using its official channels (Telegram, Discord, website), Myfxbook track records, and independent reviews. Be skeptical: only count win rates from third-party verified sources.
+    prompt: (name) => `You are a trading-signals research analyst. Research the signal group "${name}" using its official channels (Telegram, Discord, website), publicly available verified track records, and community-reported feedback. Be skeptical: only count win rates from independently verified sources. Do NOT name third-party review sites or aggregators in any visible text — use neutral phrasing like "publicly verified track record" instead.
 
 ${baseRules}
 
@@ -907,7 +915,7 @@ ${baseRules}
   "win_rate": number 0-100,
   "monthly_signals": "30+",
   "avg_rr": "1:2",
-  "track_record": "Verified by Myfxbook (link)" | null,
+  "track_record": "Publicly verified track record (link in sources)" | null,
   "members": "10K+",
   "verified": boolean,
   "telegram_url": "https://t.me/..." | null,
@@ -928,7 +936,7 @@ Signal group to research: ${name}`,
       win_rate: 78,
       monthly_signals: "20+",
       avg_rr: "1:2",
-      track_record: "Myfxbook verified",
+      track_record: "Publicly verified track record",
       members: "5K",
       verified: true,
       telegram_url: "https://t.me/example",
@@ -965,7 +973,7 @@ Signal group to research: ${name}`,
     label: "Scam Alert",
     description: "Documented warning about a fraudulent broker / signal / firm",
     table: "scam_alerts",
-    prompt: (name) => `You are a fraud-investigation analyst. Research scam reports for "${name}" using regulator warning lists (FCA Warning List, CySEC, ASIC, SEC), ForexPeaceArmy complaints, Trustpilot 1-star reviews, and Reddit threads.
+    prompt: (name) => `You are a fraud-investigation analyst. Research scam reports for "${name}" using regulator warning lists (FCA Warning List, CySEC, ASIC, SEC), Trustpilot 1-star reviews, and publicly reported complaint records. NEVER name third-party review sites, forums, or community platforms in visible text — refer to them generically as "public complaint records", "publicly reported broker analysis", or "community-reported feedback". Trustpilot is the only third-party brand you may name.
 
 ${baseRules}
 
