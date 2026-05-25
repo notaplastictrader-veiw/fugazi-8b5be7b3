@@ -488,63 +488,307 @@ Broker name: ${name}`,
   {
     key: "prop_firm",
     label: "Prop Firm",
-    description: "Proprietary trading firm / funded-trader challenge",
+    description: "Proprietary trading firm / funded-trader challenge (v4.8 full review)",
     table: "brokers",
-    prompt: (name) => `You are a proprietary-trading-firm research analyst. Research the prop firm "${name}" using its official website, Trustpilot, Propfirmmatch, and at least two independent reviews.
+    prompt: (name) => `You are NAFT's senior prop-firm analyst writing for the trader who typed "${name} review" before paying for a challenge. You have 10+ years inside the funded-trader industry. Follow NAFT Master Prompt v4.8 adapted for prop firms.
+
+RESEARCH PROTOCOL (complete before writing):
+- Tier 1 primary sources only: the firm's official website (rules PDF, FAQ, T&Cs, payout page), Trustpilot, and the firm's official Discord/Telegram announcements. If the firm publishes a public payout proof page or third-party verification (e.g. Plus500 audit, broker partnership), cite it.
+- Verify: profit target %, daily/max drawdown %, min trading days, payout schedule, profit split, scaling plan, news/weekend/EA restrictions, refund policy, prohibited strategies (hedging, copy-trading, HFT/latency arb).
+- Verify the backing broker / liquidity (e.g. Purple Trading, ThinkMarkets, Eightcap, Match-Trader, DXtrade) — many firms route to a real regulated broker; name it.
+- If a field cannot be confirmed from a primary source, use "" / [] / null. Never invent.
+
+FACTUALITY RULES (non-negotiable):
+- Word count: 2,200–3,500 across body sections.
+- Never use "guaranteed payout", "100% safe", "no rules". Always include risk language: prop trading is high-failure (industry pass rate < 10% for 2-step).
+- All challenge fees must match the firm's current public pricing.
+
+⚡ v4.8 PROP-FIRM KILL-SWITCH:
+- If the firm has filed bankruptcy, halted payouts, lost its broker, been delisted by MyForexFunds/FPFX/Eightcap-style cutoffs, or is the subject of an ongoing regulator action / mass refund crisis, set top-level "warning_note" starting with "AVOID" or "WARNING" — name the event, date, and consequence (e.g. "AVOID — firm halted payouts on 2024-09-12 after broker Eightcap terminated the partnership. Active funded accounts are frozen.").
+- Otherwise leave "warning_note" empty ("").
+
+VOICE: Direct, skeptical, helpful. One funded trader talking to another. No "best prop firm", "legit", "trusted" filler.
+
+OUTPUT — TWO JSON OBJECTS, in this exact order, concatenated (no array wrapper, no markdown fences):
+
+  1. **prop_firm_payload** — the full row for public.brokers. NOTE: "type" MUST be exactly "prop-firm" (hyphenated — this is what the /prop-firms page filters on). Sections array MUST contain these 8 ids in order: quick-verdict, challenge-rules, drawdown-risk-rules, payout-proof, scaling-plan, platforms-broker, pros-cons, final-verdict.
+
+  2. **editorial_review_row** — sidecar for public.reviews (same shape as broker reviews).
 
 ${baseRules}
 
-Return a JSON object. Note: "type" MUST be "prop". Use the "account_types" field to describe challenge tiers (e.g., $10K, $25K, $100K).
+Return a single JSON object with this exact shape, then a second editorial_review_row object:
 
 {
   "name": "string",
   "slug": "lowercase-hyphenated",
-  "type": "prop",
+  "type": "prop-firm",
   "founded_year": number | null,
   "headquarters": "City, Country" | null,
-  "website_url": "https://...",
-  "description": "2-4 sentences",
-  "regulation": ["..."] (often empty for prop firms; include any if applicable),
-  "min_deposit": "$10K-$200K (challenge fee from $50)",
+  "website_url": "https://..." | null,
+  "description": "2-4 sentence neutral overview of model + backing broker.",
+  "regulation": ["Czech NB", "ASIC (via backing broker)"] | [],
+  "license_number": null,
+  "min_deposit": "From $89 (10K challenge) – $1,080 (200K)",
   "leverage": "1:100",
-  "avg_spread": "Raw / Standard depending on broker",
+  "avg_spread": "Raw (cTrader) / 0.6 pip avg EURUSD",
   "score": number 0-10,
   "stars": number 0-5,
-  "account_types": [{ "name": "$10K Challenge", "min_deposit": "$89 fee", "spread_from": "Raw", "commission": "Profit split 80%" }],
-  "platforms": ["MT4", "MT5", "cTrader"],
-  "payment_methods": ["Card", "Crypto"],
+  "account_types": [
+    { "name": "$10K Challenge", "min_deposit": "$89 fee", "spread_from": "Raw", "commission": "$3.5/lot, 80% split" },
+    { "name": "$25K Challenge", "min_deposit": "$189 fee", "spread_from": "Raw", "commission": "$3.5/lot, 80% split" },
+    { "name": "$100K Challenge", "min_deposit": "$540 fee", "spread_from": "Raw", "commission": "$3.5/lot, 80–90% split" }
+  ],
+  "platforms": ["MT4", "MT5", "cTrader", "DXtrade", "Match-Trader"],
+  "payment_methods": ["Card", "Crypto", "Bank Wire"],
+  "payment_method_details": [
+    { "method": "Card", "min": "$89", "processing": "Instant", "fee": "Free" },
+    { "method": "Crypto (USDT)", "min": "$89", "processing": "Instant", "fee": "Free" }
+  ],
   "pros": ["..."],
   "cons": ["..."],
-  "support_email": "...",
-  "withdrawal_time": "...",
-  "tags": ["prop"],
+  "support_email": "support@firm.com" | null,
+  "support_phone": null,
+  "withdrawal_time": "Bi-weekly, 1–3 days after request" | null,
+  "withdrawal_fee": "Free" | null,
+  "warning_note": "" | "AVOID/WARNING — ...",
+  "tags": ["prop", "2-step", "instant-funding", "no-time-limit", "discount", "1-step"],
   "badge": "verified" | "featured" | "warning" | "none",
-  "sources": ["..."]
+  "promo_label": "20% off all challenges" | null,
+  "promo_code": "NAFT20" | null,
+  "affiliate_url": "https://..." | null,
+
+  "long_review": {
+    "schema_version": "4.8",
+    "hot_take": "2–4 sentence editorial punch. Tell the trader in 5 seconds if this challenge is passable and worth the fee — name the rule that kills most traders.",
+    "telegram_summary": "2-line shareable summary for Telegram/WhatsApp.",
+    "seo_audit": {
+      "primary_keyword_count": 0,
+      "firm_name_count": 0,
+      "year_mentioned_count": 0,
+      "question_headings_count": 0,
+      "faq_items_count": 0,
+      "internal_links_count": 0,
+      "affiliate_cta_included": true,
+      "legit_keyword_present": false,
+      "all_tone_rules_applied": true
+    },
+    "verdict": {
+      "tldr": "One-breath summary: who this firm is for + the headline trade-off (e.g. cheap fee but brutal 5% daily DD).",
+      "summary": "Longer paragraph (optional).",
+      "best_for": "Swing traders who hold positions 2–5 days",
+      "not_ideal_for": "News scalpers and EA-only traders",
+      "bottom_line": "Closing one-line take.",
+      "star_rating": 4.2,
+      "trust_score": 8.0,
+      "trust_breakdown": [
+        { "label": "Payout reliability", "score": 9, "max": 10, "weight": 0.3 },
+        { "label": "Rule fairness", "score": 7, "max": 10, "weight": 0.2 },
+        { "label": "Backing broker quality", "score": 8, "max": 10, "weight": 0.2 },
+        { "label": "Platform / execution", "score": 8, "max": 10, "weight": 0.15 },
+        { "label": "Community sentiment", "score": 7, "max": 10, "weight": 0.15 }
+      ]
+    },
+    "at_a_glance": {
+      "model": "2-step evaluation",
+      "profit_target": "Phase 1: 10% | Phase 2: 5%",
+      "max_daily_drawdown": "5%",
+      "max_overall_drawdown": "10% (static)",
+      "min_trading_days": "4 days per phase",
+      "time_limit": "Unlimited",
+      "profit_split": "80% (up to 90% after scaling)",
+      "payout_frequency": "Bi-weekly on demand",
+      "first_payout": "After 14 days from first trade",
+      "news_trading": "Allowed",
+      "weekend_holding": "Allowed",
+      "ea_allowed": "Yes (no HFT / latency arb)",
+      "platforms": "MT4, MT5, cTrader",
+      "backing_broker": "Purple Trading (CySEC) / ThinkMarkets (ASIC)"
+    },
+    "geo": {
+      "accepted": ["Bangladesh", "India", "Pakistan", "UAE", "Saudi Arabia", "EU", "UK"],
+      "excluded": ["United States", "Canada", "Iran", "North Korea", "Syria"]
+    },
+    "sections": [
+      {
+        "id": "quick-verdict",
+        "heading": "Is <Firm> Worth the Challenge Fee in 2026?",
+        "body": "2–4 paragraphs. Name the rule that kills most traders. Use blank line between paragraphs."
+      },
+      {
+        "id": "challenge-rules",
+        "heading": "Challenge Rules & Pricing",
+        "body": "Explain phase structure, targets, min trading days, time limit, refund policy.",
+        "table": {
+          "headers": ["Account", "Fee", "Phase 1 Target", "Phase 2 Target", "Daily DD", "Max DD"],
+          "rows": [
+            ["$10K", "$89", "10%", "5%", "5%", "10%"],
+            ["$25K", "$189", "10%", "5%", "5%", "10%"],
+            ["$100K", "$540", "10%", "5%", "5%", "10%"],
+            ["$200K", "$1,080", "10%", "5%", "5%", "10%"]
+          ],
+          "footnote": "Fees refunded with first payout (if Funded)."
+        }
+      },
+      {
+        "id": "drawdown-risk-rules",
+        "heading": "Drawdown & Risk Rules (the part that kills accounts)",
+        "body": "Explain daily DD calc (balance vs equity, EOD vs intraday), trailing vs static max DD, consistency rule, lot-size cap, prohibited strategies (HFT, latency arb, copy-trading, group hedging).",
+        "bullets": [
+          "Daily DD calculated on equity, resets 00:00 server time",
+          "Max DD is static from initial balance (does not trail)",
+          "Consistency rule: no single day > 30% of total profit",
+          "Prohibited: HFT, tick scalping, reverse arbitrage"
+        ]
+      },
+      {
+        "id": "payout-proof",
+        "heading": "Payouts — Speed, Proof & Reliability",
+        "body": "Cite Trustpilot payout mentions, Discord/Telegram payout-proof channel, and processing time. Note any historical halts.",
+        "table": {
+          "headers": ["Metric", "Value", "Source"],
+          "rows": [
+            ["First payout after", "14 days", "Official rules"],
+            ["Payout cycle", "Every 14 days on demand", "Official rules"],
+            ["Processing time", "1–3 business days", "Trustpilot review sample"],
+            ["Profit split", "80% (90% scaled)", "Official rules"]
+          ]
+        }
+      },
+      {
+        "id": "scaling-plan",
+        "heading": "Scaling Plan & Account Growth",
+        "body": "How accounts grow (e.g. +25% capital every 4 months at 10% profit). Max scale cap. Whether split increases.",
+        "bullets": [
+          "+25% capital every 4 consecutive profitable months",
+          "Profit split increases to 90% after first scaling",
+          "Max scaled balance: $2M"
+        ]
+      },
+      {
+        "id": "platforms-broker",
+        "heading": "Platforms & Backing Broker",
+        "body": "Which platforms, which broker the funded account routes to, raw vs marked-up spreads, commission per lot.",
+        "table": {
+          "headers": ["Platform", "Spread Type", "Commission/Lot", "Backing Broker"],
+          "rows": [
+            ["MT4 / MT5", "Raw", "$3.5", "Purple Trading (CySEC)"],
+            ["cTrader", "Raw", "$3.0", "ThinkMarkets (ASIC)"]
+          ]
+        }
+      },
+      {
+        "id": "pros-cons",
+        "heading": "Pros & Cons",
+        "for": ["Bi-weekly payouts proven on Trustpilot", "No time limit on challenge", "News + weekend holding allowed"],
+        "not_for": ["Tight 5% daily DD punishes scalpers", "Consistency rule limits all-in trades", "US residents excluded"]
+      },
+      {
+        "id": "final-verdict",
+        "heading": "Final Verdict",
+        "body": "Closing editorial paragraph + recommended next step (which account size to start with, or skip)."
+      }
+    ],
+    "affiliate_cta": {
+      "label": "Start <Firm> Challenge",
+      "url": "https://...",
+      "promo_code": "NAFT20",
+      "friction_reducers": ["From $89 challenge fee", "Unlimited time", "80% split", "Bi-weekly payouts"]
+    },
+    "trustpilot": { "rating": 4.6, "reviews": 8420, "source_note": "Trustpilot, fetched manually." },
+    "faq": [
+      { "q": "How long does <Firm> take to pay out?", "a": "1–3 business days after request, bi-weekly cycle." },
+      { "q": "Can I use EAs on <Firm>?", "a": "Yes, but HFT and latency arbitrage are prohibited." },
+      { "q": "Is the challenge fee refunded?", "a": "Yes, with the first payout once you become Funded." }
+    ],
+
+    "author": {
+      "name": "Editorial reviewer name",
+      "role": "Senior Prop-Firm Analyst",
+      "bio": "Short 1-2 sentence bio establishing prop-trading expertise.",
+      "experience_years": 10,
+      "avatar_url": "https://...",
+      "sameAs": ["https://linkedin.com/in/...", "https://x.com/..."]
+    },
+    "toc": [
+      { "id": "quick-verdict", "label": "Quick Verdict" },
+      { "id": "challenge-rules", "label": "Challenge Rules" },
+      { "id": "drawdown-risk-rules", "label": "Drawdown Rules" },
+      { "id": "payout-proof", "label": "Payout Proof" },
+      { "id": "scaling-plan", "label": "Scaling Plan" }
+    ],
+    "social_snippet": {
+      "x": "Short tweet under 240 chars with the headline trade-off.",
+      "whatsapp": "Forwardable one-liner with the trust score + key rule.",
+      "telegram": "Punchy 2-line summary for Telegram channels."
+    },
+    "comparison_block": {
+      "headline": "How <Firm> stacks up against other prop firms",
+      "brokers": [
+        { "slug": "ftmo", "name": "FTMO", "score": 8.8, "verdict": "Stricter consistency rule, longer payout history." },
+        { "slug": "the5ers", "name": "The5%ers", "score": 8.2, "verdict": "Lower targets, smaller starting capital." }
+      ]
+    },
+    "regulatory_risk_warning": "Proprietary trading challenges are high-risk. Industry-wide, fewer than 10% of traders pass 2-step evaluations. Challenge fees are non-refundable unless you reach Funded status.",
+    "conflict_note": "NAFT may earn a commission if you start a challenge via our link. This never affects the review.",
+    "last_human_review_at": "2026-05-25",
+    "image_assets": [
+      { "url": "https://...", "alt": "Specific descriptive alt text", "caption": "Optional caption", "section_id": "payout-proof" }
+    ],
+    "schema_jsonld": {
+      "review": { "@context": "https://schema.org", "@type": "Review", "datePublished": "2026-05-25", "dateModified": "2026-05-25" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": 4.2, "reviewCount": 8420 },
+      "breadcrumbList": { "@type": "BreadcrumbList", "itemListElement": [] },
+      "organization": { "@type": "Organization", "name": "<Firm>", "sameAs": ["https://..."] }
+    },
+    "reading_time_minutes": 7,
+    "word_count": 1500
+  },
+
+  "sources": ["https://...", "https://..."]
+}
+
+{
+  "editorial_review_row": {
+    "broker_slug": "<same-slug-as-above>",
+    "author": "NAFT Editorial",
+    "role": "editor",
+    "rating": 4.2,
+    "content": "150–250 word signed editorial opinion. Open with what the firm IS (model + backing broker + years), name the rule that trips most traders, and end with who should/should not pay the fee. No marketing fluff.",
+    "verified_account": true,
+    "status": "published"
+  }
 }
 
 Prop firm to research: ${name}`,
     example: {
       name: "FTMO",
       slug: "ftmo",
-      type: "prop",
+      type: "prop-firm",
       founded_year: 2015,
       headquarters: "Prague, Czech Republic",
       website_url: "https://ftmo.com",
-      description: "Established prop firm offering 2-step evaluations.",
-      regulation: ["Czech NB"],
-      min_deposit: "From $89 (10K challenge)",
+      description: "Established 2-step prop firm backing accounts via Purple Trading (CySEC) and ThinkMarkets (ASIC). Offers $10K–$200K challenges with bi-weekly payouts and an 80–90% profit split.",
+      regulation: ["Czech NB", "Purple Trading (CySEC) — backing broker"],
+      min_deposit: "From $89 (10K) – $1,080 (200K)",
       leverage: "1:100",
       avg_spread: "Raw",
       score: 8.8,
       stars: 4.4,
-      account_types: [{ name: "$10K", min_deposit: "$89 fee", spread_from: "Raw", commission: "80% profit split" }],
-      platforms: ["MT4", "MT5", "cTrader"],
-      payment_methods: ["Card", "Crypto"],
-      pros: ["Trusted brand"],
-      cons: ["Strict daily loss limit"],
-      tags: ["prop"],
+      account_types: [
+        { name: "$10K", min_deposit: "$89 fee", spread_from: "Raw", commission: "$3.5/lot, 80% split" },
+        { name: "$100K", min_deposit: "$540 fee", spread_from: "Raw", commission: "$3.5/lot, 80–90% split" },
+      ],
+      platforms: ["MT4", "MT5", "cTrader", "DXtrade"],
+      payment_methods: ["Card", "Crypto", "Bank Wire"],
+      pros: ["Bi-weekly payouts proven on Trustpilot", "Refunded fee with first payout", "News + weekend holding allowed"],
+      cons: ["5% daily DD is brutal for scalpers", "Strict consistency rule", "US residents excluded"],
+      support_email: "support@ftmo.com",
+      withdrawal_time: "Bi-weekly, 1–3 business days",
+      warning_note: "",
+      tags: ["prop", "2-step", "no-time-limit"],
       badge: "verified",
-      sources: ["https://ftmo.com"],
+      sources: ["https://ftmo.com", "https://trustpilot.com/review/ftmo.com"],
     },
     schema: {
       table: "brokers",
@@ -552,12 +796,13 @@ Prop firm to research: ${name}`,
       fields: {
         name: { type: "string", required: true },
         slug: { type: "string", required: true },
-        type: { type: "string", required: true, enum: ["prop"] },
+        type: { type: "string", required: true, enum: ["prop-firm"] },
         founded_year: { type: "number" },
         headquarters: { type: "string" },
         website_url: { type: "url" },
         description: { type: "string" },
         regulation: { type: "array", itemType: "string" },
+        license_number: { type: "string" },
         min_deposit: { type: "string" },
         leverage: { type: "string" },
         avg_spread: { type: "string" },
@@ -566,12 +811,20 @@ Prop firm to research: ${name}`,
         account_types: { type: "array" },
         platforms: { type: "array", itemType: "string" },
         payment_methods: { type: "array", itemType: "string" },
+        payment_method_details: { type: "array" },
         pros: { type: "array", itemType: "string" },
         cons: { type: "array", itemType: "string" },
         support_email: { type: "string" },
+        support_phone: { type: "string" },
         withdrawal_time: { type: "string" },
+        withdrawal_fee: { type: "string" },
+        warning_note: { type: "string" },
         tags: { type: "array", itemType: "string" },
         badge: { type: "string", enum: ["verified", "featured", "warning", "none"] },
+        promo_label: { type: "string" },
+        promo_code: { type: "string" },
+        affiliate_url: { type: "url" },
+        long_review: { type: "object" },
       },
     },
   },
