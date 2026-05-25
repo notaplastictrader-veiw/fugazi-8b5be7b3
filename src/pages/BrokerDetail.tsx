@@ -478,7 +478,7 @@ const BrokerDetail = () => {
             const propMaxDD = ag.max_overall_drawdown || "—";
             // Short-form helpers: numbers-only, no verbose descriptions
             const shortPercentRange = (raw: string) => {
-              const nums = (raw.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+              const nums = (raw.match(/(\d+(?:\.\d+)?)\s*%/g) || []).map(s => parseFloat(s));
               if (!nums.length) return raw;
               const min = Math.min(...nums), max = Math.max(...nums);
               return min === max ? `${min}%` : `${min}-${max}%`;
