@@ -486,8 +486,11 @@ const BrokerDetail = () => {
             const shortMoneyRange = (raw: string) => {
               const matches = raw.match(/[€$£¥₹]\s?[\d,]+(?:\.\d+)?[KMk]?/g);
               if (!matches?.length) return raw;
-              if (matches.length === 1) return matches[0].replace(/\s/g, "");
-              return `${matches[0].replace(/\s/g, "")}–${matches[matches.length - 1].replace(/\s/g, "")}`;
+              // Keep only same-currency matches as the first one to avoid mixed-currency ranges
+              const sym = matches[0][0];
+              const same = matches.filter(m => m[0] === sym).map(m => m.replace(/\s/g, ""));
+              if (same.length === 1) return same[0];
+              return `${same[0]}–${same[same.length - 1]}`;
             };
             const shortFreq = (raw: string) => {
               const m = raw.match(/\b(daily|weekly|bi[- ]?weekly|monthly|on[- ]?demand|on demand|14 days?|7 days?|every \d+ days?)\b/i);
@@ -613,7 +616,7 @@ const BrokerDetail = () => {
 
                       <NaftVerificationBanner
                         verified={broker.naft_verified}
-                        entityLabel="broker"
+                        entityLabel={broker.type === "prop-firm" ? "prop firm" : broker.type === "betting-site" ? "betting site" : broker.type === "signal-provider" ? "signal provider" : "broker"}
                         className="mt-4"
                       />
 
