@@ -445,6 +445,16 @@ const BrokerDetail = () => {
       {broker.long_review?.schema_jsonld?.organization && <JsonLd data={broker.long_review.schema_jsonld.organization} />}
       <div className="min-h-screen pt-6 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
+          {/* v4.8/4.9 Kill-switch banner — fires when warning_note starts with AVOID or WARNING */}
+          {broker.warning_note && /^(avoid|warning)/i.test(broker.warning_note.trim()) && (
+            <div className="mb-4 rounded-lg border-2 border-destructive bg-destructive/10 px-4 py-3 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-destructive" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-destructive font-bold mb-1">NAFT Kill-Switch</p>
+                <p className="text-sm text-destructive font-semibold leading-relaxed">{broker.warning_note}</p>
+              </div>
+            </div>
+          )}
           {broker.long_review?.regulatory_risk_warning && (
             <div className="mb-4 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs font-mono text-amber-700 dark:text-amber-400 flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
@@ -460,13 +470,19 @@ const BrokerDetail = () => {
             // Clean headline numbers — numbers only, no descriptive words
             const cleanSpread = (raw?: string) => formatSpreadNumber(raw);
             const cleanLeverage = (raw?: string) => formatLeverageNumber(raw);
+            // Pull prop-firm specifics from long_review.at_a_glance / account_types when available
+            const ag = (broker.long_review?.at_a_glance ?? {}) as Record<string, any>;
+            const firstAcct = Array.isArray(broker.account_types) ? broker.account_types[0] : null;
+            const propProfitSplit = ag.profit_split || firstAcct?.profit_split || "—";
+            const propPayoutFreq = ag.payout_frequency || broker.withdrawal_time || "—";
+            const propMaxDD = ag.max_overall_drawdown || "—";
             const stats = isProp
               ? [
-                  { label: "Account Size", value: "$2K – $200K" },
+                  { label: "Challenge Fee", value: broker.min_deposit || "—" },
                   { label: "Max Leverage", value: cleanLeverage(broker.leverage) || "1:100" },
-                  { label: "Start From", value: "$32.99" },
-                  { label: "Profit Split", value: "80% to 95%" },
-                  { label: "Payout Speed", value: "Same Day" },
+                  { label: "Profit Split", value: propProfitSplit },
+                  { label: "Max DD", value: propMaxDD },
+                  { label: "Payouts", value: propPayoutFreq },
                 ]
               : [
                   { label: "Min Deposit", value: formatMinDepositNumber(broker.min_deposit) },

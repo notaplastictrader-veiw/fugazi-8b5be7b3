@@ -112,7 +112,7 @@ const PropFirms = () => {
                         {broker.badge === "verified" && <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border rounded-full text-primary bg-primary/10 border-primary/20"><Shield className="w-3 h-3" /> Verified</span>}
                       </div>
                       <div className="grid grid-cols-3 gap-3 mb-4 text-center">
-                        <div><div className="text-xs text-muted-foreground">Min Deposit</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit}</div></div>
+                        <div><div className="text-xs text-muted-foreground">Challenge Fee</div><div className="text-sm font-mono font-semibold text-foreground">{broker.min_deposit || "—"}</div></div>
                         <div><div className="text-xs text-muted-foreground">Leverage</div><div className="text-sm font-mono font-semibold text-foreground">{formatLeverageNumber(broker.leverage)}</div></div>
                         <div><div className="text-xs text-muted-foreground">Score</div><div className="text-sm font-mono font-semibold text-foreground">{broker.score}/10</div></div>
                       </div>
