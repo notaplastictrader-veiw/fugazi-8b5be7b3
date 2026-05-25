@@ -232,9 +232,9 @@ const ImportJsonAdmin = () => {
               <Select value={brokerMode} onValueChange={(v) => setBrokerMode(v as BrokerImportMode)}>
                 <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="smart-merge">Smart merge (recommended)</SelectItem>
+                  <SelectItem value="insert">Always insert (recommended — auto-replace on duplicate slug)</SelectItem>
+                  <SelectItem value="smart-merge">Smart merge</SelectItem>
                   <SelectItem value="overwrite">Overwrite all fields</SelectItem>
-                  <SelectItem value="insert">Always insert (auto-replace on duplicate slug)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
