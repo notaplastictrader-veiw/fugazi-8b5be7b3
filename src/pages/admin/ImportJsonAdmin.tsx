@@ -30,6 +30,9 @@ const ImportJsonAdmin = () => {
   const [inserting, setInserting] = useState(false);
   const [brokerMode, setBrokerMode] = useState<BrokerImportMode>("smart-merge");
   const [autoPublish, setAutoPublish] = useState(false);
+  const [aiBrokerName, setAiBrokerName] = useState("");
+  const [aiModel, setAiModel] = useState("google/gemini-2.5-pro");
+  const [generating, setGenerating] = useState(false);
 
   const entity = useMemo(() => getEntity(entityKey)!, [entityKey]);
   const isBroker = entity.table === "brokers";
