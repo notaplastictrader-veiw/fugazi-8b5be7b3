@@ -1914,7 +1914,7 @@ const BrokerDetail = () => {
                   if (!numMatch) return s;
                   const n = parseFloat(numMatch[1]);
                   if (isNaN(n)) return s;
-                  if (n < 1) return `~${Math.round(n * 24)}h`;
+                  if (n < 1) return `~${Math.ceil(n * 24)}h`;
                   return n === 1 ? "1 day" : `${n} days`;
                 })(), sub: "Time to receive" },
                 { k: "Denial Reports (90d)", v: pv.payout_denial_reports_90d != null ? String(pv.payout_denial_reports_90d) : "—", sub: "Rule-breach excluded" },
