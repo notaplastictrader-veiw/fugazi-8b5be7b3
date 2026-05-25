@@ -1807,85 +1807,46 @@ const BrokerDetail = () => {
             })()}
 
             {/* ===== PROP-FIRM: CHALLENGES TAB ===== */}
-            {broker.type === "prop-firm" && (
+            {broker.type === "prop-firm" && (() => {
+              const lr: any = (broker as any).long_review || {};
+              const aag: any = lr.at_a_glance || {};
+              const ctaUrl = (broker as any).affiliate_url || broker.website_url;
+              const realChallenges: any[] = Array.isArray(lr.challenges) ? lr.challenges : [];
+              const demoChallenges = [
+                { name: `${broker.name} 1-Step Challenge`, type: "One Phase", badge: "Beginner Friendly", maxDD: aag.max_overall_drawdown || "6.00%", dailyDD: aag.max_daily_drawdown || "3.00%", target: aag.profit_target || "10%", sizes: [
+                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
+                ] },
+                { name: `${broker.name} 2-Step Challenge`, type: "Two Phase", badge: "Most Popular", maxDD: aag.max_overall_drawdown || "10.00%", dailyDD: aag.max_daily_drawdown || "5.00%", target: aag.profit_target || "8% – 5%", sizes: [
+                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
+                ] },
+              ];
+              const plans = realChallenges.length > 0 ? realChallenges : demoChallenges;
+              return (
               <TabsContent value="challenges" className="mt-6 space-y-6">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Trophy className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-display font-bold text-foreground">Available Challenges</h2>
-                  <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">Demo pricing</span>
+                <div className="glass-card rounded-xl p-4 flex items-start gap-3 flex-wrap">
+                  <Trophy className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-[200px]">
+                    <h2 className="text-xl font-display font-bold text-foreground">Available Challenges</h2>
+                    <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                      Live pricing &amp; phases change frequently — always confirm on the official {broker.name} site before purchase.
+                    </p>
+                  </div>
+                  {ctaUrl && (
+                    <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
+                      className="text-[10px] font-mono uppercase tracking-wider px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                      View Live Pricing →
+                    </a>
+                  )}
                 </div>
 
-                {([
-                  {
-                    name: "Stellar 1-Step Challenge",
-                    type: "One Phase Challenge",
-                    badge: "Beginner Friendly",
-                    maxDD: "6.00%",
-                    dailyDD: "3.00%",
-                    target: "10%",
-                    sizes: [
-                      { size: "6,000", fee: "$65.99" },
-                      { size: "15,000", fee: "$129.99" },
-                      { size: "25,000", fee: "$219.99" },
-                      { size: "50,000", fee: "$329.99" },
-                      { size: "100,000", fee: "$569.99" },
-                      { size: "200,000", fee: "$1099.99" },
-                    ],
-                  },
-                  {
-                    name: "Stellar 2-Step Challenge",
-                    type: "Two Phase Challenge",
-                    badge: "Beginner Friendly",
-                    maxDD: "10.00%",
-                    dailyDD: "5.00%",
-                    target: "8% – 5%",
-                    sizes: [
-                      { size: "6,000", fee: "$59.99" },
-                      { size: "15,000", fee: "$119.99" },
-                      { size: "25,000", fee: "$199.99" },
-                      { size: "50,000", fee: "$299.99" },
-                      { size: "100,000", fee: "$549.99" },
-                      { size: "200,000", fee: "$1099.99" },
-                    ],
-                  },
-                  {
-                    name: "Stellar Lite Challenge",
-                    type: "Two Phase Challenge",
-                    badge: "Beginner Friendly",
-                    maxDD: "8.00%",
-                    dailyDD: "4.00%",
-                    target: "8% – 4%",
-                    sizes: [
-                      { size: "5,000", fee: "$32.99" },
-                      { size: "10,000", fee: "$59.99" },
-                      { size: "25,000", fee: "$139.99" },
-                      { size: "50,000", fee: "$229.99" },
-                      { size: "100,000", fee: "$339.99" },
-                      { size: "200,000", fee: "$798.99" },
-                    ],
-                  },
-                  {
-                    name: "Stellar Instant",
-                    type: "Instant Funding",
-                    badge: "Beginner Friendly",
-                    maxDD: "6.00%",
-                    dailyDD: "0.00%",
-                    target: "—",
-                    sizes: [
-                      { size: "2,000", fee: "$59.99" },
-                      { size: "5,000", fee: "$149.99" },
-                      { size: "10,000", fee: "$299.99" },
-                      { size: "20,000", fee: "$599.99" },
-                    ],
-                  },
-                ]).map((plan) => (
+                {plans.map((plan: any) => (
                   <div key={plan.name} className="glass-card rounded-xl p-5 md:p-6">
                     <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
                       <div>
                         <h3 className="text-lg font-display font-extrabold text-foreground">{plan.name}</h3>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary text-foreground border border-border">{plan.type}</span>
-                          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{plan.badge}</span>
+                          {plan.type && <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-secondary text-foreground border border-border">{plan.type}</span>}
+                          {plan.badge && <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">{plan.badge}</span>}
                         </div>
                       </div>
                     </div>
@@ -1906,21 +1867,21 @@ const BrokerDetail = () => {
                     </div>
 
                     <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="text-sm font-display font-bold text-foreground">Account Sizes &amp; Pricing</div>
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">One-Time Fee · No Hidden Charges</div>
+                      <div className="text-sm font-display font-bold text-foreground">Account Sizes</div>
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Confirm fee on official site</div>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {plan.sizes.map((s) => (
+                      {plan.sizes.map((s: any) => (
                         <div key={s.size} className="p-3 bg-background/50 border border-border/40 rounded-lg flex flex-col items-center gap-1">
                           <div className="text-base font-display font-extrabold text-foreground">${s.size}</div>
-                          <div className="text-xs font-mono text-primary">{s.fee}</div>
-                          {broker.website_url ? (
-                            <a href={broker.website_url} target="_blank" rel="noopener noreferrer sponsored" className="mt-1 w-full text-center text-[11px] font-semibold py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition">
-                              Buy Now
+                          {s.fee && s.fee !== "—" && <div className="text-xs font-mono text-primary">{s.fee}</div>}
+                          {ctaUrl ? (
+                            <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored" className="mt-1 w-full text-center text-[11px] font-semibold py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                              Get Funded →
                             </a>
                           ) : (
-                            <button disabled className="mt-1 w-full text-[11px] font-semibold py-1.5 rounded-md bg-muted text-muted-foreground">Buy Now</button>
+                            <button disabled className="mt-1 w-full text-[11px] font-semibold py-1.5 rounded-md bg-muted text-muted-foreground">Visit Site</button>
                           )}
                         </div>
                       ))}
@@ -1929,30 +1890,44 @@ const BrokerDetail = () => {
                 ))}
 
                 <p className="text-[11px] font-mono text-muted-foreground/80 leading-relaxed">
-                  Demo plans shown for illustration. Live pricing &amp; phases will populate once {broker.name} verifies the listing.
+                  For accurate, up-to-date pricing and challenge rules, always confirm with {broker.name} directly.
                 </p>
               </TabsContent>
-            )}
+              );
+            })()}
 
             {/* ===== PROP-FIRM: PAYOUTS TAB ===== */}
-            {broker.type === "prop-firm" && (
+            {broker.type === "prop-firm" && (() => {
+              const lr: any = (broker as any).long_review || {};
+              const pv: any = lr.payout_verification || {};
+              const aag: any = lr.at_a_glance || {};
+              const ctaUrl = (broker as any).affiliate_url || broker.website_url;
+              const hasReal = Object.keys(pv).length > 0;
+              const headline = [
+                { k: "Verified Payouts Seen", v: pv.verified_payouts_seen ? String(pv.verified_payouts_seen) : "—", sub: hasReal ? "NAFT-verified count" : "Pending verification" },
+                { k: "Largest Single Payout", v: pv.largest_single_payout_seen || "—", sub: "All-time recorded" },
+                { k: "Avg Processing", v: pv.average_processing_days ? `${pv.average_processing_days} days` : "—", sub: "Time to receive" },
+                { k: "Denial Reports (90d)", v: pv.payout_denial_reports_90d != null ? String(pv.payout_denial_reports_90d) : "—", sub: "Rule-breach excluded" },
+              ];
+              return (
               <TabsContent value="payouts" className="mt-6 space-y-6">
                 <div className="flex items-center gap-2 flex-wrap">
                   <Coins className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-display font-bold text-foreground">Payouts</h2>
-                  <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" /> LIVE
+                  <h2 className="text-xl font-display font-bold text-foreground">Payout Track Record</h2>
+                  <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    For accurate info always confirm with broker
                   </span>
+                  {ctaUrl && (
+                    <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
+                      className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                      Visit {broker.name} →
+                    </a>
+                  )}
                 </div>
 
                 {/* Headline payout stats */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {[
-                    { k: "Total Payouts", v: "$311.69M", sub: "$311,693,538.65" },
-                    { k: "No. of Payouts", v: "48,955", sub: "Verified on-chain" },
-                    { k: "Largest Single", v: "$7,492,465", sub: "All-time record" },
-                    { k: "Last Payout", v: "41m ago", sub: new Date().toLocaleDateString() },
-                  ].map((s) => (
+                  {headline.map((s) => (
                     <div key={s.k} className="glass-card rounded-xl p-4">
                       <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{s.k}</div>
                       <div className="text-xl font-display font-extrabold text-foreground mt-1">{s.v}</div>
@@ -1964,9 +1939,9 @@ const BrokerDetail = () => {
                 {/* Payout terms */}
                 <div className="grid sm:grid-cols-3 gap-3">
                   {[
-                    { k: "Payout Frequency", v: "On Demand", icon: Clock },
-                    { k: "Profit Split", v: "80% to 95%", icon: TrendingUp },
-                    { k: "Max Allocation", v: "$300K", icon: Coins },
+                    { k: "Payout Frequency", v: aag.payout_frequency || "—", icon: Clock },
+                    { k: "Profit Split", v: aag.profit_split || "—", icon: TrendingUp },
+                    { k: "First Payout", v: aag.first_payout_eligibility || "—", icon: Coins },
                   ].map(({ k, v, icon: Ic }) => (
                     <div key={k} className="glass-card rounded-xl p-4 flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -1980,19 +1955,35 @@ const BrokerDetail = () => {
                   ))}
                 </div>
 
-                <div className="glass-card rounded-xl p-5">
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Supported Methods</div>
-                  <div className="flex flex-wrap gap-2">
-                    {["Bank Wire", "USDT (TRC20)", "USDT (ERC20)", "Rise", "Deel", "Crypto BTC"].map(m => (
-                      <span key={m} className="px-3 py-1 text-xs font-mono bg-background/60 border border-border/40 rounded-full text-foreground">{m}</span>
-                    ))}
+                {(pv.payout_consistency_note || pv.denial_context || pv.verification_method) && (
+                  <div className="glass-card rounded-xl p-5 space-y-3">
+                    {pv.payout_consistency_note && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Consistency</div>
+                        <p className="text-sm text-foreground leading-relaxed">{pv.payout_consistency_note}</p>
+                      </div>
+                    )}
+                    {pv.denial_context && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Denial Context</div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{pv.denial_context}</p>
+                      </div>
+                    )}
+                    {pv.verification_method && (
+                      <div>
+                        <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Verification Method</div>
+                        <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">{pv.verification_method}</p>
+                      </div>
+                    )}
                   </div>
-                  <p className="text-[11px] font-mono text-muted-foreground/80 mt-3">
-                    Demo data — verified payout proofs from real traders appear in the gallery below the tabs.
-                  </p>
-                </div>
+                )}
+
+                <p className="text-[11px] font-mono text-muted-foreground/80">
+                  For accurate, current payout terms always confirm directly with {broker.name}.
+                </p>
               </TabsContent>
-            )}
+              );
+            })()}
 
             {/* ===== PROP-FIRM: FORUM TAB ===== */}
             {broker.type === "prop-firm" && (
