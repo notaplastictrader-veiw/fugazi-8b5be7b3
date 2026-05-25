@@ -1756,7 +1756,7 @@ const BrokerDetail = () => {
                       return (
                         <div className="ml-auto flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                            For accurate info always confirm with broker
+                            For accurate info always confirm with broker and public source or community
                           </span>
                           {ctaUrl && (
                             <a
@@ -1906,7 +1906,17 @@ const BrokerDetail = () => {
               const headline = [
                 { k: "Verified Payouts Seen", v: pv.verified_payouts_seen ? String(pv.verified_payouts_seen) : "—", sub: hasReal ? "NAFT-verified count" : "Pending verification" },
                 { k: "Largest Single Payout", v: pv.largest_single_payout_seen || "—", sub: "All-time recorded" },
-                { k: "Avg Processing", v: pv.average_processing_days ? `${pv.average_processing_days} days` : "—", sub: "Time to receive" },
+                { k: "Avg Processing", v: (() => {
+                  const raw = pv.average_processing_days;
+                  if (raw == null) return "—";
+                  const s = String(raw);
+                  const numMatch = s.match(/^\s*([\d.]+)/);
+                  if (!numMatch) return s;
+                  const n = parseFloat(numMatch[1]);
+                  if (isNaN(n)) return s;
+                  if (n < 1) return `~${Math.round(n * 24)}h`;
+                  return n === 1 ? "1 day" : `${n} days`;
+                })(), sub: "Time to receive" },
                 { k: "Denial Reports (90d)", v: pv.payout_denial_reports_90d != null ? String(pv.payout_denial_reports_90d) : "—", sub: "Rule-breach excluded" },
               ];
               return (
@@ -1915,7 +1925,7 @@ const BrokerDetail = () => {
                   <Coins className="w-5 h-5 text-primary" />
                   <h2 className="text-xl font-display font-bold text-foreground">Payout Track Record</h2>
                   <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    For accurate info always confirm with broker
+                    For accurate info always confirm with broker and public source or community
                   </span>
                   {ctaUrl && (
                     <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
