@@ -1858,15 +1858,9 @@ const BrokerDetail = () => {
               const aag: any = lr.at_a_glance || {};
               const ctaUrl = (broker as any).affiliate_url || broker.website_url;
               const realChallenges: any[] = Array.isArray(lr.challenges) ? lr.challenges : [];
-              const demoChallenges = [
-                { name: `${broker.name} 1-Step Challenge`, type: "One Phase", badge: "Beginner Friendly", maxDD: aag.max_overall_drawdown || "6.00%", dailyDD: aag.max_daily_drawdown || "3.00%", target: aag.profit_target || "10%", sizes: [
-                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
-                ] },
-                { name: `${broker.name} 2-Step Challenge`, type: "Two Phase", badge: "Most Popular", maxDD: aag.max_overall_drawdown || "10.00%", dailyDD: aag.max_daily_drawdown || "5.00%", target: aag.profit_target || "8% – 5%", sizes: [
-                  { size: "10,000", fee: "—" }, { size: "25,000", fee: "—" }, { size: "50,000", fee: "—" }, { size: "100,000", fee: "—" }, { size: "200,000", fee: "—" }, { size: "300,000", fee: "—" },
-                ] },
-              ];
-              const plans = realChallenges.length > 0 ? realChallenges : demoChallenges;
+              const hasRealChallenges = realChallenges.length > 0;
+              const plans = realChallenges;
+
               return (
               <TabsContent value="challenges" className="mt-6 space-y-6">
                 <div className="glass-card rounded-xl p-4 flex items-start gap-3 flex-wrap">
@@ -1884,6 +1878,22 @@ const BrokerDetail = () => {
                     </a>
                   )}
                 </div>
+
+                {!hasRealChallenges && (
+                  <div className="glass-card rounded-xl p-6 text-center">
+                    <Trophy className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <h3 className="text-base font-display font-bold text-foreground">Plan details being verified</h3>
+                    <p className="text-xs font-mono text-muted-foreground mt-2 max-w-md mx-auto">
+                      Live challenge pricing and rules for {broker.name} are not yet verified by NAFT. Confirm directly on the official site before purchasing.
+                    </p>
+                    {ctaUrl && (
+                      <a href={ctaUrl} target="_blank" rel="noopener noreferrer sponsored"
+                        className="inline-block mt-4 text-[11px] font-mono uppercase tracking-wider px-4 py-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition">
+                        View Official {broker.name} Pricing →
+                      </a>
+                    )}
+                  </div>
+                )}
 
                 {plans.map((plan: any) => (
                   <div key={plan.name} className="glass-card rounded-xl p-5 md:p-6">
@@ -1918,7 +1928,7 @@ const BrokerDetail = () => {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {plan.sizes.map((s: any) => (
+                      {(plan.sizes || []).map((s: any) => (
                         <div key={s.size} className="p-3 bg-background/50 border border-border/40 rounded-lg flex flex-col items-center gap-1">
                           <div className="text-base font-display font-extrabold text-foreground">${s.size}</div>
                           {s.fee && s.fee !== "—" && <div className="text-xs font-mono text-primary">{s.fee}</div>}
@@ -1939,6 +1949,7 @@ const BrokerDetail = () => {
                   For accurate, up-to-date pricing and challenge rules, always confirm with {broker.name} directly.
                 </p>
               </TabsContent>
+
               );
             })()}
 
