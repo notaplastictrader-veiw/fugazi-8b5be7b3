@@ -473,7 +473,7 @@ const BrokerDetail = () => {
             // Pull prop-firm specifics from long_review.at_a_glance / account_types when available
             const ag = (broker.long_review?.at_a_glance ?? {}) as Record<string, any>;
             const firstAcct = Array.isArray(broker.account_types) ? broker.account_types[0] : null;
-            const propProfitSplit = ag.profit_split || firstAcct?.profit_split || "—";
+            const propProfitSplit = ag.profit_split || (firstAcct as Record<string, any> | null)?.profit_split || "—";
             const propPayoutFreq = ag.payout_frequency || broker.withdrawal_time || "—";
             const propMaxDD = ag.max_overall_drawdown || "—";
             const stats = isProp
