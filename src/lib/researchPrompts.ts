@@ -617,6 +617,45 @@ Return a single JSON object with this exact shape, then a second editorial_revie
       "profit_target_short": "10% / 5%",
       "profit_split_short": "80–90%"
     },
+    "payout_verification": {
+      "verified_payouts_seen": 0,
+      "largest_single_payout_seen": "unverified",
+      "verification_method": "Trustpilot reviews + Discord #payouts channel",
+      "payout_denial_reports_90d": "unverified",
+      "denial_context": "",
+      "average_processing_days": "1-3",
+      "payout_consistency_note": ""
+    },
+    "challenges": [
+      {
+        "name": "FTMO Challenge (2-Step)",
+        "type": "Two Phase",
+        "badge": "Most Popular",
+        "maxDD": "10%",
+        "dailyDD": "5%",
+        "target": "10% / 5%",
+        "sizes": [
+          { "size": "10,000",  "fee": "€155" },
+          { "size": "25,000",  "fee": "€250" },
+          { "size": "50,000",  "fee": "€345" },
+          { "size": "100,000", "fee": "€540" },
+          { "size": "200,000", "fee": "€1,080" }
+        ]
+      },
+      {
+        "name": "FTMO Swing (No News Restriction)",
+        "type": "Two Phase",
+        "badge": "Swing Friendly",
+        "maxDD": "10%",
+        "dailyDD": "5%",
+        "target": "10% / 5%",
+        "sizes": [
+          { "size": "10,000",  "fee": "€185" },
+          { "size": "100,000", "fee": "€600" },
+          { "size": "200,000", "fee": "€1,180" }
+        ]
+      }
+    ],
     "geo": {
       "accepted": ["Bangladesh", "India", "Pakistan", "UAE", "Saudi Arabia", "EU", "UK"],
       "excluded": ["United States", "Canada", "Iran", "North Korea", "Syria"]
