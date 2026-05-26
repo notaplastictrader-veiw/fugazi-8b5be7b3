@@ -188,6 +188,12 @@ const HeroSection = () => {
               type="text"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  (window as any).__openGlobalSearch?.(searchValue);
+                }
+              }}
               placeholder=""
               className="w-full bg-transparent pl-12 pr-36 py-4 text-sm text-foreground font-mono outline-none"
               aria-label="Search brokers, scams, signals"
