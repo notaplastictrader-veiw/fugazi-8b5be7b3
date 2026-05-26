@@ -744,7 +744,8 @@ Return a single JSON object with this exact shape, then a second editorial_revie
       "label": "Start <Firm> Challenge",
       "url": "https://...",
       "promo_code": "NAFT20",
-      "friction_reducers": ["From $89 challenge fee", "Unlimited time", "80% split", "Bi-weekly payouts"]
+      "discount_value": "",
+      "friction_reducers": ["From €89 challenge fee", "Unlimited time", "80% split", "Bi-weekly payouts"]
     },
     "trustpilot": { "rating": 4.6, "reviews": 8420, "source_note": "Trustpilot, fetched manually." },
     "faq": [
