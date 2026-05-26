@@ -73,29 +73,42 @@ const ImportJsonAdmin = () => {
   };
 
   const insertSidecars = async () => {
-    if (reviewSidecars.length === 0) return { ok: 0, fail: 0 };
+    if (reviewSidecars.length === 0) return { ok: 0, fail: 0, errors: [] as string[] };
     let ok = 0, fail = 0;
+    const errors: string[] = [];
+    // Whitelist of actual columns on public.reviews — anything else is dropped
+    const ALLOWED = new Set([
+      "account_id_masked", "account_proof_url", "author", "avatar", "broker_id",
+      "content", "photo_urls", "rating", "role", "status", "user_id", "verified_account",
+    ]);
     for (const row of reviewSidecars) {
-      // Resolve broker_id from slug if needed
       let broker_id = row.broker_id;
       if (!broker_id && row.broker_slug) {
         const { data: b } = await (supabase as any).from("brokers").select("id").eq("slug", row.broker_slug).maybeSingle();
         broker_id = b?.id;
       }
-      if (!broker_id) { fail++; continue; }
-      const { broker_slug: _bs, author_name, ...rest } = row;
-      // Map sidecar `author_name` → DB column `author`
-      const author = author_name ?? rest.author;
-      const payload: any = { ...rest, broker_id };
-      if (author) payload.author = author;
-      // Replace any existing editorial review for this broker (idempotent re-import)
-      if (author) {
-        await (supabase as any).from("reviews").delete().eq("broker_id", broker_id).eq("author", author);
+      if (!broker_id) { fail++; errors.push(`No broker found for slug "${row.broker_slug}"`); continue; }
+      const author = row.author_name ?? row.author ?? "NAFT Editorial";
+      const role = row.role ?? "editor";
+      const payload: any = { broker_id, author, role };
+      for (const [k, v] of Object.entries(row)) {
+        if (ALLOWED.has(k) && v !== undefined && v !== null) payload[k] = v;
       }
+      payload.broker_id = broker_id;
+      payload.author = author;
+      payload.role = role;
+      // Clamp rating to int 1-5
+      if (payload.rating != null) {
+        const n = Number(payload.rating);
+        if (!Number.isFinite(n)) delete payload.rating;
+        else payload.rating = Math.max(1, Math.min(5, Math.round(n)));
+      }
+      await (supabase as any).from("reviews").delete().eq("broker_id", broker_id).eq("author", author);
       const { error } = await (supabase as any).from("reviews").insert(payload);
-      if (error) fail++; else ok++;
+      if (error) { fail++; errors.push(error.message); console.error("[editorial sidecar insert]", error, payload); }
+      else ok++;
     }
-    return { ok, fail };
+    return { ok, fail, errors };
   };
 
   const insertOne = async (item: PreviewItem) => {
