@@ -511,8 +511,8 @@ FACTUALITY RULES (non-negotiable):
 - Never use "guaranteed payout", "100% safe", "no rules". Always include risk language: prop trading is high-failure (industry pass rate < 10% for 2-step).
 - All challenge fees must match the firm's current public pricing.
 
-⚡ v4.8 PROP-FIRM KILL-SWITCH:
-- If the firm has filed bankruptcy, halted payouts, lost its broker, been delisted by MyForexFunds/FPFX/Eightcap-style cutoffs, or is the subject of an ongoing regulator action / mass refund crisis, set top-level "warning_note" starting with "AVOID" or "WARNING" — name the event, date, and consequence (e.g. "AVOID — firm halted payouts on 2024-09-12 after broker Eightcap terminated the partnership. Active funded accounts are frozen.").
+⚡ v4.10 PROP-FIRM KILL-SWITCH:
+- If the firm has filed bankruptcy, halted payouts, lost its broker, been delisted by infrastructure provider cutoffs, or is the subject of an ongoing regulator action / mass refund crisis, set top-level "warning_note" starting with "AVOID" or "WARNING" — name the event, date, and consequence (e.g. "AVOID — firm halted payouts on 2024-09-12 after broker Eightcap terminated the partnership. Active funded accounts are frozen.").
 - Otherwise leave "warning_note" empty ("").
 
 VOICE: Direct, skeptical, helpful. One funded trader talking to another. No "best prop firm", "legit", "trusted" filler.
