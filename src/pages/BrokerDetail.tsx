@@ -983,18 +983,27 @@ const BrokerDetail = () => {
                   <table className="w-full">
                     <tbody>
                       {(broker.type === "prop-firm"
-                        ? [
-                            { label: "Account Sizes", value: "$2K · $5K · $10K · $25K · $50K · $100K · $200K" },
-                            { label: "Challenge Fee From", value: "$32.99 (2-Step $5K)" },
-                            { label: "Programs", value: "1-Step, 2-Step, Stellar Lite, Stellar Instant" },
-                            { label: "Profit Split", value: "Up to 95% (default 80%)" },
-                            { label: "Payout Cycle", value: "Same-day on demand, no fixed schedule" },
-                            { label: "Refundable Fee", value: "Yes — refunded with first payout" },
-                            { label: "Drawdown Model", value: "Balanced or Trailing (varies by plan)" },
-                            { label: "Underlying Broker", value: "Eightcap (ASIC), GBE Brokers (BaFin)" },
-                            { label: "Founded", value: "2022" },
-                            { label: "Headquarters", value: "FundedNext FZCO · Dubai, UAE" },
-                          ]
+                        ? (() => {
+                            const aag: any = (broker.long_review as any)?.at_a_glance || {};
+                            const rows = [
+                              { label: "Account Sizes", value: aag.account_sizes || (broker.account_types?.map(a => a.name).join(" · ")) },
+                              { label: "Challenge Fee From", value: aag.challenge_fee_from || broker.min_deposit },
+                              { label: "Programs", value: aag.programs || aag.model },
+                              { label: "Profit Split", value: aag.profit_split || aag.profit_split_short },
+                              { label: "Payout Frequency", value: aag.payout_frequency },
+                              { label: "Refundable Fee", value: aag.refundable_fee || aag.fee_refund },
+                              { label: "Drawdown Model", value: aag.max_dd_type || aag.drawdown_model },
+                              { label: "Max Daily DD", value: aag.max_daily_drawdown || aag.max_daily_drawdown_short },
+                              { label: "Max Overall DD", value: aag.max_overall_drawdown || aag.max_overall_drawdown_short },
+                              { label: "Time Limit", value: aag.time_limit },
+                              { label: "Profit Target", value: aag.profit_target || aag.profit_target_short },
+                              { label: "Platforms", value: aag.platforms || broker.platforms?.join(", ") },
+                              { label: "Underlying Broker", value: aag.backing_broker },
+                              { label: "Founded", value: broker.founded_year },
+                              { label: "Headquarters", value: broker.headquarters },
+                            ];
+                            return rows.filter(r => r.value != null && r.value !== "");
+                          })()
                         : review.keyFacts
                       ).map((fact, i) => (
                         <tr key={fact.label} className={i % 2 === 0 ? "bg-muted/20" : ""}>
