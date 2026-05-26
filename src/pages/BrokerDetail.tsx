@@ -1025,17 +1025,27 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl p-6 space-y-3">
                   {broker.type === "prop-firm" ? (
                     <>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {broker.name} is not a broker — it's a proprietary trading firm based in <strong className="text-foreground">Dubai, UAE</strong> operating under the legal entity <strong className="text-foreground">FundedNext FZCO</strong>. Trader orders are routed to regulated underlying brokers: <strong className="text-foreground">Eightcap</strong> (ASIC, Australia) and <strong className="text-foreground">GBE Brokers</strong> (BaFin, Germany), which hold client liquidity in segregated tier-1 bank accounts.
-                      </p>
+                      {(() => {
+                        const aag: any = (broker.long_review as any)?.at_a_glance || {};
+                        const hq = broker.headquarters || "—";
+                        const backing = aag.backing_broker;
+                        const regList = broker.regulation?.join(", ");
+                        return (
+                          <p className="text-muted-foreground leading-relaxed">
+                            <strong className="text-foreground">{broker.name}</strong> is a proprietary trading firm headquartered in <strong className="text-foreground">{hq}</strong>
+                            {regList ? <> operating under <strong className="text-foreground">{regList}</strong></> : null}
+                            {backing ? <>. Trader orders are routed to <strong className="text-foreground">{backing}</strong></> : null}.
+                          </p>
+                        );
+                      })()}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
                         <div className="rounded-lg border border-border bg-background/40 p-3">
                           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Refund Policy</div>
-                          <div className="text-sm font-display font-bold text-foreground mt-1">Fee refunded with first payout after passing both phases.</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">{(broker.long_review as any)?.at_a_glance?.refundable_fee || (broker.long_review as any)?.at_a_glance?.fee_refund || "Refund policy varies by program — see challenge details."}</div>
                         </div>
                         <div className="rounded-lg border border-border bg-background/40 p-3">
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Dispute Resolution</div>
-                          <div className="text-sm font-display font-bold text-foreground mt-1">In-app ticket + email escalation, governed by UAE commercial law.</div>
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Payout Frequency</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">{(broker.long_review as any)?.at_a_glance?.payout_frequency || "On demand once funded."}</div>
                         </div>
                         <div className="rounded-lg border border-border bg-background/40 p-3">
                           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Trader Funds</div>
