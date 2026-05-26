@@ -567,8 +567,13 @@ const BrokerDetail = () => {
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">HQ:</span>
                           <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
-                            FundedNext FZCO · Dubai, UAE
+                            {broker.headquarters || "—"}
                           </span>
+                          {broker.regulation?.slice(0, 2).map((r) => (
+                            <span key={r} className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded" title={r}>
+                              {r.split(/[\s(\-–—,]/)[0].trim()}
+                            </span>
+                          ))}
                         </div>
                       ) : broker.regulation?.length ? (
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap" title={broker.regulation.join(" · ")}>
