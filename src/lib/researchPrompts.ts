@@ -496,9 +496,9 @@ Broker name: ${name}`,
   {
     key: "prop_firm",
     label: "Prop Firm",
-    description: "Proprietary trading firm / funded-trader challenge (v4.8 full review)",
+    description: "Proprietary trading firm / funded-trader challenge (v4.10 full review)",
     table: "brokers",
-    prompt: (name) => `You are NAFT's senior prop-firm analyst writing for the trader who typed "${name} review" before paying for a challenge. You have 10+ years inside the funded-trader industry. Follow NAFT Master Prompt v4.8 adapted for prop firms.
+    prompt: (name) => `You are NAFT's senior prop-firm analyst writing for the trader who typed "${name} review" before paying for a challenge. You have 10+ years inside the funded-trader industry. Follow NAFT Master Prompt v4.10.
 
 RESEARCH PROTOCOL (complete before writing):
 - Tier 1 primary sources only: the firm's official website (rules PDF, FAQ, T&Cs, payout page), Trustpilot, and the firm's official Discord/Telegram announcements. If the firm publishes a public payout proof page or third-party verification (e.g. Plus500 audit, broker partnership), cite it.
