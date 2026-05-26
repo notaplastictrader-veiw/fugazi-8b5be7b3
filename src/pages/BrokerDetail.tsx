@@ -1193,18 +1193,15 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(broker.type === "prop-firm"
-                        ? [
-                            { method: "USDT (TRC20)", min: "$50", processing: "Same day", fee: "Network fee" },
-                            { method: "USDT (ERC20)", min: "$50", processing: "Same day", fee: "Network fee" },
-                            { method: "Bank Wire", min: "$100", processing: "1-3 business days", fee: "Free" },
-                            { method: "Rise", min: "$50", processing: "Same day", fee: "Free" },
-                            { method: "Deel", min: "$50", processing: "1-2 business days", fee: "Free" },
-                          ]
-                        : broker.payment_method_details && broker.payment_method_details.length > 0
+                      {(broker.payment_method_details && broker.payment_method_details.length > 0
                         ? broker.payment_method_details
                         : broker.payment_methods && broker.payment_methods.length > 0
                         ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
+                        : broker.type === "prop-firm"
+                        ? [
+                            { method: "Crypto (USDT)", min: "—", processing: "Same day", fee: "Network fee" },
+                            { method: "Bank Wire", min: "—", processing: "1-3 business days", fee: "Free" },
+                          ]
                         : [
                           { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
                           { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
