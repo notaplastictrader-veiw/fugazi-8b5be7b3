@@ -1071,40 +1071,46 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl p-6">
                   {broker.type === "prop-firm" ? (
                     <>
-                      <p className="text-muted-foreground leading-relaxed mb-4">
-                        {broker.name} offers four challenge tracks across seven account sizes ($2K–$200K). All programs use real-tick pricing from regulated underlying brokers and pay out same-day on demand once funded.
-                      </p>
-                      <div className="glass-card rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-muted/30">
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Phases</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {[
-                              { name: "Stellar 2-Step", phases: "2", target: "8% / 5%", maxDD: "10%", dailyDD: "5%", fee: "$32.99" },
-                              { name: "Stellar 1-Step", phases: "1", target: "9%", maxDD: "6%", dailyDD: "3%", fee: "$65" },
-                              { name: "Stellar Lite", phases: "2", target: "8% / 5%", maxDD: "8% trailing", dailyDD: "4%", fee: "$49" },
-                              { name: "Stellar Instant", phases: "0 (funded)", target: "—", maxDD: "4%", dailyDD: "3%", fee: "$219" },
-                            ].map((p, i) => (
-                              <tr key={p.name} className="border-t border-border/50">
-                                <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.phases}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.target}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD}</td>
-                                <td className="px-4 py-2.5 text-foreground font-mono">{p.fee}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                      {(() => {
+                        const challenges: any[] = ((broker.long_review as any)?.challenges) || [];
+                        const accounts = broker.account_types || [];
+                        return (
+                          <>
+                            <p className="text-muted-foreground leading-relaxed mb-4">
+                              {broker.name} offers {challenges.length || accounts.length || "multiple"} challenge {challenges.length === 1 ? "track" : "tracks"} across {accounts.length || "several"} account sizes. See full pricing in the Challenges tab.
+                            </p>
+                            <div className="glass-card rounded-lg overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="bg-muted/30">
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Type</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {(challenges.length > 0 ? challenges : accounts).map((p: any, i: number) => {
+                                    const minFee = p.sizes?.[0]?.fee || p.min_deposit || "—";
+                                    return (
+                                      <tr key={p.name || i} className="border-t border-border/50">
+                                        <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.type || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.target || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD || "—"}</td>
+                                        <td className="px-4 py-2.5 text-foreground font-mono">{minFee}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        );
+                      })()}
                       <button
                         type="button"
                         onClick={() => setActiveTab("challenges")}
