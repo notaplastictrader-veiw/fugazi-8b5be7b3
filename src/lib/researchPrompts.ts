@@ -567,7 +567,7 @@ Return a single JSON object with this exact shape, then a second editorial_revie
   "affiliate_url": "https://..." | null,
 
   "long_review": {
-    "schema_version": "4.8",
+    "schema_version": "4.10",
     "hot_take": "2–4 sentence editorial punch. Tell the trader in 5 seconds if this challenge is passable and worth the fee — name the rule that kills most traders.",
     "telegram_summary": "2-line shareable summary for Telegram/WhatsApp.",
     "seo_audit": {
@@ -611,7 +611,11 @@ Return a single JSON object with this exact shape, then a second editorial_revie
       "weekend_holding": "Allowed",
       "ea_allowed": "Yes (no HFT / latency arb)",
       "platforms": "MT4, MT5, cTrader",
-      "backing_broker": "Purple Trading (CySEC) / ThinkMarkets (ASIC)"
+      "backing_broker": "Purple Trading (CySEC) / ThinkMarkets (ASIC)",
+      "max_daily_drawdown_short": "5%",
+      "max_overall_drawdown_short": "10%",
+      "profit_target_short": "10% / 5%",
+      "profit_split_short": "80–90%"
     },
     "geo": {
       "accepted": ["Bangladesh", "India", "Pakistan", "UAE", "Saudi Arabia", "EU", "UK"],
