@@ -567,8 +567,13 @@ const BrokerDetail = () => {
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mr-1">HQ:</span>
                           <span className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded">
-                            FundedNext FZCO · Dubai, UAE
+                            {broker.headquarters || "—"}
                           </span>
+                          {broker.regulation?.slice(0, 2).map((r) => (
+                            <span key={r} className="text-[10px] font-mono font-bold text-foreground bg-secondary px-2 py-0.5 rounded" title={r}>
+                              {r.split(/[\s(\-–—,]/)[0].trim()}
+                            </span>
+                          ))}
                         </div>
                       ) : broker.regulation?.length ? (
                         <div className="flex items-center gap-1.5 mt-3 flex-wrap" title={broker.regulation.join(" · ")}>
@@ -978,18 +983,27 @@ const BrokerDetail = () => {
                   <table className="w-full">
                     <tbody>
                       {(broker.type === "prop-firm"
-                        ? [
-                            { label: "Account Sizes", value: "$2K · $5K · $10K · $25K · $50K · $100K · $200K" },
-                            { label: "Challenge Fee From", value: "$32.99 (2-Step $5K)" },
-                            { label: "Programs", value: "1-Step, 2-Step, Stellar Lite, Stellar Instant" },
-                            { label: "Profit Split", value: "Up to 95% (default 80%)" },
-                            { label: "Payout Cycle", value: "Same-day on demand, no fixed schedule" },
-                            { label: "Refundable Fee", value: "Yes — refunded with first payout" },
-                            { label: "Drawdown Model", value: "Balanced or Trailing (varies by plan)" },
-                            { label: "Underlying Broker", value: "Eightcap (ASIC), GBE Brokers (BaFin)" },
-                            { label: "Founded", value: "2022" },
-                            { label: "Headquarters", value: "FundedNext FZCO · Dubai, UAE" },
-                          ]
+                        ? (() => {
+                            const aag: any = (broker.long_review as any)?.at_a_glance || {};
+                            const rows = [
+                              { label: "Account Sizes", value: aag.account_sizes || (broker.account_types?.map(a => a.name).join(" · ")) },
+                              { label: "Challenge Fee From", value: aag.challenge_fee_from || broker.min_deposit },
+                              { label: "Programs", value: aag.programs || aag.model },
+                              { label: "Profit Split", value: aag.profit_split || aag.profit_split_short },
+                              { label: "Payout Frequency", value: aag.payout_frequency },
+                              { label: "Refundable Fee", value: aag.refundable_fee || aag.fee_refund },
+                              { label: "Drawdown Model", value: aag.max_dd_type || aag.drawdown_model },
+                              { label: "Max Daily DD", value: aag.max_daily_drawdown || aag.max_daily_drawdown_short },
+                              { label: "Max Overall DD", value: aag.max_overall_drawdown || aag.max_overall_drawdown_short },
+                              { label: "Time Limit", value: aag.time_limit },
+                              { label: "Profit Target", value: aag.profit_target || aag.profit_target_short },
+                              { label: "Platforms", value: aag.platforms || broker.platforms?.join(", ") },
+                              { label: "Underlying Broker", value: aag.backing_broker },
+                              { label: "Founded", value: broker.founded_year },
+                              { label: "Headquarters", value: broker.headquarters },
+                            ];
+                            return rows.filter(r => r.value != null && r.value !== "");
+                          })()
                         : review.keyFacts
                       ).map((fact, i) => (
                         <tr key={fact.label} className={i % 2 === 0 ? "bg-muted/20" : ""}>
@@ -1011,17 +1025,27 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl p-6 space-y-3">
                   {broker.type === "prop-firm" ? (
                     <>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {broker.name} is not a broker — it's a proprietary trading firm based in <strong className="text-foreground">Dubai, UAE</strong> operating under the legal entity <strong className="text-foreground">FundedNext FZCO</strong>. Trader orders are routed to regulated underlying brokers: <strong className="text-foreground">Eightcap</strong> (ASIC, Australia) and <strong className="text-foreground">GBE Brokers</strong> (BaFin, Germany), which hold client liquidity in segregated tier-1 bank accounts.
-                      </p>
+                      {(() => {
+                        const aag: any = (broker.long_review as any)?.at_a_glance || {};
+                        const hq = broker.headquarters || "—";
+                        const backing = aag.backing_broker;
+                        const regList = broker.regulation?.join(", ");
+                        return (
+                          <p className="text-muted-foreground leading-relaxed">
+                            <strong className="text-foreground">{broker.name}</strong> is a proprietary trading firm headquartered in <strong className="text-foreground">{hq}</strong>
+                            {regList ? <> operating under <strong className="text-foreground">{regList}</strong></> : null}
+                            {backing ? <>. Trader orders are routed to <strong className="text-foreground">{backing}</strong></> : null}.
+                          </p>
+                        );
+                      })()}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
                         <div className="rounded-lg border border-border bg-background/40 p-3">
                           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Refund Policy</div>
-                          <div className="text-sm font-display font-bold text-foreground mt-1">Fee refunded with first payout after passing both phases.</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">{(broker.long_review as any)?.at_a_glance?.refundable_fee || (broker.long_review as any)?.at_a_glance?.fee_refund || "Refund policy varies by program — see challenge details."}</div>
                         </div>
                         <div className="rounded-lg border border-border bg-background/40 p-3">
-                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Dispute Resolution</div>
-                          <div className="text-sm font-display font-bold text-foreground mt-1">In-app ticket + email escalation, governed by UAE commercial law.</div>
+                          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Payout Frequency</div>
+                          <div className="text-sm font-display font-bold text-foreground mt-1">{(broker.long_review as any)?.at_a_glance?.payout_frequency || "On demand once funded."}</div>
                         </div>
                         <div className="rounded-lg border border-border bg-background/40 p-3">
                           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Trader Funds</div>
@@ -1047,40 +1071,46 @@ const BrokerDetail = () => {
                 <div className="glass-card rounded-xl p-6">
                   {broker.type === "prop-firm" ? (
                     <>
-                      <p className="text-muted-foreground leading-relaxed mb-4">
-                        {broker.name} offers four challenge tracks across seven account sizes ($2K–$200K). All programs use real-tick pricing from regulated underlying brokers and pay out same-day on demand once funded.
-                      </p>
-                      <div className="glass-card rounded-lg overflow-hidden">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-muted/30">
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Phases</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
-                              <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {[
-                              { name: "Stellar 2-Step", phases: "2", target: "8% / 5%", maxDD: "10%", dailyDD: "5%", fee: "$32.99" },
-                              { name: "Stellar 1-Step", phases: "1", target: "9%", maxDD: "6%", dailyDD: "3%", fee: "$65" },
-                              { name: "Stellar Lite", phases: "2", target: "8% / 5%", maxDD: "8% trailing", dailyDD: "4%", fee: "$49" },
-                              { name: "Stellar Instant", phases: "0 (funded)", target: "—", maxDD: "4%", dailyDD: "3%", fee: "$219" },
-                            ].map((p, i) => (
-                              <tr key={p.name} className="border-t border-border/50">
-                                <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.phases}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.target}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD}</td>
-                                <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD}</td>
-                                <td className="px-4 py-2.5 text-foreground font-mono">{p.fee}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                      {(() => {
+                        const challenges: any[] = ((broker.long_review as any)?.challenges) || [];
+                        const accounts = broker.account_types || [];
+                        return (
+                          <>
+                            <p className="text-muted-foreground leading-relaxed mb-4">
+                              {broker.name} offers {challenges.length || accounts.length || "multiple"} challenge {challenges.length === 1 ? "track" : "tracks"} across {accounts.length || "several"} account sizes. See full pricing in the Challenges tab.
+                            </p>
+                            <div className="glass-card rounded-lg overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="bg-muted/30">
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Program</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Type</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Profit Target</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Max DD</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Daily DD</th>
+                                    <th className="px-4 py-2.5 text-left font-mono text-xs text-muted-foreground">Fee From</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {(challenges.length > 0 ? challenges : accounts).map((p: any, i: number) => {
+                                    const minFee = p.sizes?.[0]?.fee || p.min_deposit || "—";
+                                    return (
+                                      <tr key={p.name || i} className="border-t border-border/50">
+                                        <td className="px-4 py-2.5 text-foreground font-medium">{p.name}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.type || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.target || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.maxDD || "—"}</td>
+                                        <td className="px-4 py-2.5 text-muted-foreground">{p.dailyDD || "—"}</td>
+                                        <td className="px-4 py-2.5 text-foreground font-mono">{minFee}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        );
+                      })()}
                       <button
                         type="button"
                         onClick={() => setActiveTab("challenges")}
@@ -1163,18 +1193,15 @@ const BrokerDetail = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(broker.type === "prop-firm"
-                        ? [
-                            { method: "USDT (TRC20)", min: "$50", processing: "Same day", fee: "Network fee" },
-                            { method: "USDT (ERC20)", min: "$50", processing: "Same day", fee: "Network fee" },
-                            { method: "Bank Wire", min: "$100", processing: "1-3 business days", fee: "Free" },
-                            { method: "Rise", min: "$50", processing: "Same day", fee: "Free" },
-                            { method: "Deel", min: "$50", processing: "1-2 business days", fee: "Free" },
-                          ]
-                        : broker.payment_method_details && broker.payment_method_details.length > 0
+                      {(broker.payment_method_details && broker.payment_method_details.length > 0
                         ? broker.payment_method_details
                         : broker.payment_methods && broker.payment_methods.length > 0
                         ? broker.payment_methods.map(m => ({ method: m, min: "—", processing: "—", fee: "—" }))
+                        : broker.type === "prop-firm"
+                        ? [
+                            { method: "Crypto (USDT)", min: "—", processing: "Same day", fee: "Network fee" },
+                            { method: "Bank Wire", min: "—", processing: "1-3 business days", fee: "Free" },
+                          ]
                         : [
                           { method: "Bank Transfer", min: "$50", processing: "1-3 days", fee: "Free" },
                           { method: "Credit/Debit Card", min: "$10", processing: "Instant", fee: "Free" },
