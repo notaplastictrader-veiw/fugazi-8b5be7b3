@@ -496,9 +496,9 @@ Broker name: ${name}`,
   {
     key: "prop_firm",
     label: "Prop Firm",
-    description: "Proprietary trading firm / funded-trader challenge (v4.8 full review)",
+    description: "Proprietary trading firm / funded-trader challenge (v4.10 full review)",
     table: "brokers",
-    prompt: (name) => `You are NAFT's senior prop-firm analyst writing for the trader who typed "${name} review" before paying for a challenge. You have 10+ years inside the funded-trader industry. Follow NAFT Master Prompt v4.8 adapted for prop firms.
+    prompt: (name) => `You are NAFT's senior prop-firm analyst writing for the trader who typed "${name} review" before paying for a challenge. You have 10+ years inside the funded-trader industry. Follow NAFT Master Prompt v4.10.
 
 RESEARCH PROTOCOL (complete before writing):
 - Tier 1 primary sources only: the firm's official website (rules PDF, FAQ, T&Cs, payout page), Trustpilot, and the firm's official Discord/Telegram announcements. If the firm publishes a public payout proof page or third-party verification (e.g. Plus500 audit, broker partnership), cite it.
@@ -511,8 +511,8 @@ FACTUALITY RULES (non-negotiable):
 - Never use "guaranteed payout", "100% safe", "no rules". Always include risk language: prop trading is high-failure (industry pass rate < 10% for 2-step).
 - All challenge fees must match the firm's current public pricing.
 
-⚡ v4.8 PROP-FIRM KILL-SWITCH:
-- If the firm has filed bankruptcy, halted payouts, lost its broker, been delisted by MyForexFunds/FPFX/Eightcap-style cutoffs, or is the subject of an ongoing regulator action / mass refund crisis, set top-level "warning_note" starting with "AVOID" or "WARNING" — name the event, date, and consequence (e.g. "AVOID — firm halted payouts on 2024-09-12 after broker Eightcap terminated the partnership. Active funded accounts are frozen.").
+⚡ v4.10 PROP-FIRM KILL-SWITCH:
+- If the firm has filed bankruptcy, halted payouts, lost its broker, been delisted by infrastructure provider cutoffs, or is the subject of an ongoing regulator action / mass refund crisis, set top-level "warning_note" starting with "AVOID" or "WARNING" — name the event, date, and consequence (e.g. "AVOID — firm halted payouts on 2024-09-12 after broker Eightcap terminated the partnership. Active funded accounts are frozen.").
 - Otherwise leave "warning_note" empty ("").
 
 VOICE: Direct, skeptical, helpful. One funded trader talking to another. No "best prop firm", "legit", "trusted" filler.
@@ -567,7 +567,7 @@ Return a single JSON object with this exact shape, then a second editorial_revie
   "affiliate_url": "https://..." | null,
 
   "long_review": {
-    "schema_version": "4.8",
+    "schema_version": "4.10",
     "hot_take": "2–4 sentence editorial punch. Tell the trader in 5 seconds if this challenge is passable and worth the fee — name the rule that kills most traders.",
     "telegram_summary": "2-line shareable summary for Telegram/WhatsApp.",
     "seo_audit": {
@@ -611,8 +611,51 @@ Return a single JSON object with this exact shape, then a second editorial_revie
       "weekend_holding": "Allowed",
       "ea_allowed": "Yes (no HFT / latency arb)",
       "platforms": "MT4, MT5, cTrader",
-      "backing_broker": "Purple Trading (CySEC) / ThinkMarkets (ASIC)"
+      "backing_broker": "Purple Trading (CySEC) / ThinkMarkets (ASIC)",
+      "max_daily_drawdown_short": "5%",
+      "max_overall_drawdown_short": "10%",
+      "profit_target_short": "10% / 5%",
+      "profit_split_short": "80–90%"
     },
+    "payout_verification": {
+      "verified_payouts_seen": 0,
+      "largest_single_payout_seen": "unverified",
+      "verification_method": "Trustpilot reviews + Discord #payouts channel",
+      "payout_denial_reports_90d": "unverified",
+      "denial_context": "",
+      "average_processing_days": "1-3",
+      "payout_consistency_note": ""
+    },
+    "challenges": [
+      {
+        "name": "FTMO Challenge (2-Step)",
+        "type": "Two Phase",
+        "badge": "Most Popular",
+        "maxDD": "10%",
+        "dailyDD": "5%",
+        "target": "10% / 5%",
+        "sizes": [
+          { "size": "10,000",  "fee": "€155" },
+          { "size": "25,000",  "fee": "€250" },
+          { "size": "50,000",  "fee": "€345" },
+          { "size": "100,000", "fee": "€540" },
+          { "size": "200,000", "fee": "€1,080" }
+        ]
+      },
+      {
+        "name": "FTMO Swing (No News Restriction)",
+        "type": "Two Phase",
+        "badge": "Swing Friendly",
+        "maxDD": "10%",
+        "dailyDD": "5%",
+        "target": "10% / 5%",
+        "sizes": [
+          { "size": "10,000",  "fee": "€185" },
+          { "size": "100,000", "fee": "€600" },
+          { "size": "200,000", "fee": "€1,180" }
+        ]
+      }
+    ],
     "geo": {
       "accepted": ["Bangladesh", "India", "Pakistan", "UAE", "Saudi Arabia", "EU", "UK"],
       "excluded": ["United States", "Canada", "Iran", "North Korea", "Syria"]
@@ -701,7 +744,8 @@ Return a single JSON object with this exact shape, then a second editorial_revie
       "label": "Start <Firm> Challenge",
       "url": "https://...",
       "promo_code": "NAFT20",
-      "friction_reducers": ["From $89 challenge fee", "Unlimited time", "80% split", "Bi-weekly payouts"]
+      "discount_value": "",
+      "friction_reducers": ["From €89 challenge fee", "Unlimited time", "80% split", "Bi-weekly payouts"]
     },
     "trustpilot": { "rating": 4.6, "reviews": 8420, "source_note": "Trustpilot, fetched manually." },
     "faq": [
