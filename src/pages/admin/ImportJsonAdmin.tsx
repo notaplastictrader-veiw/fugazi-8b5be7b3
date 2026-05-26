@@ -151,8 +151,9 @@ const ImportJsonAdmin = () => {
     }
     let sidecarMsg = "";
     if (reviewSidecars.length > 0) {
-      const { ok, fail } = await insertSidecars();
+      const { ok, fail, errors } = await insertSidecars();
       sidecarMsg = ` · editorial sidecar: ${ok} ok${fail ? `, ${fail} failed` : ""}`;
+      if (fail > 0 && errors[0]) toast.error(`Editorial sidecar error: ${errors[0]}`);
     }
     setInserting(false);
     toast[failCount === 0 ? "success" : "warning"](
