@@ -138,8 +138,8 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Avg Spread</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</p>
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">{isPropFirm ? "Account" : "Avg Spread"}</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={isPropFirm ? (propAccountRange ?? broker.avg_spread) : broker.avg_spread}>{isPropFirm ? (propAccountRange ?? "—") : formatSpread(broker.avg_spread)}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
