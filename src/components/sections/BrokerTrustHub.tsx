@@ -82,7 +82,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Account</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={firm.avg_spread}>{formatSpreadNumber(firm.avg_spread) || "$5K–$400K"}</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={propAccountRange(firm) || firm.avg_spread}>{propAccountRange(firm) || "$5K–$400K"}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
