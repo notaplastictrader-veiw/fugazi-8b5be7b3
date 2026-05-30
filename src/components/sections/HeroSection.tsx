@@ -13,7 +13,7 @@ const defaultTypewriterTexts = [
 ];
 
 const defaultStats = [
-  { value: "590+", label: "Brokers & Firms", tooltip: "Includes all brokers and prop firms in our database, whether reviewed or not." },
+  { value: "928", label: "Brokers & Firms", tooltip: "Includes all brokers and prop firms in our database, whether reviewed or not." },
   { value: "50K+", label: "Reviews Analyzed", tooltip: "We analyze public reviews from multiple sources, not just user submissions." },
   { value: "140+", label: "Countries Reached", tooltip: "Traders from 140+ countries access NAFT every month." },
   { value: "1.2M+", label: "Platform Views", tooltip: "Total page views across all NAFT properties, last quarter." },
