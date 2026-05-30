@@ -1,81 +1,43 @@
-# Restore "broker-style" NAFT Editorial Review row for prop firms
 
-## Diagnosis
+## Goal
+`gogang735-oss/KIRO` repo (branch `naft/all-50-reviews`) theke shob `*-REVIEW-2026.json` + `*-EDITORIAL-REVIEW-ROW-2026.json` files pull kore Supabase `brokers` table-e bulk import korbo.
 
-The system **already** supports the exact flow you want — same as broker reviews:
+## Steps
 
-- Prop-firm Master Prompt v4.9 emits an **`editorial_review_row`** sidecar (`src/content/prompts/prop-firm-review-v4.9.md` lines 560 / 1027).
-- `ImportJsonAdmin` auto-detects `{ editorial_review_row: {...} }` and inserts it into `public.reviews` with `author = "NAFT Editorial"`, `role = "editor"` (`src/pages/admin/ImportJsonAdmin.tsx:56-61`).
-- `BrokerDetail` already renders that row with a **"Read Full Review →"** CTA when `author === "NAFT Editorial"` (line 1459).
+**1. Download phase (script)**
+- GitHub Contents API diye full file list pull (already verified: ~50 broker + 50 editorial pairs)
+- All `*.json` raw URLs `curl` kore `/tmp/kiro-jsons/` te save
+- Concatenated JSON file gulo `tryParseJson` logic diye split (existing handler already supports this)
 
-**Why FTMO shows nothing right now:**
+**2. Validation phase**
+- Existing `src/lib/jsonValidator.ts` + `researchPrompts.ts` broker schema use kore validate
+- Existing `nestSidecarsIntoLongReview()` apply (sidecar keys auto-nest into `long_review`)
+- Per-file result: ✅ valid / ⚠️ warnings / ❌ errors
 
-```sql
-SELECT count(*) FROM reviews r JOIN brokers b USING (broker_id is wrong — joined on id)
-WHERE b.slug = 'ftmo';
--- returns 0
-```
+**3. Import phase**
+- Existing `importEntity()` function use, mode = **`overwrite`** (slug match → full update)
+- `autoPublish = true` so brokers immediately go live
+- Editorial sidecar (`*-EDITORIAL-REVIEW-ROW-2026.json`) → separate insert into `reviews` table with `role: 'editorial'`
+- Sequential to respect DB triggers (review_count + scam detect + health score)
 
-The FTMO JSON was imported **without** its `editorial_review_row` sidecar. So the dedicated editorial card never renders, and the only thing the user sees is the header strip I added in the previous turn — which is the wrong fix.
+**4. Report**
+- Final summary: X imported / Y updated / Z failed with per-broker breakdown
+- Failed JSONs: error message + which field caused issue (for manual fix)
 
-## Fix
+## Technical Notes
+- Run as one-off Node/Bun script in sandbox using Supabase service_role key (via edge function OR direct insert via `supabase--insert` tool)
+- Existing trigger `sync_broker_avg_rating` will NOT overwrite imported `stars` because zero community reviews exist on import
+- `sync_broker_review_count` excludes `role='editorial'` so editorial row doesn't pollute counts
+- Estimated runtime: ~2-3 min for 50 brokers
 
-### 1. Revert the header-strip overreach in `src/pages/BrokerDetail.tsx`
+## What you'll get after
+- All 50 brokers published with full v4.8 `long_review` jsonb
+- Editorial review rows attached to each broker
+- BrokerDetail pages instantly renderable at `/brokers/{slug}`
+- Sitemap edge function auto-includes them on next request
 
-Restore the Reviews tab header to its original minimal form:
+## Risk
+- Some files (e.g., OANDA, SWISSQUOTE, CMC, CXM, D-PRIME, EXNESS, XTB) were recently fixed in commit `7e0fb01` ("split concatenated JSON"). I'll re-fetch latest commit so we get clean versions.
+- If any broker slug collides with existing DB rows, overwrite mode will replace — confirming this is desired (matches your "already done 26" list which needs refresh anyway).
 
-```tsx
-<div className="flex items-center justify-between mb-4">
-  <h2 className="text-xl font-display font-bold text-foreground">Community Reviews</h2>
-  <Button size="sm" onClick={() => setShowReviewForm(!showReviewForm)}>
-    Write a Review
-  </Button>
-</div>
-```
-
-Drop the "FOR ACCURATE INFO…" + "VISIT FTMO →" pills from this row — they belong on the editorial card, not the section header.
-
-### 2. Keep the editorial-row CTA upgrade
-
-Keep the change made to the editorial review row itself (line ~1459) where, when the row's author is `"NAFT Editorial"`, the footer renders both:
-
-- `Visit {broker.name} →` (affiliate_url ?? website_url, `rel="sponsored noopener"`)
-- `Read Full Review →` (switches to full-review tab)
-
-This is the broker-style behavior you want. It will activate the moment the row exists in the DB.
-
-### 3. Re-import FTMO with the sidecar
-
-Action for you (the user), not a code change:
-
-1. Open the **Admin → Import JSON** page.
-2. Paste **two objects** in the same payload, exactly like a broker import:
-
-```json
-{
-  "broker_payload": { ... full FTMO v4.9 prop-firm payload ... }
-}
-{
-  "editorial_review_row": {
-    "broker_slug": "ftmo",
-    "author": "NAFT Editorial",
-    "role": "editor",
-    "rating": 4,
-    "content": "150–250 word signed editorial opinion — decision helper, not marketing.",
-    "verified_account": true,
-    "status": "published"
-  }
-}
-```
-
-The importer routes the sidecar to `public.reviews` automatically. After import, the FTMO Reviews tab will show the NAFT Editorial card with both CTAs — identical to how brokers like CXM / D Prime render today.
-
-### 4. Optional safety net (skipped unless you want it)
-
-We could also render a "placeholder" editorial card on the Reviews tab pulled directly from `long_review.verdict.summary` when **no** editorial row exists in the DB — so a freshly imported prop firm still shows something. Decide if you want this; not part of this plan by default because you specifically asked for the **same flow as brokers**, and brokers also require the sidecar to render.
-
-## Files touched
-
-- `src/pages/BrokerDetail.tsx` — revert header strip only. ~10 lines.
-
-No DB migration, no schema change, no prompt change.
+Confirm korle build mode-e implement shuru kori.
