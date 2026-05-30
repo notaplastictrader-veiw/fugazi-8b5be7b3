@@ -9,6 +9,23 @@ import OfferRail from "@/components/common/OfferRail";
 import BrokerCard, { Broker, formatLeverage, formatRegulator } from "@/components/broker/BrokerCard";
 import { formatSpreadNumber, formatMinDepositNumber } from "@/lib/brokerFormat";
 
+const propAccountRange = (firm: any): string | null => {
+  const sizes: number[] = [];
+  const lr = firm?.long_review;
+  const push = (v: any) => {
+    if (v == null) return;
+    const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+    if (!isNaN(n) && n > 0) sizes.push(n);
+  };
+  if (Array.isArray(lr?.challenges)) lr.challenges.forEach((c: any) => Array.isArray(c?.sizes) && c.sizes.forEach((s: any) => push(s?.size)));
+  if (sizes.length === 0 && Array.isArray(lr?.account_types)) lr.account_types.forEach((a: any) => push(a?.name));
+  if (sizes.length === 0 && Array.isArray(firm?.account_types)) firm.account_types.forEach((a: any) => push(a?.name));
+  if (sizes.length === 0) return null;
+  const min = Math.min(...sizes), max = Math.max(...sizes);
+  const fmt = (n: number) => (n >= 1000 ? `$${Math.round(n / 1000)}K` : `$${n}`);
+  return min === max ? fmt(min) : `${fmt(min)}–${fmt(max)}`;
+};
+
 const brokerFilters = ["All", "Forex", "Crypto", "Binary", "ECN", "Prop Firms", "Scam Watch"];
 const propFirmFilters = ["All", "Instant Funding", "Challenge-based", "Crypto Funded", "No Time Limit"];
 
@@ -82,7 +99,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Account</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={firm.avg_spread}>{formatSpreadNumber(firm.avg_spread) || "$5K–$400K"}</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={propAccountRange(firm) || firm.avg_spread}>{propAccountRange(firm) || "$5K–$400K"}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
