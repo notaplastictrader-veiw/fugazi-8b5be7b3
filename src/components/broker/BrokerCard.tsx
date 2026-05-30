@@ -46,6 +46,26 @@ export const verifiedAgoShort = (iso?: string | null) => {
   return m < 12 ? `${m}mo ago` : `${Math.floor(m / 12)}y ago`;
 };
 
+const formatPropAccountRange = (broker: Broker): string | null => {
+  const sizes: number[] = [];
+  const lr = broker.long_review;
+  const pushNum = (v: any) => {
+    if (v == null) return;
+    const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+    if (!isNaN(n) && n > 0) sizes.push(n);
+  };
+  if (Array.isArray(lr?.challenges)) {
+    lr.challenges.forEach((c: any) => Array.isArray(c?.sizes) && c.sizes.forEach((s: any) => pushNum(s?.size)));
+  }
+  if (sizes.length === 0 && Array.isArray((lr as any)?.account_types)) {
+    (lr as any).account_types.forEach((a: any) => pushNum(a?.name));
+  }
+  if (sizes.length === 0) return null;
+  const min = Math.min(...sizes), max = Math.max(...sizes);
+  const fmt = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`);
+  return min === max ? fmt(min) : `${fmt(min)}–${fmt(max)}`;
+};
+
 const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: boolean }) => {
   const scoreColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
   const railColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
@@ -53,6 +73,8 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
   const viewers = 80 + (parseInt((broker.id || "0").replace(/\D/g, "").slice(-3) || "0", 10) % 320);
   const regs = broker.regulation || [];
   const isVerified = broker.badge === "verified" || broker.badge === "featured";
+  const isPropFirm = broker.type === "prop-firm";
+  const propAccountRange = isPropFirm ? formatPropAccountRange(broker) : null;
 
   return (
     <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-primary/30 transition-all">
@@ -116,8 +138,8 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
-              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Avg Spread</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.avg_spread}>{formatSpread(broker.avg_spread)}</p>
+              <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">{isPropFirm ? "Account" : "Avg Spread"}</p>
+              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={isPropFirm ? (propAccountRange ?? broker.avg_spread) : broker.avg_spread}>{isPropFirm ? (propAccountRange ?? "—") : formatSpread(broker.avg_spread)}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
