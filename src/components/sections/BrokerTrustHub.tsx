@@ -97,15 +97,15 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           )}
 
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Account</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={propAccountRange(firm) || firm.avg_spread}>{propAccountRange(firm) || "$5K–$400K"}</p>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Max Leverage</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={firm.leverage}>{formatLeverage(firm.leverage)}</p>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Start From</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate">{formatMinDepositNumber(firm.min_deposit)}</p>
             </div>
