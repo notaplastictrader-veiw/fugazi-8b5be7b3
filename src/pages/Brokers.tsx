@@ -30,11 +30,12 @@ const Brokers = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").order("score", { ascending: false });
-      if (data) setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming')));
+      const { data } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+      if (data) setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon')));
     };
     fetch();
   }, []);
+
 
   useEffect(() => {
     const t = (searchParams.get("type") || "").toLowerCase();
