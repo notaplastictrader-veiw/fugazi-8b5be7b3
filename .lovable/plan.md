@@ -1,43 +1,49 @@
-
 ## Goal
-`gogang735-oss/KIRO` repo (branch `naft/all-50-reviews`) theke shob `*-REVIEW-2026.json` + `*-EDITORIAL-REVIEW-ROW-2026.json` files pull kore Supabase `brokers` table-e bulk import korbo.
 
-## Steps
+Pull all 49 prop firm reviews from `gogang735-oss/PROP` (branch `feat/tier2-prop-reviews-v4.10`) and publish them on the site as live prop-firm broker pages with their editorial sidecar reviews.
 
-**1. Download phase (script)**
-- GitHub Contents API diye full file list pull (already verified: ~50 broker + 50 editorial pairs)
-- All `*.json` raw URLs `curl` kore `/tmp/kiro-jsons/` te save
-- Concatenated JSON file gulo `tryParseJson` logic diye split (existing handler already supports this)
+## What's in the repo
 
-**2. Validation phase**
-- Existing `src/lib/jsonValidator.ts` + `researchPrompts.ts` broker schema use kore validate
-- Existing `nestSidecarsIntoLongReview()` apply (sidecar keys auto-nest into `long_review`)
-- Per-file result: ✅ valid / ⚠️ warnings / ❌ errors
+49 files, one per firm, each named `<slug>-review-v4.10.json`. Each file contains **two concatenated JSON objects** (per the v4.10 master prompt):
 
-**3. Import phase**
-- Existing `importEntity()` function use, mode = **`overwrite`** (slug match → full update)
-- `autoPublish = true` so brokers immediately go live
-- Editorial sidecar (`*-EDITORIAL-REVIEW-ROW-2026.json`) → separate insert into `reviews` table with `role: 'editorial'`
-- Sequential to respect DB triggers (review_count + scam detect + health score)
+1. **`prop_firm_payload`** — flat broker row (name, slug, type, regulation, score, long_review, etc.)
+2. **`{ editorial_review_row: { ... } }`** — editor sidecar (author, role, rating, content)
 
-**4. Report**
-- Final summary: X imported / Y updated / Z failed with per-broker breakdown
-- Failed JSONs: error message + which field caused issue (for manual fix)
+Firms include: FTMO, FundedNext, The5ers, Topstep, MyForexFunds, FundingPips, E8 Markets, Apex Trader Funding, Bulenox, ThinkCapital, TheFundedTrader, FunderPro, FXIFY, Tradeify, etc. (full list of 49 already inspected).
 
-## Technical Notes
-- Run as one-off Node/Bun script in sandbox using Supabase service_role key (via edge function OR direct insert via `supabase--insert` tool)
-- Existing trigger `sync_broker_avg_rating` will NOT overwrite imported `stars` because zero community reviews exist on import
-- `sync_broker_review_count` excludes `role='editorial'` so editorial row doesn't pollute counts
-- Estimated runtime: ~2-3 min for 50 brokers
+## Approach
 
-## What you'll get after
-- All 50 brokers published with full v4.8 `long_review` jsonb
-- Editorial review rows attached to each broker
-- BrokerDetail pages instantly renderable at `/brokers/{slug}`
-- Sitemap edge function auto-includes them on next request
+Reuse the same pattern as the existing `import-naft-reviews` edge function (used for the 50 broker reviews from the KIRO repo), but adapt it for the PROP repo's single-file-with-two-objects format.
 
-## Risk
-- Some files (e.g., OANDA, SWISSQUOTE, CMC, CXM, D-PRIME, EXNESS, XTB) were recently fixed in commit `7e0fb01` ("split concatenated JSON"). I'll re-fetch latest commit so we get clean versions.
-- If any broker slug collides with existing DB rows, overwrite mode will replace — confirming this is desired (matches your "already done 26" list which needs refresh anyway).
+### New edge function: `import-prop-reviews`
 
-Confirm korle build mode-e implement shuru kori.
+- **Auth**: super_admin only (same check as `import-naft-reviews`).
+- **List**: `GET https://api.github.com/repos/gogang735-oss/PROP/contents/?ref=feat/tier2-prop-reviews-v4.10`, filter `*.json` excluding `README.md`.
+- **For each file**:
+  - Fetch raw text from `download_url`.
+  - Split the two concatenated JSON objects using `JSON.parse` with index tracking (or a small helper that calls `JSON.parse` on progressive slices).
+  - **Object 1 → upsert into `brokers`** (on conflict `slug`) with:
+    - All scalar fields from the payload (`name`, `slug`, `headquarters`, `website_url`, `logo_url`, `regulation`, `min_deposit`, `leverage`, `score`, `stars`, `pros`, `cons`, `tags`, `badge`, `affiliate_url`, `long_review`, `warning_note`, etc.)
+    - Force `type = 'prop-firm'` (so they show on `/prop-firms`)
+    - `status = 'published'`, `updated_at = now()`, `last_verified_at = now()`
+  - **Object 2 → insert into `reviews`** as the editor sidecar:
+    - Look up `broker_id` by `slug`.
+    - Delete any prior rows with `role IN ('editor','editorial')` for that broker (idempotent re-runs).
+    - Insert new row with `author`, `role='editor'`, `rating`, `content`, `status='published'`, `verified_account=true`, `user_id = <caller>`.
+- **Return** `{ firms_upserted, editorials_inserted, errors: [] }`.
+
+### Trigger from the admin UI
+
+Add a one-click "Import Prop Firm Reviews (v4.10)" button on `src/pages/admin/ImportJsonAdmin.tsx` (the existing JSON-import admin page) that calls the new edge function via `supabase.functions.invoke('import-prop-reviews')` and shows the result toast.
+
+## Technical details
+
+- Files: new `supabase/functions/import-prop-reviews/index.ts` + small UI addition in `src/pages/admin/ImportJsonAdmin.tsx`.
+- No DB schema changes — `brokers` and `reviews` already support `type='prop-firm'` and editor sidecar rows; the existing `sync_broker_avg_rating` trigger correctly ignores `role IN ('editor','editorial')` so stars stay imported.
+- No new secrets needed — uses the public GitHub raw URLs and the existing `SUPABASE_SERVICE_ROLE_KEY`.
+- Idempotent: re-running upserts brokers by slug and replaces editorial rows.
+- After import, the firms automatically appear on `/prop-firms` (filters by `type='prop-firm'` + `status='published'`) and each detail page at `/brokers/<slug>` renders the v4.10 `long_review` (challenges tab, at_a_glance shorts, payout_verification, affiliate_cta, hot_take).
+
+## Outcome
+
+One click in the admin panel publishes all 49 prop firms with their editorial reviews. List of firms imported is returned in the response toast.
