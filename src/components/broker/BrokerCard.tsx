@@ -97,7 +97,7 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-display text-2xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{broker.name}</h3>
+                  <h3 className="font-display text-xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{broker.name}</h3>
                   {broker.tags?.includes('upcoming') && (
                     <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm bg-muted/40 text-muted-foreground">Upcoming</span>
                   )}
@@ -139,15 +139,15 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">{isPropFirm ? "Account" : "Avg Spread"}</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={isPropFirm ? (propAccountRange ?? broker.avg_spread) : broker.avg_spread}>{isPropFirm ? (propAccountRange ?? "—") : formatSpread(broker.avg_spread)}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={isPropFirm ? (propAccountRange ?? broker.avg_spread) : broker.avg_spread}>{isPropFirm ? (propAccountRange ?? "—") : formatSpread(broker.avg_spread)}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Min Dep.</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{formatMinDepositNumber(broker.min_deposit)}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{formatMinDepositNumber(broker.min_deposit)}</p>
             </div>
           </div>
 
@@ -155,9 +155,9 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
           <div className="mb-3">
             <div className="flex justify-between items-end mb-2">
               <span className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">Trust Score</span>
-              <span className="font-display text-xl font-bold text-primary leading-none">
-                {broker.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
-              </span>
+                <span className="font-display text-lg font-bold text-primary leading-none">
+                  {broker.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
+                </span>
             </div>
             <div className="h-1 bg-muted/30 rounded-full overflow-hidden">
               <div className={`h-full ${scoreColor} rounded-full transition-all duration-700`} style={{ width: visible ? `${broker.score * 10}%` : "0%" }} />

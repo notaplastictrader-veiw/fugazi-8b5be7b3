@@ -69,7 +69,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <h3 className="font-display text-2xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{firm.name}</h3>
+                <h3 className="font-display text-xl font-bold text-foreground uppercase tracking-tight leading-none truncate">{firm.name}</h3>
                 {regs.length > 0 && (
                   <p className="text-[11px] text-muted-foreground/70 mt-1.5 uppercase tracking-wide truncate" title={regs.join(", ")}>
                     {regs.slice(0, 3).map(formatRegulator).join(" · ")}
@@ -99,24 +99,24 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Account</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={propAccountRange(firm) || firm.avg_spread}>{propAccountRange(firm) || "$5K–$400K"}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={propAccountRange(firm) || firm.avg_spread}>{propAccountRange(firm) || "$5K–$400K"}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Leverage</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate" title={firm.leverage}>{formatLeverage(firm.leverage)}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={firm.leverage}>{formatLeverage(firm.leverage)}</p>
             </div>
             <div className="min-w-0">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Start From</p>
-              <p className="font-display text-2xl font-bold text-foreground leading-none truncate">{formatMinDepositNumber(firm.min_deposit)}</p>
+              <p className="font-display text-xl font-bold text-foreground leading-none truncate">{formatMinDepositNumber(firm.min_deposit)}</p>
             </div>
           </div>
 
           <div className="mb-3">
             <div className="flex justify-between items-end mb-2">
               <span className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest">Trust Score</span>
-              <span className="font-display text-xl font-bold text-accent leading-none">
-                {firm.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
-              </span>
+                <span className="font-display text-lg font-bold text-accent leading-none">
+                  {firm.score}<span className="text-muted-foreground/40 text-xs ml-0.5">/10</span>
+                </span>
             </div>
             <div className="h-1 bg-muted/30 rounded-full overflow-hidden">
               <div className={`h-full ${scoreColor} rounded-full transition-all duration-700`} style={{ width: visible ? `${firm.score * 10}%` : "0%" }} />
