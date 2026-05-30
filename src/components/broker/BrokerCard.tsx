@@ -137,15 +137,15 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
 
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">{isPropFirm ? "Account" : "Avg Spread"}</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={isPropFirm ? (propAccountRange ?? broker.avg_spread) : broker.avg_spread}>{isPropFirm ? (propAccountRange ?? "—") : formatSpread(broker.avg_spread)}</p>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Max Leverage</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={broker.leverage}>{formatLeverage(broker.leverage)}</p>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 text-center">
               <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1">Min Dep.</p>
               <p className="font-display text-xl font-bold text-foreground leading-none truncate" title={broker.min_deposit}>{formatMinDepositNumber(broker.min_deposit)}</p>
             </div>
