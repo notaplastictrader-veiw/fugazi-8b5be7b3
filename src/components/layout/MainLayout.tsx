@@ -7,6 +7,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import MobileBottomNav from "./MobileBottomNav";
 import ExitIntentModal from "@/components/ExitIntentModal";
+import BetaBanner from "@/components/BetaBanner";
 
 const routeNames: Record<string, string> = {
   brokers: "Broker Reviews",
@@ -96,6 +97,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
       {!isDashboard && <MobileBottomNav />}
       {!isDashboard && <ExitIntentModal />}
+      <BetaBanner />
     </div>
   );
 };
