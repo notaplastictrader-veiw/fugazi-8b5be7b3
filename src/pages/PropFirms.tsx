@@ -30,11 +30,12 @@ const PropFirms = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").order("score", { ascending: false });
-      if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming')));
+      const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+      if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon') && !b.tags?.includes('nfft-testing')));
     };
     fetch();
   }, []);
+
 
   const categoryFiltered = firms.filter(b => filter === "All Prop Firms" || b.tags?.includes(filterMap[filter]));
 
