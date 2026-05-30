@@ -46,6 +46,26 @@ export const verifiedAgoShort = (iso?: string | null) => {
   return m < 12 ? `${m}mo ago` : `${Math.floor(m / 12)}y ago`;
 };
 
+const formatPropAccountRange = (broker: Broker): string | null => {
+  const sizes: number[] = [];
+  const lr = broker.long_review;
+  const pushNum = (v: any) => {
+    if (v == null) return;
+    const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+    if (!isNaN(n) && n > 0) sizes.push(n);
+  };
+  if (Array.isArray(lr?.challenges)) {
+    lr.challenges.forEach((c: any) => Array.isArray(c?.sizes) && c.sizes.forEach((s: any) => pushNum(s?.size)));
+  }
+  if (sizes.length === 0 && Array.isArray((lr as any)?.account_types)) {
+    (lr as any).account_types.forEach((a: any) => pushNum(a?.name));
+  }
+  if (sizes.length === 0) return null;
+  const min = Math.min(...sizes), max = Math.max(...sizes);
+  const fmt = (n: number) => (n >= 1000 ? `${Math.round(n / 1000)}K` : `${n}`);
+  return min === max ? fmt(min) : `${fmt(min)}–${fmt(max)}`;
+};
+
 const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: boolean }) => {
   const scoreColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
   const railColor = broker.score >= 8 ? "bg-primary" : broker.score >= 6 ? "bg-accent" : "bg-destructive";
@@ -53,6 +73,8 @@ const BrokerCard = ({ broker, visible = true }: { broker: Broker; visible?: bool
   const viewers = 80 + (parseInt((broker.id || "0").replace(/\D/g, "").slice(-3) || "0", 10) % 320);
   const regs = broker.regulation || [];
   const isVerified = broker.badge === "verified" || broker.badge === "featured";
+  const isPropFirm = broker.type === "prop-firm";
+  const propAccountRange = isPropFirm ? formatPropAccountRange(broker) : null;
 
   return (
     <div className="group relative flex bg-card border border-border/60 rounded-sm overflow-hidden hover:border-primary/30 transition-all">
