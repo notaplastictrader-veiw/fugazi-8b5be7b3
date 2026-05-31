@@ -1331,6 +1331,74 @@ Asset to forecast: ${name}`,
       },
     },
   },
+
+  // -------------------------------- BETTING SITE --------------------------------
+  {
+    key: "betting_site",
+    label: "Betting Site",
+    description: "Sports betting / gambling site overview (card + quick-modal data)",
+    table: "betting_sites",
+    prompt: (name) => `You are NAFT's betting analyst researching "${name}" for the South Asian market. Gather verifiable facts from the operator's official website, their regulator register, and Trustpilot (the ONLY third-party review brand you may name in prose). Never guess — if a fact can't be verified, use null or empty string.
+
+${baseRules}
+
+Return ONLY this JSON object (no markdown, no commentary):
+
+{
+  "name": "Brand name exactly as marketed",
+  "slug": "lowercase-hyphenated",
+  "logo": "🟢" (or a direct HTTPS logo URL if you found one — otherwise an emoji placeholder),
+  "rating": number 0-10 (0 if no verified data yet),
+  "bonus": "Exact welcome bonus text, e.g. '100% up to $200' — or empty string",
+  "sports": ["football", "cricket", "basketball", "tennis", "mma", "esports", "kabaddi", "horse racing"],
+  "features": ["Live Streaming", "Cash Out", "Bet Builder", "In-Play Betting", "Mobile App", "Crypto Payments", "UPI/Paytm", "Telegram Bot"],
+  "min_deposit": "$10",
+  "withdrawal_speed": "Instant", "24h", "1-3 days", etc.,
+  "license": "Regulator name + jurisdiction, e.g. 'UK Gambling Commission', 'Curaçao eGaming', 'Malta Gaming Authority'",
+  "url": "https://official-site.com",
+  "warning": "Any regulator warning, geo-restriction note, or red flag. Leave empty if none.",
+  "display_order": 0,
+  "status": "draft"
+}
+
+Betting site to research: ${name}`,
+    example: {
+      name: "Bet365",
+      slug: "bet365",
+      logo: "🟢",
+      rating: 9.2,
+      bonus: "Up to $30 in Bet Credits",
+      sports: ["football", "cricket", "basketball", "tennis", "mma"],
+      features: ["Live Streaming", "Cash Out", "Bet Builder", "In-Play Betting"],
+      min_deposit: "$10",
+      withdrawal_speed: "1-3 days",
+      license: "UK Gambling Commission",
+      url: "https://www.bet365.com",
+      warning: "",
+      display_order: 0,
+      status: "draft",
+    },
+    schema: {
+      table: "betting_sites",
+      reserved: ["id", "created_at", "updated_at", "created_by"],
+      fields: {
+        name: { type: "string", required: true },
+        slug: { type: "string", required: true },
+        logo: { type: "string" },
+        rating: { type: "number", required: true, min: 0, max: 10 },
+        bonus: { type: "string" },
+        sports: { type: "array", itemType: "string" },
+        features: { type: "array", itemType: "string" },
+        min_deposit: { type: "string" },
+        withdrawal_speed: { type: "string" },
+        license: { type: "string" },
+        url: { type: "url" },
+        warning: { type: "string" },
+        display_order: { type: "number" },
+        status: { type: "string", required: true, enum: ["draft", "pending", "published", "rejected"] },
+      },
+    },
+  },
 ];
 
 export const getEntity = (key: string) => ENTITIES.find((e) => e.key === key);
