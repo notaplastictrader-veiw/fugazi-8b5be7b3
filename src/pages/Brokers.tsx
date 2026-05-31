@@ -25,22 +25,35 @@ const typeToLabel: Record<string, string> = { forex: "Forex", crypto: "Crypto", 
 const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = typeToLabel[(searchParams.get("type") || "").toLowerCase()] || "All";
   const [filter, setFilter] = useState(initialFilter);
   const { t } = useI18n();
 
   useEffect(() => {
+    let cancelled = false;
     const fetch = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const { data } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
-        if (data) setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon')));
+        const { data, error: fetchError } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+        if (cancelled) return;
+        if (fetchError) {
+          setError("Couldn't load brokers. Please try again.");
+        } else if (data) {
+          setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon')));
+        }
+      } catch {
+        if (!cancelled) setError("Couldn't load brokers. Please try again.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetch();
-  }, []);
+    return () => { cancelled = true; };
+  }, [retryNonce]);
 
 
   useEffect(() => {

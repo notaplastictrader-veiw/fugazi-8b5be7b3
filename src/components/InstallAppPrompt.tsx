@@ -47,12 +47,20 @@ export default function InstallAppPrompt() {
     setPlatform(detectPlatform());
     setBrowser(detectBrowser());
 
-    // Respect dismissed state — re-surface after 7 days
-    const dismissedAt = Number(localStorage.getItem(STORAGE_KEY) || 0);
-    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
-    if (dismissedAt && Date.now() - dismissedAt < SEVEN_DAYS) return;
+    const maybeShowFab = () => {
+      // Wait for cookie consent decision before competing for screen real estate
+      const consent = localStorage.getItem("cookie_consent");
+      if (!consent) return;
 
-    setShowFab(true);
+      // Respect dismissed state — re-surface after 7 days
+      const dismissedAt = Number(localStorage.getItem(STORAGE_KEY) || 0);
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      if (dismissedAt && Date.now() - dismissedAt < SEVEN_DAYS) return;
+
+      setShowFab(true);
+    };
+    maybeShowFab();
+    window.addEventListener("cookie-consent-changed", maybeShowFab);
 
     const onBeforeInstall = (e: Event) => {
       e.preventDefault();
@@ -66,6 +74,7 @@ export default function InstallAppPrompt() {
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
     window.addEventListener("appinstalled", onAppInstalled);
     return () => {
+      window.removeEventListener("cookie-consent-changed", maybeShowFab);
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);
       window.removeEventListener("appinstalled", onAppInstalled);
     };
