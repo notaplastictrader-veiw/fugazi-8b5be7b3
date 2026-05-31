@@ -132,6 +132,8 @@ const ProfileSettings = () => {
       if (metaError) {
         console.error("Auth metadata update error:", metaError);
       }
+      // Force a session refresh so user.user_metadata propagates to AuthContext immediately
+      await supabase.auth.refreshSession();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });

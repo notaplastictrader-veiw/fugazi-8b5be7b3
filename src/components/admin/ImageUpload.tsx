@@ -43,12 +43,13 @@ export const ImageUpload = ({
       const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const path = folder ? `${folder}/${filename}` : filename;
       const { error } = await supabase.storage.from(bucket).upload(path, file, {
-        cacheControl: "3600",
+        cacheControl: "0",
         upsert: false,
       });
       if (error) throw error;
       const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-      onChange(data.publicUrl);
+      // Append cache-busting query so browsers/CDNs always fetch the fresh image
+      onChange(`${data.publicUrl}?v=${Date.now()}`);
       toast.success("Uploaded");
     } catch (err: any) {
       toast.error(err.message || "Upload failed");
