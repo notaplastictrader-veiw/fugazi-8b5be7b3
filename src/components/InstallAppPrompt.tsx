@@ -46,6 +46,12 @@ export default function InstallAppPrompt() {
 
     setPlatform(detectPlatform());
     setBrowser(detectBrowser());
+
+    // Respect dismissed state — re-surface after 7 days
+    const dismissedAt = Number(localStorage.getItem(STORAGE_KEY) || 0);
+    const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    if (dismissedAt && Date.now() - dismissedAt < SEVEN_DAYS) return;
+
     setShowFab(true);
 
     const onBeforeInstall = (e: Event) => {
@@ -85,7 +91,7 @@ export default function InstallAppPrompt() {
 
   const dismissFab = () => {
     track("install_prompt_dismissed", { platform });
-    localStorage.setItem(STORAGE_KEY, "1");
+    localStorage.setItem(STORAGE_KEY, String(Date.now()));
     setShowFab(false);
   };
 
