@@ -1,63 +1,52 @@
-## Scope
+# Final 5 Fixes — Path to 9.0+
 
-Address the credibility-critical and high-value issues from the audit. Skip cosmetic z-index tweaks, theme removal (Sentinel is intentional per brand spec), and anything that needs verification before action.
+## 1. 🔴 CRITICAL — Fix sitemap domain (Google indexation root cause)
 
----
+`scripts/generate-sitemap.ts` line 7 and the generated `public/sitemap.xml` all point to `https://fugazi.lovable.app` instead of the real production domain `https://www.notafugazitrader.com` (which is already used everywhere in `index.html` canonical/og/JSON-LD tags).
 
-## Tier 1 — Credibility & correctness (do first)
+Result: Google sees a sitemap full of `fugazi.lovable.app` URLs that either 404, redirect, or get treated as duplicates of the real domain → none of the dynamic broker/news/promotion pages get indexed.
 
-1. **Remove fabricated Sports stats** (`src/pages/Sports.tsx`)
-  - Delete the `seededHash` / `cumulativeExtra` / `dailySeededWinRate` block.
-  - Replace with real values derived only from the DB: `totalPicks = predictions.length`, `settled = predictions.filter(p => p.result).length`, `correct = predictions.filter(p => p.is_correct === true).length`, `winRate = settled > 0 ? round(correct/settled*100) : null`.
-  - When `settled === 0`, show "—" with copy "Track record builds as picks settle."
-2. **Dedupe `/glossary/:slug` route in `src/App.tsx**`
-  - Verify the duplicate first, then remove the second declaration.
-3. **Verify Google indexation status** (no code change yet)
-  - Use the Google Search Console connector to check coverage for `notafugazitrader.com`.
-  - If Cloudflare is blocking Googlebot, the fix is in the user's Cloudflare dashboard (not code) — report findings and instructions back.
+**Change:**
+- `scripts/generate-sitemap.ts` → `BASE_URL = "https://www.notafugazitrader.com"`
+- Regenerate `public/sitemap.xml` (happens automatically on next `predev`/`prebuild`, but I'll also rewrite the committed file so it's correct immediately).
+- Add `Sitemap: https://www.notafugazitrader.com/sitemap.xml` to `public/robots.txt` if not already there.
 
----
+## 2. Pro page — add to navigation
 
-## Tier 2 — UX polish
+`/pro` route exists (`src/pages/Pro.tsx`) but has zero entry points — monetization leak.
 
-4. **Skeleton loaders for listing pages**
-  - Add proper skeleton grids during initial fetch on `src/pages/Brokers.tsx`, `src/pages/PropFirms.tsx`, `src/pages/Signals.tsx`. Reuse `@/components/ui/skeleton` matching the existing card aspect ratio.
-5. **Broker Detail breadcrumb uses real name**
-  - In `src/components/layout/MainLayout.tsx` (or wherever breadcrumbs are auto-generated), allow the page to override the last crumb. Pass the broker's display name from `BrokerDetail.tsx` once loaded.
-6. **Hide empty footer social icons** (`src/components/layout/Footer.tsx`)
-  - Render each social link only when its URL is non-empty and not `"#"`.
-7. **Navbar logo `loading="eager"**`
-  - Above-fold; remove `loading="lazy"`.
+**Change:** Add a "Pro" link in `Navbar.tsx` (desktop menu) with a small "New" or sparkle badge. Mobile: add to `MobileBottomNav` or the hamburger drawer (wherever Pricing-style items live).
 
----
+## 3. InstallAppPrompt — respect dismissed state
 
-## Tier 3 — Conversion
+`STORAGE_KEY = "naft_install_prompt_dismissed"` is *written* on dismiss but never *read*. The FAB re-appears on every page load even after the user clicks X.
 
-8. **Rotate exit-intent target** (`src/components/ExitIntentModal.tsx`)
-  - Pick CTA based on current route: `/brokers*` → `/match`; `/signals*` → Pro/Telegram; `/education*|/news*` → newsletter; default → free account signup.
-9. **Trim homepage density** (`src/pages/Index.tsx`)
-  - Audit the 15+ lazy sections. Group related ones (e.g. merge `ScamPulseRadar` + `ScamAlertSection` into a single Trust block; combine `ForecastSection` + `CalendarWidget` + `LatestForexNews` into a Markets block) or defer 3–4 sections to a dedicated `/explore` page.
-  - This is a refactor — surface options to the user before cutting.
+**Change:** In the `useEffect` mount block of `src/components/InstallAppPrompt.tsx`, check `localStorage.getItem(STORAGE_KEY)` before calling `setShowFab(true)`. Optionally add a 7-day TTL so it can re-surface later.
+
+## 4. Newsletter inline CTA on homepage
+
+Newsletter only lives in the footer (low conversion). Add one inline placement on the homepage between two content sections (e.g. after MarketsIntelBlock / before CommunityBlock) using the existing `<NewsletterSignup source="homepage_inline" />` component, wrapped in a glass-card with a short headline like "Get scam alerts before they cost you money."
+
+**Change:** New small section component `src/components/sections/NewsletterInline.tsx` (or inline JSX in `Index.tsx`), uses existing component — no new logic.
+
+## 5. Verify — confirm sitemap regenerates correctly
+
+After editing the script, the regenerated `public/sitemap.xml` should show `notafugazitrader.com` URLs. I'll spot-check the first few lines after the build hook runs.
 
 ---
 
-## Explicitly NOT doing
+## Technical notes
 
-- Removing the Sentinel theme (documented brand variant).
-- Changing `chunkSizeWarningLimit` (set intentionally last turn).
-- Cookie consent z-index reshuffle (no real overlap observed).
-- Adding wait-time copy to forum gate (nice-to-have, not a defect).
-- Touching `public/sw.js` without first reading it to confirm Kiro's claim.
+- No DB / no backend changes.
+- No new dependencies.
+- All edits are presentation/config only.
+- `index.html`, JSON-LD, and SEO component already use `notafugazitrader.com` — sitemap was the lone holdout.
 
----
+## Post-deploy user actions (cannot be done in code)
 
-## Technical details
+After this ships, you should:
+1. Resubmit `https://www.notafugazitrader.com/sitemap.xml` in Google Search Console.
+2. Use GSC URL Inspection on 2–3 broker pages to request re-indexing.
+3. Confirm Cloudflare Bot Fight Mode is OFF and Googlebot is whitelisted (still the other half of the indexation story).
 
-- All edits are frontend/presentation only — no migrations, no edge function changes.
-- Sports stats change is a pure UI/derivation refactor; no schema change.
-- Breadcrumb override likely needs a small context or prop drilled from page → layout; will pick the minimal pattern after reading `MainLayout.tsx`.
-- Homepage trim (step 9) will be presented as 2–3 concrete grouping options before any deletion.
-
-## Order of work
-
-Tier 1 (1 → 2 → 3) in one batch, then Tier 2 (4–7) in parallel, then Tier 3 (8 standalone; 9 pauses for your input on grouping).
+**Estimated impact:** 8.1 → ~8.7 once Google re-crawls the corrected sitemap.
