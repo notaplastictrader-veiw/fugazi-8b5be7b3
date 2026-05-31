@@ -35,6 +35,7 @@ import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
 import OfferRail from "@/components/common/OfferRail";
 import LongReview, { type LongReviewData } from "@/components/broker/LongReview";
+import { setBreadcrumbLabel } from "@/lib/breadcrumbStore";
 
 interface AccountType { name: string; min_deposit: string; spread?: string; spread_from?: string; leverage?: string; commission: string; }
 interface Broker {
