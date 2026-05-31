@@ -103,8 +103,8 @@ const Brokers = () => {
   return (
     <MainLayout>
       <SEO
-        title="Broker Reviews — 280+ Forex Brokers Rated by Real Traders"
-        description="Compare 280+ forex & CFD brokers with verified trust scores, spreads, regulation, and real trader reviews. Updated daily — find the safest broker now."
+        title="Broker Reviews — 900+ Forex Brokers Rated by Real Traders"
+        description="Compare 900+ forex & CFD brokers with verified trust scores, spreads, regulation, and real trader reviews. Updated daily — find the safest broker now."
         path="/brokers"
         image="https://www.notafugazitrader.com/og-brokers.jpg"
       />

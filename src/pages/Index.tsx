@@ -32,7 +32,7 @@ const Index = () => {
     <MainLayout>
       <SEO
         title="Not A Fugazi Trader | Broker Reviews & Scam Alerts"
-        description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 280+ brokers, get verified signals, and avoid scams."
+        description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 900+ brokers, get verified signals, and avoid scams."
         path="/"
       />
       <JsonLd data={organizationSchema} />

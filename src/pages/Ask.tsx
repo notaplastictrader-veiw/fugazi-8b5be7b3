@@ -128,7 +128,7 @@ const Ask = () => {
             <span className="text-primary">any broker.</span>
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Free AI assistant trained on 280+ broker reviews, scam alerts, and complaints.
+            Free AI assistant trained on 900+ broker reviews, scam alerts, and complaints.
             No signup. No fluff. Just answers.
           </p>
         </div>

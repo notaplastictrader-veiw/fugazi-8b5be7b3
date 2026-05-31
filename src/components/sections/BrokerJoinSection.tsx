@@ -61,7 +61,7 @@ const BrokerJoinSection = () => {
 
   const title = cms.title || "Be part of the network —";
   const accentText = cms.accent_text || "Built on Trust.";
-  const description = cms.description || "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
+  const description = cms.description || "Join 900+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
   const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
   const ctaText = cms.cta_text || "Promote Your Broker →";
   const ctaLink = cms.cta_link || "/advertise";

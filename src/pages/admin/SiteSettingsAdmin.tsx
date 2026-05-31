@@ -69,7 +69,7 @@ const settingsDefs: SettingDef[] = [
       ],
       stats: [
         { value: "4.8K+", label: "Verified reviews" },
-        { value: "280+", label: "Brokers listed" },
+        { value: "900+", label: "Brokers listed" },
         { value: "61+", label: "Scam alerts issued" },
         { value: "120K+", label: "Registered members" },
       ],
@@ -177,7 +177,7 @@ const settingsDefs: SettingDef[] = [
     default: {
       title: "For Brokers & Signal Providers —",
       subtitle: "Reach 120,000+ real traders worldwide. Promote your broker on the fastest-growing global review platform.",
-      description: "Join 280+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.",
+      description: "Join 900+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.",
       benefits: [
         "Verified badge on your profile",
         "Reply to user reviews publicly",
