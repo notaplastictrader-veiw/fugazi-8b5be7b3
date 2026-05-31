@@ -137,6 +137,7 @@ const Navbar = () => {
       { label: t("nav.compare", "Compare"), href: "/compare" },
       { label: t("nav.aiMatch", "AI Match"), href: "/match", highlight: true },
       { label: t("nav.signals"), href: "/signals" },
+      { label: "Pro", href: "/pro", highlight: true },
       { label: t("nav.education"), href: "/education" },
       {
         label: t("nav.more"),

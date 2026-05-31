@@ -4,7 +4,7 @@
 import { writeFileSync } from "fs";
 import { resolve } from "path";
 
-const BASE_URL = "https://fugazi.lovable.app";
+const BASE_URL = "https://www.notafugazitrader.com";
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://jclmhealhirenkyonyjp.supabase.co";
 const SUPABASE_KEY =
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||

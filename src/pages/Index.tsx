@@ -25,6 +25,7 @@ const HowItWorks = lazy(() => import("@/components/sections/HowItWorks"));
 const CommunityReviews = lazy(() => import("@/components/sections/CommunityReviews"));
 const BrokerJoinSection = lazy(() => import("@/components/sections/BrokerJoinSection"));
 const ForumActivityWidget = lazy(() => import("@/components/sections/ForumActivityWidget"));
+const NewsletterInline = lazy(() => import("@/components/sections/NewsletterInline"));
 
 const Index = () => {
   return (
@@ -78,6 +79,7 @@ const Index = () => {
       <LazySection><Suspense fallback={null}><ForecastSection /></Suspense></LazySection>
       <LazySection><Suspense fallback={null}><HomepageCalendarWidget /></Suspense></LazySection>
       <LazySection><Suspense fallback={null}><LatestForexNews /></Suspense></LazySection>
+      <LazySection><Suspense fallback={null}><NewsletterInline /></Suspense></LazySection>
       <LazySection><Suspense fallback={null}><CommunityReviews /></Suspense></LazySection>
       <LazySection><Suspense fallback={null}><ForumActivityWidget /></Suspense></LazySection>
       <LazySection><Suspense fallback={null}><HowItWorks /></Suspense></LazySection>
