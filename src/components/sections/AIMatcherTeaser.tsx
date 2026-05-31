@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, MessageSquare, Check } from "lucide-react";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 
 type Step = 0 | 1 | 2 | 3;
 
@@ -35,6 +36,7 @@ const Q = [
 ] as const;
 
 const AIMatcherTeaser = () => {
+  const { rounded: brokerCountRounded } = useBrokerCount();
   const nav = useNavigate();
   const [step, setStep] = useState<Step>(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -76,7 +78,7 @@ const AIMatcherTeaser = () => {
               <span className="text-primary">in 60 seconds.</span>
             </h2>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Three quick taps. Our AI matcher cross-checks 900+ brokers, verified reviews, and live scam alerts to recommend the top 3 for you.
+              Three quick taps. Our AI matcher cross-checks {brokerCountRounded} brokers, verified reviews, and live scam alerts to recommend the top 3 for you.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link

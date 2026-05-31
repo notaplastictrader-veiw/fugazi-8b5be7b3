@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Shield, MessageSquare, Award, BarChart3, Check, User, Radio, Building2, Trophy, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 import AuthModal from "@/components/modals/AuthModal";
 
 type SignupRole = "user" | "signal_provider" | "broker" | "betting_site";
@@ -50,6 +51,7 @@ const defaultTiers = [
 ];
 
 const BrokerJoinSection = () => {
+  const { rounded: brokerCountRounded } = useBrokerCount();
   const cms = useSiteSettings<Record<string, any>>("broker_join_section", {});
   const [authOpen, setAuthOpen] = useState(false);
   const [authRole, setAuthRole] = useState<SignupRole | undefined>(undefined);
@@ -61,7 +63,7 @@ const BrokerJoinSection = () => {
 
   const title = cms.title || "Be part of the network —";
   const accentText = cms.accent_text || "Built on Trust.";
-  const description = cms.description || "Join 900+ brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.";
+  const description = cms.description || `Join ${brokerCountRounded} brokers on the fastest-growing global trading review platform. Build trust with verified reviews and transparent ratings.`;
   const benefits = (cms.benefits?.length ? cms.benefits : defaultPerks.map(p => p.text)) as string[];
   const ctaText = cms.cta_text || "Promote Your Broker →";
   const ctaLink = cms.cta_link || "/advertise";

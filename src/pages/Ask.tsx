@@ -7,6 +7,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { faqSchema } from "@/components/seo/JsonLd";
 import { cn } from "@/lib/utils";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 
 interface Msg { role: "user" | "assistant"; content: string; }
 
@@ -20,6 +21,7 @@ const SAMPLE_QS = [
 ];
 
 const Ask = () => {
+  const { rounded: brokerCountRounded } = useBrokerCount();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -128,7 +130,7 @@ const Ask = () => {
             <span className="text-primary">any broker.</span>
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Free AI assistant trained on 900+ broker reviews, scam alerts, and complaints.
+            Free AI assistant trained on {brokerCountRounded} broker reviews, scam alerts, and complaints.
             No signup. No fluff. Just answers.
           </p>
         </div>
