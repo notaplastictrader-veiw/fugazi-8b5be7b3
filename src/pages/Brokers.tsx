@@ -13,6 +13,7 @@ import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
 import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import CTABand from "@/components/common/CTABand";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 import BrokerCard, { Broker } from "@/components/broker/BrokerCard";
@@ -23,6 +24,7 @@ const filterMap: Record<string, string> = { All: "", Forex: "forex", Crypto: "cr
 const typeToLabel: Record<string, string> = { forex: "Forex", crypto: "Crypto", binary: "Binary", ecn: "ECN", "scam-watch": "Scam Watch", all: "All" };
 
 const Brokers = () => {
+  const { rounded: brokerCountRounded } = useBrokerCount();
   const [brokers, setBrokers] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -103,8 +105,8 @@ const Brokers = () => {
   return (
     <MainLayout>
       <SEO
-        title="Broker Reviews — 900+ Forex Brokers Rated by Real Traders"
-        description="Compare 900+ forex & CFD brokers with verified trust scores, spreads, regulation, and real trader reviews. Updated daily — find the safest broker now."
+        title={`Broker Reviews — ${brokerCountRounded} Forex Brokers Rated by Real Traders`}
+        description={`Compare ${brokerCountRounded} forex & CFD brokers with verified trust scores, spreads, regulation, and real trader reviews. Updated daily — find the safest broker now.`}
         path="/brokers"
         image="https://www.notafugazitrader.com/og-brokers.jpg"
       />

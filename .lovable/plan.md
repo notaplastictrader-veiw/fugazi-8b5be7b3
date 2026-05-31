@@ -1,41 +1,47 @@
-
 ## Goal
-GitHub PR `gogang735-oss/Sportsbook#1` theke 5 ta ebook ene `courses` table a `type='ebook'` hisebe add kora, jate `/pro` page a "Courses & Ebooks" grid a show hoy.
+Replace hardcoded `900+` / `928` jaygayguloke ek dynamic `useBrokerCount()` hook diye, jate DB count badle UI shob jaygay auto-update hoy.
 
-## Source
-Branch: `ebook/cold-calling-mastery`. Sob ebook markdown format a (.md), PDF na.
+## Approach
 
-## Steps
+### 1. New hook: `src/hooks/useBrokerCount.ts`
+- React Query (already in project) diye `brokers` table theke published count fetch korbe (`select count`, `head: true`).
+- Cache: `staleTime: 1 hour`, `gcTime: 24 hours` — page navigation e refetch hobe na.
+- Return shape:
+  ```ts
+  { exact: 928, rounded: "900+", loading: boolean }
+  ```
+  - `rounded` = `Math.floor(exact / 100) * 100 + "+"` (e.g. 928 → "900+", 1050 → "1000+").
+- Fallback: load na hole `exact: 928, rounded: "900+"` (current values), jate first paint e empty na dekhay.
 
-### 1. Markdown → PDF conversion (sandbox)
-- 5 ta `.md` file raw GitHub URL theke download koro
-- Each MD ke ekta script (pandoc/markdown-pdf) diye styled PDF a convert koro (NAFT branding cover page, dark theme)
-- Output: `/tmp/ebooks/*.pdf`
+### 2. Update call sites
+Hook use korar jonno **React components only**:
 
-### 2. Upload PDFs to Supabase Storage
-- Bucket: `media` (already exists), folder: `ebooks/`
-- 5 ta PDF + 5 ta cover thumbnail upload
-- Public URLs save koro
+| File | Current | After |
+|---|---|---|
+| `src/components/sections/HeroSection.tsx` (line 16) | `"928"` hardcoded | `exact` from hook |
+| `src/pages/Index.tsx` (line 35, SEO desc) | `"900+"` | `rounded` |
+| `src/pages/Brokers.tsx` (lines 106-107, title+desc) | `"900+"` | `rounded` |
+| `src/pages/Ask.tsx` (line 131) | `"900+"` | `rounded` |
+| `src/components/sections/AIMatcherTeaser.tsx` (line 79) | `"900+"` | `rounded` |
+| `src/components/sections/BrokerJoinSection.tsx` (line 64) | `"900+"` | `rounded` |
+| `src/pages/admin/SiteSettingsAdmin.tsx` (lines 72, 180) | default text e `"900+"` | leave hardcoded (admin defaults, not user-facing) |
 
-### 3. Insert 5 courses rows
-Each row: `type='ebook'`, `status='published'`, `is_active=true`, `thumbnail_url`, `note` (download link), `display_order`
+### 3. Static HTML files (NOT touched by hook — JS can't reach them)
+Eikhane runtime e hook chalano jay na, kintu meta description gulo `react-helmet`/SEO component already dynamically replace kore — so problem nai.
+- `index.html` lines 20, 57, 125, 126, 133 — eta **left as `900+`** because:
+  - Per-route SEO component already overrides these for JS-executing crawlers.
+  - Number er rounded form (`900+`) DB count `928` er sathe still accurate.
+  - Crossing 1000 hole ek line manual update lagbe (rare, acceptable).
 
-| Slug | Title | Price | Featured |
-|---|---|---|---|
-| cold-calling-mastery | Cold Calling Mastery | $29 | ✓ Best Value |
-| forex-fundamentals-bootcamp | Forex Fundamentals Bootcamp | $19 | — |
-| smart-money-concepts-ict | Smart Money Concepts (ICT) | $39 | — |
-| risk-management-masterclass | Risk Management Masterclass | $24 | — |
-| prop-firm-playbook | Prop Firm Playbook | $29 | — |
+### 4. Cleanup
+- Already not using "280" anywhere — researcher er claim invalid, no fix needed for that.
+- `signals.ts` `"8,900"` (signal group members) unrelated — left alone.
 
-Includes array: chapter highlights from each ebook's content.
+## Out of scope
+- (a) OG image verification — next step
+- (c) Prerendering plan — next step
+- Admin site_settings default templates (admin-only, marketing copy)
 
-### 4. Verify
-- `/pro` page a Courses grid a 5 ta notun ebook card visible
-- Each "Buy" click korle existing `CoursePurchaseModal` open hobe (USDT/Telegram instructions)
-- Admin → Courses & Ebooks panel theke edit/delete kora jay
-
-## Confirmations needed
-1. **Prices ki theek?** Cold Calling $29 confirmed; baki 4 tar price ($19/$39/$24/$29) ami suggest korechi — change korte chaile bolo.
-2. **Sob 5 ta add korbo, naki sudhu Cold Calling Mastery (PR title onujayi) first a?**
-3. **Cover thumbnails** — ami AI diye 5 ta minimal cover image generate kore debo (NAFT brand colors), naki text-only PDFs okay?
+## Verify
+- Open `/` and `/brokers` — Hero stat should show `928`, meta description should say `900+`.
+- DB count badle (insert/delete broker), 1 hour stale time er por refresh e auto-update.

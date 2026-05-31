@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, Info } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 
@@ -12,17 +13,16 @@ const defaultTypewriterTexts = [
   "Search Crypto, Forecasts, Reviews...",
 ];
 
-const defaultStats = [
-  { value: "928", label: "Brokers & Firms", tooltip: "Includes all brokers and prop firms in our database, whether reviewed or not." },
-  { value: "50K+", label: "Reviews Analyzed", tooltip: "We analyze public reviews from multiple sources, not just user submissions." },
-  { value: "140+", label: "Countries Reached", tooltip: "Traders from 140+ countries access NAFT every month." },
-  { value: "1.2M+", label: "Platform Views", tooltip: "Total page views across all NAFT properties, last quarter." },
-];
-
 const HeroSection = () => {
   const cms = useSiteSettings<Record<string, any>>("hero_section", {});
   const typewriterTexts = (cms.search_placeholders?.length ? cms.search_placeholders : defaultTypewriterTexts) as string[];
-  const stats = defaultStats;
+  const { exact: brokerCount } = useBrokerCount();
+  const stats = [
+    { value: brokerCount.toLocaleString(), label: "Brokers & Firms", tooltip: "Includes all brokers and prop firms in our database, whether reviewed or not." },
+    { value: "50K+", label: "Reviews Analyzed", tooltip: "We analyze public reviews from multiple sources, not just user submissions." },
+    { value: "140+", label: "Countries Reached", tooltip: "Traders from 140+ countries access NAFT every month." },
+    { value: "1.2M+", label: "Platform Views", tooltip: "Total page views across all NAFT properties, last quarter." },
+  ];
 
   const [searchValue, setSearchValue] = useState("");
   const [displayText, setDisplayText] = useState("");
