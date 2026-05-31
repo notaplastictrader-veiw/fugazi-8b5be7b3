@@ -11,6 +11,7 @@ import JsonLd, { breadcrumbSchema, brokerReviewSchema, faqSchema } from "@/compo
 import StickyBrokerCTA from "@/components/broker/StickyBrokerCTA";
 import PeerBrokersRail from "@/components/broker/PeerBrokersRail";
 import WithdrawalProofGallery from "@/components/broker/WithdrawalProofGallery";
+import NotVerifiedStamp from "@/components/broker/NotVerifiedStamp";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
