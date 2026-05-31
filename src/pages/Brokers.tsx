@@ -150,7 +150,12 @@ const Brokers = () => {
             searchPlaceholder="Search brokers by name..."
           />
 
-          {loading && brokers.length === 0 ? (
+          {error ? (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+              <p className="text-sm text-foreground mb-3">{error}</p>
+              <button onClick={() => setRetryNonce(n => n + 1)} className="px-4 py-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90">Retry</button>
+            </div>
+          ) : loading && brokers.length === 0 ? (
             <ListingSkeleton count={9} />
           ) : totalFiltered === 0 ? (
             <EmptyResults query={query} onReset={reset} message={query ? undefined : "No brokers in this category yet."} />
