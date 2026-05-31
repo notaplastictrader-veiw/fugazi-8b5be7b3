@@ -1,4 +1,9 @@
 {
+  "redirects": [
+    { "source": "/propfirms", "destination": "/prop-firms", "permanent": true },
+    { "source": "/propfirm/:path*", "destination": "/prop-firm/:path*", "permanent": true },
+    { "source": "/brokers/:id/review", "destination": "/brokers/:id", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/sitemap.xml",
