@@ -11,6 +11,7 @@ import JsonLd, { breadcrumbSchema, brokerReviewSchema, faqSchema } from "@/compo
 import StickyBrokerCTA from "@/components/broker/StickyBrokerCTA";
 import PeerBrokersRail from "@/components/broker/PeerBrokersRail";
 import WithdrawalProofGallery from "@/components/broker/WithdrawalProofGallery";
+import NotVerifiedStamp from "@/components/broker/NotVerifiedStamp";
 import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -521,6 +522,7 @@ const BrokerDetail = () => {
                 ];
             return (
               <div className="glass-card rounded-2xl p-5 md:p-7 mb-6 overflow-hidden relative">
+                <NotVerifiedStamp show={!broker.naft_verified} />
                 {/* Top row: identity ←→ trust score panel */}
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-start">
                   {/* Identity */}
