@@ -145,6 +145,12 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://www.notafugazitrader.com/brokers/bullwaves</loc>
+    <lastmod>2026-05-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.notafugazitrader.com/brokers/decode</loc>
     <lastmod>2026-05-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -1551,12 +1557,6 @@
   <url>
     <loc>https://www.notafugazitrader.com/brokers/squared-markets</loc>
     <lastmod>2026-05-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.notafugazitrader.com/brokers/bullwaves</loc>
-    <lastmod>2026-05-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
