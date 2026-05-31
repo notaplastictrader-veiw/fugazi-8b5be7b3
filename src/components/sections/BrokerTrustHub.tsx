@@ -214,7 +214,12 @@ const BrokerTrustHub = () => {
 
   useEffect(() => {
     const fetchBrokers = async () => {
-      // 1) Admin-curated homepage brokers first
+      const hasReview = (b: any) =>
+        (b?.review_count ?? 0) > 0 || b?.long_review != null;
+      const isExcludedTag = (b: any) =>
+        b?.tags?.includes("upcoming") || b?.tags?.includes("review-coming-soon");
+
+      // 1) Admin-curated homepage brokers first (only reviewed ones)
       const { data: curated } = await supabase
         .from("brokers")
         .select("*")
@@ -223,9 +228,11 @@ const BrokerTrustHub = () => {
         .order("homepage_position", { ascending: true, nullsFirst: false })
         .limit(brokerCount);
 
-      let result: Broker[] = ((curated as Broker[]) || []).filter(b => !b.tags?.includes('upcoming'));
+      let result: Broker[] = ((curated as Broker[]) || []).filter(
+        (b) => !isExcludedTag(b) && hasReview(b)
+      );
 
-      // 2) Fallback: top-scored published brokers fill remaining slots
+      // 2) Fallback: top-scored reviewed brokers fill remaining slots
       if (result.length < brokerCount) {
         const remaining = brokerCount - result.length;
         const excludeIds = result.map((b) => b.id);
@@ -233,25 +240,26 @@ const BrokerTrustHub = () => {
           .from("brokers")
           .select("*")
           .eq("status", "published")
+          .or("review_count.gt.0,long_review.not.is.null")
           .order("score", { ascending: false })
-          .limit(remaining);
+          .limit(remaining + 20);
         if (excludeIds.length > 0) {
           fillerQuery = fillerQuery.not("id", "in", `(${excludeIds.join(",")})`);
         }
         const { data: fillers } = await fillerQuery;
-        if (fillers) result = [...result, ...(fillers as Broker[]).filter(b => !b.tags?.includes('upcoming'))];
+        if (fillers) {
+          const extra = (fillers as Broker[])
+            .filter((b) => !isExcludedTag(b) && hasReview(b))
+            .slice(0, remaining);
+          result = [...result, ...extra];
+        }
       }
 
-      // Sort: reviewed brokers first (by score), then unreviewed (by score)
-      result.sort((a, b) => {
-        const ar = (a.review_count ?? 0) > 0 ? 1 : 0;
-        const br = (b.review_count ?? 0) > 0 ? 1 : 0;
-        if (ar !== br) return br - ar;
-        return (b.score ?? 0) - (a.score ?? 0);
-      });
+      result.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      result = result.slice(0, brokerCount);
 
       if (result.length > 0) setBrokers(result);
-      else setBrokers(fallbackBrokers.filter(b => !b.tags?.includes('upcoming')));
+      else setBrokers(fallbackBrokers.filter((b) => !b.tags?.includes("upcoming")));
     };
     fetchBrokers();
   }, [brokerCount]);
