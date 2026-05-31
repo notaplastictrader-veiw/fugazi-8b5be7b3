@@ -1,52 +1,26 @@
-# Final 5 Fixes — Path to 9.0+
+## What's shipping
 
-## 1. 🔴 CRITICAL — Fix sitemap domain (Google indexation root cause)
+### 1. Cookie consent owns first paint
+- `BetaBanner` and `InstallAppPrompt` defer mounting their visible UI until `localStorage.cookie_consent` is set (accept or reject). They also listen for the existing `cookie-consent-changed` event so they appear immediately after the user decides.
+- Result: on first visit you see only the cookie modal. After accept/reject, the beta chip (top-left) and Install App pill (bottom-right) fade in. The "+" FAB is unaffected since it's the primary action.
 
-`scripts/generate-sitemap.ts` line 7 and the generated `public/sitemap.xml` all point to `https://fugazi.lovable.app` instead of the real production domain `https://www.notafugazitrader.com` (which is already used everywhere in `index.html` canonical/og/JSON-LD tags).
+### 2. PromoTicker: dead links + left-edge clipping
+- Every ticker item is currently `<a href="#">` — replace with `<Link to="/promotions">` (also for the sponsored items where no specific URL exists).
+- Add a left-edge fade mask (`mask-image` linear gradient) so the marquee doesn't visually "clip" mid-word at the viewport edge.
 
-Result: Google sees a sitemap full of `fugazi.lovable.app` URLs that either 404, redirect, or get treated as duplicates of the real domain → none of the dynamic broker/news/promotion pages get indexed.
+### 3. PropFirms silent empty state
+- The `try/finally` in `PropFirms.tsx` swallows fetch errors and shows "No prop firms found" indistinguishably from a real empty result. Add an `error` state and a small inline error banner with a retry button so transient failures (the bug I saw on first nav) surface instead of looking like missing content. Apply the same treatment to `Brokers.tsx` and `Signals.tsx` for consistency.
 
-**Change:**
-- `scripts/generate-sitemap.ts` → `BASE_URL = "https://www.notafugazitrader.com"`
-- Regenerate `public/sitemap.xml` (happens automatically on next `predev`/`prebuild`, but I'll also rewrite the committed file so it's correct immediately).
-- Add `Sitemap: https://www.notafugazitrader.com/sitemap.xml` to `public/robots.txt` if not already there.
+### Out of scope (noted, not shipped)
+- `manifest.webmanifest` 401 in preview — Lovable preview gates static manifests behind auth; production behind the project's domain serves it correctly. No code change needed.
+- Hero overlap with stats — already addressed by fix #1 (cookie modal will be dismissed before user reaches stats on most sessions).
 
-## 2. Pro page — add to navigation
+## Files touched
+- `src/components/BetaBanner.tsx` — gate visibility on cookie decision
+- `src/components/InstallAppPrompt.tsx` — gate FAB visibility on cookie decision
+- `src/components/sections/PromoTicker.tsx` — real links + fade mask
+- `src/pages/PropFirms.tsx` — error state + retry
+- `src/pages/Brokers.tsx` — error state + retry
+- `src/pages/Signals.tsx` — error state + retry
 
-`/pro` route exists (`src/pages/Pro.tsx`) but has zero entry points — monetization leak.
-
-**Change:** Add a "Pro" link in `Navbar.tsx` (desktop menu) with a small "New" or sparkle badge. Mobile: add to `MobileBottomNav` or the hamburger drawer (wherever Pricing-style items live).
-
-## 3. InstallAppPrompt — respect dismissed state
-
-`STORAGE_KEY = "naft_install_prompt_dismissed"` is *written* on dismiss but never *read*. The FAB re-appears on every page load even after the user clicks X.
-
-**Change:** In the `useEffect` mount block of `src/components/InstallAppPrompt.tsx`, check `localStorage.getItem(STORAGE_KEY)` before calling `setShowFab(true)`. Optionally add a 7-day TTL so it can re-surface later.
-
-## 4. Newsletter inline CTA on homepage
-
-Newsletter only lives in the footer (low conversion). Add one inline placement on the homepage between two content sections (e.g. after MarketsIntelBlock / before CommunityBlock) using the existing `<NewsletterSignup source="homepage_inline" />` component, wrapped in a glass-card with a short headline like "Get scam alerts before they cost you money."
-
-**Change:** New small section component `src/components/sections/NewsletterInline.tsx` (or inline JSX in `Index.tsx`), uses existing component — no new logic.
-
-## 5. Verify — confirm sitemap regenerates correctly
-
-After editing the script, the regenerated `public/sitemap.xml` should show `notafugazitrader.com` URLs. I'll spot-check the first few lines after the build hook runs.
-
----
-
-## Technical notes
-
-- No DB / no backend changes.
-- No new dependencies.
-- All edits are presentation/config only.
-- `index.html`, JSON-LD, and SEO component already use `notafugazitrader.com` — sitemap was the lone holdout.
-
-## Post-deploy user actions (cannot be done in code)
-
-After this ships, you should:
-1. Resubmit `https://www.notafugazitrader.com/sitemap.xml` in Google Search Console.
-2. Use GSC URL Inspection on 2–3 broker pages to request re-indexing.
-3. Confirm Cloudflare Bot Fight Mode is OFF and Googlebot is whitelisted (still the other half of the indexation story).
-
-**Estimated impact:** 8.1 → ~8.7 once Google re-crawls the corrected sitemap.
+No DB, no backend, no new dependencies.

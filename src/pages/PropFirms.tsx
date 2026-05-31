@@ -28,19 +28,32 @@ const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Fundi
 const PropFirms = () => {
   const [firms, setFirms] = useState<Broker[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState("All Prop Firms");
+  const [retryNonce, setRetryNonce] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     const fetch = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
-        if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon') && !b.tags?.includes('nfft-testing')));
+        const { data, error: fetchError } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+        if (cancelled) return;
+        if (fetchError) {
+          setError("Couldn't load prop firms. Please try again.");
+        } else if (data) {
+          setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon') && !b.tags?.includes('nfft-testing')));
+        }
+      } catch {
+        if (!cancelled) setError("Couldn't load prop firms. Please try again.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetch();
-  }, []);
+    return () => { cancelled = true; };
+  }, [retryNonce]);
 
 
   const categoryFiltered = firms.filter(b => filter === "All Prop Firms" || b.tags?.includes(filterMap[filter]));
@@ -100,7 +113,12 @@ const PropFirms = () => {
                 searchPlaceholder="Search prop firms by name..."
               />
 
-              {loading && firms.length === 0 ? (
+              {error ? (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+                  <p className="text-sm text-foreground mb-3">{error}</p>
+                  <button onClick={() => setRetryNonce(n => n + 1)} className="px-4 py-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90">Retry</button>
+                </div>
+              ) : loading && firms.length === 0 ? (
                 <ListingSkeleton count={6} gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4" cardHeight="h-64" />
               ) : totalFiltered === 0 ? (
                 <EmptyResults query={query} onReset={reset} message={query ? undefined : "No prop firms in this category yet."} />

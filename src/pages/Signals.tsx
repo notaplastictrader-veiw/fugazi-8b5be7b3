@@ -32,19 +32,32 @@ const parseMembers = (m: string) => parseInt((m || "0").replace(/[^\d]/g, ""), 1
 const Signals = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
   const { t } = useI18n();
 
   useEffect(() => {
+    let cancelled = false;
     const fetch = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const { data } = await supabase.from("signal_groups").select("*").eq("status", "published").order("win_rate", { ascending: false });
-        setGroups((data as SignalGroup[]) || []);
+        const { data, error: fetchError } = await supabase.from("signal_groups").select("*").eq("status", "published").order("win_rate", { ascending: false });
+        if (cancelled) return;
+        if (fetchError) {
+          setError("Couldn't load signal groups. Please try again.");
+        } else {
+          setGroups((data as SignalGroup[]) || []);
+        }
+      } catch {
+        if (!cancelled) setError("Couldn't load signal groups. Please try again.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetch();
-  }, []);
+    return () => { cancelled = true; };
+  }, [retryNonce]);
 
   const {
     visibleItems, page, setPage, totalPages, totalFiltered, totalAll,
@@ -104,7 +117,12 @@ const Signals = () => {
             searchPlaceholder="Search signal groups..."
           />
 
-          {loading && groups.length === 0 ? (
+          {error ? (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-6 text-center">
+              <p className="text-sm text-foreground mb-3">{error}</p>
+              <button onClick={() => setRetryNonce(n => n + 1)} className="px-4 py-2 text-xs font-semibold bg-primary text-primary-foreground rounded-lg hover:opacity-90">Retry</button>
+            </div>
+          ) : loading && groups.length === 0 ? (
             <ListingSkeleton count={6} />
           ) : totalFiltered === 0 ? (
             <EmptyResults query={query} onReset={reset} />

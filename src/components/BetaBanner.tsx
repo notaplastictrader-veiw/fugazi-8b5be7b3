@@ -8,8 +8,15 @@ const BetaBanner = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const dismissed = sessionStorage.getItem(STORAGE_KEY);
-    if (!dismissed) setVisible(true);
+    const check = () => {
+      const dismissed = sessionStorage.getItem(STORAGE_KEY);
+      const consent = localStorage.getItem("cookie_consent");
+      // Only show after the user has made a cookie decision
+      if (!dismissed && consent) setVisible(true);
+    };
+    check();
+    window.addEventListener("cookie-consent-changed", check);
+    return () => window.removeEventListener("cookie-consent-changed", check);
   }, []);
 
   if (!visible) return null;

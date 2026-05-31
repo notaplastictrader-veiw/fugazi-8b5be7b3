@@ -39,13 +39,18 @@ const PromoTicker = () => {
           <span className="text-[8px]">▶</span>
         </Link>
       </div>
-      <div className="overflow-hidden flex-1">
+      <div
+        className="overflow-hidden flex-1"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0, black 32px, black calc(100% - 32px), transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0, black 32px, black calc(100% - 32px), transparent 100%)",
+        }}
+      >
         <div className="ticker-track-fast">
           {items.map((text, i) => (
-            <a key={i} href="#" className="flex-shrink-0 flex items-center gap-2 text-xs hover:text-primary transition-colors cursor-pointer">
+            <Link key={i} to="/promotions" className="flex-shrink-0 flex items-center gap-2 text-xs hover:text-primary transition-colors cursor-pointer">
               <span className="text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{text}</span>
-            </a>
-
+            </Link>
           ))}
         </div>
       </div>
