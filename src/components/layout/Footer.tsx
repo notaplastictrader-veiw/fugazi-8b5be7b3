@@ -163,15 +163,19 @@ const Footer = () => {
               {socialLinks.map((s: any) => {
                 const meta = socialIconMap[s.platform];
                 if (!meta) return null;
+                // Hide social icons that have no real URL configured — empty
+                // strings and placeholder "#" should not render at all.
+                const url = (s.url || "").trim();
+                if (!url || url === "#") return null;
                 const Icon = meta.Icon;
-                const url = s.url || "#";
                 return (
                   <a
                     key={s.platform}
                     href={url}
-                    target={url !== "#" ? "_blank" : undefined}
-                    rel={url !== "#" ? "noopener noreferrer" : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     title={s.platform}
+                    aria-label={s.platform}
                     className={`w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground ${meta.color} transition-colors`}
                   >
                     <Icon />

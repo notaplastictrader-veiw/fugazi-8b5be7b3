@@ -164,32 +164,14 @@ const Sports = () => {
     pageSize: 12,
     paramPrefix: "bs",
   });
-  // Auto-display stats: total picks grows daily, settled = total - pending,
-  // correct = round(settled × winRate / 100). All seeded by UTC day so values
-  // stay stable within the day but rotate each day. Floor = real DB count.
-  const realCount = predictions.length;
-  const LAUNCH_MS = Date.UTC(2025, 0, 1); // Jan 1, 2025
-  const todayUTC = new Date();
-  const todayMs = Date.UTC(todayUTC.getUTCFullYear(), todayUTC.getUTCMonth(), todayUTC.getUTCDate());
-  const daysSinceLaunch = Math.max(0, Math.floor((todayMs - LAUNCH_MS) / 86_400_000));
-
-  // Deterministic per-day hash with a salt
-  const seededHash = (day: number, salt: number) => {
-    let h = (day * 2654435761 + salt * 97) >>> 0;
-    h ^= h >>> 13; h = (h * 1274126177) >>> 0; h ^= h >>> 16;
-    return h >>> 0;
-  };
-
-  // Cumulative auto-growth: 0..3 extra picks per day since launch
-  let cumulativeExtra = 0;
-  for (let d = 0; d <= daysSinceLaunch; d++) cumulativeExtra += seededHash(d, 1) % 4;
-
-  const totalPicks = realCount + cumulativeExtra;
-  const pending = totalPicks > 0 ? 2 + (seededHash(daysSinceLaunch, 2) % 4) : 0; // 2..5
-  const settledCount = Math.max(0, totalPicks - pending);
-  const dailySeededWinRate = 76 + (seededHash(daysSinceLaunch, 3) % 10); // 76..85
-  const winRate = settledCount > 0 ? dailySeededWinRate : null;
-  const correctCount = settledCount > 0 ? Math.round((settledCount * dailySeededWinRate) / 100) : 0;
+  // Real stats derived only from the DB. No synthetic growth, no seeded values.
+  // Track record builds up honestly as picks settle.
+  const totalPicks = predictions.length;
+  const settledPredictions = predictions.filter((p) => p.result && p.is_correct !== null);
+  const settledCount = settledPredictions.length;
+  const correctCount = settledPredictions.filter((p) => p.is_correct === true).length;
+  const pending = totalPicks - settledCount;
+  const winRate = settledCount > 0 ? Math.round((correctCount / settledCount) * 100) : null;
 
   const scrollToResults = () => {
     document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" });

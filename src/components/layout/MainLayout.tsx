@@ -8,6 +8,7 @@ import Footer from "./Footer";
 import MobileBottomNav from "./MobileBottomNav";
 import ExitIntentModal from "@/components/ExitIntentModal";
 import BetaBanner from "@/components/BetaBanner";
+import { useBreadcrumbLabel } from "@/lib/breadcrumbStore";
 
 const routeNames: Record<string, string> = {
   brokers: "Broker Reviews",
@@ -40,6 +41,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const pathSegments = location.pathname.split("/").filter(Boolean);
+  const overrideLabel = useBreadcrumbLabel();
 
   // Wave 0: scope heavy candlestick body::before to homepage only
   useEffect(() => {
@@ -52,7 +54,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const titleize = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   const crumbs = pathSegments.map((seg, i) => {
     const path = "/" + pathSegments.slice(0, i + 1).join("/");
-    const name = i === 0 ? (routeNames[seg] || titleize(seg)) : titleize(seg);
+    const isLast = i === pathSegments.length - 1;
+    const auto = i === 0 ? (routeNames[seg] || titleize(seg)) : titleize(seg);
+    const name = isLast && overrideLabel ? overrideLabel : auto;
     return { name, path };
   });
 
