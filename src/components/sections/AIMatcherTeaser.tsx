@@ -76,7 +76,7 @@ const AIMatcherTeaser = () => {
               <span className="text-primary">in 60 seconds.</span>
             </h2>
             <p className="text-muted-foreground mb-6 max-w-md">
-              Three quick taps. Our AI matcher cross-checks 280+ brokers, verified reviews, and live scam alerts to recommend the top 3 for you.
+              Three quick taps. Our AI matcher cross-checks 900+ brokers, verified reviews, and live scam alerts to recommend the top 3 for you.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
