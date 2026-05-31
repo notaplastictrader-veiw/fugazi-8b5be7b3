@@ -16,6 +16,7 @@ import { Radio } from "lucide-react";
 import PremiumSignalsTier from "@/components/sections/PremiumSignalsTier";
 import SponsoredBanner from "@/components/sponsored/SponsoredBanner";
 import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
+import ListingSkeleton from "@/components/common/ListingSkeleton";
 
 interface SignalGroup {
   id: string; name: string; win_rate: number; monthly_signals: string;
@@ -30,12 +31,17 @@ const parseMembers = (m: string) => parseInt((m || "0").replace(/[^\d]/g, ""), 1
 
 const Signals = () => {
   const [groups, setGroups] = useState<SignalGroup[]>([]);
+  const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("signal_groups").select("*").eq("status", "published").order("win_rate", { ascending: false });
-      setGroups((data as SignalGroup[]) || []);
+      try {
+        const { data } = await supabase.from("signal_groups").select("*").eq("status", "published").order("win_rate", { ascending: false });
+        setGroups((data as SignalGroup[]) || []);
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
   }, []);
@@ -98,7 +104,9 @@ const Signals = () => {
             searchPlaceholder="Search signal groups..."
           />
 
-          {totalFiltered === 0 ? (
+          {loading && groups.length === 0 ? (
+            <ListingSkeleton count={6} />
+          ) : totalFiltered === 0 ? (
             <EmptyResults query={query} onReset={reset} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

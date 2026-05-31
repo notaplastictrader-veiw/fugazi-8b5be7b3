@@ -217,7 +217,6 @@ const AppContent = () => {
           <Route path="/regulators/:slug" element={<RegulatorDetail />} />
           <Route path="/glossary" element={<GlossaryIndex />} />
           <Route path="/glossary/:slug" element={<GlossaryDetail />} />
-          <Route path="/glossary/:slug" element={<GlossaryDetail />} />
           <Route path="/match" element={<Match />} />
           <Route path="/ask" element={<Ask />} />
           <Route path="/forum" element={<Forum />} />

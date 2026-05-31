@@ -16,6 +16,7 @@ import CTABand from "@/components/common/CTABand";
 import SponsoredBrokerCard from "@/components/sponsored/SponsoredBrokerCard";
 import BecomeSponsorCard from "@/components/sponsored/BecomeSponsorCard";
 import BrokerCard, { Broker } from "@/components/broker/BrokerCard";
+import ListingSkeleton from "@/components/common/ListingSkeleton";
 
 const filters = ["All", "Forex", "Crypto", "Binary", "ECN", "Scam Watch"];
 const filterMap: Record<string, string> = { All: "", Forex: "forex", Crypto: "crypto", Binary: "binary", ECN: "ecn", "Scam Watch": "scam-watch" };
@@ -23,6 +24,7 @@ const typeToLabel: Record<string, string> = { forex: "Forex", crypto: "Crypto", 
 
 const Brokers = () => {
   const [brokers, setBrokers] = useState<Broker[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialFilter = typeToLabel[(searchParams.get("type") || "").toLowerCase()] || "All";
   const [filter, setFilter] = useState(initialFilter);
@@ -30,8 +32,12 @@ const Brokers = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
-      if (data) setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon')));
+      try {
+        const { data } = await supabase.from("brokers").select("*").eq("status", "published").neq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+        if (data) setBrokers((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon')));
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
   }, []);
@@ -131,7 +137,9 @@ const Brokers = () => {
             searchPlaceholder="Search brokers by name..."
           />
 
-          {totalFiltered === 0 ? (
+          {loading && brokers.length === 0 ? (
+            <ListingSkeleton count={9} />
+          ) : totalFiltered === 0 ? (
             <EmptyResults query={query} onReset={reset} message={query ? undefined : "No brokers in this category yet."} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

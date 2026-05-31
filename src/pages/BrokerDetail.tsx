@@ -35,6 +35,7 @@ import SentimentSparkline from "@/components/broker/SentimentSparkline";
 import PositionSizeCalculator from "@/components/calculators/PositionSizeCalculator";
 import OfferRail from "@/components/common/OfferRail";
 import LongReview, { type LongReviewData } from "@/components/broker/LongReview";
+import { setBreadcrumbLabel } from "@/lib/breadcrumbStore";
 
 interface AccountType { name: string; min_deposit: string; spread?: string; spread_from?: string; leverage?: string; commission: string; }
 interface Broker {
@@ -286,6 +287,13 @@ const BrokerDetail = () => {
   };
 
   useEffect(() => { fetchData(); }, [slug, user]);
+
+  // Replace the auto-generated last breadcrumb crumb (titlecased slug) with
+  // the broker's real display name once loaded. Clears on unmount.
+  useEffect(() => {
+    if (broker?.name) setBreadcrumbLabel(broker.name);
+    return () => setBreadcrumbLabel(null);
+  }, [broker?.name]);
 
   // Sync activeTab <-> URL hash so tabs are linkable
   useEffect(() => {

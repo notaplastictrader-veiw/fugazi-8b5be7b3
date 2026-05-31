@@ -14,6 +14,7 @@ import GlowFilterPills from "@/components/ui/GlowFilterPills";
 import TopFirmsRail from "@/components/sections/TopFirmsRail";
 import TrustLight from "@/components/broker/TrustLight";
 import { formatLeverageNumber } from "@/lib/brokerFormat";
+import ListingSkeleton from "@/components/common/ListingSkeleton";
 
 interface Broker {
   id: string; name: string; slug: string; type: string; tags: string[];
@@ -26,12 +27,17 @@ const filterMap: Record<string, string> = { "All Prop Firms": "", "Instant Fundi
 
 const PropFirms = () => {
   const [firms, setFirms] = useState<Broker[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All Prop Firms");
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
-      if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon') && !b.tags?.includes('nfft-testing')));
+      try {
+        const { data } = await supabase.from("brokers").select("*").eq("status", "published").eq("type", "prop-firm").not("long_review", "is", null).order("score", { ascending: false });
+        if (data) setFirms((data as Broker[]).filter(b => !b.tags?.includes('upcoming') && !b.tags?.includes('review-coming-soon') && !b.tags?.includes('nfft-testing')));
+      } finally {
+        setLoading(false);
+      }
     };
     fetch();
   }, []);
@@ -94,7 +100,9 @@ const PropFirms = () => {
                 searchPlaceholder="Search prop firms by name..."
               />
 
-              {totalFiltered === 0 ? (
+              {loading && firms.length === 0 ? (
+                <ListingSkeleton count={6} gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4" cardHeight="h-64" />
+              ) : totalFiltered === 0 ? (
                 <EmptyResults query={query} onReset={reset} message={query ? undefined : "No prop firms in this category yet."} />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
