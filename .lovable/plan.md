@@ -1,51 +1,82 @@
-## প্রথমে সত্যিটা পরিষ্কার করি
+## Goal
 
-আপনি যে পরামর্শটা পেয়েছেন সেটার কিছু অংশ ভুল, কিছু অংশ ঠিক:
-
-- ❌ **"PNG logo Google schema-তে কাজ করে না"** — এটা ভুল। Google Organization logo-এর জন্য **PNG, JPG, GIF সবই allowed** (অফিসিয়াল ডক)। PNG ফরম্যাট সমস্যা না।
-- ✅ **আসল সমস্যা**: আপনার schema-তে `logo` হিসেবে `/icons/apple-touch-icon.png` দেওয়া আছে — এটা ছোট আইকন (180×180), rounded corner, brand mark হিসেবে দুর্বল। Google চায় **clean square logo ≥112×112px**, ideally ImageObject হিসেবে width/height দেওয়া।
-- ❌ **"FXEmpire-এর মতো 6টা sitelink"** — এটা code দিয়ে force করা যায় না। Google নিজে authority + click data + clear nav structure দেখে auto-generate করে। আমরা শুধু signals দিতে পারি (SiteNavigationElement schema, clear nav, internal links)।
-- ✅ **আসল কারণ আপনি rank করছেন না**: domain বয়স <১ মাস, GSC-তে indexing request করা হয়নি, brand mentions কম। এটা code না — time + GSC + content।
+Tomar deya 4 ta area (Auth, Profile, Reviews/Complaints/Watchlist, Admin+RLS) A-to-Z verify korbo, ar **profile photo update na howar bug** fix korbo.
 
 ---
 
-## আমি যেগুলো কোডে fix করব
+## 1. Profile photo bug — root cause + fix
 
-### 1. Logo schema upgrade (index.html)
-- `logo` কে string থেকে `ImageObject`-এ convert করব with explicit `width: 512, height: 512`
-- Source: `/icons/icon-512.png` (already square, clean, 512×512 — perfect for Google Knowledge Panel)
-- `sameAs` array expand করব (Telegram, YouTube ইত্যাদি যদি থাকে — আপনি দিলে যোগ করব)
+### Ki dhorlam (code review)
 
-### 2. SiteNavigationElement schema যোগ করব
-Brand SERP-এ sitelinks পাওয়ার probability বাড়ানোর জন্য primary nav items (Brokers, Prop Firms, Signals, Scam Alerts, News, Education) explicit schema হিসেবে declare করব। এটা guarantee না, কিন্তু signal।
+`src/pages/dashboard/ProfileSettings.tsx`:
+- Upload kaj korche (ImageUpload → Supabase Storage → public URL)
+- Save click korle `profiles.avatar_url` update hochhe ✅
+- `supabase.auth.updateUser({ data: { avatar_url } })` o call hochhe ✅
+- React Query invalidate o hochhe (`my-profile`, `profile`, `public-profile`) ✅
 
-### 3. Homepage internal linking আরও স্পষ্ট
-Footer/nav-এর সব major section homepage থেকে clearly linked আছে কিনা verify করব — sitelinks-এর জন্য Google এটা দেখে।
+### Real problem (2 ta layer)
 
-### 4. robots.txt verify
-আপনার robots.txt ইতিমধ্যেই clean — `/icons/` block করা নেই। কিছু পরিবর্তন লাগবে না, শুধু confirm করব।
+**A. Auth session refresh hoy na**
+`supabase.auth.updateUser()` server a metadata update kore, kintu **client side `user.user_metadata` purono thake** jotokkhon na page reload hoy ba `refreshSession()` call hoy. Result: `user.user_metadata.avatar_url` purono dekhay (Navbar, Overview, etc. ei field use kore).
 
-### 5. Sitemap এ canonical paths confirm
-Sitemap ঠিক আছে (25+ static + dynamic broker/news/promo)। ঠিক থাকছে।
+**B. Browser image cache + Supabase Storage URL**
+ImageUpload upload korar somoy `cacheControl: "3600"` set kore. Filename `${Date.now()}-...` unique, taile new URL, kintu jodi ekta image `<img src>` re-render na hoy (component memoized), browser update na korte pare. CDN-level cache o thakte pare.
 
----
+### Fix
 
-## যেগুলো আপনাকে নিজে করতে হবে (code দিয়ে হবে না)
-
-Code push করার পর এই steps **must do** — না হলে কিছুই rank করবে না:
-
-1. **Google Search Console** → `https://www.notafugazitrader.com/` property add করুন (verification meta tag ইতিমধ্যে index.html-এ আছে — line 22)
-2. **Sitemap submit**: GSC → Sitemaps → `https://www.notafugazitrader.com/sitemap.xml`
-3. **URL Inspection** → মূল ৮টা page (home, /brokers, /prop-firms, /signals, /scam-alerts, /news, /education, /about) → "Request Indexing"
-4. **Brand backlinks তৈরি করুন**: Twitter bio-তে link, Reddit r/forex-এ helpful comments, Medium article — এগুলো ছাড়া authority বাড়বে না
-5. **৪-৮ সপ্তাহ অপেক্ষা**: নতুন domain Google পুরো index করতে এই সময় লাগে। FXEmpire ১৫ বছরের পুরনো — instant compete করা impossible
+1. **`updateUser` er pore `supabase.auth.refreshSession()` call koro** → fresh `user.user_metadata` AuthContext a propagate hobe.
+2. **AuthContext a `USER_UPDATED` event handle koro** → onAuthStateChange a `_event === "USER_UPDATED"` hole o `setSession` call hoy (ekhon already shob event a hoy, kintu confirm korbo).
+3. **Image upload e `cacheControl: "0"`** + **cache-busting query param** (`?v=${Date.now()}`) URL er sathe attach kore save koro → browser/CDN guaranteed fresh image dekhabe.
+4. **ProfileHeader, dashboard, navbar** — shobjaiga profile query theke avatar nilo, `user.user_metadata` use kore na — ei consistency confirm korbo.
 
 ---
 
-## Files to change
+## 2. Auth flow QA (Signup / Login / Google / Reset)
 
-1. `index.html` — Organization logo schema upgrade, SiteNavigationElement schema add
+- `/signup` — email+password + Google button, `handle_new_user` trigger profile create kore ✅ (DB function ase)
+- `/login` — email+password + Google
+- `/forgot-password` + `/reset-password` route exist + flow check
+- Google OAuth — `configure_social_auth` configured kina verify, redirect URL check
+- Session persistence — refresh korle logged in thake kina
 
-বাকি কিছু change করার দরকার নেই — robots.txt, sitemap.xml, manifest সব ঠিক আছে।
+**Action:** Code path read-only review, supabase auth_logs query, edge case (existing email, weak password) note korbo.
 
-আপনি ok বললে build mode-এ গিয়ে এই changes apply করব।
+---
+
+## 3. User dashboard QA
+
+- **Overview** — stats load, links kaj kore
+- **My Reviews** — RLS: user own reviews dekhe (currently `reviews` table a "Public can view published" ase, kintu nijer pending/draft o dekhar policy ase kina verify)
+- **My Complaints** — similar RLS check
+- **Watchlist** — table exist, insert/delete RLS
+- **Notification Preferences** — insert/update working
+- **Profile photo update** — ↑ fix er por test
+
+---
+
+## 4. Admin + RLS audit
+
+- Run `supabase--linter` for security findings
+- `has_role()` SECURITY DEFINER properly use hocche shob admin policy te ✅ (confirmed in db functions)
+- Admin pages load (Brokers, Reviews, Approvals, Users, Referral Analytics)
+- 4-tier RBAC working (super_admin, content_ops, broker_ops, viewer)
+- Check `user_roles` table grant + RLS
+
+---
+
+## Deliverable
+
+1. **Code change** — `src/pages/dashboard/ProfileSettings.tsx` (refreshSession + cache-bust) + `src/components/admin/ImageUpload.tsx` (cacheControl: "0", optional return cache-busted URL)
+2. **Read-only QA report** — chat a likhe debo prottek section a ki paisi (✅ working / ⚠️ minor / ❌ broken)
+3. Konno broken thakle alada plan/fix proposal
+
+---
+
+## Out of scope
+
+- New features / UI redesign
+- Email template change
+- Performance tuning
+- Edge function rewrite (shudhu read-only check)
+
+Confirm korle code change + QA shuru korbo.
