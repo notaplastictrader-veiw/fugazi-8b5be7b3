@@ -23,18 +23,18 @@ const BetaBanner = () => {
     <div
       role="status"
       aria-label="Site in beta"
-      className="fixed left-3 bottom-[96px] md:bottom-12 z-[190] max-w-[calc(100vw-1.5rem)] sm:max-w-sm"
+      className="fixed top-2 left-1/2 -translate-x-1/2 z-[300] max-w-[calc(100vw-1rem)] w-auto"
     >
-      <div className="flex items-start gap-2 px-3 py-2 rounded-md border border-primary/40 bg-background/95 backdrop-blur-sm shadow-lg">
-        <Wrench className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
-        <div className="text-[11px] leading-snug text-foreground/90 font-mono">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/50 bg-background/95 backdrop-blur-sm shadow-lg">
+        <Wrench className="w-3.5 h-3.5 text-primary shrink-0" />
+        <div className="text-[11px] leading-snug text-foreground/90 font-mono whitespace-nowrap overflow-hidden text-ellipsis">
           <span className="text-primary font-semibold uppercase tracking-wider">Beta</span>
           <span className="mx-1.5 text-border">|</span>
-          NAFT is in active testing. Spotted a bug or wrong data?{" "}
+          <span className="hidden sm:inline">NAFT is in active testing. Spotted a bug?{" "}</span>
+          <span className="sm:hidden">In testing.{" "}</span>
           <a href="/contact" className="underline text-primary hover:text-primary/80">
             Report it
-          </a>{" "}
-          — we'll fix it fast.
+          </a>
         </div>
         <button
           onClick={dismiss}
