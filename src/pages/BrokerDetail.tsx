@@ -522,6 +522,7 @@ const BrokerDetail = () => {
                 ];
             return (
               <div className="glass-card rounded-2xl p-5 md:p-7 mb-6 overflow-hidden relative">
+                <NotVerifiedStamp show={!broker.naft_verified} />
                 {/* Top row: identity ←→ trust score panel */}
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 items-start">
                   {/* Identity */}
