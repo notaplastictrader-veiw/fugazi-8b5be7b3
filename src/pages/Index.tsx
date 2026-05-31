@@ -3,6 +3,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { organizationSchema, websiteSchema, faqSchema } from "@/components/seo/JsonLd";
 import LazySection from "@/components/LazySection";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 import HeroSection from "@/components/sections/HeroSection";
 import LiveTrustTicker from "@/components/sections/LiveTrustTicker";
 import BrokerTrustHub from "@/components/sections/BrokerTrustHub";
@@ -28,11 +29,12 @@ const ForumActivityWidget = lazy(() => import("@/components/sections/ForumActivi
 const NewsletterInline = lazy(() => import("@/components/sections/NewsletterInline"));
 
 const Index = () => {
+  const { rounded: brokerCountRounded } = useBrokerCount();
   return (
     <MainLayout>
       <SEO
         title="Not A Fugazi Trader | Broker Reviews & Scam Alerts"
-        description="Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare 900+ brokers, get verified signals, and avoid scams."
+        description={`Most trusted broker review platform. Real reviews, real complaints, real withdrawal proof. Compare ${brokerCountRounded} brokers, get verified signals, and avoid scams.`}
         path="/"
       />
       <JsonLd data={organizationSchema} />

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, Sparkles, ArrowRight, Info } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useBrokerCount } from "@/hooks/useBrokerCount";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 
