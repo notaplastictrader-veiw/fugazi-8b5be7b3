@@ -145,11 +145,16 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
+            <Link to="/" className="inline-flex items-center gap-2.5 mb-1">
               <img loading="lazy" decoding="async" src={logoSrc} alt="NAFT Logo" className="w-9 h-9" />
-              <span className="text-xl font-bold text-foreground">
-                {brandName} <span className="text-primary">{brandAccent}</span>
-              </span>
+              <div className="flex flex-col leading-none">
+                <span className="text-xl font-bold text-foreground">
+                  {brandName} <span className="text-primary">{brandAccent}</span>
+                </span>
+                <span className="text-[11px] font-semibold tracking-[0.12em] text-muted-foreground uppercase mt-0.5">
+                  Former Broker Insider
+                </span>
+              </div>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
               {brandDescription}
