@@ -1543,6 +1543,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_public: boolean | null
+          is_verified_trader: boolean
           phone: string | null
           reputation_score: number | null
           reputation_tier: string | null
@@ -1573,6 +1574,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_public?: boolean | null
+          is_verified_trader?: boolean
           phone?: string | null
           reputation_score?: number | null
           reputation_tier?: string | null
@@ -1603,6 +1605,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_public?: boolean | null
+          is_verified_trader?: boolean
           phone?: string | null
           reputation_score?: number | null
           reputation_tier?: string | null
