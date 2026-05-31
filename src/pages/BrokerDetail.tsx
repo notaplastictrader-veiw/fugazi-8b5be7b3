@@ -288,6 +288,13 @@ const BrokerDetail = () => {
 
   useEffect(() => { fetchData(); }, [slug, user]);
 
+  // Replace the auto-generated last breadcrumb crumb (titlecased slug) with
+  // the broker's real display name once loaded. Clears on unmount.
+  useEffect(() => {
+    if (broker?.name) setBreadcrumbLabel(broker.name);
+    return () => setBreadcrumbLabel(null);
+  }, [broker?.name]);
+
   // Sync activeTab <-> URL hash so tabs are linkable
   useEffect(() => {
     const h = location.hash.replace("#", "");
