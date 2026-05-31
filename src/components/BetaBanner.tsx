@@ -23,7 +23,7 @@ const BetaBanner = () => {
     <div
       role="status"
       aria-label="Site in beta"
-      className="fixed top-12 left-4 z-[300] max-w-[calc(100vw-1rem)] w-auto"
+      className="fixed top-14 md:top-24 left-4 z-[160] max-w-[calc(100vw-1rem)] w-auto"
     >
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/50 bg-background/95 backdrop-blur-sm shadow-lg">
         <Wrench className="w-3.5 h-3.5 text-primary shrink-0" />
