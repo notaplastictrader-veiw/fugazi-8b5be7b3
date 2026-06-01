@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import { Sparkles, MessageCircle, Plus, X, Send, Headphones } from "lucide-react";
-import { Link } from "react-router-dom";
 import AIChatSheet from "@/components/ai/AIChatSheet";
+import LiveChatSheet from "@/components/support/LiveChatSheet";
 import { cn } from "@/lib/utils";
 
 /**
  * Floating help FAB — expands to 4 support options:
- * AI Quick Assist, Live Chat, Telegram, WhatsApp (coming soon).
+ * Quick Assist (AI), Live Chat (in-app support), Telegram, WhatsApp (coming soon).
  */
 const FloatingActions = () => {
   const [open, setOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [liveOpen, setLiveOpen] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -57,15 +58,14 @@ const FloatingActions = () => {
           )}
           style={{ transitionDelay: open ? "60ms" : "0ms" }}
         >
-          <span className={pillLabel}>Live Chat</span>
-          <Link
-            to="/contact"
-            onClick={() => setOpen(false)}
-            aria-label="Live chat with support"
+          <span className={pillLabel}>Live Chat · ~15–30 min reply</span>
+          <button
+            onClick={() => { setLiveOpen(true); setOpen(false); }}
+            aria-label="Open live chat with support"
             className={cn(iconBtn, "bg-primary text-primary-foreground")}
           >
             <Headphones className="w-5 h-5" />
-          </Link>
+          </button>
         </div>
 
         {/* Telegram */}
@@ -120,6 +120,7 @@ const FloatingActions = () => {
       </div>
 
       <AIChatSheet open={aiOpen} onOpenChange={setAiOpen} />
+      <LiveChatSheet open={liveOpen} onOpenChange={setLiveOpen} />
     </>
   );
 };
