@@ -220,10 +220,12 @@ const AuthModal = ({ open, onClose, defaultTab = "login", defaultRole }: AuthMod
   };
 
   const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
+    if (result.error) {
+      toast.error(result.error.message);
+    }
   };
 
   const handleForgot = async (e: React.FormEvent) => {
