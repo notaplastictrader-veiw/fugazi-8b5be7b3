@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface SearchResult {
   id: string;
   title: string;
-  type: "broker" | "signal" | "news" | "scam_alert" | "forecast" | "promotion";
+  type: "broker" | "prop_firm" | "signal" | "news" | "scam_alert" | "forecast" | "promotion";
   url: string;
 }
 
@@ -23,7 +23,7 @@ export const useGlobalSearch = (query: string) => {
       const q = `%${query}%`;
 
       const [brokers, signals, news, scams, forecasts, promos] = await Promise.all([
-        supabase.from("brokers").select("id, name, slug").eq("status", "published").ilike("name", q).limit(5),
+        supabase.from("brokers").select("id, name, slug, type").eq("status", "published").ilike("name", q).limit(5),
         supabase.from("signal_groups").select("id, name").eq("status", "published").ilike("name", q).limit(5),
         supabase.from("news_articles").select("id, title, slug").eq("status", "published").ilike("title", q).limit(5),
         supabase.from("scam_alerts").select("id, title").eq("status", "published").ilike("title", q).limit(5),
@@ -32,7 +32,15 @@ export const useGlobalSearch = (query: string) => {
       ]);
 
       const mapped: SearchResult[] = [
-        ...(brokers.data || []).map((b) => ({ id: b.id, title: b.name, type: "broker" as const, url: `/brokers/${b.slug}` })),
+        ...(brokers.data || []).map((b: any) => {
+          const isProp = b.type === "prop" || b.type === "prop_firm";
+          return {
+            id: b.id,
+            title: b.name,
+            type: (isProp ? "prop_firm" : "broker") as "broker" | "prop_firm",
+            url: isProp ? `/prop-firms/${b.slug}` : `/brokers/${b.slug}`,
+          };
+        }),
         ...(signals.data || []).map((s) => ({ id: s.id, title: s.name, type: "signal" as const, url: "/signals" })),
         ...(news.data || []).map((n) => ({ id: n.id, title: n.title, type: "news" as const, url: "/news" })),
         ...(scams.data || []).map((s) => ({ id: s.id, title: s.title, type: "scam_alert" as const, url: "/scam-alerts" })),
