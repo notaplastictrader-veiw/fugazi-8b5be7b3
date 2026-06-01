@@ -32,7 +32,15 @@ export const useGlobalSearch = (query: string) => {
       ]);
 
       const mapped: SearchResult[] = [
-        ...(brokers.data || []).map((b) => ({ id: b.id, title: b.name, type: "broker" as const, url: `/brokers/${b.slug}` })),
+        ...(brokers.data || []).map((b: any) => {
+          const isProp = b.type === "prop" || b.type === "prop_firm";
+          return {
+            id: b.id,
+            title: b.name,
+            type: (isProp ? "prop_firm" : "broker") as "broker" | "prop_firm",
+            url: isProp ? `/prop-firms/${b.slug}` : `/brokers/${b.slug}`,
+          };
+        }),
         ...(signals.data || []).map((s) => ({ id: s.id, title: s.name, type: "signal" as const, url: "/signals" })),
         ...(news.data || []).map((n) => ({ id: n.id, title: n.title, type: "news" as const, url: "/news" })),
         ...(scams.data || []).map((s) => ({ id: s.id, title: s.title, type: "scam_alert" as const, url: "/scam-alerts" })),
