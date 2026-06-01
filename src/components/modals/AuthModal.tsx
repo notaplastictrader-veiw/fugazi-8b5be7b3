@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Check, ChevronDown, Loader2, User, Radio, Building2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
