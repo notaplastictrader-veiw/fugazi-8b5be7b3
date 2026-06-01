@@ -23,7 +23,7 @@ export const useGlobalSearch = (query: string) => {
       const q = `%${query}%`;
 
       const [brokers, signals, news, scams, forecasts, promos] = await Promise.all([
-        supabase.from("brokers").select("id, name, slug").eq("status", "published").ilike("name", q).limit(5),
+        supabase.from("brokers").select("id, name, slug, type").eq("status", "published").ilike("name", q).limit(5),
         supabase.from("signal_groups").select("id, name").eq("status", "published").ilike("name", q).limit(5),
         supabase.from("news_articles").select("id, title, slug").eq("status", "published").ilike("title", q).limit(5),
         supabase.from("scam_alerts").select("id, title").eq("status", "published").ilike("title", q).limit(5),
