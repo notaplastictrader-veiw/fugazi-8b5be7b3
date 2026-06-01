@@ -170,6 +170,7 @@ const AppContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       <AnalyticsTracker />
       <CookieConsent />
       <InstallAppPrompt />
