@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface SearchResult {
   id: string;
   title: string;
-  type: "broker" | "signal" | "news" | "scam_alert" | "forecast" | "promotion";
+  type: "broker" | "prop_firm" | "signal" | "news" | "scam_alert" | "forecast" | "promotion";
   url: string;
 }
 
