@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Check, ChevronDown, Loader2, User, Radio, Building2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { countries } from "@/data/countries";
 import { useTheme } from "@/hooks/useTheme";
@@ -219,10 +220,12 @@ const AuthModal = ({ open, onClose, defaultTab = "login", defaultRole }: AuthMod
   };
 
   const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
+    if (result.error) {
+      toast.error(result.error.message);
+    }
   };
 
   const handleForgot = async (e: React.FormEvent) => {

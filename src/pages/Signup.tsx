@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, Eye, EyeOff, Globe, ChevronDown, User, Phone, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/contexts/I18nContext";
@@ -122,12 +123,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin + "/auth/callback",
     });
-    if (error) {
-      toast({ title: "Google signup failed", description: error.message, variant: "destructive" });
+    if (result.error) {
+      toast({ title: "Google signup failed", description: result.error.message, variant: "destructive" });
     }
   };
 
