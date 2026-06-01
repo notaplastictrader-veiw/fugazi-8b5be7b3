@@ -39,7 +39,7 @@ const FloatingActions = () => {
           )}
           style={{ transitionDelay: open ? "0ms" : "0ms" }}
         >
-          <span className={pillLabel}>AI Quick Assist</span>
+          <span className={pillLabel}>Quick Assist</span>
           <button
             onClick={() => { setAiOpen(true); setOpen(false); }}
             aria-label="Open AI Quick Assist"
