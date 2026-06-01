@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, X, TrendingUp, Radio, Newspaper, AlertTriangle, BarChart3, Gift } from "lucide-react";
+import { Search, X, TrendingUp, Radio, Newspaper, AlertTriangle, BarChart3, Gift, Trophy } from "lucide-react";
 import { useGlobalSearch, SearchResult } from "@/hooks/useGlobalSearch";
 
 const typeIcons: Record<string, typeof TrendingUp> = {
   broker: TrendingUp,
+  prop_firm: Trophy,
   signal: Radio,
   news: Newspaper,
   scam_alert: AlertTriangle,
@@ -14,6 +15,7 @@ const typeIcons: Record<string, typeof TrendingUp> = {
 
 const typeLabels: Record<string, string> = {
   broker: "Broker",
+  prop_firm: "Prop Firm",
   signal: "Signal",
   news: "News",
   scam_alert: "Scam Alert",
