@@ -57,11 +57,12 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth/callback",
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/auth/callback" },
     });
-    if (result.error) {
-      toast({ title: "Google login failed", description: result.error.message, variant: "destructive" });
+    if (error) {
+      toast({ title: "Google login failed", description: error.message, variant: "destructive" });
     }
   };
 
