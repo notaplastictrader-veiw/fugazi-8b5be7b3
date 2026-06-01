@@ -78,6 +78,9 @@ const LiveChatSheet = ({ open, onOpenChange }: Props) => {
       subject: subject.trim(),
       message: message.trim(),
       status: "open",
+      contact_name: (user.user_metadata as any)?.full_name || user.email?.split("@")[0] || "User",
+      contact_email: user.email || "unknown@example.com",
+      contact_phone: (user.user_metadata as any)?.phone || "N/A",
     });
     setSending(false);
     if (error) {
