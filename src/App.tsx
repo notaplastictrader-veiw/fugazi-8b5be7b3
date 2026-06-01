@@ -14,6 +14,7 @@ import InstallAppPrompt from "@/components/InstallAppPrompt";
 import { useReferralTracking } from "@/hooks/useReferralTracking";
 import LayoutSkeleton from "@/components/layout/LayoutSkeleton";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ScrollToTop from "@/components/ScrollToTop";
 
 // Eager-loaded pages (critical path)
 import Index from "./pages/Index";
@@ -169,6 +170,7 @@ const AppContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       <AnalyticsTracker />
       <CookieConsent />
       <InstallAppPrompt />
