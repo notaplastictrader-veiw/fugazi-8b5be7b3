@@ -20,8 +20,6 @@ const TikTokIcon = () => (
 );
 
 const socialIconMap: Record<string, { Icon: any; color: string }> = {
-  X: { Icon: XIcon, color: "hover:text-foreground" },
-  Twitter: { Icon: XIcon, color: "hover:text-foreground" },
   LinkedIn: { Icon: Linkedin, color: "hover:text-[#0A66C2]" },
   YouTube: { Icon: Youtube, color: "hover:text-[#FF0000]" },
   Telegram: { Icon: Send, color: "hover:text-[#26A5E4]" },
