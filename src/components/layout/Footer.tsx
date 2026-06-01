@@ -85,7 +85,6 @@ const defaultColumns = [
 ];
 
 const defaultSocial = [
-  { platform: "X", url: "" },
   { platform: "LinkedIn", url: "" },
   { platform: "YouTube", url: "" },
   { platform: "Telegram", url: "" },
