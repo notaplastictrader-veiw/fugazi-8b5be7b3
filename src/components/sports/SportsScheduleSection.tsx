@@ -8,6 +8,7 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import MatchPredictionCard from "@/components/sports/MatchPredictionCard";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
@@ -417,11 +418,38 @@ const SportsScheduleSection = () => {
                   <EmptyResults query={upcomingList.query} onReset={upcomingList.reset} />
                 ) : (
                   <>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {upcomingList.visibleItems.map((m) => (
-                        <UpcomingCard key={m.id} m={m} now={now} />
-                      ))}
-                    </div>
+                    {(() => {
+                      const groups = new Map<string, typeof upcomingList.visibleItems>();
+                      for (const m of upcomingList.visibleItems) {
+                        const d = new Date(m.date);
+                        const key = Number.isFinite(d.getTime())
+                          ? d.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })
+                          : "TBD";
+                        if (!groups.has(key)) groups.set(key, [] as any);
+                        (groups.get(key) as any).push(m);
+                      }
+                      return Array.from(groups.entries()).map(([day, items]) => (
+                        <div key={day} className="mb-8">
+                          <h4 className="text-sm font-mono uppercase tracking-wider text-muted-foreground border-b border-border/40 pb-2 mb-4">
+                            {day}
+                          </h4>
+                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {items.map((m) => (
+                              <MatchPredictionCard
+                                key={m.id}
+                                league={m.league}
+                                kickoffIso={m.date}
+                                teamA={m.homeTeam}
+                                teamB={m.awayTeam}
+                                countdown={m.status === "Live"
+                                  ? { label: "LIVE", tone: "live" }
+                                  : formatCountdown(m.date, now)}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ));
+                    })()}
                     <SmartPagination
                       page={upcomingList.page}
                       totalPages={upcomingList.totalPages}
