@@ -6,7 +6,6 @@ import { Trophy, Target, RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PredictionCard from "@/components/sports/PredictionCard";
-import MatchPredictionCard from "@/components/sports/MatchPredictionCard";
 import BettingSiteCard from "@/components/sports/BettingSiteCard";
 import SportsScheduleSection from "@/components/sports/SportsScheduleSection";
 import { bettingSites as staticBettingSites } from "@/data/bettingSites";
@@ -345,39 +344,9 @@ const Sports = () => {
                   <EmptyResults query={upcomingList.query} onReset={upcomingList.reset} />
                 ) : (
                   <>
-                    {(() => {
-                      // Group cards by UTC calendar day, e.g. "Fri Jun 19"
-                      const groups = new Map<string, typeof upcomingList.visibleItems>();
-                      for (const p of upcomingList.visibleItems) {
-                        const d = new Date(p.match_date);
-                        const key = Number.isFinite(d.getTime())
-                          ? d.toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })
-                          : "TBD";
-                        if (!groups.has(key)) groups.set(key, [] as any);
-                        (groups.get(key) as any).push(p);
-                      }
-                      return Array.from(groups.entries()).map(([day, items]) => (
-                        <div key={day} className="mb-8">
-                          <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground border-b border-border/40 pb-2 mb-4">
-                            {day}
-                          </h3>
-                          <div className="grid md:grid-cols-2 gap-6">
-                            {items.map((p) => (
-                              <MatchPredictionCard
-                                key={p.id}
-                                league={p.title || p.sport}
-                                kickoffIso={p.match_date}
-                                teamA={p.team_a}
-                                teamB={p.team_b}
-                                prediction={p.prediction}
-                                confidence={p.confidence}
-                                note={p.analyst_note}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      ));
-                    })()}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {upcomingList.visibleItems.map((p) => <PredictionCard key={p.id} prediction={p} />)}
+                    </div>
                     <SmartPagination
                       page={upcomingList.page}
                       totalPages={upcomingList.totalPages}
