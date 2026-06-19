@@ -176,11 +176,16 @@ const Sports = () => {
   });
   // Real stats derived only from the DB. No synthetic growth, no seeded values.
   // Track record builds up honestly as picks settle.
-  const totalPicks = predictions.length;
+  // Only count predictions actually surfaced in the feed (settled + active upcoming) —
+  // not the entire raw schedule pool, which inflates the number with picks we never published.
   const settledPredictions = predictions.filter((p) => p.result && p.is_correct !== null);
+  const activeUpcoming = predictions.filter(
+    (p) => !p.result && new Date(p.match_date).getTime() + UPCOMING_GRACE_MS > nowMsForUpcoming
+  );
+  const totalPicks = settledPredictions.length + activeUpcoming.length;
   const settledCount = settledPredictions.length;
   const correctCount = settledPredictions.filter((p) => p.is_correct === true).length;
-  const pending = totalPicks - settledCount;
+  const pending = activeUpcoming.length;
   const winRate = settledCount > 0 ? Math.round((correctCount / settledCount) * 100) : null;
 
   return (
