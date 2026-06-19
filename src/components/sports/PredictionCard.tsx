@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, TrendingUp, AlertTriangle } from "lucide-react";
+import { TrendingUp, AlertTriangle } from "lucide-react";
+import PredictionResultStamp from "./PredictionResultStamp";
 
 interface Prediction {
   id: string;
@@ -69,17 +70,16 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
 
   return (
     <div className={`relative overflow-hidden glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20 ${isPast ? "opacity-95" : ""}`}>
-      {isPast && p.is_correct !== null && (
-        <div
-          aria-hidden
-          className={`pointer-events-none absolute top-5 right-4 z-10 select-none rotate-[-14deg] rounded-md border-[3px] px-3 py-1 font-mono font-black tracking-[0.2em] text-base uppercase opacity-80 ${
-            p.is_correct ? "border-primary text-primary" : "border-destructive text-destructive"
-          }`}
-          style={{ textShadow: "0 0 1px currentColor" }}
-        >
-          {p.is_correct ? "Winner ✓" : "Loser ✗"}
-        </div>
-      )}
+      {isPast && p.is_correct !== null && (() => {
+        const scoreMatch = p.result?.match(/(\d+)\s*[-:]\s*(\d+)/);
+        const isDraw = scoreMatch && scoreMatch[1] === scoreMatch[2];
+        const variant: "winner" | "loser" | "draw" = p.is_correct
+          ? "winner"
+          : isDraw
+          ? "draw"
+          : "loser";
+        return <PredictionResultStamp variant={variant} />;
+      })()}
       <div className="flex items-center justify-between">
         <Badge className={`text-[10px] font-mono uppercase ${sportColors[p.sport] || "bg-muted text-muted-foreground"}`}>
           {sportIcons[p.sport]} {p.sport}
@@ -89,17 +89,6 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
             <Badge className={`text-[10px] font-mono ${roi.color}`}>
               <TrendingUp className="w-3 h-3 mr-0.5" /> {roi.label}
             </Badge>
-          )}
-          {isPast && p.is_correct !== null && (
-            p.is_correct ? (
-              <Badge className="bg-primary/20 text-primary text-[10px] font-mono flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" /> CORRECT
-              </Badge>
-            ) : (
-              <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono flex items-center gap-1">
-                <XCircle className="w-3 h-3" /> WRONG
-              </Badge>
-            )
           )}
           {!isPast && p.isLive === true && (
             <Badge className="bg-destructive/20 text-destructive text-[10px] font-mono animate-pulse">
