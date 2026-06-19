@@ -168,6 +168,12 @@ const Sports = () => {
   // Track record builds up honestly as picks settle.
   const totalPicks = predictions.length;
   const settledPredictions = predictions.filter((p) => p.result && p.is_correct !== null);
+  const settledFiltered = (activeFilter === "all" || activeFilter === "betting")
+    ? settledPredictions
+    : settledPredictions.filter((p) => p.sport === activeFilter);
+  const settledSorted = [...settledFiltered].sort(
+    (a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime()
+  );
   const settledCount = settledPredictions.length;
   const correctCount = settledPredictions.filter((p) => p.is_correct === true).length;
   const pending = totalPicks - settledCount;
@@ -368,6 +374,21 @@ const Sports = () => {
               <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
                 <p className="text-sm">No upcoming predictions yet. Check the live results below.</p>
+              </div>
+            )}
+
+            {settledSorted.length > 0 && (
+              <div id="latest-results" className="mb-10 scroll-mt-24">
+                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-1">
+                  <Trophy className="w-5 h-5 text-destructive" /> Latest Results
+                </h2>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-5">
+                  Settled predictions · {correctCount}/{settledCount} correct
+                  {winRate !== null && <span className="text-primary"> · {winRate}% win rate</span>}
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {settledSorted.map((p) => <PredictionCard key={p.id} prediction={p} />)}
+                </div>
               </div>
             )}
           </>
