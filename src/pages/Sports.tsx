@@ -183,10 +183,6 @@ const Sports = () => {
   const pending = totalPicks - settledCount;
   const winRate = settledCount > 0 ? Math.round((correctCount / settledCount) * 100) : null;
 
-  const scrollToResults = () => {
-    document.getElementById("latest-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <MainLayout>
       <SEO
