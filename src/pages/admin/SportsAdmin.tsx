@@ -150,11 +150,37 @@ const SportsAdmin = () => {
     );
   };
 
+  const [aiSettling, setAiSettling] = useState(false);
+  const runAiSettle = async () => {
+    if (aiSettling) return;
+    setAiSettling(true);
+    toast.loading("AI scanning past matches...", { id: "ai-settle" });
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-settle-sports-predictions", { body: { limit: 25 } });
+      if (error) throw error;
+      toast.success(
+        `Settled ${data?.settled ?? 0} · Uncertain ${data?.uncertain ?? 0} · Unparseable ${data?.unparseable ?? 0}`,
+        { id: "ai-settle", description: `Scanned ${data?.scanned ?? 0}. Re-run to process more.` },
+      );
+      fetchData();
+    } catch (e: any) {
+      toast.error("AI settle failed", { id: "ai-settle", description: e?.message ?? "Try again" });
+    } finally {
+      setAiSettling(false);
+    }
+  };
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
         <h2 className="text-2xl font-bold text-foreground">Sports Predictions</h2>
-        <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Prediction</Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={runAiSettle} disabled={aiSettling} size="sm" variant="outline">
+            <Sparkles className={`w-4 h-4 mr-1 ${aiSettling ? "animate-pulse" : ""}`} />
+            {aiSettling ? "AI settling..." : "AI Auto-Settle Past Picks"}
+          </Button>
+          <Button onClick={openCreate} size="sm"><Plus className="w-4 h-4 mr-1" /> Add Prediction</Button>
+        </div>
       </div>
       <Input placeholder="Search predictions..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 max-w-sm" />
       <div className="rounded-lg border border-border overflow-hidden">
