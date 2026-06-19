@@ -327,13 +327,13 @@ const Sports = () => {
         ) : (
           /* Predictions Feed */
           <>
-            {upcoming.length > 0 ? (
+            {upcomingDefault.length > 0 ? (
               <div className="mb-10">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-5">
-                  <Target className="w-5 h-5 text-primary" /> Upcoming Predictions
+                  <Target className="w-5 h-5 text-primary" /> Predictions
                   {upcomingList.sort === "default" && !upcomingList.query && upcomingPopularAll.length > 0 && (
                     <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider ml-1">
-                      · Popular Teams First
+                      · Popular First · Results Stamped
                     </span>
                   )}
                 </h2>
@@ -365,34 +365,11 @@ const Sports = () => {
                     />
                   </>
                 )}
-                <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  <button
-                    onClick={scrollToResults}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-mono font-semibold uppercase tracking-wider bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20 transition-all"
-                  >
-                    See latest results <Trophy className="w-3.5 h-3.5" />
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <Trophy className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p className="text-sm">No upcoming predictions yet. Check the live results below.</p>
-              </div>
-            )}
-
-            {settledSorted.length > 0 && (
-              <div id="latest-results" className="mb-10 scroll-mt-24">
-                <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-1">
-                  <Trophy className="w-5 h-5 text-destructive" /> Latest Results
-                </h2>
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-5">
-                  Settled predictions · {correctCount}/{settledCount} correct
-                  {winRate !== null && <span className="text-primary"> · {winRate}% win rate</span>}
-                </p>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {settledSorted.map((p) => <PredictionCard key={p.id} prediction={p} />)}
-                </div>
+                <p className="text-sm">No predictions yet. Check the live results below.</p>
               </div>
             )}
           </>
