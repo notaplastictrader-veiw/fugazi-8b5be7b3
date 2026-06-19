@@ -178,12 +178,6 @@ const Sports = () => {
   // Track record builds up honestly as picks settle.
   const totalPicks = predictions.length;
   const settledPredictions = predictions.filter((p) => p.result && p.is_correct !== null);
-  const settledFiltered = (activeFilter === "all" || activeFilter === "betting")
-    ? settledPredictions
-    : settledPredictions.filter((p) => p.sport === activeFilter);
-  const settledSorted = [...settledFiltered].sort(
-    (a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime()
-  );
   const settledCount = settledPredictions.length;
   const correctCount = settledPredictions.filter((p) => p.is_correct === true).length;
   const pending = totalPicks - settledCount;
