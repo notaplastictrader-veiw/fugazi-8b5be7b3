@@ -145,11 +145,11 @@ const Sports = () => {
     (p) => isPopularMatch(p.team_a, p.team_b) && new Date(p.match_date).getTime() - nowMs <= POPULAR_PIN_WINDOW_MS
   );
   const popularIds = new Set(upcomingPopularAll.map((p) => p.id));
-  // Combined feed: popular upcoming → other upcoming → recently settled (with WINNER/LOSER/DRAW stamps)
+  // Combined feed: recently settled (with WINNER/LOSER/DRAW stamps) → popular upcoming → other upcoming
   const upcomingDefault = [
+    ...settled,
     ...upcomingPopularAll,
     ...upcoming.filter((p) => !popularIds.has(p.id)),
-    ...settled,
   ];
 
   const upcomingList = usePaginatedList(upcomingDefault, {
