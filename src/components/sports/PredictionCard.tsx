@@ -70,16 +70,9 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
 
   return (
     <div className={`relative overflow-hidden glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20 ${isPast ? "opacity-95" : ""}`}>
-      {isPast && p.is_correct !== null && (() => {
-        const scoreMatch = p.result?.match(/(\d+)\s*[-:]\s*(\d+)/);
-        const isDraw = scoreMatch && scoreMatch[1] === scoreMatch[2];
-        const variant: "winner" | "loser" | "draw" = p.is_correct
-          ? "winner"
-          : isDraw
-          ? "draw"
-          : "loser";
-        return <PredictionResultStamp variant={variant} />;
-      })()}
+      {isPast && p.is_correct !== null && (
+        <PredictionResultStamp variant={p.is_correct ? "winner" : "loser"} />
+      )}
       <div className="flex items-center justify-between">
         <Badge className={`text-[10px] font-mono uppercase ${sportColors[p.sport] || "bg-muted text-muted-foreground"}`}>
           {sportIcons[p.sport]} {p.sport}
