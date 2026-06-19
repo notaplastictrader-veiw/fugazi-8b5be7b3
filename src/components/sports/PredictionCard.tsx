@@ -68,7 +68,18 @@ const PredictionCard = ({ prediction: p }: { prediction: Prediction }) => {
   const risk = getRiskLevel(p.confidence);
 
   return (
-    <div className={`glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20 ${isPast ? "opacity-80" : ""}`}>
+    <div className={`relative overflow-hidden glass-card rounded-2xl p-6 flex flex-col gap-4 transition-all hover:border-primary/20 ${isPast ? "opacity-95" : ""}`}>
+      {isPast && p.is_correct !== null && (
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute top-5 right-4 z-10 select-none rotate-[-14deg] rounded-md border-[3px] px-3 py-1 font-mono font-black tracking-[0.2em] text-base uppercase opacity-80 ${
+            p.is_correct ? "border-primary text-primary" : "border-destructive text-destructive"
+          }`}
+          style={{ textShadow: "0 0 1px currentColor" }}
+        >
+          {p.is_correct ? "Winner ✓" : "Loser ✗"}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <Badge className={`text-[10px] font-mono uppercase ${sportColors[p.sport] || "bg-muted text-muted-foreground"}`}>
           {sportIcons[p.sport]} {p.sport}
