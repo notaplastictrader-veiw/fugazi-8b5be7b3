@@ -54,10 +54,13 @@ const SEO = ({ title, description, path = "/", image, type = "website", jsonLd, 
     // Canonical
     upsertLink("canonical", canonical);
 
-    // Hreflang alternates (15 locales + x-default)
+    // Hreflang alternates — point all locales at the canonical URL.
+    // The site serves all 15 languages from the same URL via client-side i18n,
+    // so we must not advertise distinct ?lang=xx URLs (they'd be duplicate
+    // indexable pages that canonicalize back, triggering GSC's
+    // "Alternative page with proper canonical tag" status).
     LOCALES.forEach((loc) => {
-      const href = `${BASE_URL}${path}${path.includes("?") ? "&" : "?"}lang=${loc}`;
-      upsertLink("alternate", href, loc);
+      upsertLink("alternate", canonical, loc);
     });
     upsertLink("alternate", canonical, "x-default");
 
