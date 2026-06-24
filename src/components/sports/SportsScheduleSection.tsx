@@ -8,6 +8,7 @@ import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
 import { SmartPagination } from "@/components/common/SmartPagination";
 import { EmptyResults } from "@/components/common/EmptyResults";
+import PredictionResultStamp from "@/components/sports/PredictionResultStamp";
 
 type SportFilter = "all" | "Football" | "Cricket";
 type LeagueFilter = "all" | "Premier League" | "IPL";
@@ -155,24 +156,31 @@ const UpcomingCard = ({ m, now }: { m: UpcomingMatch; now: number }) => {
 
 const ResultCard = ({ m, verdict }: { m: ResultMatch; verdict: "won" | "lost" | null }) => {
   const { day } = formatMatchDate(m.date);
-  const homeWin = m.homeScore !== null && m.awayScore !== null && m.homeScore > m.awayScore;
-  const awayWin = m.homeScore !== null && m.awayScore !== null && m.awayScore > m.homeScore;
+  const hasScores = m.homeScore !== null && m.awayScore !== null;
+  const homeWin = hasScores && (m.homeScore as number) > (m.awayScore as number);
+  const awayWin = hasScores && (m.awayScore as number) > (m.homeScore as number);
+  const isDraw = hasScores && (m.homeScore as number) === (m.awayScore as number);
+
+  // Stamp reflects the actual match outcome (winner/loser/draw of the prediction).
+  // Fall back to the match result itself when no prediction was tracked.
+  const stampVariant: "winner" | "loser" | "draw" | null = verdict
+    ? verdict === "won" ? "winner" : "loser"
+    : isDraw ? "draw"
+    : hasScores ? "winner"
+    : null;
 
   return (
-    <div className="glass-card rounded-2xl p-5 border border-destructive/20 hover:border-destructive/40 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--destructive)/0.4)] hover:-translate-y-0.5">
-      <div className="flex items-center justify-between mb-3">
+    <div className="relative glass-card rounded-2xl p-5 border border-destructive/20 hover:border-destructive/40 transition-all hover:shadow-[0_0_24px_-6px_hsl(var(--destructive)/0.4)] hover:-translate-y-0.5 overflow-hidden">
+      {stampVariant && (
+        <PredictionResultStamp
+          variant={stampVariant}
+          className="pointer-events-none absolute -right-3 -top-3 w-24 h-24 opacity-90 rotate-12 drop-shadow-[0_2px_6px_rgba(0,0,0,0.25)]"
+        />
+      )}
+      <div className="flex items-center justify-between mb-3 pr-20">
         <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
           {m.league}
         </span>
-        {verdict && (
-          <span className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${
-            verdict === "won"
-              ? "bg-primary/15 text-primary border border-primary/30"
-              : "bg-destructive/15 text-destructive border border-destructive/30"
-          }`}>
-            {verdict === "won" ? "✓ WON" : "✗ LOST"}
-          </span>
-        )}
       </div>
 
       <div className="space-y-2 mb-4">
