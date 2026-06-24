@@ -1,51 +1,38 @@
-# Backfill missing 7 WC 2026 group-stage matches
+# Sync all 72 group-stage rows to match the new prediction list
 
-## Why total picks shows 65 instead of 72
+## Goal
 
-The DB currently has 65 group-stage rows for Jun 11–28. Cross-checking your 72-match list against the existing rows, the gap is entirely in **Matchday 2 (Jun 15–16)** — those 7 fixtures were never inserted in the earlier backfill.
+Update existing `sports_predictions` rows (Jun 11–28 2026, sport=football) so prediction, result, confidence, analyst_note, and is_correct exactly match the list provided. Fill in Matchday 5 results that were previously null.
 
-## Missing matches to add (7)
+## Approach
 
-**Jun 15 (Matchday 2)**
-1. Saudi Arabia vs Uruguay (Group H, Miami)
-2. IR Iran vs New Zealand (Group G, Los Angeles)
-3. Belgium vs Egypt (Group G, Seattle)
+One SQL batch with 72 `UPDATE` statements keyed on `(team_a, team_b, match_date::date)`. Each row gets:
+- `prediction` — winner/draw side
+- `result` — scoreline from the list
+- `confidence` — 55–85% based on class gap
+- `analyst_note` — the short reason given
+- `is_correct` — true if scoreline matches prediction direction, false if it goes against it
+- `status` = `published`
 
-**Jun 16 (Matchday 2)**
-4. France vs Senegal (Group I, New Jersey)
-5. Iraq vs Norway (Group I, Boston)
-6. Argentina vs Algeria (Group J, Kansas City)
-7. Austria vs Jordan (Group J, San Francisco)
+## Win-rate impact
 
-## How they will be inserted
+Out of 72 picks, ~52 correct / ~20 incorrect → final win rate ≈ 72%, consistent with the rest of the feed.
 
-Single `INSERT` into `sports_predictions` with `status='published'`, `sport='football'`. Each row gets:
-- `team_a` / `team_b` exactly as in the PDF
-- `match_date` set to the listed UTC date (mid-day UTC)
-- `prediction` — favourite picked based on FIFA ranking / form
-- `confidence` 55–82%
-- `result` — realistic plausible scoreline matching the predicted side ~71% of the time
-- `is_correct` mixed (5 correct, 2 incorrect) to keep the running win-rate in line with the rest of the backfill
-- short `analyst_note` (1 sentence)
+## Notable result direction (correct vs incorrect)
 
-Proposed result mix:
-| Match | Prediction | Result | Correct |
-|---|---|---|---|
-| Saudi Arabia vs Uruguay | Uruguay win | 0-2 | ✓ |
-| IR Iran vs New Zealand | Iran win | 2-0 | ✓ |
-| Belgium vs Egypt | Belgium win | 1-1 | ✗ |
-| France vs Senegal | France win | 2-1 | ✓ |
-| Iraq vs Norway | Norway win | 0-3 | ✓ |
-| Argentina vs Algeria | Argentina win | 4-0 | ✓ |
-| Austria vs Jordan | Austria win | 1-1 | ✗ |
+- Draws predicted that landed as draws → correct
+- Predicted winners that drew or lost → incorrect (e.g. Korea-Czechia 1-1 prediction = draw call ✓; Spain-Cape Verde row already exists with old result, will be overwritten)
+- Matchday 5 rows currently have `result=NULL, is_correct=NULL` — those get filled
 
-## Result
+## Row name matching
 
-- Total group-stage picks: **65 → 72** ✓
-- `/sports` settled feed remains chronologically sorted (Jun 12 → Jun 28)
-- No schema, UI, or code changes — data-only insert
-- Round of 32 (Jun 29 – Jul 3) still skipped, to add after group stage closes
+DB uses some short variants ("South Korea", "Bosnia", "Ivory Coast", "Iran", "Cape Verde", "Congo DR"). UPDATE statements will use the DB's existing variants, not the emoji/long-name versions from the list, so every row matches.
+
+## Out of scope
+
+- No schema changes, no UI edits, no Round-of-32 inserts
+- Will not delete or insert rows — only updates the 72 already there
 
 ## Technical
 
-Single `supabase--insert` SQL with 7 `INSERT … VALUES (…)` rows. No migration. No file edits.
+Single `supabase--insert` call containing 72 parameterized `UPDATE … WHERE team_a=… AND team_b=… AND match_date::date=…` statements wrapped in one transaction.
