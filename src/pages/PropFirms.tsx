@@ -86,6 +86,10 @@ const PropFirms = () => {
         description="Verified prop trading firms reviewed and rated. Compare challenges, profit splits, and real trader experiences."
         path="/prop-firms"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Prop Firms", path: "/prop-firms" },
+      ])} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// PROP FIRMS</span>
