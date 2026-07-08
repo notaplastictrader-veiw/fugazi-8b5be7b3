@@ -307,7 +307,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden xl:flex items-center gap-2">
-            <button onClick={cycleTheme} title={themeLabel}
+            <button onClick={cycleTheme} title={themeLabel} aria-label={`Switch theme (current: ${themeLabel})`}
               className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
               <ThemeIcon className="w-4 h-4" />
             </button>
@@ -317,6 +317,7 @@ const Navbar = () => {
             <button
               onClick={() => (window as any).__openGlobalSearch?.()}
               title="Search (⌘K)"
+              aria-label="Open search"
               className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
               <Search className="w-4 h-4" />
@@ -348,7 +349,7 @@ const Navbar = () => {
             )}
           </div>
 
-          <button className="xl:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="xl:hidden p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen}>
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -386,7 +387,7 @@ const Navbar = () => {
                 </div>
               ))}
               <div className="border-t border-border pt-3 mt-3 flex items-center gap-2">
-                <button onClick={cycleTheme} className="p-2 text-muted-foreground hover:text-foreground">
+                <button onClick={cycleTheme} className="p-2 text-muted-foreground hover:text-foreground" aria-label={`Switch theme (current: ${themeLabel})`}>
                   <ThemeIcon className="w-5 h-5" />
                 </button>
                 <span className="text-xs text-muted-foreground">{themeLabel}</span>
