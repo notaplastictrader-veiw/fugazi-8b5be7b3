@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
+import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
 import { Shield, ExternalLink } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
@@ -85,6 +86,10 @@ const PropFirms = () => {
         description="Verified prop trading firms reviewed and rated. Compare challenges, profit splits, and real trader experiences."
         path="/prop-firms"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Prop Firms", path: "/prop-firms" },
+      ])} />
       <section className="pt-6 pb-24 px-4">
         <div className="max-w-7xl mx-auto">
           <span className="section-tag">// PROP FIRMS</span>
