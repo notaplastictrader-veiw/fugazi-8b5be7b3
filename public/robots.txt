@@ -20,4 +20,4 @@ Disallow: /dashboard
 Disallow: /portal
 Disallow: /auth/callback
 
-Sitemap: https://www.notafugazitrader.com/sitemap.xml
+Sitemap: https://fugazi.lovable.app/sitemap.xml
