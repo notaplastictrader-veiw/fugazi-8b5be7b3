@@ -146,7 +146,7 @@ const BrokerHealthGrid = () => {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   {r.logo_url ? (
-                    <img src={r.logo_url} alt={r.name} loading="lazy" className="w-8 h-8 rounded-md object-cover shrink-0" />
+                    <img src={r.logo_url} alt={r.name} className="w-8 h-8 rounded-md object-cover shrink-0" width="32" height="32" />
                   ) : (
                     <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center font-mono text-xs font-bold text-foreground shrink-0">
                       {r.name[0]}
