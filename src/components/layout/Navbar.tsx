@@ -307,7 +307,7 @@ const Navbar = () => {
           </div>
 
           <div className="hidden xl:flex items-center gap-2">
-            <button onClick={cycleTheme} title={themeLabel}
+            <button onClick={cycleTheme} title={themeLabel} aria-label={`Switch theme (current: ${themeLabel})`}
               className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
               <ThemeIcon className="w-4 h-4" />
             </button>
@@ -317,6 +317,7 @@ const Navbar = () => {
             <button
               onClick={() => (window as any).__openGlobalSearch?.()}
               title="Search (⌘K)"
+              aria-label="Open search"
               className="w-[34px] h-[34px] flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
               <Search className="w-4 h-4" />
