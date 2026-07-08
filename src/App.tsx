@@ -28,6 +28,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Brokers = lazy(() => import("./pages/Brokers"));
 const BrokerDetail = lazy(() => import("./pages/BrokerDetail"));
 const PropFirms = lazy(() => import("./pages/PropFirms"));
+const PropFirmsComparison = lazy(() => import("./pages/PropFirmsComparison"));
 const ScamAlerts = lazy(() => import("./pages/ScamAlerts"));
 const ScamAlertDetail = lazy(() => import("./pages/ScamAlertDetail"));
 const Signals = lazy(() => import("./pages/Signals"));
