@@ -96,9 +96,12 @@ const PropFirms = () => {
           <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mt-3 mb-2">
             Top Verified <span className="text-accent">Prop Firms</span>
           </h1>
-          <p className="text-sm text-muted-foreground mb-6 max-w-2xl">
+          <p className="text-sm text-muted-foreground mb-4 max-w-2xl">
             Funded trading accounts reviewed by real traders. Challenge fees, payouts, and rules — all verified.
           </p>
+          <Link to="/prop-firms/comparison" className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline mb-6">
+            View side-by-side prop firm comparison <ArrowRight className="w-4 h-4" />
+          </Link>
 
           <GlowFilterPills options={filters} value={filter} onChange={setFilter} accent="accent" className="mb-4" />
 
