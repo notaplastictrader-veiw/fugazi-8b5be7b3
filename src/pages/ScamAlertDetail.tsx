@@ -94,7 +94,7 @@ const ScamAlertDetail = () => {
   if (!alert) {
     return (
       <MainLayout>
-        <SEO title="Alert Not Found" description="Scam alert not found" path={`/scam-alerts/${id}`} />
+        <SEO title="Alert Not Found" description="Scam alert not found" path={`/scam-alerts/${id}`} type="article" />
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
           <AlertTriangle className="w-12 h-12 text-muted-foreground" />
           <p className="text-lg text-muted-foreground">Scam alert not found.</p>
@@ -113,6 +113,7 @@ const ScamAlertDetail = () => {
         title={`${alert.title} — Scam Alert & Investigation Report`}
         description={alert.description || `Verified scam alert and investigation report for ${alert.title}. Severity: ${alert.severity}.`}
         path={`/scam-alerts/${id}`}
+        type="article"
       />
       <JsonLd data={breadcrumbSchema([
         { name: "Home", path: "/" },

@@ -66,7 +66,7 @@ const EducationArticle = () => {
   if (article.isLocked) {
     return (
       <MainLayout>
-        <SEO title={article.title} description={`Unlock: ${article.title}`} path={`/education/${slug}`} />
+        <SEO title={article.title} description={`Unlock: ${article.title}`} path={`/education/${slug}`} type="article" />
         <section className="max-w-3xl mx-auto px-4 pt-6 pb-24 text-center">
           <Lock className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
           <h1 className="text-3xl font-display font-extrabold text-foreground mb-4">{article.title}</h1>
@@ -90,7 +90,7 @@ const EducationArticle = () => {
 
   return (
     <MainLayout>
-      <SEO title={article.title} description={article.keyTakeaway || `Read ${article.title} — ${trackLabels[article.track]} trading lesson on Not A Fugazi Trader.`} path={`/education/${slug}`} />
+      <SEO title={article.title} description={article.keyTakeaway || `Read ${article.title} — ${trackLabels[article.track]} trading lesson on Not A Fugazi Trader.`} path={`/education/${slug}`} type="article" />
       <JsonLd data={breadcrumbSchema([
         { name: "Home", path: "/" },
         { name: "Education", path: "/education" },
