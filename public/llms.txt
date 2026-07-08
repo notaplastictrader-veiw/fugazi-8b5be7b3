@@ -1,0 +1,50 @@
+# Not A Fugazi Trader (NAFT)
+
+> Independent broker reviews, scam alerts, trading signals, and trader education for forex, prop firms, and crypto markets.
+
+Not A Fugazi Trader is a broker-review and trader-safety platform. We help traders verify brokers, compare trading conditions, spot scams, and learn to trade through structured guides and market analysis.
+
+## Pages
+
+- [Home](/): Discover top brokers, scam alerts, signals, and market insights.
+- [About](/about): Who we are, why we built NAFT, and our mission.
+- [Contact](/contact): Get in touch with the NAFT team.
+- [Terms](/terms): Terms of use and disclaimer.
+- [Privacy](/privacy): Privacy policy and data handling.
+
+## Research & Compare
+
+- [Brokers](/brokers): Browse reviewed forex, crypto, and CFD brokers.
+- [Broker Detail](/brokers/bullwaves): Example of a full broker review page.
+- [Prop Firms](/prop-firms): Reviewed proprietary trading firms and funding challenges.
+- [Compare](/compare): Side-by-side broker comparison tool.
+- [Calculators](/calculators): Trading and risk calculators.
+- [Regulators](/regulators): Financial regulator directory and profiles.
+- [Glossary](/glossary): Trading terminology reference.
+
+## Safety & Signals
+
+- [Scam Alerts](/scam-alerts): Reported broker scams and warnings.
+- [Scam Detail](/scam-alerts/1): Example of a detailed scam alert.
+- [Signals](/signals): Curated trading signal groups and performance data.
+- [Market Forecasts](/forecasts): Market outlook and forecast analysis.
+- [Economic Calendar](/calendar): Upcoming economic events and releases.
+
+## Learn & Community
+
+- [Education](/education): Beginner to advanced trading guides.
+- [Article](/education/risk-management): Example of an educational article.
+- [Forum](/forum): Community discussion and verified trader forum.
+- [Awards](/awards): NAFT broker awards and voting.
+- [Match](/match): Broker-to-trader matching tool.
+
+## Optional
+
+- [Partnership](/partnership): Partnership and affiliate information.
+- [Advertise](/advertise): Advertising and media inquiries.
+- [Sports](/sports): Sports trading and betting-related content.
+- [Ideas](/ideas): Trade ideas and market commentary.
+- [News](/news): Market news and analysis.
+- [Promotions](/promotions): Active broker promotions and offers.
+- [Reports](/reports): Annual market and broker industry reports.
+- [Ask](/ask): Ask the community a trading question.
