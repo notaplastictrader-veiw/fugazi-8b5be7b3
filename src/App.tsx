@@ -207,6 +207,7 @@ const AppContent = () => {
           <Route path="/brokers/country/:slug" element={<CountryBrokers />} />
           <Route path="/brokers/:slug" element={<BrokerDetail />} />
           <Route path="/prop-firms" element={<PropFirms />} />
+          <Route path="/prop-firms/comparison" element={<PropFirmsComparison />} />
           <Route path="/scam-alerts" element={<ScamAlerts />} />
           <Route path="/scam-alerts/:id" element={<ScamAlertDetail />} />
           <Route path="/signals" element={<Signals />} />
