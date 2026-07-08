@@ -28,6 +28,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Brokers = lazy(() => import("./pages/Brokers"));
 const BrokerDetail = lazy(() => import("./pages/BrokerDetail"));
 const PropFirms = lazy(() => import("./pages/PropFirms"));
+const PropFirmsComparison = lazy(() => import("./pages/PropFirmsComparison"));
 const ScamAlerts = lazy(() => import("./pages/ScamAlerts"));
 const ScamAlertDetail = lazy(() => import("./pages/ScamAlertDetail"));
 const Signals = lazy(() => import("./pages/Signals"));
@@ -206,6 +207,7 @@ const AppContent = () => {
           <Route path="/brokers/country/:slug" element={<CountryBrokers />} />
           <Route path="/brokers/:slug" element={<BrokerDetail />} />
           <Route path="/prop-firms" element={<PropFirms />} />
+          <Route path="/prop-firms/comparison" element={<PropFirmsComparison />} />
           <Route path="/scam-alerts" element={<ScamAlerts />} />
           <Route path="/scam-alerts/:id" element={<ScamAlertDetail />} />
           <Route path="/signals" element={<Signals />} />
