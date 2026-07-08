@@ -61,7 +61,7 @@ const PropFirmCard = ({ firm, visible }: { firm: Broker; visible: boolean }) => 
             <div className="flex items-start gap-3 min-w-0">
               {firm.logo_url ? (
                 <div className="w-11 h-11 shrink-0 flex items-center justify-center">
-                  <img src={firm.logo_url} alt={`${firm.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" />
+                  <img src={firm.logo_url} alt={`${firm.name} logo`} className="max-w-full max-h-full object-contain" width="44" height="44" />
                 </div>
               ) : (
                 <div className="w-11 h-11 rounded bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
