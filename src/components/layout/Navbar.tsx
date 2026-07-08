@@ -387,7 +387,7 @@ const Navbar = () => {
                 </div>
               ))}
               <div className="border-t border-border pt-3 mt-3 flex items-center gap-2">
-                <button onClick={cycleTheme} className="p-2 text-muted-foreground hover:text-foreground">
+                <button onClick={cycleTheme} className="p-2 text-muted-foreground hover:text-foreground" aria-label={`Switch theme (current: ${themeLabel})`}>
                   <ThemeIcon className="w-5 h-5" />
                 </button>
                 <span className="text-xs text-muted-foreground">{themeLabel}</span>
