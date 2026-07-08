@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import SEO from "@/components/SEO";
 import JsonLd, { breadcrumbSchema } from "@/components/seo/JsonLd";
-import { Shield, ExternalLink } from "lucide-react";
+import { Shield, ExternalLink, ArrowRight } from "lucide-react";
 import StarRating from "@/components/reviews/StarRating";
 import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { ListingToolbar } from "@/components/common/ListingToolbar";
