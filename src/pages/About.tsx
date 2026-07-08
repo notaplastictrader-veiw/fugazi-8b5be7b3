@@ -27,10 +27,11 @@ const About = () => (
         <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-semibold bg-primary/10 text-primary mb-4">
           OUR STORY
         </span>
-        <h1 className="text-4xl md:text-5xl font-display font-extrabold text-foreground mb-6 leading-tight">
+        <h1 className="sr-only">About Not A Fugazi Trader</h1>
+        <p className="text-4xl md:text-5xl font-display font-extrabold text-foreground mb-6 leading-tight" aria-hidden="true">
           The Forex Industry Has a<br />
           <span className="text-primary">Trust Problem.</span>
-        </h1>
+        </p>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           We're here to fix it — one verified review, one published complaint, one exposed scam at a time.
         </p>
